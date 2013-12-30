@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Apps | My Octopress Blog]]></title>
-  <link href="http://timmattison.github.io/categories/apps/atom.xml" rel="self"/>
-  <link href="http://timmattison.github.io/"/>
-  <updated>2013-12-30T09:47:24-05:00</updated>
-  <id>http://timmattison.github.io/</id>
+  <title><![CDATA[Category: Apps | Tim Mattison]]></title>
+  <link href="http://blog.timmattison.com/categories/apps/atom.xml" rel="self"/>
+  <link href="http://blog.timmattison.com/"/>
+  <updated>2013-12-30T09:49:47-05:00</updated>
+  <id>http://blog.timmattison.com/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Tim Mattison]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,18 +15,18 @@
   
   <entry>
     <title type="html"><![CDATA[Listen to WCDB Right on Your Desktop]]></title>
-    <link href="http://timmattison.github.io/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/"/>
+    <link href="http://blog.timmattison.com/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/"/>
     <updated>2010-10-18T22:23:02-04:00</updated>
-    <id>http://timmattison.github.io/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop</id>
+    <id>http://blog.timmattison.com/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop</id>
     <content type="html"><![CDATA[<p>Another day, another free radio application for your desktop.  This time it&rsquo;s for <a href="http://www.wcdbfm.com/">WCDB on 90.9 FM in Albany, NY</a>.  So go and <a href="http://get.adobe.com/air/">install Adobe AIR if you haven&rsquo;t already</a>, <a href="/static/WCDBPlayer.air">download my WCDB player application</a>, and start listening!</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Listen to Skidmore Radio (WSPN) on Your Android Phone]]></title>
-    <link href="http://timmattison.github.io/archives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone/"/>
+    <link href="http://blog.timmattison.com/archives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone/"/>
     <updated>2010-10-14T14:25:15-04:00</updated>
-    <id>http://timmattison.github.io/archives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone</id>
+    <id>http://blog.timmattison.com/archives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone</id>
     <content type="html"><![CDATA[<p>In the same vein of <a href="http://blog.timmattison.com/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop/">my previous desktop app</a> I put together <a href="/static/wspn-player.apk">an Android app that lets you listen to WSPN</a>.  It also includes the schedule so you can see what&rsquo;s on when you start it up.  Just press the menu button and then view schedule.</p>
 
 <p>Enjoy and let me know if you have any comments or suggestions.</p>
@@ -37,9 +37,9 @@
   
   <entry>
     <title type="html"><![CDATA[Listen to Skidmore College Radio (WSPN) Right on Your Desktop]]></title>
-    <link href="http://timmattison.github.io/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop/"/>
+    <link href="http://blog.timmattison.com/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop/"/>
     <updated>2010-09-27T10:25:11-04:00</updated>
-    <id>http://timmattison.github.io/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop</id>
+    <id>http://blog.timmattison.com/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop</id>
     <content type="html"><![CDATA[<p>My brother-in-law is going to Skidmore College and just got a radio show.  I don&rsquo;t live close enough to pick it up locally so I put together an app that lets you stream it over the Internet without having your browser open.  It works on Macs, Windows PCs, and Linux boxes so you should be covered.</p>
 
 <p>You&rsquo;ll <a href="http://get.adobe.com/air/">need to have Adobe AIR installed</a> and then you can <a href="/static/WSPNPlayer.air">download my app</a> and listen any time.  Let me know in the comments or via e-mail if you run into any trouble.</p>

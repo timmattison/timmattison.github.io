@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Mini Hacks | My Octopress Blog]]></title>
-  <link href="http://timmattison.github.io/categories/mini-hacks/atom.xml" rel="self"/>
-  <link href="http://timmattison.github.io/"/>
-  <updated>2013-12-30T09:47:24-05:00</updated>
-  <id>http://timmattison.github.io/</id>
+  <title><![CDATA[Category: Mini Hacks | Tim Mattison]]></title>
+  <link href="http://blog.timmattison.com/categories/mini-hacks/atom.xml" rel="self"/>
+  <link href="http://blog.timmattison.com/"/>
+  <updated>2013-12-30T09:49:47-05:00</updated>
+  <id>http://blog.timmattison.com/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Tim Mattison]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Mini Hack: Parallel Vacuuming in PostgreSQL]]></title>
-    <link href="http://timmattison.github.io/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/"/>
+    <link href="http://blog.timmattison.com/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/"/>
     <updated>2012-01-24T11:42:41-05:00</updated>
-    <id>http://timmattison.github.io/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql</id>
+    <id>http://blog.timmattison.com/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql</id>
     <content type="html"><![CDATA[<p>I run several development environments that I need to sync with production databases to do bug fixes and new feature development.  It&rsquo;s always good to vacuum these databases before using them especially if you&rsquo;re doing it via rsync on a live system.  If you don&rsquo;t you could end up with rows that are inaccessible from your indicies and get strange results from your database.</p>
 
 <p>Full vacuums are slow but we can&rsquo;t get around it here.  What I noticed is that normally in production vacuuming the database is an I/O bound operation but in development where we&rsquo;re working with dedicated development machines with tons of RAM we typically end up with a lot of the database for our smaller projects (&lt; 5 GB) in the cache.  This makes vacuuming a CPU bound process again and where there&rsquo;s a CPU bound process there&rsquo;s usually room for parallelism.</p>
@@ -60,9 +60,9 @@
   
   <entry>
     <title type="html"><![CDATA[Mini Hack: Approximating the Size of a Java Object]]></title>
-    <link href="http://timmattison.github.io/archives/2012/01/09/mini-hack-approximating-the-size-of-a-java-object/"/>
+    <link href="http://blog.timmattison.com/archives/2012/01/09/mini-hack-approximating-the-size-of-a-java-object/"/>
     <updated>2012-01-09T16:31:08-05:00</updated>
-    <id>http://timmattison.github.io/archives/2012/01/09/mini-hack-approximating-the-size-of-a-java-object</id>
+    <id>http://blog.timmattison.com/archives/2012/01/09/mini-hack-approximating-the-size-of-a-java-object</id>
     <content type="html"><![CDATA[<p>Finding the size of an object or data structure used to be simple in &ldquo;the good old days&rdquo;.  You could just use the sizeof function and it&rsquo;d spit out something that usually made sense.  In Java there&rsquo;s nothing that seems to do it quite that simply.  I&rsquo;ve seen some solutions that involve using Java instrumentation but they have interesting quirks that can confuse things considerably.  For example, using it to obtain the size of a String object will always show 32 bytes as I found out by reading a thread on StackOverflow.</p>
 
 <p>In any case I wanted something simple that would do the job.  My requirements were that there was minimal or zero setup, results were fairly close to the actual memory footprint, and that it work consistently unless I was using some kind of very strange data structure.  Here&rsquo;s what I came up with:</p>
@@ -101,9 +101,9 @@
   
   <entry>
     <title type="html"><![CDATA[Mini Hack: Find Java Code Abusing Stdout]]></title>
-    <link href="http://timmattison.github.io/archives/2011/09/13/mini-hack-find-java-code-abusing-stdout/"/>
+    <link href="http://blog.timmattison.com/archives/2011/09/13/mini-hack-find-java-code-abusing-stdout/"/>
     <updated>2011-09-13T18:04:39-04:00</updated>
-    <id>http://timmattison.github.io/archives/2011/09/13/mini-hack-find-java-code-abusing-stdout</id>
+    <id>http://blog.timmattison.com/archives/2011/09/13/mini-hack-find-java-code-abusing-stdout</id>
     <content type="html"><![CDATA[<p>I found myself recently trying to determine where a particular piece of code was that was polluting my stdout stream with hundreds of unwanted messages.  This seemed like an impossible task since I could only guess that there was a line of code somewhere that was calling System.out.println(clazz.toString()) or something similar.  I searched the codebase high and low and found nothing.</p>
 
 <p>After some Googling I came up with an alternate approach.  I disabled all of the code I could find that printed to stdout (actually this was easy since I do it all with one function so I just disabled that) and verified that I my application was still spewing out noise.  Sure enough it was and then I added a tiny chunk of code to my application&rsquo;s initialization.  That code takes over stdout and forcibly causes a NullPointerException.  It&rsquo;s unconventional and I probably could&rsquo;ve just put in a breakpoint but I wanted to make sure it crashed and spat out something I could work with immediately.</p>
@@ -125,9 +125,9 @@
   
   <entry>
     <title type="html"><![CDATA[Mini Hack: Create Read-only Properties With Hibernate (Fixes "PropertyNotFoundException: Could Not Find a Setter" Issues)]]></title>
-    <link href="http://timmattison.github.io/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/"/>
+    <link href="http://blog.timmattison.com/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/"/>
     <updated>2011-06-22T14:51:58-04:00</updated>
-    <id>http://timmattison.github.io/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues</id>
+    <id>http://blog.timmattison.com/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues</id>
     <content type="html"><![CDATA[<p>Ok, this mini-hack isn&rsquo;t pretty but it solves an issue that I have seen come up many times in Java.  You&rsquo;re trying to add a method to an object that you want Hibernate to persist.  Let&rsquo;s assume that your object is an elevator and it has the following real properties:</p>
 
 <ul>
@@ -157,9 +157,9 @@
   
   <entry>
     <title type="html"><![CDATA[Mini-hack: last.fm Music on Hold for FreeSWITCH]]></title>
-    <link href="http://timmattison.github.io/archives/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch/"/>
+    <link href="http://blog.timmattison.com/archives/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch/"/>
     <updated>2009-02-24T09:45:36-05:00</updated>
-    <id>http://timmattison.github.io/archives/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch</id>
+    <id>http://blog.timmattison.com/archives/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch</id>
     <content type="html"><![CDATA[<p>I started using FreeSWITCH quite a while back but only recently got into rebuilding my home PBX with it.  One of the things that always bothered me about Asterisk, which may or may not have changed since the last time I looked, was that it wasn&rsquo;t straight-forward to get streaming MOH (music on hold) working.</p>
 
 <p>Sure, I eventually got it to work but it wasn&rsquo;t fun and not really all that reliable.</p>

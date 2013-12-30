@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Coming Soon | My Octopress Blog]]></title>
-  <link href="http://timmattison.github.io/categories/coming-soon/atom.xml" rel="self"/>
-  <link href="http://timmattison.github.io/"/>
-  <updated>2013-12-30T09:47:24-05:00</updated>
-  <id>http://timmattison.github.io/</id>
+  <title><![CDATA[Category: Coming Soon | Tim Mattison]]></title>
+  <link href="http://blog.timmattison.com/categories/coming-soon/atom.xml" rel="self"/>
+  <link href="http://blog.timmattison.com/"/>
+  <updated>2013-12-30T09:49:47-05:00</updated>
+  <id>http://blog.timmattison.com/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Tim Mattison]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects]]></title>
-    <link href="http://timmattison.github.io/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/"/>
+    <link href="http://blog.timmattison.com/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/"/>
     <updated>2012-05-25T09:14:20-04:00</updated>
-    <id>http://timmattison.github.io/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects</id>
+    <id>http://blog.timmattison.com/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects</id>
     <content type="html"><![CDATA[<p>PoE (<a href="http://en.wikipedia.org/wiki/Power_over_Ethernet">Power over Ethernet</a>) is an exciting and promising technology.  I think that a lot of people take it for granted now that you can plug your IP phone into an Ethernet jack and it gets data and power over that single connection.  It&rsquo;s easy to forget that your IP phone isn&rsquo;t a real landline with convenience like this.</p>
 
 <p>One thing that has been frustrating about PoE over the years is not supply side availability but consumption side hardware for hobbyists.  You can find very cheap PoE switches online and that&rsquo;s great for all of your pre-fab gadgets (IP phones, WiFi access points, even video cameras) but implementing PoE in your own projects has been tough to say the least.</p>
