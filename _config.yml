@@ -2,11 +2,11 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://timmattison.github.io
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
-simple_search: https://www.google.com/search
+url: http://blog.timmattison.com
+title: Tim Mattison
+subtitle: Every day I hack a bit...
+author: Tim Mattison
+simple_search: http://google.com/search
 description:
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
