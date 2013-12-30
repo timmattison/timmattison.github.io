@@ -4,11 +4,11 @@
   <title><![CDATA[Category: Hadoop | Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2013-12-30T09:49:47-05:00</updated>
+  <updated>2013-12-30T09:52:48-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
-    
+    <email><![CDATA[tim (at) mattison (dot) org]]></email>
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
