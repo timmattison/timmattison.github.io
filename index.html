@@ -9,8 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I finally got tired of dealing with Wordpress and all of the baggage that comes along with it. I&rsquo;ve migrated to Octopress and it feels nice.
-We &hellip;">
+  <meta name="description" content="Reading resources in Java has always been a mystery to me. It&rsquo;s not because I don&rsquo;t understand how to do it but more that I do it so &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +77,82 @@ We &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-30T11:02:52-05:00" pubdate data-updated="true">Dec 30<span>th</span>, 2013</time>
+        
+           | <a href="/archives/2013/12/30/reading-resources-in-java/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2013/12/30/reading-resources-in-java/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Reading resources in Java has always been a mystery to me.  It&rsquo;s not because I don&rsquo;t understand how to do it but more that I do it so infrequently that
+I always forget what I need to do.  In Java&rsquo;s defense once you understand what you need to do it&rsquo;s actually very simple.  I&rsquo;ve run into this issue
+many times in a professional context.  Usually it is just trying to load a simple resource so I can keep it inside the JAR file I&rsquo;m delivering to a
+client.</p>
+
+<p>The sixty second explanation of how to do this is as follows.  If you&rsquo;re using an IDE and have a standard project layout you can simply follow these steps:</p>
+
+<ol>
+<li>Under your src/main directory create a new directory called &ldquo;resources&rdquo;</li>
+<li>Put your static file in the &ldquo;resources&rdquo; directory.  For example, &ldquo;jquery-1.10.2.min.js&rdquo; if you want to serve this file from an embedded web server.</li>
+<li>When you want to load the file do this:</li>
+</ol>
+
+
+<p>The long way:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">URL</span> <span class="n">jqueryUrl</span> <span class="o">=</span> <span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">InputStream</span> <span class="n">jqueryInputStream</span> <span class="o">=</span> <span class="n">jqueryUrl</span><span class="o">.</span><span class="na">openStream</span><span class="o">();</span>
+</span><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">jqueryInputStream</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The short way:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">).</span><span class="na">openStream</span><span class="o">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it!  I recommend the long way because you can step through it if the file isn&rsquo;t found and get some insight into what happened rather than
+just getting an opaque NullPointerException.  If you don&rsquo;t have the file in the directory, or you have the wrong file name, after attempting to get
+the jqueryUrl it&rsquo;ll just be NULL.  If that happens just check to make sure that you have the file name correct, resources is spelled correctly, and
+it is in the right location.</p>
+
+<p>Good luck!  Post in the comments if you find this useful or if you have trouble.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -946,99 +1021,6 @@ setColor(0, 0, 255, false, true);
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/">How-To: Install Perl Debugging in Eclipse on Debian/Ubuntu</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-14T12:31:48-04:00" pubdate data-updated="true">Mar 14<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>If you&rsquo;re looking to use Eclipse as a debugger for your Perl scripts things can get a bit hairy quickly.  You need to do a lot of things to get it to be happy so let&rsquo;s step through them all rather than have you hunt for the secret sauce like I did today.</p>
-
-<p>First, you&rsquo;ll want to <a href="http://www.epic-ide.org/download.php">add the EPIC (Eclipse Perl Integration Component) as described on the EPIC site</a>.  That will add support for creating Perl projects, syntax highlighting, and all that.</p>
-
-<p>Next, set a breakpoint in one of your Perl scripts and try to debug it.  If you&rsquo;re unlucky you may get one of two error messages.  One error message wants you to install <a href="http://search.cpan.org/~robin/PadWalker-1.93/PadWalker.pm">PadWalker</a> which is a Perl module that handles all of the debugging niceties for Eclipse.  To install that you can either use CPAN or apt.  Using apt is as simple as:</p>
-
-<pre><code>sudo apt-get install libpadwalker-perl
-</code></pre>
-
-<p>Once you install PadWalker restart Perl and try to debug one of your scripts again.  If it works, you&rsquo;re set.  The second possible error message is below&hellip;</p>
-
-<p>Now, you&rsquo;ve come all this way and it still doesn&rsquo;t work.  You&rsquo;ve probably received an error message like this:</p>
-
-<pre><code>Could not create the view: Plug-in "org.eclipse.debug.ui" was unable to instantiate class "org.eclipse.debug.internal.ui.views.variables.VariablesView".
-</code></pre>
-
-<p>If you dig deeper you&rsquo;ll see errors like this:</p>
-
-<pre><code>java.lang.ClassCircularityError: org/eclipse/debug/internal/ui/DebugUIPlugin
-</code></pre>
-
-<p>And if you dig <em>even</em> deeper you&rsquo;ll see errors like this:</p>
-
-<pre><code>Conflict for 'org.epic.perleditor.commands.clearMarker'
-</code></pre>
-
-<p>The fix for this was tricky to figure out so just follow these steps:</p>
-
-<ol>
-<li><p> Close Eclipse</p></li>
-<li><p> Uninstall libpadwalker-perl by running</p>
-
-<p>sudo apt-get remove &mdash;purge libpadwalker-perl</p></li>
-<li><p> Restart Eclipse and try to set a breakpoint in a Perl script, it should fail (no breakpoint should appear)</p></li>
-<li><p> Close Eclipse</p></li>
-<li><p> Reinstall libpadwalker-perl by running</p>
-
-<p>sudo apt-get install libpadwalker-perl</p></li>
-<li><p> Restart Eclipse, set a breakpoint, and start debugging again</p></li>
-</ol>
-
-
-<p>At this point the variables and breakpoints should always work.  Unfortunately the expressions panel will not.  It looks like this is not supported in EPIC just yet.  But, in any case, you now have a full fledged Perl debugger so you can (mostly) stop using print statements to debug your code post mortem.</p>
-
-<p>There are some quirks to note:</p>
-
-<ol>
-<li><p> &ldquo;Step Over&rdquo; (typically F6) does not work as expected and will step into modules.  If &ldquo;Step Return&rdquo; worked this wouldn&rsquo;t be a problem but it doesn&rsquo;t (see the next bullet point).  In this case if you are trying to step over a module you may have to back out and set a breakpoint where the execution will return to the script you want to debug.</p></li>
-<li><p> &ldquo;Step Return&rdquo; (typically F7) does not work as expected.  It will usually run until your script ends or hits a breakpoint.</p></li>
-<li><p> The console window will not let you run arbitrary Perl code so it&rsquo;s not a simple replacement for the expressions panel</p></li>
-<li><p> Perl modules (files with a .pm extension) may not appear with syntax highlighting enabled.  If you are debugging Perl modules you may want to retool your setup and run the module as a Perl script OR have Perl load your module from a file with a .pl extension.</p></li>
-</ol>
-
-
-<p>Good luck.  Now clean up/fix that Perl code and post in the comments.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1054,6 +1036,10 @@ setColor(0, 0, 255, false, true);
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a>
       </li>
     
@@ -1067,10 +1053,6 @@ setColor(0, 0, 255, false, true);
     
       <li class="post">
         <a href="/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/">Tips for Debugging Spring&#8217;s @Transactional Annotation</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">How-To: Get Verizon&#8217;s Media Manager to Read Content From a Network Location</a>
       </li>
     
   </ul>

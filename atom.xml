@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2013-12-30T10:36:09-05:00</updated>
+  <updated>2013-12-30T11:13:47-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,52 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Reading Resources in Java]]></title>
+    <link href="http://blog.timmattison.com/archives/2013/12/30/reading-resources-in-java/"/>
+    <updated>2013-12-30T11:02:52-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2013/12/30/reading-resources-in-java</id>
+    <content type="html"><![CDATA[<p>Reading resources in Java has always been a mystery to me.  It&rsquo;s not because I don&rsquo;t understand how to do it but more that I do it so infrequently that
+I always forget what I need to do.  In Java&rsquo;s defense once you understand what you need to do it&rsquo;s actually very simple.  I&rsquo;ve run into this issue
+many times in a professional context.  Usually it is just trying to load a simple resource so I can keep it inside the JAR file I&rsquo;m delivering to a
+client.</p>
+
+<p>The sixty second explanation of how to do this is as follows.  If you&rsquo;re using an IDE and have a standard project layout you can simply follow these steps:</p>
+
+<ol>
+<li>Under your src/main directory create a new directory called &ldquo;resources&rdquo;</li>
+<li>Put your static file in the &ldquo;resources&rdquo; directory.  For example, &ldquo;jquery-1.10.2.min.js&rdquo; if you want to serve this file from an embedded web server.</li>
+<li>When you want to load the file do this:</li>
+</ol>
+
+
+<p>The long way:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">URL</span> <span class="n">jqueryUrl</span> <span class="o">=</span> <span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">InputStream</span> <span class="n">jqueryInputStream</span> <span class="o">=</span> <span class="n">jqueryUrl</span><span class="o">.</span><span class="na">openStream</span><span class="o">();</span>
+</span><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">jqueryInputStream</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The short way:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">).</span><span class="na">openStream</span><span class="o">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it!  I recommend the long way because you can step through it if the file isn&rsquo;t found and get some insight into what happened rather than
+just getting an opaque NullPointerException.  If you don&rsquo;t have the file in the directory, or you have the wrong file name, after attempting to get
+the jqueryUrl it&rsquo;ll just be NULL.  If that happens just check to make sure that you have the file name correct, resources is spelled correctly, and
+it is in the right location.</p>
+
+<p>Good luck!  Post in the comments if you find this useful or if you have trouble.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Migrated From Wordpress to Octopress]]></title>
@@ -1194,23 +1240,6 @@ public class TestClass {
 <p>After an hour I came up with prcp.pl.  It is a Perl script that uses mainly Term::ProgressBar and File::Sync to do what I needed.  It&rsquo;s not finished but it&rsquo;s very functional.  What it does is copy the file using sysread and syswrite while fsyncing the output file after each write.  This forces what you see on the disk to be consistent with what the program is copying since it largely bypasses the disk cache.</p>
 
 <p>If you&rsquo;re brave give it a try and let me know what you think.  Only use it on data that you have backed up since it has undergone minimal testing so far.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Free Tool Collection Available on Github]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/01/29/free-tool-collection-available-on-github/"/>
-    <updated>2012-01-29T16:38:52-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/01/29/free-tool-collection-available-on-github</id>
-    <content type="html"><![CDATA[<p>Today I just released <a href="https://github.com/timmattison/timmattison-tools">a few home brew tools</a> that I&rsquo;ve been meaning to write for a while.  I&rsquo;m going to write full articles on them soon but just as a preliminary taste here are descriptions of the two programs I released today:</p>
-
-<ul>
-<li><p>prcp.pl &ndash; Copies files and has a progress indicator</p></li>
-<li><p>dirhash.pl &ndash; Hashes the names and contents of an entire directory to a single hash</p></li>
-</ul>
-
-
-<p>If you use them please post in the comments below.  If you want to contribute to them just send me merge requests and open tickets!</p>
 ]]></content>
   </entry>
   
