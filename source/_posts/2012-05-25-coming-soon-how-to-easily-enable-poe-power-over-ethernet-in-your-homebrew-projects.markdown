@@ -17,6 +17,8 @@ tags:
 - PoE
 ---
 
+UPDATE 2013-12-30: This is on hold permanently.  I never ended up having the time (this post is from way over a year ago) and PoE just isn't on my radar lately as I've shifted more towards security and software testing.
+
 PoE ([Power over Ethernet](http://en.wikipedia.org/wiki/Power_over_Ethernet)) is an exciting and promising technology.  I think that a lot of people take it for granted now that you can plug your IP phone into an Ethernet jack and it gets data and power over that single connection.  It's easy to forget that your IP phone isn't a real landline with convenience like this.
 
 One thing that has been frustrating about PoE over the years is not supply side availability but consumption side hardware for hobbyists.  You can find very cheap PoE switches online and that's great for all of your pre-fab gadgets (IP phones, WiFi access points, even video cameras) but implementing PoE in your own projects has been tough to say the least.
