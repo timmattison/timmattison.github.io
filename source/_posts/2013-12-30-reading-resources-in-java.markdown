@@ -30,8 +30,9 @@ The short way:
 String jquery = IOUtils.toString(getClass().getResource("/jquery-1.10.2.min.js").openStream());
 ```
 
-And that's it!  I recommend the long way because you step through it if the file isn't found.  If you don't have the file in the directory, or you have the
-wrong file name, after attempting to get the jqueryUrl it'll just be NULL.  If that happens just check to make sure that you have the file name correct,
-resources is spelled correctly, and it is in the right location.
+And that's it!  I recommend the long way because you can step through it if the file isn't found and get some insight into what happened rather than
+just getting an opaque NullPointerException.  If you don't have the file in the directory, or you have the wrong file name, after attempting to get
+the jqueryUrl it'll just be NULL.  If that happens just check to make sure that you have the file name correct, resources is spelled correctly, and
+it is in the right location.
 
 Good luck!  Post in the comments if you find this useful or if you have trouble.
