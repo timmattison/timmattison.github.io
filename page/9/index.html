@@ -1,0 +1,673 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="A lot of the how-to files out there that explain this process are either too verbose, outdated, or both. Here is a no nonsense step-by-step guide to &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timmattison.github.io/page/9">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:timmattison.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2009/06/08/how-to-convert-from-vmware-vmdks-to-virtualbox-vdis/">How-To: Convert From VMware VMDKs to VirtualBox VDIs</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-08T19:59:59-04:00" pubdate data-updated="true">Jun 8<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>A lot of the how-to files out there that explain this process are either too verbose, outdated, or both.  Here is a no nonsense step-by-step guide to converting your VMDKs to VDIs for use with VirtualBox.</p>
+
+<p>Step 1: qemu-img convert original.vmdk raw.bin</p>
+
+<p>On the Mac I had to install &ldquo;<a href="http://www.kju-app.org/">Q</a>&rdquo;.  Then I used the absolute path &ldquo;/Applications/Q.app/Contents/MacOS/qemu-img&rdquo; so my command-line looked like: /Applications/Q.app/Contents/MacOS/qemu-img convert original.vmdk raw.bin</p>
+
+<p>Step 2: VBoxManage convertdd raw.bin out.vdi</p>
+
+<p>On the Mac I had to run VBoxManage from /Applications/VirtualBox.app/Contents/MacOS/VBoxManage so my command-line looked like:</p>
+
+<p>/Applications/VirtualBox.app/Contents/MacOS/VBoxManage convertdd raw.bin out.vdi</p>
+
+<p>That&rsquo;s it!  Keep in mind that this requires a lot of disk space.  On my system original.vmdk and the associated files was about 10 gigs, converted to raw.bin brought it up to 20 gigs (the full size of the disk), and then converting it to out.vdi took another 20 gigs.  After all that you can delete the VMDK and bin files if you don&rsquo;t need them anymore but the original VMDK is nice for a backup especially if it&rsquo;s not preallocated to the full size.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2009/03/21/pictures-of-an-electronics-project/">Pictures of an Electronics Project</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-21T15:33:04-04:00" pubdate data-updated="true">Mar 21<span>st</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I don&rsquo;t have anything exciting to write here, just a few pictures to share of an electronics project I&rsquo;m debugging.  A few people asked about it via e-mail so here&rsquo;s what I spent the morning getting set up:</p>
+
+<p><img src="/pictures/full-scope-view-small.jpg" alt="" /></p>
+
+<p><img src="/pictures/just-scope-view-small.jpg" alt="" /></p>
+
+<p><img src="/pictures/just-scope-zoomed-view-small.jpg" alt="" /></p>
+
+<p>Once the project is finished I&rsquo;ll post some more details.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2009/03/12/how-to-add-google-analytics-to-nanoblogger/">How-To: Add Google Analytics to Nanoblogger</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-12T09:06:40-04:00" pubdate data-updated="true">Mar 12<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Here&rsquo;s a quick step-by-step guide to get Google Analytics into your nanoblogger installation.</p>
+
+<p>Step 1: Get your Google Analytics JavaScript code.  If you missed or skipped this step when you signed up you can replicate it if you log into your Analytics account, go to the overview page, and search for &ldquo;UA&rdquo;.  Take the unique ID that looks like UA-0123456-7 and put it into this code (it&rsquo;s the bold, italicized part):</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+&lt;/script&gt;
+
+
+
+
+&lt;script type="text/javascript"&gt;
+try {
+var pageTracker = _gat._getTracker("&lt;strong&gt;&lt;em&gt;UA-0123456-7&lt;/em&gt;&lt;/strong&gt;");
+pageTracker._trackPageview();
+} catch(err) {}&lt;/script&gt;
+</code></pre>
+
+<p>If you don&rsquo;t put your unique ID then you will not get any stats!  Don&rsquo;t use UA-0123456-7!</p>
+
+<p>Step 2: Back up your site and templates.  If you make a mistake in the next few steps you&rsquo;ll thank yourself.</p>
+
+<p>Step 3: Add the code in the following templates just before the </body> tag:</p>
+
+<ul>
+<li><p>templates/category_archive.htm</p></li>
+<li><p>templates/day_archive.htm</p></li>
+<li><p>templates/main_index.htm</p></li>
+<li><p>templates/makepage.htm</p></li>
+<li><p>templates/month_archive.htm</p></li>
+<li><p>templates/permalink.htm</p></li>
+<li><p>templates/year_archive.htm</p></li>
+</ul>
+
+
+<p>Step 4: Regenerate your site with the update all command.  Replace &ldquo;blog&rdquo; with the relative directory of your blog:</p>
+
+<pre><code>nb --blog-dir blog --force update all
+</code></pre>
+
+<p>Step 5: Check the results and push your update to your server.  You should see analytics start updating as soon as people start hitting your site.  Ifyou don&rsquo;t be sure to give it a few hours before reporting it to Google.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2009/03/07/how-to-get-vim-syntax-highlighting-working-on-a-mac/">How-To: Get Vim Syntax Highlighting Working on a Mac</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-07T18:59:59-05:00" pubdate data-updated="true">Mar 7<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This has been a nuisance for me since I started using a Mac but only today did I finally spend the time to figure it out.  I found <a href="http://www.alangalloway.com/vim.html">a post that has almost everything you need</a> but leaves out some key details and the direct download link is dead.  I&rsquo;ve <a href="/static/vimrc-2009-03-07">recreated the file</a> and you can install it automagically like this in a</p>
+
+<p>Terminal window:</p>
+
+<p>wget <a href="http://blog.timmattison.com/static/vimrc-2009-03-07">http://blog.timmattison.com/static/vimrc-2009-03-07</a> -O ~/.vimrc</p>
+
+<p>This will nuke your existing .vimrc if you have one so save it first!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/">How-To: Get a Twitter Timeline on a Cisco 7960 [Updated 2009-03-10]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-07T17:59:59-05:00" pubdate data-updated="true">Mar 7<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>UPDATE #1: I just noticed that if someone uses an ampersand in their tweet then the CISCO XML parser freaks out.  Unfortunately the &amp; code doesn&#8217;t work either so I have updated the code to replace all of the ampersands with plus characters.</p>
+
+<p>Now that my Cisco phone is set up I&rsquo;ve started on a quest to find fun, yet marginally useful, things that I can do with it.  Without going too crazy I wanted to start with some basics and then move into the really fancy stuff.  A Twitter timeline is just about as basic as can be while still being novel enough to keep my interest.</p>
+
+<p>You&rsquo;ll need a few things to make this work&hellip;</p>
+
+<p>1: A Cisco 7960 that you can edit the configuration for and is provisioned properly.  Articles on this coming soon&hellip;</p>
+
+<p>2: A Linux box with cron, Perl, Apache, and PHP installed and running.  There are tutorials on that everywhere so I&rsquo;ll leave that up to you.</p>
+
+<p>3: A Twitter account.</p>
+
+<p>If you have all of those things you can just follow these steps:</p>
+
+<p>Step 1: Log into your Linux box and install the Perl Twitter package (you may need to do this as root): perl -MCPAN -e &ldquo;install Net::Twitter&rdquo;</p>
+
+<p>Step 2: Modify this code by changing the username and password to your Twitter credentials.  Save this script on your Linux server as get-twitter-timeline.pl.</p>
+
+<h1>!/usr/bin/perl -w</h1>
+
+<pre><code>use Net::Twitter;
+$username = "twitterusername";
+$password = "twitterpassword";
+my $twit = Net::Twitter-&gt;new({username=&gt;$username, password=&gt;$password});
+$timeline = $twit-&gt;friends_timeline();
+
+
+
+
+foreach my $tweet (@{$timeline}) {
+   my $speaker = $tweet-&gt;{user}-&gt;{screen_name};
+   my $text = $tweet-&gt;{text};
+   print fix_cisco_issues("$speaker: $text\n");
+}
+
+sub fix_cisco_issues {
+  $input = $_[0];
+  $input =~ s/&amp;/+/g;
+  return $input;
+}
+</code></pre>
+
+<p>Step 3: Make the script executable (chmod +x get-twitter-timeline.pl) and add it to your crontab.  Your crontab may be different depending on your cron version, desired location on the webserver, frequency of updates, etc.  I&rsquo;m checking for updates once every 2 minutes (henec &ldquo;*/2&rdquo;).  BTW, my webserver is private so security is not my focus.</p>
+
+<p>*/2 * * * * get-twitter-timeline.pl > /var/www/localhost/htdocs/twitter-timeline.txt</p>
+
+<p>Step 4: Now you need to create a PHP script that will serve this up to your phone.  It&rsquo;s not quite as easy as pointing the phone to raw text since it needs a sprinkling of Cisco magic to get it to work.  My script is here:</p>
+
+<p>&lt;?php</p>
+
+<p>header (&ldquo;Refresh: 30&rdquo;);</p>
+
+<pre><code>?&gt;
+
+&lt;CiscoIPPhoneText&gt;
+  &lt;Title&gt;timmattison's timeline&lt;/Title&gt;
+  &lt;Text&gt;&lt;?php print file_get_contents("/var/www/localhost/htdocs/twitter-timeline.txt"); ?&gt;&lt;/Text&gt;
+&lt;/CiscoIPPhoneText&gt;
+</code></pre>
+
+<p>The tags just put my name on the top line and the content in a scrolling text area below it.  Refresh 30 means that the phone will fetch this every 30 seconds while it&rsquo;s on the services screen.  Now all some clever person needs to do is put some Cisco exploit in my Twitter timeline&hellip; as with all good security we&rsquo;ll worry about that later.  :)</p>
+
+<p>Step 5: Now you&rsquo;ll need to edit your Cisco configuration to point to this PHP script.  You can modify your SIPDefault.cnf or SIPMACADDR.cnf depending on whether you want all of your Cisco phones to have this code on them or not.  The line you&rsquo;ll need to update or add is:</p>
+
+<p>services_url: &ldquo;<a href="http://10.0.1.251/cisco/services.php">http://10.0.1.251/cisco/services.php</a>&rdquo;   ; URL for external Phone Services</p>
+
+<p>Again, that&rsquo;ll need to be updated to meet your specs.</p>
+
+<p>Step 6: If you did all of that correctly you can restart your phone (*, 6, settings simultaneously) and then press the services button. It should come right up.</p>
+
+<p>Here&rsquo;s a glimpse of the final product, enjoy!</p>
+
+<p><img src="/pictures/cisco-twitter-small.jpg" alt="" /></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2009/02/28/how-to-build-libwiimote-0-4-on-gentoo/">How-To: Build libwiimote-0.4 on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-02-28T13:04:44-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This may only be related to 64-bit Gentoo but if you&rsquo;re having build troubles try starting from scratch like this.  Note: These are all commands that you&rsquo;ll have to run directly.  There is narrative except in step 6.</p>
+
+<p>Step 1: wget <a href="http://downloads.sourceforge.net/libwiimote/libwiimote-0.4.tgz?use_mirror=internap">http://downloads.sourceforge.net/libwiimote/libwiimote-0.4.tgz?use_mirror=internap</a></p>
+
+<p>Step 2: tar xzvf libwiimote-0.4.tgz</p>
+
+<p>Step 3: cd libwiimote-0.4</p>
+
+<p>Step 4: autoconf</p>
+
+<p>Step 5: ./configure</p>
+
+<p>Step 6: Edit src/Makefile and add &ldquo;CFLAGS=-fPIC&rdquo; to it.  If CFLAGS already exists just append &ldquo; -fPIC&rdquo; to it.</p>
+
+<p>Step 7: make</p>
+
+<p>Step 8: make install</p>
+
+<p>Now you&rsquo;ll have libwiimote-0.4 built and installed.  All you need are a few applications to take advantage of it.  Stay tuned.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2009/02/28/how-to-build-net-wirelessbluez-libs-2-25-and-net-wirelessbluez-utils-2-25-r1-on-gentoo-updated-2009-03-05/">How-To: Build net-wireless/bluez-libs-2.25 and net-wireless/bluez-utils-2.25-r1 on Gentoo [Updated 2009-03-05]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-02-28T12:43:19-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>UPDATE #1: The latest portage now has a 3.x version of these tools.  If you update to the latest portage as of 2009-03-05 then you likely won&rsquo;t have to jump through these hoops.</p>
+
+<p>I was trying to do some <spoiler>fun stuff with my Wii remote on Linux</spoiler> today and found that when I went to build the BlueZ utils on my Gentoo box it failed almost straight away.</p>
+
+<p>To save you the headache and I did some digging.  I have a quick and dirty way to fix your Gentoo setup if you&rsquo;re experiencing this problem.</p>
+
+<p>If you care it&rsquo;s related to GCC 4.x handling includes in C in a different way than previous versions.  If you don&rsquo;t care just ignore the previous sentence.  Here&rsquo;s the fix:</p>
+
+<p>Step 1: emerge bluez-libs.  When the emerge gets into the configure stage, press Control-Z to suspend the build.  The configure stage is when it spits out lots of &ldquo;Checking for &hellip;&rdquo; messages.</p>
+
+<p>Step 2: Edit the /var/tmp/portage/net-wireless/bluez-libs-2.25/work/bluez-libs-2.25/src/hci.c file with your favorite editor.  Within the chunk of includes you see at the top of the file add the line &ldquo;#include &rdquo;.</p>
+
+<p>Step 3: Run &ldquo;fg&rdquo; to continue the build.  bluez-libs should emerge normally now.</p>
+
+<p>Step 4: emerge bluez-utils.  When the emerge gets into the configure stage, press Control-Z to suspend the build.</p>
+
+<p>Step 5: Edit all of the following files and again add the line &ldquo;#include &rdquo; to them.  The files are: net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/tools/hciconfig.c, net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/tools/hciattach.c, net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/sdpd/request.c, net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/hidd/sdp.c</p>
+
+<p>Step 6: Run &ldquo;fg&rdquo; to continue the build.  bluez-utils should emerge normally now.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2009/02/28/testing-out-disqus-for-comments/">Testing Out Disqus for Comments</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-02-28T10:25:59-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I just spent some time playing around with getting Disqus comments set up so people don&rsquo;t have to bother with navigating to and registering on Twitter to join the conversation.  Comments will be available on each entry now.  I&rsquo;m still working on the comment count code.  I&rsquo;ll make a detailed post explaining how I integrated it with nanoblogger.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch/">Mini-hack: last.fm Music on Hold for FreeSWITCH</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-02-24T09:45:36-05:00" pubdate data-updated="true">Feb 24<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I started using FreeSWITCH quite a while back but only recently got into rebuilding my home PBX with it.  One of the things that always bothered me about Asterisk, which may or may not have changed since the last time I looked, was that it wasn&rsquo;t straight-forward to get streaming MOH (music on hold) working.</p>
+
+<p>Sure, I eventually got it to work but it wasn&rsquo;t fun and not really all that reliable.</p>
+
+<p>Just this morning I decided to try to get some real variety in my MOH and came up with a quick hack that surprisingly only involves a few basic elements:</p>
+
+<p>Step 1: Download Vidar Madsen&rsquo;s <a href="http://vidar.gimp.org/?page_id=50">LastFMProxy python application</a> onto your <a href="http://freeswitch.org">FreeSWITCH</a> server</p>
+
+<p>Step 2: Update config.py with your username and password for last.fm</p>
+
+<p>Step 3: Run <a href="http://www.gnu.org/software/screen/">screen</a>, start last.fm proxy&rsquo;s main.py, and then detach and leave it running in the background</p>
+
+<p>Step 4: Find the hold_music variable and update it to look like this:</p>
+
+<p>&lt;X-PRE-PROCESS cmd=&ldquo;set&rdquo; data=&ldquo;hold_music=shout://localhost:1881/lastfm.mp3&rdquo;/></p>
+
+<p>Step 5: Point your browser (on the server directly or using X-forwarding over SSH) to one of the example links from the LastFMProxy README:</p>
+
+<p><a href="http://localhost:1881/lastfm://globaltags/rock">http://localhost:1881/lastfm://globaltags/rock</a></p>
+
+<p><a href="http://localhost:1881/lastfm://artist/Madonna/similarartists">http://localhost:1881/lastfm://artist/Madonna/similarartists</a></p>
+
+<p><a href="http://localhost:1881/lastfm://user/vidarino/neighbours">http://localhost:1881/lastfm://user/vidarino/neighbours</a></p>
+
+<p>Or you can build your own.  The format is somewhat obvious so I&rsquo;ll leave that as an exercise for the reader.</p>
+
+<p>6: Restart FreeSWITCH when convenient and enjoy your new music on hold.  Disclaimer: I only use this internally for testing, not production.  I don&rsquo;t claim to know or understand the licensing issues here so proceed at your own risk.</p>
+
+<p>One really nice thing about this hack is that you can change your music selection on-the-fly, programmatically.  If you hit one of the URLs from step 5 with wget or LWP then FreeSWITCH will seamlessly switch to the new music after the current track has finished.  You won&rsquo;t be jarred into the new music selection with an instant track change.  This is what I usually go for:</p>
+
+<p>wget -O /dev/null <a href="http://localhost:1881/lastfm://artist/KMFDM/similarartists">http://localhost:1881/lastfm://artist/KMFDM/similarartists</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/archives">Archives</a>
+    
+    <a class="next" href="/page/8/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/">How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2012/04/19/tips-for-debugging-springs-transactional-annotation/">Tips for Debugging Spring&#8217;s @Transactional Annotation</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">How-To: Get Verizon&#8217;s Media Manager to Read Content From a Network Location</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/">Tip: Fix &#8220;&#8216;Xterm&#8217;: Unknown Terminal Type&#8221; Messages in Debian</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

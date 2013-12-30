@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Mini Hacks | My Octopress Blog]]></title>
+  <link href="http://timmattison.github.io/categories/mini-hacks/atom.xml" rel="self"/>
+  <link href="http://timmattison.github.io/"/>
+  <updated>2013-12-30T07:05:36-05:00</updated>
+  <id>http://timmattison.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Mini Hack: Parallel Vacuuming in PostgreSQL]]></title>
+    <link href="http://timmattison.github.io/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/"/>
+    <updated>2012-01-24T11:42:41-05:00</updated>
+    <id>http://timmattison.github.io/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql</id>
+    <content type="html"><![CDATA[<p>I run several development environments that I need to sync with production databases to do bug fixes and new feature development.  It&rsquo;s always good to vacuum these databases before using them especially if you&rsquo;re doing it via rsync on a live system.  If you don&rsquo;t you could end up with rows that are inaccessible from your indicies and get strange results from your database.</p>
+
+<p>Full vacuums are slow but we can&rsquo;t get around it here.  What I noticed is that normally in production vacuuming the database is an I/O bound operation but in development where we&rsquo;re working with dedicated development machines with tons of RAM we typically end up with a lot of the database for our smaller projects (&lt; 5 GB) in the cache.  This makes vacuuming a CPU bound process again and where there&rsquo;s a CPU bound process there&rsquo;s usually room for parallelism.</p>
+
+<p>Today I decided to test out how well <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> could speed up my development machine&rsquo;s vacuuming process and I&rsquo;m happy to report that it cuts it nearly in half.  If you&rsquo;re running into the same issue and waiting for vacuuming is eating into your development time try this one liner (make sure you have <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> installed first):</p>
+
+<pre><code>echo "\dt" | psql DB_NAME | head -n -2 | tail -n +4 | awk ' { print $3 } ' | parallel -I {} vacuumdb -f -v -d DB_NAME -t {}
+</code></pre>
+
+<p>What this does is:</p>
+
+<ul>
+<li><p>Sends the string &ldquo;\dt&rdquo; to PostgreSQL to list the table names</p></li>
+<li><p>Pipes that through head and removes the last two lines (they don&rsquo;t contain table names)</p></li>
+<li><p>Pipes that through tail and removes the first four lines (they also don&rsquo;t contain table names)</p></li>
+<li><p>Pipes that to awk and extracts the third field (the table name)</p></li>
+<li><p>Pipes that to parallel, runs vacuumdb with a full vacuum (-f) in verbose mode (-v), placing the table names where we included the curly bracket pair</p></li>
+</ul>
+
+
+<p>UPDATE: Ole Tange, the author of the fantastic GNU Parallel package, wrote in with his own one-liner to do the same thing as mine.  His is a bit shorter and requires fewer pipes.  Take a look:</p>
+
+<pre><code>sql -n --list-tables pg:///DB_NAME | parallel -j0 -r --colsep '\|' sql pg:///DB_NAME vacuum full verbose {2}
+</code></pre>
+
+<p>What his does is:</p>
+
+<ul>
+<li><p>Gets a table list from GNU sql (which I had never used before, it&rsquo;s great to know that it exists!)</p></li>
+<li><p>Pipes that to GNU Parallel specifying it should run as many jobs as the machine has cores (-j0), should not run if there is no input (-r), and uses the pipe character as a column separator</p></li>
+<li><p>GNU Parallel then calls GNU sql, connects to the proper database executes a full, verbose vacuum on the second field it extracted from the table list (the table name)</p></li>
+</ul>
+
+
+<p>I added in the &ldquo;full verbose&rdquo; to Ole&rsquo;s example so the two scripts are doing the same work instead of just a plain vacuum.</p>
+
+<p>Compare that against the run time for a normal vacuum and report your results in the comments.  For databases that won&rsquo;t fit in your RAM it may not help that much but I&rsquo;d like to hear either way.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Mini Hack: Approximating the Size of a Java Object]]></title>
+    <link href="http://timmattison.github.io/2012/01/09/mini-hack-approximating-the-size-of-a-java-object/"/>
+    <updated>2012-01-09T16:31:08-05:00</updated>
+    <id>http://timmattison.github.io/2012/01/09/mini-hack-approximating-the-size-of-a-java-object</id>
+    <content type="html"><![CDATA[<p>Finding the size of an object or data structure used to be simple in &ldquo;the good old days&rdquo;.  You could just use the sizeof function and it&rsquo;d spit out something that usually made sense.  In Java there&rsquo;s nothing that seems to do it quite that simply.  I&rsquo;ve seen some solutions that involve using Java instrumentation but they have interesting quirks that can confuse things considerably.  For example, using it to obtain the size of a String object will always show 32 bytes as I found out by reading a thread on StackOverflow.</p>
+
+<p>In any case I wanted something simple that would do the job.  My requirements were that there was minimal or zero setup, results were fairly close to the actual memory footprint, and that it work consistently unless I was using some kind of very strange data structure.  Here&rsquo;s what I came up with:</p>
+
+<pre><code>try {
+  // Get a ByteArrayOutputStream to catch the output of the
+  //   ObjectOutputStream without going to disk
+  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+  // Get an ObjectOutputStream so we can dump the entire
+  //   object at one shot
+  ObjectOutputStream oos = new ObjectOutputStream(baos);
+
+  // Write the object
+  oos.writeObject(o);
+
+  // Close the stream
+  oos.close();
+
+  // Query the ByteArrayOutputStream for its size
+  return baos.size();
+} catch (IOException e) {
+  // Something went wrong.  Print the stack trace.
+  e.printStackTrace();
+
+  // Return -1 so the caller knows we failed
+  return -1;
+}
+</code></pre>
+
+<p>Put this into your standard utility class as a static method and call it whenever you&rsquo;re curious about memory usage.  The output of this should be a little higher than the actual in-memory usage so you can consider this a high water mark for your object&rsquo;s size.</p>
+
+<p>Post in the comments if you end up using it!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Mini Hack: Find Java Code Abusing Stdout]]></title>
+    <link href="http://timmattison.github.io/2011/09/13/mini-hack-find-java-code-abusing-stdout/"/>
+    <updated>2011-09-13T18:04:39-04:00</updated>
+    <id>http://timmattison.github.io/2011/09/13/mini-hack-find-java-code-abusing-stdout</id>
+    <content type="html"><![CDATA[<p>I found myself recently trying to determine where a particular piece of code was that was polluting my stdout stream with hundreds of unwanted messages.  This seemed like an impossible task since I could only guess that there was a line of code somewhere that was calling System.out.println(clazz.toString()) or something similar.  I searched the codebase high and low and found nothing.</p>
+
+<p>After some Googling I came up with an alternate approach.  I disabled all of the code I could find that printed to stdout (actually this was easy since I do it all with one function so I just disabled that) and verified that I my application was still spewing out noise.  Sure enough it was and then I added a tiny chunk of code to my application&rsquo;s initialization.  That code takes over stdout and forcibly causes a NullPointerException.  It&rsquo;s unconventional and I probably could&rsquo;ve just put in a breakpoint but I wanted to make sure it crashed and spat out something I could work with immediately.</p>
+
+<p>Here is what I did:</p>
+
+<pre><code>System.setOut(new PrintStream(new OutputStream() {
+  @Override
+  public void write(int arg0) throws IOException {
+    String forcedCrash = null;
+    forcedCrash = forcedCrash + " ";
+  }
+}));
+</code></pre>
+
+<p>Let me know in the comments if you get a chance to use this to debug a project.  Since I came up with this technique I find myself putting it in action a lot more often than I thought I would so hopefully it&rsquo;ll be useful for you too.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Mini Hack: Create Read-only Properties With Hibernate (Fixes "PropertyNotFoundException: Could Not Find a Setter" Issues)]]></title>
+    <link href="http://timmattison.github.io/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/"/>
+    <updated>2011-06-22T14:51:58-04:00</updated>
+    <id>http://timmattison.github.io/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues</id>
+    <content type="html"><![CDATA[<p>Ok, this mini-hack isn&rsquo;t pretty but it solves an issue that I have seen come up many times in Java.  You&rsquo;re trying to add a method to an object that you want Hibernate to persist.  Let&rsquo;s assume that your object is an elevator and it has the following real properties:</p>
+
+<ul>
+<li>Current floor (int)</li>
+<li>Hours in use (int)</li>
+<li>Pounds in elevator (int)</li>
+</ul>
+
+
+<p>You want to add a method that tells you how many days it has been in use.  Normally you&rsquo;d do this:</p>
+
+<pre><code>public double getDaysInUse() {
+  return this.hoursInUse / 24.0;
+}
+</code></pre>
+
+<p>However, if you do that you get the dreaded &ldquo;PropertyNotFoundException: Could not find a setter&rdquo; error.  How do we fix this?  Simply with a throw away parameter like this:</p>
+
+<pre><code>public double getDaysInUse(int unused) {
+  return this.hoursInUse / 24.0;
+}
+</code></pre>
+
+<p>And there you have it.  No more error!  I&rsquo;m sure there&rsquo;s a better way and when I find it I&rsquo;ll post again but for now this does the trick.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Mini-hack: last.fm Music on Hold for FreeSWITCH]]></title>
+    <link href="http://timmattison.github.io/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch/"/>
+    <updated>2009-02-24T09:45:36-05:00</updated>
+    <id>http://timmattison.github.io/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch</id>
+    <content type="html"><![CDATA[<p>I started using FreeSWITCH quite a while back but only recently got into rebuilding my home PBX with it.  One of the things that always bothered me about Asterisk, which may or may not have changed since the last time I looked, was that it wasn&rsquo;t straight-forward to get streaming MOH (music on hold) working.</p>
+
+<p>Sure, I eventually got it to work but it wasn&rsquo;t fun and not really all that reliable.</p>
+
+<p>Just this morning I decided to try to get some real variety in my MOH and came up with a quick hack that surprisingly only involves a few basic elements:</p>
+
+<p>Step 1: Download Vidar Madsen&rsquo;s <a href="http://vidar.gimp.org/?page_id=50">LastFMProxy python application</a> onto your <a href="http://freeswitch.org">FreeSWITCH</a> server</p>
+
+<p>Step 2: Update config.py with your username and password for last.fm</p>
+
+<p>Step 3: Run <a href="http://www.gnu.org/software/screen/">screen</a>, start last.fm proxy&rsquo;s main.py, and then detach and leave it running in the background</p>
+
+<p>Step 4: Find the hold_music variable and update it to look like this:</p>
+
+<p>&lt;X-PRE-PROCESS cmd=&ldquo;set&rdquo; data=&ldquo;hold_music=shout://localhost:1881/lastfm.mp3&rdquo;/></p>
+
+<p>Step 5: Point your browser (on the server directly or using X-forwarding over SSH) to one of the example links from the LastFMProxy README:</p>
+
+<p><a href="http://localhost:1881/lastfm://globaltags/rock">http://localhost:1881/lastfm://globaltags/rock</a></p>
+
+<p><a href="http://localhost:1881/lastfm://artist/Madonna/similarartists">http://localhost:1881/lastfm://artist/Madonna/similarartists</a></p>
+
+<p><a href="http://localhost:1881/lastfm://user/vidarino/neighbours">http://localhost:1881/lastfm://user/vidarino/neighbours</a></p>
+
+<p>Or you can build your own.  The format is somewhat obvious so I&rsquo;ll leave that as an exercise for the reader.</p>
+
+<p>6: Restart FreeSWITCH when convenient and enjoy your new music on hold.  Disclaimer: I only use this internally for testing, not production.  I don&rsquo;t claim to know or understand the licensing issues here so proceed at your own risk.</p>
+
+<p>One really nice thing about this hack is that you can change your music selection on-the-fly, programmatically.  If you hit one of the URLs from step 5 with wget or LWP then FreeSWITCH will seamlessly switch to the new music after the current track has finished.  You won&rsquo;t be jarred into the new music selection with an instant track change.  This is what I usually go for:</p>
+
+<p>wget -O /dev/null <a href="http://localhost:1881/lastfm://artist/KMFDM/similarartists">http://localhost:1881/lastfm://artist/KMFDM/similarartists</a></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Tips | My Octopress Blog]]></title>
+  <link href="http://timmattison.github.io/categories/tips/atom.xml" rel="self"/>
+  <link href="http://timmattison.github.io/"/>
+  <updated>2013-12-30T07:05:36-05:00</updated>
+  <id>http://timmattison.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Tips for Debugging Spring's @Transactional Annotation]]></title>
+    <link href="http://timmattison.github.io/2012/04/19/tips-for-debugging-springs-transactional-annotation/"/>
+    <updated>2012-04-19T10:31:14-04:00</updated>
+    <id>http://timmattison.github.io/2012/04/19/tips-for-debugging-springs-transactional-annotation</id>
+    <content type="html"><![CDATA[<p>For over a week now I&rsquo;ve been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database.  The code works but it doesn&rsquo;t follow the strict philosophy of service oriented architecture in the sense that there are several places that Spring and Hibernate weren&rsquo;t doing what they were expected to do and a few workarounds had to be implemented.  Since we were bringing more programmers on board I wanted to make sure that everything played by the rules and was easy to update so I had to learn a lot that I had glossed over in the past.</p>
+
+<p>With some creative Googling I found two invaluable resources that I need to give credit to:</p>
+
+<ul>
+<li><p><a href="http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1">Monitoring Declarative Transactions in Spring</a></p></li>
+<li><p><a href="http://stackoverflow.com/questions/3037006/starting-new-transaction-in-spring-bean">Starting new transactions in Spring bean</a></p></li>
+</ul>
+
+
+<p>Here&rsquo;s what I distilled out of everything I went through:</p>
+
+<ol>
+<li><p> @Transactional annotations only work on public methods.  If you have a private or protected method with this annotation there&rsquo;s no (easy) way for Spring AOP to see the annotation.  It doesn&rsquo;t go crazy trying to find them so make sure all of your annotated methods are public.</p></li>
+<li><p> Transaction boundaries are only created when properly annotated (see above) methods are called through a Spring proxy.  This means that you need to call your annotated method directly through an @Autowired bean or the transaction will never start.  If you call a method on an @Autowired bean that isn&rsquo;t annotated which itself calls a public method that is annotated <strong><em>YOUR ANNOTATION IS IGNORED</em></strong>.  This is because Spring AOP is only checking annotations when it first enters the @Autowired code.</p></li>
+<li><p> Never blindly trust that your @Transactional annotations are actually creating transaction boundaries.  When in doubt test whether a transaction really is active (see below)</p></li>
+</ol>
+
+
+<p>My first problem was that the code was annotated improperly like this:</p>
+
+<pre><code>/**
+ * This code example is BAD code, do not use it!
+ */
+class NonWorkingMyClass {
+
+  @Autowired
+  protected MyService myService;
+
+  public void calledFirst() {
+    // Do some setup work...
+
+    // Call our internal method
+    calledSecond();
+  }
+
+  @Transactional
+  private void calledSecond() {
+    MyObject myObject = myService.retrieveLatest();
+
+    // Update some object fields
+    myObject.setName("New Name");
+  }
+}
+</code></pre>
+
+<p>In this case someone would call NonWorkingMyClass.calledFirst(), it would then call calledSecond() and try to update the name field.  This works if your XML configuration is set up properly but it will not be in a transaction.  This can cause concurrency issues that won&rsquo;t show up until it&rsquo;s really inconvenient.</p>
+
+<p>Here&rsquo;s the working version of that code:</p>
+
+<pre><code>/**
+ * This code example works
+ */
+class WorkingMyClass {
+
+  @Autowired
+  protected MyService myService;
+
+  @Transactional
+  public void calledFirst() {
+    // Do some setup work...
+
+    // Call our internal method
+    calledSecond();
+  }
+
+  private void calledSecond() {
+    MyObject myObject = myService.retrieveLatest();
+
+    // Update some object fields
+    myObject.setName("New Name");
+  }
+}
+</code></pre>
+
+<p>Now when someone called WorkingMyClass.calledFirst() it would do what you expect in a transaction and the transaction boundaries are properly respected.</p>
+
+<p>This looks like a simple fix that should only take a few minutes but finding out that was the problem involved turning on lots of Spring DEBUG level logging, Googling, and actually testing to make sure the transactions were active.  Before I knew what I know now I used some code from the first site I listed to show if I was inside a transaction or not.  I was shocked and relieved when it showed that I wasn&rsquo;t because it meant the concurrency issues weren&rsquo;t due to bad programming, just bad configuration.  Here are the methods that I came up with that you can use to see if you are in a transaction and even force your code to throw an exception if it isn&rsquo;t.  This can be invaluable if someone messes up an annotation in the future or breaks your XML configuration.</p>
+
+<p>This code belongs in a utility class that is accessible from anywhere.  There are two flags you will need to put somewhere:</p>
+
+<p>transactionDebugging &ndash; Indicates we should do the transaction tests
+verboseTransactionDebugging &ndash; Indicates we should print debug messages with the transaction tests</p>
+
+<p>verboseTransactionDebugging has no effect if transactionDebugging is false.</p>
+
+<pre><code>class DebugUtils {
+    private static final transactionDebugging = true;
+    private static final verboseTransactionDebugging = true;
+
+    public static void showTransactionStatus(String message) {
+        System.out.println(((transactionActive()) ? "[+] " : "[-] ") + message);
+    }
+
+    // Some guidance from: http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1
+    public static boolean transactionActive() {
+        try {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            Class tsmClass = contextClassLoader.loadClass("org.springframework.transaction.support.TransactionSynchronizationManager");
+            Boolean isActive = (Boolean) tsmClass.getMethod("isActualTransactionActive", null).invoke(null, null);
+
+            return isActive;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+
+        // If we got here it means there was an exception
+        throw new IllegalStateException("ServerUtils.transactionActive was unable to complete properly");
+    }
+
+    public static void transactionRequired(String message) {
+        // Are we debugging transactions?
+        if (!transactionDebugging) {
+            // No, just return
+            return;
+        }
+
+        // Are we doing verbose transaction debugging?
+        if (verboseTransactionDebugging) {
+            // Yes, show the status before we get to the possibility of throwing an exception
+            showTransactionStatus(message);
+        }
+
+        // Is there a transaction active?
+        if (!transactionActive()) {
+            // No, throw an exception
+            throw new IllegalStateException("Transaction required but not active [" + message + "]");
+        }
+    }
+}
+</code></pre>
+
+<p>In our previous code example we could use these new methods like this:</p>
+
+<pre><code>/**
+ * This code example works
+ */
+class WorkingMyClass {
+
+  @Autowired
+  protected MyService myService;
+
+  @Transactional
+  public void calledFirst() {
+    // Make sure we're using transactions.  Include the name of the class and method
+    //   so it is easier to track down later if there are problems.
+    DebugUtils.transactionRequired("WorkingMyClass.calledFirst");
+
+    // Do some setup work...
+
+    // Call our internal method
+    calledSecond();
+  }
+
+  private void calledSecond() {
+    MyObject myObject = myService.retrieveLatest();
+
+    // Update some object fields
+    myObject.setName("New Name");
+  }
+}
+</code></pre>
+
+<p>That&rsquo;s it.  Post in the comments if this helps you out or if you want to add to the code.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Fix "'Xterm': Unknown Terminal Type" Messages in Debian]]></title>
+    <link href="http://timmattison.github.io/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/"/>
+    <updated>2012-04-12T10:32:57-04:00</updated>
+    <id>http://timmattison.github.io/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian</id>
+    <content type="html"><![CDATA[<p>This one has been a bit of a nuisance on newly spooled up Debian instances for me lately.  When I try to run &ldquo;top&rdquo; or &ldquo;clear&rdquo; or really anything that does something with the terminal I get the following message:</p>
+
+<pre><code>'xterm': unknown terminal type.
+</code></pre>
+
+<p>This is because either you haven&rsquo;t installed ncurses-term (unlikely) or a symlink from /lib/terminfo/x/xterm to /usr/share/terminfo/x/xterm is missing.  To cover all possibilities do this:</p>
+
+<pre><code>sudo apt-get install ncurses-term
+sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
+</code></pre>
+
+<p>Poof, your terminal works again!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Handle Failed Tasks Throwing "ENOENT" Errors in Hadoop]]></title>
+    <link href="http://timmattison.github.io/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/"/>
+    <updated>2012-03-21T19:09:48-04:00</updated>
+    <id>http://timmattison.github.io/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop</id>
+    <content type="html"><![CDATA[<p>Today when I tried to run a new Hadoop job I got the following error:</p>
+
+<pre><code>     [exec] 12/03/21 22:51:47 INFO mapred.JobClient: Task Id : attempt_201203212250_0001_m_000002_1, Status : FAILED
+     [exec] Error initializing attempt_201203212250_0001_m_000002_1:
+     [exec] ENOENT: No such file or directory
+     [exec]     at org.apache.hadoop.io.nativeio.NativeIO.chmod(Native Method)
+     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.setPermission(RawLocalFileSystem.java:521)
+     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.mkdirs(RawLocalFileSystem.java:344)
+     [exec]     at org.apache.hadoop.mapred.JobLocalizer.initializeJobLogDir(JobLocalizer.java:240)
+     [exec]     at org.apache.hadoop.mapred.DefaultTaskController.initializeJob(DefaultTaskController.java:216)
+     [exec]     at org.apache.hadoop.mapred.TaskTracker$4.run(TaskTracker.java:1352)
+     [exec]     at java.security.AccessController.doPrivileged(Native Method)
+     [exec]     at javax.security.auth.Subject.doAs(Subject.java:416)
+     [exec]     at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1157)
+     [exec]     at org.apache.hadoop.mapred.TaskTracker.initializeJob(TaskTracker.java:1327)
+     [exec]     at org.apache.hadoop.mapred.TaskTracker.localizeJob(TaskTracker.java:1242)
+     [exec]     at org.apache.hadoop.mapred.TaskTracker.startNewTask(TaskTracker.java:2541)
+     [exec]     at org.apac
+</code></pre>
+
+<p>It wasn&rsquo;t immediately apparent to me what file wasn&rsquo;t found from the error messages so I checked the logs, the JobTracker, my code, ran some known good jobs that also failed, basically everything I could think of.  It turns out that due to me accidentally running a script as &ldquo;root&rdquo; (don&rsquo;t worry, it was only on my desktop) that the permissions of several files in the hdfs user&rsquo;s home directory had changed ownership to &ldquo;root&rdquo;.  Because of that Hadoop was unable to create files in the /usr/lib/hadoop-0.20 directory.</p>
+
+<p>NOTE: These steps assume you are using Hadoop 0.20.  Adjust the paths in the commands accordingly if you aren&rsquo;t.</p>
+
+<p>If you want a quick fix try these steps (only if you take full responsibility for anything that may go wrong):</p>
+
+<ol>
+<li><p> Stop Hadoop using the stop-all.sh script as the hdfs user</p></li>
+<li><p> su to the hdfs user</p></li>
+<li><p> Run this:</p>
+
+<p>chown -R hdfs:hdfs /usr/lib/hadoop-0.20 /var/*/hadoop-0.20</p></li>
+<li><p> Restart Hadoop using the start-all.sh script as the hdfs user</p></li>
+</ol>
+
+
+<p>Now your jobs should start running again.  Post in the comments if this procedure works for you or if you need any help.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing]]></title>
+    <link href="http://timmattison.github.io/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/"/>
+    <updated>2012-03-02T08:02:47-05:00</updated>
+    <id>http://timmattison.github.io/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests.  In the past few days I&rsquo;ve been playing around with Unicode and wanted to copy a code snippet from a Hadoop book to see how everything looks in the debugger.  When I entered the code I realized that I was missing some methods that I needed to complete the tests.</p>
+
+<p>Specifically I was trying to use assertThat() and is() but didn&rsquo;t know where to find them.  After a bit of Googling I found the two static imports that I needed to copy the code without qualifying assertThat() as Assert.assertThat() and the same goes for is().  They are:</p>
+
+<pre><code>import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+</code></pre>
+
+<p>I have to admit that org.hamcrest is a bit less obvious than I would have liked.  :)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: A Quick Primer on Waiting on Multiple Threads in Java]]></title>
+    <link href="http://timmattison.github.io/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/"/>
+    <updated>2012-02-28T16:32:21-05:00</updated>
+    <id>http://timmattison.github.io/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java</id>
+    <content type="html"><![CDATA[<p>Last night I was writing some code to do some performance testing on HDFS.  I noticed that single threaded performance wasn&rsquo;t anywhere near as good as I expected and my CPUs were spending most of their time idle.  I decided to add some threads into the process to see if a multi-threaded speed test would consume some of that idle CPU.  It worked as expected so I figured I would share some basic knowledge on how to I started up multiple threads, had them do their work, waited for them to finish without polling, and then recorded the total duration to calculate my statistics.</p>
+
+<p>What you&rsquo;ll need to do first is decide what you want to do in the processing thread.  This code will go into a Java Runnable like this:</p>
+
+<pre><code>Runnable runnable = new Runnable() {
+    @Override
+    public void run() {
+        // Do something exciting here
+    }
+};
+</code></pre>
+
+<p>Next you&rsquo;ll need to decide how many threads you want to run.  If you wanted to run four threads you could do this:</p>
+
+<pre><code>int threadCount = 4;
+
+for (int threadLoop = 0; threadLoop &lt; threadCount; threadLoop++) {
+    // XXX - Put the runnable block from above right here
+
+    // Create a new thread
+    Thread thread = new Thread(runnable);
+
+    // Add the thread to our thread list
+    threads.add(thread);
+
+    // Start the thread
+    thread.start();
+}
+</code></pre>
+
+<p>That will start four threads.  It&rsquo;s best to use a variable so you can update it and use it in other places like calculating your statistics.  Now let&rsquo;s wait for all the threads to finish:</p>
+
+<pre><code>// Loop through the threads
+for (Thread thread : threads) {
+    try {
+        // Wait for this thread to die
+        thread.join();
+    } catch (InterruptedException e) {
+        // Ignore this but print a stack trace
+        e.printStackTrace();
+    }
+}
+</code></pre>
+
+<p>Finally, you&rsquo;ll want to time all of this.  I do something very simple here.  Before all of the code I do this:</p>
+
+<pre><code>long startTime = new Date().getTime();
+</code></pre>
+
+<p>After all of the code I do this:</p>
+
+<pre><code>long endTime = new Date().getTime();
+long durationInMilliseconds = endTime - startTime;
+</code></pre>
+
+<p>With all of that in place you can now measure how long your code ran and then calculate important metrics about it.  For example, if this code did 10,000 operations per thread and ran with 4 threads you would then take the duration and divide that by 40,000 and you&rsquo;d get an idea of how many milliseconds it took per operation.  Just make sure you use doubles or you&rsquo;ll lose all of your precision due to coercion.  Do this (assuming that your number of operations is stored in a variable called &ldquo;operations&rdquo;):</p>
+
+<pre><code>double millisecondsPerOperation = (double) durationInMilliseconds / (double) operations;
+double operationsPerMillisecond = (double) operations / (double) durationInMilliseconds;
+</code></pre>
+
+<p>These are just reciprocals of each other but sometimes one value is a lot easier to understand than the other so I usually calculate them both.</p>
+
+<p>Now that you have those statistics you can try different thread counts, optimize code/loops, etc.  Good luck!  Post in the comments with any ideas and/or issues.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,1248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[My Octopress Blog]]></title>
+  <link href="http://timmattison.github.io/atom.xml" rel="self"/>
+  <link href="http://timmattison.github.io/"/>
+  <updated>2013-12-30T07:05:36-05:00</updated>
+  <id>http://timmattison.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects]]></title>
+    <link href="http://timmattison.github.io/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/"/>
+    <updated>2012-05-25T09:14:20-04:00</updated>
+    <id>http://timmattison.github.io/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects</id>
+    <content type="html"><![CDATA[<p>PoE (<a href="http://en.wikipedia.org/wiki/Power_over_Ethernet">Power over Ethernet</a>) is an exciting and promising technology.  I think that a lot of people take it for granted now that you can plug your IP phone into an Ethernet jack and it gets data and power over that single connection.  It&rsquo;s easy to forget that your IP phone isn&rsquo;t a real landline with convenience like this.</p>
+
+<p>One thing that has been frustrating about PoE over the years is not supply side availability but consumption side hardware for hobbyists.  You can find very cheap PoE switches online and that&rsquo;s great for all of your pre-fab gadgets (IP phones, WiFi access points, even video cameras) but implementing PoE in your own projects has been tough to say the least.</p>
+
+<p>There is now <a href="http://canakit.webstorepowered.com/Arduino-Ethernet-Power-over-Ethernet-PoE-Module/dp/B005D22FR6">an Arduino board that supports PoE</a> but if you&rsquo;re using an existing Arduino board (Mega, etc), a Netduino Plus, or a single board computer you are still out of luck if you want to use PoE so far.  Don&rsquo;t get me wrong you can do it but it takes significant electronics experience, a multitude of components, and even some luck since not all PoE mid-span devices follow the standard perfectly.  When using PoE with a non-compliant mid-span device you will certainly run into grounding issues that can range from a minor hassle to project killing either from noise or <a href="http://en.wikipedia.org/wiki/Magic_smoke">magic smoke</a>.  I haven&rsquo;t experienced magic smoke yet but I&rsquo;ve definitely seen issues with noise and FTDI boards connecting and disconnecting from USB when hooked into a PoE circuit powered by a non-compliant device.</p>
+
+<p>As far as the mid-span devices go you&rsquo;ll have to do your homework to find one that is compliant and that might even mean buying a few devices to test them out.  So far I&rsquo;ve had some luck with a <a href="http://www.phihong.com/html/psa16u-480_15_4w_1-port_poe.html">Phihong PSA16U-480</a> although there have been a few times where I&rsquo;ve gotten the network TX/RX to stop working while the PoE portion still works.  I never did conclude whether it was a circuit problem, a Phihong problem, or a cabling problem though so I would say that so far the Phihong has been the best.  On the other hand my <a href="http://www.intellinet-network.com/en-US/products/6897-power-over-ethernet-poe-injector">Intellinet 524179</a> has consistently caused my <a href="http://www.sparkfun.com/products/9873">Sparkfun FTDI basic module</a> to disconnect from USB each time power is disconnected.  The Phihong does not do that and I have concluded that it must be a grounding problem.  To be clear my FTDI module in this case is being used to connect to a circuit that is powered by PoE but the FTDI module derives its power from a USB port, not the PoE adapter, on a computer that is connected to the same ground as the Intellinet 524179.  Because of this I would steer clear of this mid-span device if possible.</p>
+
+<p>Now a company called <a href="http://silvertel.com">Silvertel</a> has released <a href="http://www.silvertel.com/poe_products.htm">a line of PoE modules</a> that finally make adding PoE to your circuits a much easier proposition.  With these new modules you only need 1 or 2 extra components to get yourself up and running which is a far cry from the 10 or more components I&rsquo;ve seen in previous designs.  Naturally you&rsquo;ll need to have direct, board level access to the magnetics for the Ethernet connection so it won&rsquo;t work in all circuits.  There are some embedded modules that don&rsquo;t expose the two taps needed on the TX and RX coil to make this all work so those modules will still be unable to use PoE right in their circuitry.</p>
+
+<p>However, if you find that you&rsquo;re working with a module that doesn&rsquo;t have the proper taps you can always get a <a href="http://www.cisco.com/en/US/prod/collateral/voicesw/ps6788/phones/ps10042/ps10044/data_sheet_c78-502433.html">PoE splitter</a>.  These devices extract PoE power and either provide 48V or some lower regulated voltage and put that into a standard barrel connector.  It&rsquo;s not elegant but it works.  You must avoid any hacks where you put raw voltage on spare Ethernet lines as tempting as they might be.  Some people can get away with it during testing but there&rsquo;s always the risk that you&rsquo;ll fry something when you unexpectedly hook up the wrong port.  Do yourself a favor and stick with the standards for consistency and safety.</p>
+
+<p>I&rsquo;m hoping to get some time next week to try Silvertel&rsquo;s modules out.  Once I do I&rsquo;ll be posting my results and, if I&rsquo;m successful, some information on how to convert your Netduino Plus into a Netduino Plus with PoE.  Either way I&rsquo;ll post updates next week and keep everyone up to date on my progress.  I expect that if it works PoE will be a major player in most or all of my future projects.</p>
+
+<p>What projects do you have that you would like to add PoE to?  What has stopped you from doing it so far other than a lack of time?  Post in the comments and let me know.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0]]></title>
+    <link href="http://timmattison.github.io/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/"/>
+    <updated>2012-05-04T09:06:30-04:00</updated>
+    <id>http://timmattison.github.io/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0</id>
+    <content type="html"><![CDATA[<p><strong>Update 2012-06-16</strong>: This still happens on the 8.0.4 update so change the values that read &ldquo;8.0.3&rdquo; to &ldquo;8.0.4&rdquo; if you are using 8.0.4.  Also, if you have patched previously and try to run the script again after an upgrade you need to remove a file called &ldquo;/usr/lib/vmware/modules/source/.patched&rdquo; first.  The script will let you know that it won&rsquo;t patch because it has already been done if you forget.  Just delete it and re-run the script.</p>
+
+<p>Today I upgraded to VMware Workstation 8.0.3 and immediately I ran into the following error message:</p>
+
+<pre><code>make[1]: Entering directory `/usr/src/linux-headers-3.2.0-2-amd64'
+  CC [M]  /tmp/vmware-root/modules/vmnet-only/userif.o
+  CC [M]  /tmp/vmware-root/modules/vmnet-only/netif.o
+  CC [M]  /tmp/vmware-root/modules/vmnet-only/filter.o
+/tmp/vmware-root/modules/vmnet-only/userif.c: In function ‘VNetCsumCopyDatagram’:
+/tmp/vmware-root/modules/vmnet-only/userif.c:520:3: error: incompatible type for argument 1 of ‘kmap’
+/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:48:21: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
+/tmp/vmware-root/modules/vmnet-only/userif.c:523:3: error: incompatible type for argument 1 of ‘kunmap’
+/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:54:20: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
+/tmp/vmware-root/modules/vmnet-only/netif.c: In function ‘VNetNetIfSetup’:
+/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: error: unknown field ‘ndo_set_multicast_list’ specified in initializer
+/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: initialization from incompatible pointer type [enabled by default]
+/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: (near initialization for ‘vnetNetifOps.ndo_validate_addr’) [enabled by default]
+make[4]: *** [/tmp/vmware-root/modules/vmnet-only/userif.o] Error 1
+make[4]: *** Waiting for unfinished jobs....
+make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
+</code></pre>
+
+<p>After lots of Googling I found <a href="http://weltall.heliohost.org/wordpress/2012/01/26/vmware-workstation-8-0-2-player-4-0-2-fix-for-linux-kernel-3-2-and-3-3/">a blog post with a patch for kernels 3.2.0 and 3.3.0</a>.  Unfortunately when I tried to run the patch it failed and said:</p>
+
+<pre><code>Sorry, this script is only for VMWare WorkStation 8.0.2 or VMWare Player 4.0.2. Exiting
+</code></pre>
+
+<p>In order to fix this open up the script after you download it and change the line this line:</p>
+
+<pre><code>vmreqver=8.0.2
+</code></pre>
+
+<p>To this:</p>
+
+<pre><code>vmreqver=8.0.3
+</code></pre>
+
+<p>Re-run the script and you should be good to go.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tips for Debugging Spring's @Transactional Annotation]]></title>
+    <link href="http://timmattison.github.io/2012/04/19/tips-for-debugging-springs-transactional-annotation/"/>
+    <updated>2012-04-19T10:31:14-04:00</updated>
+    <id>http://timmattison.github.io/2012/04/19/tips-for-debugging-springs-transactional-annotation</id>
+    <content type="html"><![CDATA[<p>For over a week now I&rsquo;ve been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database.  The code works but it doesn&rsquo;t follow the strict philosophy of service oriented architecture in the sense that there are several places that Spring and Hibernate weren&rsquo;t doing what they were expected to do and a few workarounds had to be implemented.  Since we were bringing more programmers on board I wanted to make sure that everything played by the rules and was easy to update so I had to learn a lot that I had glossed over in the past.</p>
+
+<p>With some creative Googling I found two invaluable resources that I need to give credit to:</p>
+
+<ul>
+<li><p><a href="http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1">Monitoring Declarative Transactions in Spring</a></p></li>
+<li><p><a href="http://stackoverflow.com/questions/3037006/starting-new-transaction-in-spring-bean">Starting new transactions in Spring bean</a></p></li>
+</ul>
+
+
+<p>Here&rsquo;s what I distilled out of everything I went through:</p>
+
+<ol>
+<li><p> @Transactional annotations only work on public methods.  If you have a private or protected method with this annotation there&rsquo;s no (easy) way for Spring AOP to see the annotation.  It doesn&rsquo;t go crazy trying to find them so make sure all of your annotated methods are public.</p></li>
+<li><p> Transaction boundaries are only created when properly annotated (see above) methods are called through a Spring proxy.  This means that you need to call your annotated method directly through an @Autowired bean or the transaction will never start.  If you call a method on an @Autowired bean that isn&rsquo;t annotated which itself calls a public method that is annotated <strong><em>YOUR ANNOTATION IS IGNORED</em></strong>.  This is because Spring AOP is only checking annotations when it first enters the @Autowired code.</p></li>
+<li><p> Never blindly trust that your @Transactional annotations are actually creating transaction boundaries.  When in doubt test whether a transaction really is active (see below)</p></li>
+</ol>
+
+
+<p>My first problem was that the code was annotated improperly like this:</p>
+
+<pre><code>/**
+ * This code example is BAD code, do not use it!
+ */
+class NonWorkingMyClass {
+
+  @Autowired
+  protected MyService myService;
+
+  public void calledFirst() {
+    // Do some setup work...
+
+    // Call our internal method
+    calledSecond();
+  }
+
+  @Transactional
+  private void calledSecond() {
+    MyObject myObject = myService.retrieveLatest();
+
+    // Update some object fields
+    myObject.setName("New Name");
+  }
+}
+</code></pre>
+
+<p>In this case someone would call NonWorkingMyClass.calledFirst(), it would then call calledSecond() and try to update the name field.  This works if your XML configuration is set up properly but it will not be in a transaction.  This can cause concurrency issues that won&rsquo;t show up until it&rsquo;s really inconvenient.</p>
+
+<p>Here&rsquo;s the working version of that code:</p>
+
+<pre><code>/**
+ * This code example works
+ */
+class WorkingMyClass {
+
+  @Autowired
+  protected MyService myService;
+
+  @Transactional
+  public void calledFirst() {
+    // Do some setup work...
+
+    // Call our internal method
+    calledSecond();
+  }
+
+  private void calledSecond() {
+    MyObject myObject = myService.retrieveLatest();
+
+    // Update some object fields
+    myObject.setName("New Name");
+  }
+}
+</code></pre>
+
+<p>Now when someone called WorkingMyClass.calledFirst() it would do what you expect in a transaction and the transaction boundaries are properly respected.</p>
+
+<p>This looks like a simple fix that should only take a few minutes but finding out that was the problem involved turning on lots of Spring DEBUG level logging, Googling, and actually testing to make sure the transactions were active.  Before I knew what I know now I used some code from the first site I listed to show if I was inside a transaction or not.  I was shocked and relieved when it showed that I wasn&rsquo;t because it meant the concurrency issues weren&rsquo;t due to bad programming, just bad configuration.  Here are the methods that I came up with that you can use to see if you are in a transaction and even force your code to throw an exception if it isn&rsquo;t.  This can be invaluable if someone messes up an annotation in the future or breaks your XML configuration.</p>
+
+<p>This code belongs in a utility class that is accessible from anywhere.  There are two flags you will need to put somewhere:</p>
+
+<p>transactionDebugging &ndash; Indicates we should do the transaction tests
+verboseTransactionDebugging &ndash; Indicates we should print debug messages with the transaction tests</p>
+
+<p>verboseTransactionDebugging has no effect if transactionDebugging is false.</p>
+
+<pre><code>class DebugUtils {
+    private static final transactionDebugging = true;
+    private static final verboseTransactionDebugging = true;
+
+    public static void showTransactionStatus(String message) {
+        System.out.println(((transactionActive()) ? "[+] " : "[-] ") + message);
+    }
+
+    // Some guidance from: http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1
+    public static boolean transactionActive() {
+        try {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            Class tsmClass = contextClassLoader.loadClass("org.springframework.transaction.support.TransactionSynchronizationManager");
+            Boolean isActive = (Boolean) tsmClass.getMethod("isActualTransactionActive", null).invoke(null, null);
+
+            return isActive;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+
+        // If we got here it means there was an exception
+        throw new IllegalStateException("ServerUtils.transactionActive was unable to complete properly");
+    }
+
+    public static void transactionRequired(String message) {
+        // Are we debugging transactions?
+        if (!transactionDebugging) {
+            // No, just return
+            return;
+        }
+
+        // Are we doing verbose transaction debugging?
+        if (verboseTransactionDebugging) {
+            // Yes, show the status before we get to the possibility of throwing an exception
+            showTransactionStatus(message);
+        }
+
+        // Is there a transaction active?
+        if (!transactionActive()) {
+            // No, throw an exception
+            throw new IllegalStateException("Transaction required but not active [" + message + "]");
+        }
+    }
+}
+</code></pre>
+
+<p>In our previous code example we could use these new methods like this:</p>
+
+<pre><code>/**
+ * This code example works
+ */
+class WorkingMyClass {
+
+  @Autowired
+  protected MyService myService;
+
+  @Transactional
+  public void calledFirst() {
+    // Make sure we're using transactions.  Include the name of the class and method
+    //   so it is easier to track down later if there are problems.
+    DebugUtils.transactionRequired("WorkingMyClass.calledFirst");
+
+    // Do some setup work...
+
+    // Call our internal method
+    calledSecond();
+  }
+
+  private void calledSecond() {
+    MyObject myObject = myService.retrieveLatest();
+
+    // Update some object fields
+    myObject.setName("New Name");
+  }
+}
+</code></pre>
+
+<p>That&rsquo;s it.  Post in the comments if this helps you out or if you want to add to the code.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Get Verizon's Media Manager to Read Content From a Network Location]]></title>
+    <link href="http://timmattison.github.io/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/"/>
+    <updated>2012-04-17T15:45:12-04:00</updated>
+    <id>http://timmattison.github.io/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location</id>
+    <content type="html"><![CDATA[<p>I ran into this problem today too when I first got FiOS installed.  Mapping a network drive won&rsquo;t work but using &ldquo;subst&rdquo; will.  I now have Media Manager reading my pictures over a network connection.  Here&rsquo;s how to do it:</p>
+
+<ol>
+<li><p> Open the start menu</p></li>
+<li><p> Type &ldquo;cmd&rdquo;</p></li>
+<li><p> Right click on &ldquo;cmd&rdquo; and select &ldquo;Run as administrator&rdquo;</p></li>
+<li><p> Run subst like this:</p>
+
+<p>subst DRIVE: LOCATION</p></li>
+</ol>
+
+
+<p>  DRIVE: will need to be a free drive letter like &ldquo;F:&rdquo;, &ldquo;G:&rdquo;, etc
+  LOCATION will need to be the <a href="http://en.wikipedia.org/wiki/Path_(computing">UNC path</a>#Uniform_Naming_Convention) to your network share like this &ldquo;\myothercomputer\pictures\&rdquo;
+  Don&rsquo;t forget to include the quotes if your LOCATION has spaces in it!</p>
+
+<ol>
+<li> Restart Media Manager and try to add the new virtual drive to it, it should start working right away</li>
+</ol>
+
+
+<p>You may need to do this on each reboot.  I never reboot this computer so I haven&rsquo;t tested it yet.  You can put these commands in a batch file to make your life easier but you&rsquo;ll need to make sure the batch file runs as an administrator.</p>
+
+<p>Let me know in the comments if it works for you or not.  If not I can probably help work out any kinks with you.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Fix "'Xterm': Unknown Terminal Type" Messages in Debian]]></title>
+    <link href="http://timmattison.github.io/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/"/>
+    <updated>2012-04-12T10:32:57-04:00</updated>
+    <id>http://timmattison.github.io/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian</id>
+    <content type="html"><![CDATA[<p>This one has been a bit of a nuisance on newly spooled up Debian instances for me lately.  When I try to run &ldquo;top&rdquo; or &ldquo;clear&rdquo; or really anything that does something with the terminal I get the following message:</p>
+
+<pre><code>'xterm': unknown terminal type.
+</code></pre>
+
+<p>This is because either you haven&rsquo;t installed ncurses-term (unlikely) or a symlink from /lib/terminfo/x/xterm to /usr/share/terminfo/x/xterm is missing.  To cover all possibilities do this:</p>
+
+<pre><code>sudo apt-get install ncurses-term
+sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
+</code></pre>
+
+<p>Poof, your terminal works again!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Write a Netduino Driver for the Grove Chainable RGB LED]]></title>
+    <link href="http://timmattison.github.io/2012/03/29/how-to-write-a-netduino-driver-for-the-grove-chainable-rgb-led/"/>
+    <updated>2012-03-29T10:58:01-04:00</updated>
+    <id>http://timmattison.github.io/2012/03/29/how-to-write-a-netduino-driver-for-the-grove-chainable-rgb-led</id>
+    <content type="html"><![CDATA[<p>A lot of people probably look at hardware that doesn&rsquo;t come with drivers for the Netduino or Arduino and don&rsquo;t even consider picking it up if they&rsquo;re new to this scene.  In this article I&rsquo;ll show you how I wrote a driver for <a href="http://www.epictinker.com/Grove-Chainable-RGB-LED-p/com53140p.htm">Grove&rsquo;s chainable RGB LED</a> by just carefully reading the specs and experimenting.  I am no Netduino expert, I have only written a tiny bit of code for it since I got it, but this just reinforces how easy some drivers can be to write.</p>
+
+<p>Keep in mind that my illustration of how easy it was to write this driver is not a reflection on how easy it is to write <strong><em>all</em></strong> drivers.  Some drivers take a ton of work.  Make sure you read the documentation before you buy something so you don&rsquo;t get stuck with some hardware you can&rsquo;t use.</p>
+
+<p>My first step was to find <a href="http://www.seeedstudio.com/wiki/index.php?title=Twig_-_Chainable_RGB_LED">the documentation for the protocol for this device</a>.  I then scanned around to find the &ldquo;Communication Protocol&rdquo; and started digging.  What this showed me is that there are two connections to support the protocol for this device.  The first connection is called &ldquo;CIN&rdquo; for clock input and the second connection is called &ldquo;DIN&rdquo; for data input.  Simple enough, especially if we&rsquo;re using the standard Grove base shield and connectors.  Just hook it up and make sure you keep track of which port you&rsquo;re using and you&rsquo;re ready to start programming.  I used header 6 on my base shield so the relevant pins for me were D6 and D7.  D6 was CIN and D7 was DIN.</p>
+
+<p>Now you&rsquo;ll see that there are six well defined bullet points explaining the basics of the protocol:</p>
+
+<ul>
+<li><p>Data needs to be ready before CIN, and DIN gets into the buffer on the rising edge of CIN.</p></li>
+<li><p>First 32 bits &lsquo;0&rsquo; are Start Frame</p></li>
+<li><p>Flag bit is two &lsquo;1&rsquo;</p></li>
+<li><p>Calibration bits B7&#8217;,B6&#8217;;G7&#8217;,G6&#8217; and R7&#8217;,R6&#8217; are inverse codes of B7,B6;G7,G6 and R7,R6</p></li>
+<li><p>Gray data MSB first, and the order is BLUE, GREEN, and RED</p></li>
+<li><p>After all nodes data sent, need to seed another 32 bits &lsquo;0&rsquo; to update the data</p></li>
+</ul>
+
+
+<p>Let&rsquo;s step through these one by one to figure out how to send data to this device.</p>
+
+<p>They first tell us that &ldquo;data needs to be ready before CIN, and DIN gets into the buffer on the rising edge of CIN&rdquo;.  What this really translates to for you when programming is that when you want to send a bit to the device you should set that bit on the DIN pin (either 1 or 0), then set the CIN pin to high, and then set the CIN pin back to low.  Now you&rsquo;ve sent one bit of data to the device.  Abstraction will make it so we can do this thinking once and then fall back on it later so let&rsquo;s write a function that sends one bit:</p>
+
+<pre><code>private void sendBit(bool bit)
+{
+    // Get DIN into the proper state
+    din.Write(bit);
+
+    // Set the clock high
+    cin.Write(true);
+
+    // Set the clock low
+    cin.Write(false);
+}
+</code></pre>
+
+<p>This function makes the assumption that you&rsquo;ve defined cin and din elsewhere.  The setup for them in my case (using pins D6 and D7 as I described above) would look like this:</p>
+
+<pre><code>// Use D6 for CIN and D7 for DIN (Grove Base Shield v1.2 header #6)
+OutputPort cin = new OutputPort(Pins.GPIO_PIN_D6, false);
+OutputPort din = new OutputPort(Pins.GPIO_PIN_D7, false);
+</code></pre>
+
+<p>Now they tell us that the first 32 bits are all zeroes and that this is called a start frame.  This makes me think it would be a good idea to expand our abstraction to let us send bytes and then write another function that would send this start frame.  That would look like this:</p>
+
+<pre><code>private void sendByte(byte data)
+{
+    // Send the bits MSB first
+    sendBit((data &amp; 0x80) == 0x80);
+    sendBit((data &amp; 0x40) == 0x40);
+    sendBit((data &amp; 0x20) == 0x20);
+    sendBit((data &amp; 0x10) == 0x10);
+    sendBit((data &amp; 0x08) == 0x08);
+    sendBit((data &amp; 0x04) == 0x04);
+    sendBit((data &amp; 0x02) == 0x02);
+    sendBit((data &amp; 0x01) == 0x01);
+}
+
+private void sendStartFrame()
+{
+    // The start frame is 32 bits of zeroes
+    sendByte(0);
+    sendByte(0);
+    sendByte(0);
+    sendByte(0);
+}
+</code></pre>
+
+<p>In the sendByte function I&rsquo;m taking a byte and using logical AND and equals to extract the bits one by one.  One of the next bullet points says the data is MSB first so we want to get the most significant (ie. largest value holding) bits first so that&rsquo;s how I went about sending the bits.  Now that we can send bytes sending the start frame is as easy as calling that function four times with the value 0.</p>
+
+<p>Next they talk about flag bits.  In the protocol it shows that after the start frame there are some flag bits.  This tells us the two flag bits are both ones.  Here&rsquo;s a simple function that can do that:</p>
+
+<pre><code>private void sendFlagBits()
+{
+    // The flag bits are two 1s
+    sendBit(true);
+    sendBit(true);
+}
+</code></pre>
+
+<p>Now this part gets a bit trickier but not too bad.  They tell us that we need to send the inverse of B7, B6, G7, G6, R7, R6, followed by the actual color data itself as bytes.  B7 and B6 are the two highest bits in the blue color component, G7 and G6 are the two highest bits in the green color component, and R7 and R6 are the two highest bits in the red color component.  Sending that data with the functions we built up now is really easy.</p>
+
+<pre><code>private void sendColorData(byte red, byte green, byte blue)
+{
+    // Send the inverse bits of the B7, B6, G7, G6, R7, R6
+    sendBit((blue &amp; 0x80) != 0x80);
+    sendBit((blue &amp; 0x40) != 0x40);
+    sendBit((green &amp; 0x80) != 0x80);
+    sendBit((green &amp; 0x40) != 0x40);
+    sendBit((red &amp; 0x80) != 0x80);
+    sendBit((red &amp; 0x40) != 0x40);
+
+    // Send the actual colors
+    sendByte((byte)blue);
+    sendByte((byte)green);
+    sendByte((byte)red);
+}
+</code></pre>
+
+<p>We&rsquo;re almost there, there&rsquo;s only one step left!  Now we need to send the end frame.  It turns out that the end frame is the same as the start frame but to keep the code readable I did this:</p>
+
+<pre><code>private void sendEndFrame()
+{
+    // The end frame is the same as the start frame
+    sendStartFrame();
+}
+</code></pre>
+
+<p>Now you have enough information to send a color to your device.  We should probably wrap it up so that we can make it even easier to use though.  Let&rsquo;s just think about how this is going to be used in practice.  A typical user will have a few of these LEDs chained together but for testing you might want to use just one.  We know that the protocol requires a start frame, then flag bits, then color data, and the end frame if we use a single LED but for two LEDs it looks like this:</p>
+
+<ul>
+<li><p>Send start frame</p></li>
+<li><p>Send flag bits</p></li>
+<li><p>Send color data</p></li>
+<li><p>Send flag bits</p></li>
+<li><p>Send color data</p></li>
+<li><p>Send end frame</p></li>
+</ul>
+
+
+<p>So for our first LED we want to send the start frame, the flag bits and the color data.  For our last LED we want to send flag bits, the color data, and the end frame.  Here&rsquo;s a function that does that:</p>
+
+<pre><code>private void setColor(byte red, byte green, byte blue, bool first, bool last)
+{
+    // Is this the first color?
+    if (first)
+    {
+        // Yes, send the start frame
+        sendStartFrame();
+    }
+    else
+    {
+        // No, do nothing
+    }
+
+    // Send the flag bits
+    sendFlagBits();
+
+    // Send the colors
+    sendColorData(red, green, blue);
+
+    // Is this the last color?
+    if (last)
+    {
+        // Yes, send the end frame
+        sendEndFrame();
+    }
+    else
+    {
+        // No, do nothing
+    }
+}
+</code></pre>
+
+<p>The extra else blocks have no impact on the executable generated so they&rsquo;re just there for clarity.  You can remove them if you want.  Now if you want to send a bunch of colors to a string of three LEDs you can do this:</p>
+
+<pre><code>setColor(255, 0, 0, true, false);
+setColor(0, 255, 0, false, false);
+setColor(0, 0, 255, false, true);
+</code></pre>
+
+<p>That would set a string of three LEDs to solid red, solid green, and solid blue.  That&rsquo;s it, your driver is written!</p>
+
+<p>Check out <a href="https://github.com/timmattison/timmattison-netduino-drivers/tree/master/drivers/chainable-rgbled-grove/chainable-rgbled-grove">my driver on Github</a> to see a few more enhancements I added.  My code has an abstraction of a color from three integers into an RGB object so it&rsquo;s easier to pass around and also has a function that can set a string of LEDs from an array of RGB objects.  There&rsquo;s some sample code as well and if you want to see the system in action check out these simple videos:</p>
+
+<ul>
+<li><p><a href="http://www.youtube.com/watch?v=cOlJoXWr_qQ">Cycling random colors</a></p></li>
+<li><p><a href="http://www.youtube.com/watch?v=b5X3mvLbBf8">Cycling red, green, and blue</a></p></li>
+</ul>
+
+
+<p>Post in the comments and share your thoughts and project ideas.  If you use this library please let me know!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Fix Maven Errors in Eclipse When Getting Started With Heroku]]></title>
+    <link href="http://timmattison.github.io/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/"/>
+    <updated>2012-03-28T09:15:24-04:00</updated>
+    <id>http://timmattison.github.io/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku</id>
+    <content type="html"><![CDATA[<p>I haven&rsquo;t used Heroku much yet but with the addition of Java to their platform I&rsquo;m starting to see it as a really interesting option.  Yesterday I watched <a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=mkmWwA0EoGg#!">a great video on how to get started with Java on Heroku</a>.  It went well until I tried converting my project to a Maven project.  Then I got this error message in all of my pom.xml files:</p>
+
+<p><code>Plugin execution not covered by lifecycle configuration</code></p>
+
+<p>I checked the usual places but didn&rsquo;t find a solution to the issue.  Then I decided to try adding the m2e plugin from this update site:</p>
+
+<p><code>http://download.eclipse.org/technology/m2e/releases</code></p>
+
+<p>After adding the plugin and restarting my IDE I got two different error messages:</p>
+
+<p><code>maven-dependency-plugin (goals "copy-dependencies", "unpack") is not supported by m2e.</code>
+<code>Project configuration is not up-to-date with pom.xml.  Run project configuration update.</code></p>
+
+<p>The second error had a quick fix so I tried that and it worked.  Now the Java example application that uses the Play framework and the one that uses Spring MVC and Hibernate both work.  However, the ones that used JAX-RS and embedded Jetty did not.  They still showed the maven-dependency-plugin error.  The fix is to add the following XML in the build section of your pom.xml:</p>
+
+<pre><code>&lt;pluginmanagement&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupid&gt;org.eclipse.m2e&lt;/groupid&gt;
+                &lt;artifactid&gt;lifecycle-mapping&lt;/artifactid&gt;
+                &lt;version&gt;1.0.0&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;lifecyclemappingmetadata&gt;
+                        &lt;pluginexecutions&gt;
+                            &lt;pluginexecution&gt;
+                                &lt;pluginexecutionfilter&gt;
+                                    &lt;groupid&gt;org.apache.maven.plugins&lt;/groupid&gt;
+                                    &lt;artifactid&gt;maven-dependency-plugin&lt;/artifactid&gt;
+                                    &lt;versionrange&gt;[1.0.0,)&lt;/versionrange&gt;
+                                    &lt;goals&gt;
+                                        &lt;goal&gt;copy-dependencies&lt;/goal&gt;
+                                    &lt;/goals&gt;
+                                &lt;/pluginexecutionfilter&gt;
+                                &lt;action&gt;
+                                    &lt;ignore&gt;&lt;/ignore&gt;
+                                &lt;/action&gt;
+                            &lt;/pluginexecution&gt;
+                        &lt;/pluginexecutions&gt;
+                    &lt;/lifecyclemappingmetadata&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/pluginmanagement&gt;
+</code></pre>
+
+<p>After that you&rsquo;ll have to do the quick fix for the error &ldquo;Project configuration is not up-to-date&rdquo; again and then you&rsquo;ll be error free, at least in your pom.xml&hellip;</p>
+
+<p>Post in the comments and let me know if it worked or if you need any help.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Handle Failed Tasks Throwing "ENOENT" Errors in Hadoop]]></title>
+    <link href="http://timmattison.github.io/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/"/>
+    <updated>2012-03-21T19:09:48-04:00</updated>
+    <id>http://timmattison.github.io/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop</id>
+    <content type="html"><![CDATA[<p>Today when I tried to run a new Hadoop job I got the following error:</p>
+
+<pre><code>     [exec] 12/03/21 22:51:47 INFO mapred.JobClient: Task Id : attempt_201203212250_0001_m_000002_1, Status : FAILED
+     [exec] Error initializing attempt_201203212250_0001_m_000002_1:
+     [exec] ENOENT: No such file or directory
+     [exec]     at org.apache.hadoop.io.nativeio.NativeIO.chmod(Native Method)
+     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.setPermission(RawLocalFileSystem.java:521)
+     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.mkdirs(RawLocalFileSystem.java:344)
+     [exec]     at org.apache.hadoop.mapred.JobLocalizer.initializeJobLogDir(JobLocalizer.java:240)
+     [exec]     at org.apache.hadoop.mapred.DefaultTaskController.initializeJob(DefaultTaskController.java:216)
+     [exec]     at org.apache.hadoop.mapred.TaskTracker$4.run(TaskTracker.java:1352)
+     [exec]     at java.security.AccessController.doPrivileged(Native Method)
+     [exec]     at javax.security.auth.Subject.doAs(Subject.java:416)
+     [exec]     at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1157)
+     [exec]     at org.apache.hadoop.mapred.TaskTracker.initializeJob(TaskTracker.java:1327)
+     [exec]     at org.apache.hadoop.mapred.TaskTracker.localizeJob(TaskTracker.java:1242)
+     [exec]     at org.apache.hadoop.mapred.TaskTracker.startNewTask(TaskTracker.java:2541)
+     [exec]     at org.apac
+</code></pre>
+
+<p>It wasn&rsquo;t immediately apparent to me what file wasn&rsquo;t found from the error messages so I checked the logs, the JobTracker, my code, ran some known good jobs that also failed, basically everything I could think of.  It turns out that due to me accidentally running a script as &ldquo;root&rdquo; (don&rsquo;t worry, it was only on my desktop) that the permissions of several files in the hdfs user&rsquo;s home directory had changed ownership to &ldquo;root&rdquo;.  Because of that Hadoop was unable to create files in the /usr/lib/hadoop-0.20 directory.</p>
+
+<p>NOTE: These steps assume you are using Hadoop 0.20.  Adjust the paths in the commands accordingly if you aren&rsquo;t.</p>
+
+<p>If you want a quick fix try these steps (only if you take full responsibility for anything that may go wrong):</p>
+
+<ol>
+<li><p> Stop Hadoop using the stop-all.sh script as the hdfs user</p></li>
+<li><p> su to the hdfs user</p></li>
+<li><p> Run this:</p>
+
+<p>chown -R hdfs:hdfs /usr/lib/hadoop-0.20 /var/*/hadoop-0.20</p></li>
+<li><p> Restart Hadoop using the start-all.sh script as the hdfs user</p></li>
+</ol>
+
+
+<p>Now your jobs should start running again.  Post in the comments if this procedure works for you or if you need any help.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Install Perl Debugging in Eclipse on Debian/Ubuntu]]></title>
+    <link href="http://timmattison.github.io/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/"/>
+    <updated>2012-03-14T12:31:48-04:00</updated>
+    <id>http://timmattison.github.io/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu</id>
+    <content type="html"><![CDATA[<p>If you&rsquo;re looking to use Eclipse as a debugger for your Perl scripts things can get a bit hairy quickly.  You need to do a lot of things to get it to be happy so let&rsquo;s step through them all rather than have you hunt for the secret sauce like I did today.</p>
+
+<p>First, you&rsquo;ll want to <a href="http://www.epic-ide.org/download.php">add the EPIC (Eclipse Perl Integration Component) as described on the EPIC site</a>.  That will add support for creating Perl projects, syntax highlighting, and all that.</p>
+
+<p>Next, set a breakpoint in one of your Perl scripts and try to debug it.  If you&rsquo;re unlucky you may get one of two error messages.  One error message wants you to install <a href="http://search.cpan.org/~robin/PadWalker-1.93/PadWalker.pm">PadWalker</a> which is a Perl module that handles all of the debugging niceties for Eclipse.  To install that you can either use CPAN or apt.  Using apt is as simple as:</p>
+
+<pre><code>sudo apt-get install libpadwalker-perl
+</code></pre>
+
+<p>Once you install PadWalker restart Perl and try to debug one of your scripts again.  If it works, you&rsquo;re set.  The second possible error message is below&hellip;</p>
+
+<p>Now, you&rsquo;ve come all this way and it still doesn&rsquo;t work.  You&rsquo;ve probably received an error message like this:</p>
+
+<pre><code>Could not create the view: Plug-in "org.eclipse.debug.ui" was unable to instantiate class "org.eclipse.debug.internal.ui.views.variables.VariablesView".
+</code></pre>
+
+<p>If you dig deeper you&rsquo;ll see errors like this:</p>
+
+<pre><code>java.lang.ClassCircularityError: org/eclipse/debug/internal/ui/DebugUIPlugin
+</code></pre>
+
+<p>And if you dig <em>even</em> deeper you&rsquo;ll see errors like this:</p>
+
+<pre><code>Conflict for 'org.epic.perleditor.commands.clearMarker'
+</code></pre>
+
+<p>The fix for this was tricky to figure out so just follow these steps:</p>
+
+<ol>
+<li><p> Close Eclipse</p></li>
+<li><p> Uninstall libpadwalker-perl by running</p>
+
+<p>sudo apt-get remove &mdash;purge libpadwalker-perl</p></li>
+<li><p> Restart Eclipse and try to set a breakpoint in a Perl script, it should fail (no breakpoint should appear)</p></li>
+<li><p> Close Eclipse</p></li>
+<li><p> Reinstall libpadwalker-perl by running</p>
+
+<p>sudo apt-get install libpadwalker-perl</p></li>
+<li><p> Restart Eclipse, set a breakpoint, and start debugging again</p></li>
+</ol>
+
+
+<p>At this point the variables and breakpoints should always work.  Unfortunately the expressions panel will not.  It looks like this is not supported in EPIC just yet.  But, in any case, you now have a full fledged Perl debugger so you can (mostly) stop using print statements to debug your code post mortem.</p>
+
+<p>There are some quirks to note:</p>
+
+<ol>
+<li><p> &ldquo;Step Over&rdquo; (typically F6) does not work as expected and will step into modules.  If &ldquo;Step Return&rdquo; worked this wouldn&rsquo;t be a problem but it doesn&rsquo;t (see the next bullet point).  In this case if you are trying to step over a module you may have to back out and set a breakpoint where the execution will return to the script you want to debug.</p></li>
+<li><p> &ldquo;Step Return&rdquo; (typically F7) does not work as expected.  It will usually run until your script ends or hits a breakpoint.</p></li>
+<li><p> The console window will not let you run arbitrary Perl code so it&rsquo;s not a simple replacement for the expressions panel</p></li>
+<li><p> Perl modules (files with a .pm extension) may not appear with syntax highlighting enabled.  If you are debugging Perl modules you may want to retool your setup and run the module as a Perl script OR have Perl load your module from a file with a .pl extension.</p></li>
+</ol>
+
+
+<p>Good luck.  Now clean up/fix that Perl code and post in the comments.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing]]></title>
+    <link href="http://timmattison.github.io/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/"/>
+    <updated>2012-03-02T08:02:47-05:00</updated>
+    <id>http://timmattison.github.io/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests.  In the past few days I&rsquo;ve been playing around with Unicode and wanted to copy a code snippet from a Hadoop book to see how everything looks in the debugger.  When I entered the code I realized that I was missing some methods that I needed to complete the tests.</p>
+
+<p>Specifically I was trying to use assertThat() and is() but didn&rsquo;t know where to find them.  After a bit of Googling I found the two static imports that I needed to copy the code without qualifying assertThat() as Assert.assertThat() and the same goes for is().  They are:</p>
+
+<pre><code>import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+</code></pre>
+
+<p>I have to admit that org.hamcrest is a bit less obvious than I would have liked.  :)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: A Quick Primer on Waiting on Multiple Threads in Java]]></title>
+    <link href="http://timmattison.github.io/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/"/>
+    <updated>2012-02-28T16:32:21-05:00</updated>
+    <id>http://timmattison.github.io/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java</id>
+    <content type="html"><![CDATA[<p>Last night I was writing some code to do some performance testing on HDFS.  I noticed that single threaded performance wasn&rsquo;t anywhere near as good as I expected and my CPUs were spending most of their time idle.  I decided to add some threads into the process to see if a multi-threaded speed test would consume some of that idle CPU.  It worked as expected so I figured I would share some basic knowledge on how to I started up multiple threads, had them do their work, waited for them to finish without polling, and then recorded the total duration to calculate my statistics.</p>
+
+<p>What you&rsquo;ll need to do first is decide what you want to do in the processing thread.  This code will go into a Java Runnable like this:</p>
+
+<pre><code>Runnable runnable = new Runnable() {
+    @Override
+    public void run() {
+        // Do something exciting here
+    }
+};
+</code></pre>
+
+<p>Next you&rsquo;ll need to decide how many threads you want to run.  If you wanted to run four threads you could do this:</p>
+
+<pre><code>int threadCount = 4;
+
+for (int threadLoop = 0; threadLoop &lt; threadCount; threadLoop++) {
+    // XXX - Put the runnable block from above right here
+
+    // Create a new thread
+    Thread thread = new Thread(runnable);
+
+    // Add the thread to our thread list
+    threads.add(thread);
+
+    // Start the thread
+    thread.start();
+}
+</code></pre>
+
+<p>That will start four threads.  It&rsquo;s best to use a variable so you can update it and use it in other places like calculating your statistics.  Now let&rsquo;s wait for all the threads to finish:</p>
+
+<pre><code>// Loop through the threads
+for (Thread thread : threads) {
+    try {
+        // Wait for this thread to die
+        thread.join();
+    } catch (InterruptedException e) {
+        // Ignore this but print a stack trace
+        e.printStackTrace();
+    }
+}
+</code></pre>
+
+<p>Finally, you&rsquo;ll want to time all of this.  I do something very simple here.  Before all of the code I do this:</p>
+
+<pre><code>long startTime = new Date().getTime();
+</code></pre>
+
+<p>After all of the code I do this:</p>
+
+<pre><code>long endTime = new Date().getTime();
+long durationInMilliseconds = endTime - startTime;
+</code></pre>
+
+<p>With all of that in place you can now measure how long your code ran and then calculate important metrics about it.  For example, if this code did 10,000 operations per thread and ran with 4 threads you would then take the duration and divide that by 40,000 and you&rsquo;d get an idea of how many milliseconds it took per operation.  Just make sure you use doubles or you&rsquo;ll lose all of your precision due to coercion.  Do this (assuming that your number of operations is stored in a variable called &ldquo;operations&rdquo;):</p>
+
+<pre><code>double millisecondsPerOperation = (double) durationInMilliseconds / (double) operations;
+double operationsPerMillisecond = (double) operations / (double) durationInMilliseconds;
+</code></pre>
+
+<p>These are just reciprocals of each other but sometimes one value is a lot easier to understand than the other so I usually calculate them both.</p>
+
+<p>Now that you have those statistics you can try different thread counts, optimize code/loops, etc.  Good luck!  Post in the comments with any ideas and/or issues.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Fix "Chown: Cannot Dereference" Errors in Cloudera CDH on Debian/Ubuntu Linux When Upgrading]]></title>
+    <link href="http://timmattison.github.io/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/"/>
+    <updated>2012-02-26T12:10:47-05:00</updated>
+    <id>http://timmattison.github.io/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading</id>
+    <content type="html"><![CDATA[<p><strong><em>WARNING!</em></strong> Do not do this on production clusters unless you are willing to take responsibility for any issues that may occur.  This wipes out all of your logs and potentially other files.  Always have a backup before trying anything like this.  I take no responsibility for issues that may arise from running any or all of these instructions.</p>
+
+<p>When I tried to upgrade my CDH installation today I received many errors from dpkg that caused the upgrade to fail.  The errors looked like this:</p>
+
+<pre><code>chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000015_0': No such file or directory
+chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000003_0': No such file or directory
+chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000009_0': No such file or directory
+chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000018_0': No such file or directory
+
+...
+
+dpkg: error processing hadoop-0.20 (--configure):
+ subprocess installed post-installation script returned error exit status 123
+dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
+ hadoop-0.20-tasktracker depends on hadoop-0.20 (= 0.20.2+923.195-1~squeeze-cdh3); however:
+  Package hadoop-0.20 is not configured yet.
+</code></pre>
+
+<p>My simple fix, not for production clusters, is to do the following:</p>
+
+<ul>
+<li><p>Step 1: Become the HDFS user and stop Hadoop by running</p>
+
+<p>~/bin/stop-all.sh</p></li>
+<li><p>Step 2: Become root and remove all of your Hadoop related logs by running</p>
+
+<p>rm -rf /var/log/hadoop-0.20/*</p></li>
+<li><p>Step 3: Become root and run your upgrade by running</p>
+
+<p>apt-get upgrade</p></li>
+<li><p>Step 4: Become the HDFS user and restart Hadoop by running</p>
+
+<p>~/bin/start-all.sh</p></li>
+</ul>
+
+
+<p>After that your installation should be working and up to date again.  Post in the comments if it works for your or if you need any assistance.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Trimming the Tops and Bottoms of Text Files With Head and Tail]]></title>
+    <link href="http://timmattison.github.io/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail/"/>
+    <updated>2012-02-16T09:05:21-05:00</updated>
+    <id>http://timmattison.github.io/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail</id>
+    <content type="html"><![CDATA[<p>Normally the head and tail applications on Linux are good for what their names imply.  head gives you the first few lines of a file, tail gives you last few lines of a file and even lets you watch the end of a file for changes.  This is great but what if you want to get an entire file <em>except</em> for the first few or last few lines?  It turns out that head and tail have options to do this and it&rsquo;s incredibly useful for trimming files without knowing exactly how many lines they contain.</p>
+
+<p>I&rsquo;m writing this because I keep forgetting which one does what.  Here&rsquo;s how you can remember it and use it every day&hellip;</p>
+
+<p>Tip #1: If you only want the end of a file use tail like this:</p>
+
+<pre><code>tail -n +3 input.file &gt; output.file
+</code></pre>
+
+<p>An example file, like a PostgreSQL database dump, might look like this:</p>
+
+<pre><code>column_a | column_b | column_c
+---------+----------+---------
+    1    |   bob    |  65000
+    2    |   joe    |  80000
+    3    |   jim    |  54000
+(3 rows)
+</code></pre>
+
+<p>After running</p>
+
+<pre><code>tail -n +3 input.file &gt; output.file
+</code></pre>
+
+<p>on this we&rsquo;ll end up with output that looks like this:</p>
+
+<pre><code>    1    |   bob    |  65000
+    2    |   joe    |  80000
+    3    |   jim    |  54000
+(3 rows)
+</code></pre>
+
+<p>The best way to remember this is that you want everything until the end of the file starting at the third line.</p>
+
+<p>Tip #2: If you only want the beginning of a file use head like this:</p>
+
+<pre><code>head -n -2 input.file &gt; output.file
+</code></pre>
+
+<p>Using the same example file we end up with:</p>
+
+<pre><code>column_a | column_b | column_c
+---------+----------+---------
+    1    |   bob    |  65000
+    2    |   joe    |  80000
+    3    |   jim    |  54000
+</code></pre>
+
+<p>The best way to remember this is that you want everything from the beginning file excluding the last two lines.  Note, there is a blank line after &ldquo;(3 rows)&rdquo; and we want to remove that too.</p>
+
+<p>Tip #3: If you need to trim from both side you can pipe like this:</p>
+
+<pre><code>tail -n +3 input.file | head -n -2 &gt; output.file
+</code></pre>
+
+<p>Using the same example we end up:</p>
+
+<pre><code>    1    |   bob    |  65000
+    2    |   joe    |  80000
+    3    |   jim    |  54000
+</code></pre>
+
+<p>This now translates to start at the third line and stop two lines from the end.  If you ever forget just come back here and re-read the examples.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Fix Basic Build Issues When Using Maven]]></title>
+    <link href="http://timmattison.github.io/2012/02/07/tip-fix-basic-build-issues-when-using-maven/"/>
+    <updated>2012-02-07T13:33:46-05:00</updated>
+    <id>http://timmattison.github.io/2012/02/07/tip-fix-basic-build-issues-when-using-maven</id>
+    <content type="html"><![CDATA[<p>When trying to build Hadoop with Maven today I got this ugly error message:</p>
+
+<pre><code>[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[ERROR] FATAL ERROR
+[INFO] ------------------------------------------------------------------------
+[INFO] Error building POM (may not be this project's POM).
+
+
+Project ID: org.apache.hadoop:hadoop-project
+POM Location: /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+Validation Messages:
+
+    [0]  For dependency Dependency {groupId=jdk.tools, artifactId=jdk.tools, version=1.6, type=jar}: system-scoped dependency must specify an absolute path systemPath.
+
+
+Reason: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+
+
+[INFO] ------------------------------------------------------------------------
+[INFO] Trace
+org.apache.maven.reactor.MavenExecutionException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:404)
+    at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:272)
+    at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:138)
+    at org.apache.maven.cli.MavenCli.main(MavenCli.java:362)
+    at org.apache.maven.cli.compat.CompatibleMain.main(CompatibleMain.java:60)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:616)
+    at org.codehaus.classworlds.Launcher.launchEnhanced(Launcher.java:315)
+    at org.codehaus.classworlds.Launcher.launch(Launcher.java:255)
+    at org.codehaus.classworlds.Launcher.mainWithExitCode(Launcher.java:430)
+    at org.codehaus.classworlds.Launcher.main(Launcher.java:375)
+Caused by: org.apache.maven.project.InvalidProjectModelException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+    at org.apache.maven.project.DefaultMavenProjectBuilder.processProjectLogic(DefaultMavenProjectBuilder.java:1077)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.buildInternal(DefaultMavenProjectBuilder.java:880)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.buildFromSourceFileInternal(DefaultMavenProjectBuilder.java:508)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.build(DefaultMavenProjectBuilder.java:200)
+    at org.apache.maven.DefaultMaven.getProject(DefaultMaven.java:604)
+    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:487)
+    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:560)
+    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:391)
+    ... 12 more
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: &lt; 1 second
+[INFO] Finished at: Tue Feb 07 13:30:39 EST 2012
+[INFO] Final Memory: 3M/361M
+[INFO] ------------------------------------------------------------------------
+</code></pre>
+
+<p>Tsk, tsk on me.  All I had to do was set my JAVA_HOME variable.  Not sure how to set yours?  Just do this:</p>
+
+<pre><code>export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+</code></pre>
+
+<p>I&rsquo;m actually running 64-bit Debian Wheezy so I had to do some other things to get my system prepped.  I needed to get off of Maven 2 and onto Maven 3, add the JDK, install the protocol buffers compiler, install zlib and its development files, and use a slightly different path.  Here&rsquo;s what I did:</p>
+
+<pre><code>sudo apt-get install maven openjdk-6-jdk libprotoc-dev protobuf-compiler zlib1g-dev
+export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
+</code></pre>
+
+<p>After that Maven started humming away when I ran:</p>
+
+<pre><code>mvn compile -Pnative
+</code></pre>
+
+<p>Good luck!  Post in the comments if you run into trouble.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap]]></title>
+    <link href="http://timmattison.github.io/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/"/>
+    <updated>2012-02-07T11:16:19-05:00</updated>
+    <id>http://timmattison.github.io/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap</id>
+    <content type="html"><![CDATA[<p>If you&rsquo;re writing code that accesses HDFS and you get an exception that looks like this:</p>
+
+<pre><code>Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap
+    at org.apache.hadoop.hdfs.SocketCache.&lt;init&gt;(SocketCache.java:48)
+    at org.apache.hadoop.hdfs.DFSClient.&lt;init&gt;(DFSClient.java:240)
+    at org.apache.hadoop.hdfs.DFSClient.&lt;init&gt;(DFSClient.java:208)
+    at org.apache.hadoop.hdfs.DistributedFileSystem.initialize(DistributedFileSystem.java:89)
+    at org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:1563)
+    at org.apache.hadoop.fs.FileSystem.access$200(FileSystem.java:67)
+    at org.apache.hadoop.fs.FileSystem$Cache.getInternal(FileSystem.java:1597)
+    at org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:1579)
+    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:228)
+    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:111)
+</code></pre>
+
+<p>Make sure you include the guava-r09-jarjar.jar JAR in your build path.  This is usually located in /usr/lib/hadoop-0.20/lib.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Debug HDFS Applications in Eclipse]]></title>
+    <link href="http://timmattison.github.io/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/"/>
+    <updated>2012-02-07T10:56:58-05:00</updated>
+    <id>http://timmattison.github.io/2012/02/07/how-to-debug-hdfs-applications-in-eclipse</id>
+    <content type="html"><![CDATA[<p>I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS.  One thing that I noticed is that when running the application via &ldquo;hadoop jar&rdquo; it properly accessed HDFS and stored its files there but if I ran it in the debugger the API calls succeeded but the files never showed up.</p>
+
+<p>After a bit more investigation I saw that the HDFS API was unable to read my configuration files and find the NameNode so it defaulted to writing the files on the local file system instead.  This is nice behavior for debugging sometimes but can be dangerous if you&rsquo;re running an application that must put its files in HDFS like a mission critical application that doesn&rsquo;t fulfill its operational contract if data is lost.  In the case of an application like that accidentally writing to the local file system could be disastrous and expensive so it&rsquo;s good to know how to detect when this happens, and/or overcome it in a situation where you&rsquo;re trying to debug against your HDFS cluster.</p>
+
+<p>Let&rsquo;s look at a simple code snippet that connects to HDFS that is just a cleaned up version of <a href="http://developer.yahoo.com/hadoop/tutorial/module2.html#programmatically">Yahoo&rsquo;s Hadoop tutorial</a>:</p>
+
+<pre><code>import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+public class TestClass {
+    private static final String theFilename = "timmattison.txt";
+    private static final String message = "This is the message that gets put into the file";
+
+    public static void main(String[] args) {
+        try {
+            // Get the configuration and connect to the file system
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
+
+            // Create the path object for our output file
+            Path filenamePath = new Path(theFilename);
+
+            // Does it exist already?
+            if (fs.exists(filenamePath)) {
+                // Yes, remove it first
+                fs.delete(filenamePath);
+            }
+
+            // Create the output file and write the data into it
+            FSDataOutputStream out = fs.create(filenamePath);
+            out.writeUTF(message);
+            out.close();
+
+            // Open the output file as an input file and read it
+            FSDataInputStream in = fs.open(filenamePath);
+            String messageIn = in.readUTF();
+
+            // Print its contents and close the file
+            System.out.print(messageIn);
+            in.close();
+        } catch (IOException ioe) {
+            System.err.println("IOException during operation: "
+                    + ioe.toString());
+            System.exit(1);
+        }
+    }
+}
+</code></pre>
+
+<p>If you run this code with &ldquo;hadoop jar&rdquo; you&rsquo;ll see that it creates the expected file (timmattison.txt) in the current user&rsquo;s default path in HDFS.  If you run this code with Eclipse either in Run or Debug mode you&rsquo;ll see that the file is not created in HDFS, it is created relative to where Eclipse starts the JVM for the new process.</p>
+
+<p>We can tell where the HDFS library will attempt to write our files by very simply checking the type of the FileSystem object that is created by the call to <code>FileSystem.get(conf)</code>.  If that object&rsquo;s type is <a href="http://hadoop.apache.org/common/docs/current/api/org/apache/hadoop/fs/LocalFileSystem.html">LocalFileSystem</a> we are not connecting to HDFS.  However if that object&rsquo;s type is <a href="http://hadoop.apache.org/hdfs/docs/current/api/org/apache/hadoop/hdfs/DistributedFileSystem.html">DistributedFileSystem</a> then you know that you&rsquo;re connected to a Hadoop cluster and writing to a real instance of HDFS.</p>
+
+<p>In your code you can leverage this in a few ways.  First, if you always need to be sure you&rsquo;re writing to the cluster you can check the fs variable and see if it is an instance of LocalFileSystem.  If it is you can signal an error, e-mail an admin, etc.  Configuration changes in the field could cause this to happen so it is important to be aware of.  In general running programs through &ldquo;hadoop jar&rdquo; will make sure this doesn&rsquo;t happen but a little <a href="http://en.wikipedia.org/wiki/Defensive_programming">defensive programming</a> usually can&rsquo;t hurt.  Just consider what the cost of running your code against the wrong file system would be and trap this condition accordingly.</p>
+
+<p>If you&rsquo;re interested in handling this automatically in your development environment I&rsquo;ve come up with a simple pattern that works for me.  In some instances such as running your code outside of Eclipse without &ldquo;hadoop jar&rdquo; this pattern could fail so only use it specifically for debugging in Eclipse.  Here&rsquo;s what I do:</p>
+
+<pre><code>import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
+
+public class TestClass {
+    private static final String CORE_SITE_NAME = "core-site.xml";
+    private static final String CORE_SITE_LOCATION = "/etc/hadoop-0.20/conf.empty/"
+            + CORE_SITE_NAME;
+    private static final String LOCAL_SEARCH_PATH = "bin/";
+    private static final String LOCAL_CORE_SITE_LOCATION = LOCAL_SEARCH_PATH
+            + CORE_SITE_NAME;
+
+    private static boolean updatedConfiguration = false;
+
+    public static void main(String[] args) throws IOException {
+        try {
+            // Get the configuration and connect to the file system
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
+
+            // Is this the local file system?
+            if (fs instanceof LocalFileSystem) {
+                // Yes, we need to do use the cluster. Update the configuration.
+                updatedConfiguration = true;
+
+                /**
+                 * Remove the file if it already exists. Just in case this is a
+                 * symlink or something.
+                 */
+                removeTemporaryConfigurationFile();
+
+                // Copy the core-site.xml file to where our JVM can see it
+                copyConfigurationToTemporaryLocation();
+
+                // Recreate the configuration object
+                conf = new Configuration();
+
+                // Get a new file system object
+                fs = FileSystem.get(conf);
+
+                // Is this the local file system?
+                if (fs instanceof LocalFileSystem) {
+                    // Yes, give up. We cannot connect to the cluster.
+                    System.err.println("Failed to connect to the cluster.");
+                    System.exit(2);
+                }
+            }
+
+            // Do your HDFS related work here...
+        } catch (IOException ioe) {
+            // An IOException occurred, give up
+            System.err.println("IOException during operation: "
+                    + ioe.toString());
+            System.exit(1);
+        } finally {
+            // Did we update the configuration?
+            if (updatedConfiguration) {
+                // Yes, clean up the temporary configuration file
+                removeTemporaryConfigurationFile();
+            }
+        }
+    }
+
+    private static void copyConfigurationToTemporaryLocation()
+            throws IOException {
+        Runtime.getRuntime().exec(
+                new String[] { "cp", CORE_SITE_LOCATION,
+                        LOCAL_CORE_SITE_LOCATION });
+    }
+
+    private static void removeTemporaryConfigurationFile() throws IOException {
+        Runtime.getRuntime().exec(
+                new String[] { "rm", LOCAL_CORE_SITE_LOCATION });
+    }
+}
+</code></pre>
+
+<p>Now where it says &ldquo;Do your HDFS related work here&hellip;&rdquo; you can put your code and be sure that it&rsquo;s accessing the cluster, not your local file system.</p>
+
+<p>In a future article and on github I&rsquo;ll wrap this up in a reusable chunk so that you won&rsquo;t have to copy and paste this every time you start a new project.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Why I Wrote dirhash.pl (a Whole Directory Filename and Contents Hashing System)]]></title>
+    <link href="http://timmattison.github.io/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/"/>
+    <updated>2012-01-29T17:17:15-05:00</updated>
+    <id>http://timmattison.github.io/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system</id>
+    <content type="html"><![CDATA[<p>Over the years I have accumulated many, many disks full of data.  Ordinarily I migrate them to my latest disk and just keep a backup or two and get rid of the old disks.  However, every once in a while I come across an old disk that has a directory structure that I really want to keep but don&rsquo;t have the time to go through.  Recently this happened with a large directory of old projects and to make matters worse there were multiple copies of this directory in different places.</p>
+
+<p>I looked around and found some interesting stuff so I certainly didn&rsquo;t want to lose this time capsule of code but I now had an interesting problem.  How do I take multiple copies of what appear like identical directories and compare them so I can nuke them if they are duplicates?</p>
+
+<p>I could rsync one to the other but that would involve modifying one or both copies and I wasn&rsquo;t excited about that since there&rsquo;s the chance that one is newer than the other and I could mix them up.  There are flags to check that but I didn&rsquo;t want to go the potentially destructive route.</p>
+
+<p>I could hash each file and determine which are dupes but with over 20,000 files it becomes tedious work.  Dupe removers are OK but it still felt clunky.  I just wanted a quick yea or nay as to whether I could give these files the good old &ldquo;rm -rf&rdquo;.</p>
+
+<p>Hashing the files, dumping it to a list, and then hashing the list sounds good but there are a few problems:</p>
+
+<ul>
+<li><p>If the files are in different order the results will be different but I can resolve this with &ldquo;sort&rdquo;</p></li>
+<li><p>If the hashing program reports the relative path names then the file list will definitely be different and therefore the final hash will be different.  I could resolve this with some vi-fu or sed-fu but that leaves me with some work that is just lost when I need to do it again.</p></li>
+</ul>
+
+
+<p>My solution was to write a Perl script that rolled all of that logic into one package.  It does the following:</p>
+
+<ul>
+<li><p>Gets a list of files in the specified directory</p></li>
+<li><p>Sorts that list</p></li>
+<li><p>Hashes each entry in the list.  If it is a file it is hashed and its filename is appended to the hash, if it is a directory it is opened up and those files are run through this process recursively.</p></li>
+<li><p>The final list of hashes and filenames itself is hashed to make sure we get one hash for the entire directory</p></li>
+</ul>
+
+
+<p>This solves the order problem and the script removes the relative path elements from each filename automatically so that&rsquo;s no longer an issue as well.</p>
+
+<p>If you&rsquo;re looking to see if two directory structures are equal (filenames all equal, no files added or removed between the two of them, and file contents equal) give it a shot and let me know how it works for you.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Why I Wrote prcp.pl (Copies Files With a Progress Indicator)]]></title>
+    <link href="http://timmattison.github.io/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/"/>
+    <updated>2012-01-29T17:01:40-05:00</updated>
+    <id>http://timmattison.github.io/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator</id>
+    <content type="html"><![CDATA[<p>Just last night I had a few large files I wanted to bring to a friends house.  They were HD videos that I took a long time ago and were about 7 GB in total.  I figured I would just plop them on a USB drive and in a few minutes I&rsquo;d be ready to go.</p>
+
+<p>It didn&rsquo;t quite work out so easily.  15 minutes after I tried to drag the files to the drive in Nautilus it wasn&rsquo;t apparent that anything was happening.  The progress bar had frozen, the flash drive was still doing something, and some of the files looked like they were there.  I tried to do it again on the command line using &ldquo;cp&rdquo; and got the same results (with no progress bar).  I knew there had to be a better way to copy these files and know what was actually going on but first I had to figure out what was really happening.</p>
+
+<p>The initial discovery was that when &ldquo;cp&rdquo; copies a file to a vfat (FAT32) formatted flash drive it immediately allocates enough space for the entire file to fit.  This is smart because it makes sure you can&rsquo;t get stuck copying a file to a drive where it won&rsquo;t fit.  It&rsquo;s also a pain because I can&rsquo;t open another terminal window and see the file growing as it is being written to.</p>
+
+<p>My next discovery was that disk caching was making the process difficult to understand.  Nautilus appeared to copy the file quickly at first and then it just looked like it hung completely.</p>
+
+<p>So I set out to write a script to fix these problems.  I knew I wanted all of the following things:</p>
+
+<ul>
+<li><p>A command-line utility &ndash; I wanted to be able to use this program without a GUI</p></li>
+<li><p>A progress bar &ndash; I wanted to get visual feedback without babysitting the script</p></li>
+<li><p>Files that &ldquo;grew&rdquo; while they were being copied &ndash; I wanted to be able to check it remotely in a different terminal session if necessary</p></li>
+<li><p>Predictable behavior with regard to the disk cache &ndash; I couldn&rsquo;t have the disk cache making it seem like the devices were writing very fast, then stalling, then writing very fast again</p></li>
+</ul>
+
+
+<p>After an hour I came up with prcp.pl.  It is a Perl script that uses mainly Term::ProgressBar and File::Sync to do what I needed.  It&rsquo;s not finished but it&rsquo;s very functional.  What it does is copy the file using sysread and syswrite while fsyncing the output file after each write.  This forces what you see on the disk to be consistent with what the program is copying since it largely bypasses the disk cache.</p>
+
+<p>If you&rsquo;re brave give it a try and let me know what you think.  Only use it on data that you have backed up since it has undergone minimal testing so far.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Free Tool Collection Available on Github]]></title>
+    <link href="http://timmattison.github.io/2012/01/29/free-tool-collection-available-on-github/"/>
+    <updated>2012-01-29T16:38:52-05:00</updated>
+    <id>http://timmattison.github.io/2012/01/29/free-tool-collection-available-on-github</id>
+    <content type="html"><![CDATA[<p>Today I just released <a href="https://github.com/timmattison/timmattison-tools">a few home brew tools</a> that I&rsquo;ve been meaning to write for a while.  I&rsquo;m going to write full articles on them soon but just as a preliminary taste here are descriptions of the two programs I released today:</p>
+
+<ul>
+<li><p>prcp.pl &ndash; Copies files and has a progress indicator</p></li>
+<li><p>dirhash.pl &ndash; Hashes the names and contents of an entire directory to a single hash</p></li>
+</ul>
+
+
+<p>If you use them please post in the comments below.  If you want to contribute to them just send me merge requests and open tickets!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Mini Hack: Parallel Vacuuming in PostgreSQL]]></title>
+    <link href="http://timmattison.github.io/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/"/>
+    <updated>2012-01-24T11:42:41-05:00</updated>
+    <id>http://timmattison.github.io/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql</id>
+    <content type="html"><![CDATA[<p>I run several development environments that I need to sync with production databases to do bug fixes and new feature development.  It&rsquo;s always good to vacuum these databases before using them especially if you&rsquo;re doing it via rsync on a live system.  If you don&rsquo;t you could end up with rows that are inaccessible from your indicies and get strange results from your database.</p>
+
+<p>Full vacuums are slow but we can&rsquo;t get around it here.  What I noticed is that normally in production vacuuming the database is an I/O bound operation but in development where we&rsquo;re working with dedicated development machines with tons of RAM we typically end up with a lot of the database for our smaller projects (&lt; 5 GB) in the cache.  This makes vacuuming a CPU bound process again and where there&rsquo;s a CPU bound process there&rsquo;s usually room for parallelism.</p>
+
+<p>Today I decided to test out how well <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> could speed up my development machine&rsquo;s vacuuming process and I&rsquo;m happy to report that it cuts it nearly in half.  If you&rsquo;re running into the same issue and waiting for vacuuming is eating into your development time try this one liner (make sure you have <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> installed first):</p>
+
+<pre><code>echo "\dt" | psql DB_NAME | head -n -2 | tail -n +4 | awk ' { print $3 } ' | parallel -I {} vacuumdb -f -v -d DB_NAME -t {}
+</code></pre>
+
+<p>What this does is:</p>
+
+<ul>
+<li><p>Sends the string &ldquo;\dt&rdquo; to PostgreSQL to list the table names</p></li>
+<li><p>Pipes that through head and removes the last two lines (they don&rsquo;t contain table names)</p></li>
+<li><p>Pipes that through tail and removes the first four lines (they also don&rsquo;t contain table names)</p></li>
+<li><p>Pipes that to awk and extracts the third field (the table name)</p></li>
+<li><p>Pipes that to parallel, runs vacuumdb with a full vacuum (-f) in verbose mode (-v), placing the table names where we included the curly bracket pair</p></li>
+</ul>
+
+
+<p>UPDATE: Ole Tange, the author of the fantastic GNU Parallel package, wrote in with his own one-liner to do the same thing as mine.  His is a bit shorter and requires fewer pipes.  Take a look:</p>
+
+<pre><code>sql -n --list-tables pg:///DB_NAME | parallel -j0 -r --colsep '\|' sql pg:///DB_NAME vacuum full verbose {2}
+</code></pre>
+
+<p>What his does is:</p>
+
+<ul>
+<li><p>Gets a table list from GNU sql (which I had never used before, it&rsquo;s great to know that it exists!)</p></li>
+<li><p>Pipes that to GNU Parallel specifying it should run as many jobs as the machine has cores (-j0), should not run if there is no input (-r), and uses the pipe character as a column separator</p></li>
+<li><p>GNU Parallel then calls GNU sql, connects to the proper database executes a full, verbose vacuum on the second field it extracted from the table list (the table name)</p></li>
+</ul>
+
+
+<p>I added in the &ldquo;full verbose&rdquo; to Ole&rsquo;s example so the two scripts are doing the same work instead of just a plain vacuum.</p>
+
+<p>Compare that against the run time for a normal vacuum and report your results in the comments.  For databases that won&rsquo;t fit in your RAM it may not help that much but I&rsquo;d like to hear either way.</p>
+]]></content>
+  </entry>
+  
+</feed>

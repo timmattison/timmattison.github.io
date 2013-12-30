@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Update: Nicer Formatting for Cisco Twitter Timelines and Direct Message Support - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="A savvy guy in Germany gave me some pointers on what could be improved in my previous post How-To: Get a Twitter timeline on a Cisco 7960. Rather &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://timmattison.github.io/2009/10/15/update-nicer-formatting-for-cisco-twitter-timelines-and-direct-message-support">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:timmattison.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Update: Nicer Formatting for Cisco Twitter Timelines and Direct Message Support</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-15T10:38:07-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>A <a href="https://twitter.com/nikonshooter62">savvy guy in Germany</a> gave me some pointers on what could be improved in my previous post <a href="http://blog.timmattison.com/blog/archives/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/">How-To: Get a Twitter timeline on a Cisco 7960</a>.  Rather than updating that one again and having it get lost I&rsquo;ll put the newest stuff in new posts as they come up.</p>
+
+<p>First, rather than getting your friends timeline he suggested, and modified the script, to only pull the direct messages.  The change is straightforward and you can simply replace</p>
+
+<pre><code>$timeline = $twit-&gt;friends_timeline();
+</code></pre>
+
+<p>with</p>
+
+<pre><code>$timeline = $twit-&gt;direct_messages();
+</code></pre>
+
+<p>Second, the message formatting that comes from the API <a href="http://twitpic.com/llrfq">leaves a little bit to be desired</a>.  Therefore the two suggestions were to remove the &ldquo;+0000&rdquo; and move the year so it&rsquo;s between the date and time.  This change is a bit more tricky but can be done with regular expressions.  For the first I did this</p>
+
+<pre><code>$input =~ s/ \+0000//g;
+</code></pre>
+
+<p>and for the second I did this</p>
+
+<pre><code>$input =~ s/^([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*):/$1 $2 $3 $4 $5 $7 $6:/;
+</code></pre>
+
+<p>Put whichever of these you&rsquo;d like (or both) right before</p>
+
+<pre><code>return $input
+</code></pre>
+
+<p>in the fix_cisco_issues subroutine.  Make sure you copy them</p>
+
+<p>exactly or they can break the script.</p>
+
+<p>If you run into any trouble (ie. blank Cisco screen after doing the updates), run the script on the command-line and see if there are any errors showing up on STDERR. Usually, it&rsquo;s just a typo so pay attention to the error output and patch it up!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-15T10:38:07-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2009</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://timmattison.github.io/2009/10/15/update-nicer-formatting-for-cisco-twitter-timelines-and-direct-message-support/" data-via="" data-counturl="http://timmattison.github.io/2009/10/15/update-nicer-formatting-for-cisco-twitter-timelines-and-direct-message-support/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2009/10/15/how-to-resolve-pyunicodeucs2-decodeutf8-errors-in-gentoo/" title="Previous Post: How-To: Resolve PyUnicodeUCS2_DecodeUTF8 errors in Gentoo">&laquo; How-To: Resolve PyUnicodeUCS2_DecodeUTF8 errors in Gentoo</a>
+      
+      
+        <a class="basic-alignment right" href="/2009/10/15/how-to-clear-out-tomcats-cache-and-fix-outdated-jsp-problems/" title="Next Post: How-To: Clear out Tomcat's cache and fix outdated JSP problems">How-To: Clear out Tomcat's cache and fix outdated JSP problems &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/">How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2012/04/19/tips-for-debugging-springs-transactional-annotation/">Tips for Debugging Spring's @Transactional Annotation</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">How-To: Get Verizon's Media Manager to Read Content From a Network Location</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/">Tip: Fix "'Xterm': Unknown Terminal Type" Messages in Debian</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
