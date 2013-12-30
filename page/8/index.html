@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I was working on comparing some data in PostgreSQL today and I realized just how long it can take to compare millions of rows of bytea data in raw &hellip;">
+  <meta name="description" content="Recently the Gentoo project deprecated lots of system profiles. What this meant for me what that I needed to do nearly an entire system rebuild with &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,68 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/10/28/how-to-fix-the-cannot-find-luuid-error-on-gentoo/">How-To: Fix the &#8220;Cannot Find -luuid&#8221; Error on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-28T22:11:26-04:00" pubdate data-updated="true">Oct 28<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/10/28/how-to-fix-the-cannot-find-luuid-error-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/28/how-to-fix-the-cannot-find-luuid-error-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Recently the Gentoo project deprecated lots of system profiles.  What this meant for me what that I needed to do nearly an entire system rebuild with my usual &ldquo;emerge &mdash;update &mdash;deep &mdash;newuuse -av world&rdquo; magic.  After churning through about 200 of the 400+ ports that needed to be rebuilt my system started getting weird.  Notably mount/umount stopped working, and the emerge failed.  The error message I got after a bit of digging was that Gentoo &ldquo;cannot find -luuid&rdquo;.  Running mount or umount (and probably other e2fsprogs utilities) gave me the error &ldquo;error while loading shared libraries: libblkid.so.1: cannot open shared object file: No such file or directory&rdquo;.</p>
+
+<p>When you get an error like this it&rsquo;s time to act fast since a power outage or a reboot can really hose the system.  I&rsquo;ve had it happen before and it&rsquo;s not pretty.  In this case you need to re-emerge e2fsprogs and util-linux.  I simply did this:</p>
+
+<pre><code>emerge --update --deep --newuse -av e2fsprogs
+</code></pre>
+
+<p>That re-emerged both packages for me.  If it doesn&rsquo;t show that it will re-emerge both then you&rsquo;re best off doing this:</p>
+
+<pre><code>emerge --update --deep --newuse -av util-linux e2fsprogs
+</code></pre>
+
+<p>After doing that you should have neither &ldquo;cannot find -luuid&rdquo; nor &ldquo;error while loading shared libraries: libblkid.so.1: cannot open shared object file: No such file or directory&rdquo; problems.  If you&rsquo;re extra paranoid like me you should also re-emerge dbus and then do a revdep-rebuild</p>
+
+<pre><code>emerge --update --deep --newuse -av dbus
+revdep-rebuild
+</code></pre>
+
+<p>If you don&rsquo;t have revdep-rebuild installed you can install it by running</p>
+
+<pre><code>emerge gentoolkit
+</code></pre>
+
+<p>dbus tells you that you must run revdep-rebuild after emerging it and restart dbus.  Listen to it, it&rsquo;s not kidding.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -721,62 +783,6 @@ multi(0)disk(0)rdisk(0)partition(2)\WINDOWS="Microsoft Windows XP" /fastdetect
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/08/08/how-to-get-openvpn-and-the-iburst-to-cooperate/">How-To: Get OpenVPN and the iBurst to Cooperate</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-08-08T19:59:59-04:00" pubdate data-updated="true">Aug 8<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/08/08/how-to-get-openvpn-and-the-iburst-to-cooperate/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/08/08/how-to-get-openvpn-and-the-iburst-to-cooperate/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>If you&rsquo;re an avid OpenVPN user like I am you&rsquo;re probably used to telling people</p>
-
-<p>&ldquo;OpenVPN works everywhere, unlike IPsec, unlike PPTP, etc&hellip;&rdquo;</p>
-
-<p>Well, that <em>was</em> true for me until I went to South Africa and started using <a href="http://www.iburst.co.za/default.aspx?link=packages_wireless_fromhome">iBurst</a>.  It started to drive me crazy that I couldn&rsquo;t use VNC over it, I&rsquo;d lose connection with my mail server, and SSH sessions would mysteriously (but repeatably) die.  Thankfully I found <a href="http://mybroadband.co.za/vb/archive/index.php/t-53268.html">a forum post about the issue</a> that helped me tune my settings to get things to work without a hitch.  The advice they gave didn&rsquo;t work for me at first but a little persistence got me up and running in just a few minutes.</p>
-
-<p>If you&rsquo;re using a Mac here is the secret sauce:</p>
-
-<ul>
-<li><p>Connect to the Internet with your iBurst</p></li>
-<li><p>Connect to your OpenVPN VPN (I use <a href="http://www.tunnelblick.net">Tunnelblick</a>)</p></li>
-<li><p>Open up a Terminal session</p></li>
-<li><p>Type &ldquo;sudo ifconfig tun0 mtu 1000&rdquo; (without the quotes) and enter your root/sudo password if necessary</p></li>
-<li><p>That&rsquo;s it, your OpenVPN session should be rock solid now or at least as rock solid as your iBurst connection is</p></li>
-</ul>
-
-
-<p>If you&rsquo;re looking to increase the performance of your OpenVPN session you can raise the MTU of 1000 a little bit.  You&rsquo;ll have to experiment to get the correct value.  Anything beyond and including the suggested 1352 didn&rsquo;t work for me, 1200 was flaky as well.  I erred on the side of caution and just stuck with 1000.  There&rsquo;s some performance hit but not noticeable enough for me to really spend tons of time tuning it.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -794,6 +800,10 @@ multi(0)disk(0)rdisk(0)partition(2)\WINDOWS="Microsoft Windows XP" /fastdetect
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a>
       </li>
     
@@ -807,10 +817,6 @@ multi(0)disk(0)rdisk(0)partition(2)\WINDOWS="Microsoft Windows XP" /fastdetect
     
       <li class="post">
         <a href="/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">How-To: Get Verizon&#8217;s Media Manager to Read Content From a Network Location</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/">Tip: Fix &#8220;&#8216;Xterm&#8217;: Unknown Terminal Type&#8221; Messages in Debian</a>
       </li>
     
   </ul>

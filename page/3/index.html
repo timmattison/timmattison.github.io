@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I just had to set up a multi-head system in Debian and it consumed way too much of my time. I did see a lot of articles about it online but they all &hellip;">
+  <meta name="description" content="I run several development environments that I need to sync with production databases to do bug fixes and new feature development. It&rsquo;s always &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,81 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/">Mini Hack: Parallel Vacuuming in PostgreSQL</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-24T11:42:41-05:00" pubdate data-updated="true">Jan 24<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I run several development environments that I need to sync with production databases to do bug fixes and new feature development.  It&rsquo;s always good to vacuum these databases before using them especially if you&rsquo;re doing it via rsync on a live system.  If you don&rsquo;t you could end up with rows that are inaccessible from your indicies and get strange results from your database.</p>
+
+<p>Full vacuums are slow but we can&rsquo;t get around it here.  What I noticed is that normally in production vacuuming the database is an I/O bound operation but in development where we&rsquo;re working with dedicated development machines with tons of RAM we typically end up with a lot of the database for our smaller projects (&lt; 5 GB) in the cache.  This makes vacuuming a CPU bound process again and where there&rsquo;s a CPU bound process there&rsquo;s usually room for parallelism.</p>
+
+<p>Today I decided to test out how well <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> could speed up my development machine&rsquo;s vacuuming process and I&rsquo;m happy to report that it cuts it nearly in half.  If you&rsquo;re running into the same issue and waiting for vacuuming is eating into your development time try this one liner (make sure you have <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> installed first):</p>
+
+<pre><code>echo "\dt" | psql DB_NAME | head -n -2 | tail -n +4 | awk ' { print $3 } ' | parallel -I {} vacuumdb -f -v -d DB_NAME -t {}
+</code></pre>
+
+<p>What this does is:</p>
+
+<ul>
+<li><p>Sends the string &ldquo;\dt&rdquo; to PostgreSQL to list the table names</p></li>
+<li><p>Pipes that through head and removes the last two lines (they don&rsquo;t contain table names)</p></li>
+<li><p>Pipes that through tail and removes the first four lines (they also don&rsquo;t contain table names)</p></li>
+<li><p>Pipes that to awk and extracts the third field (the table name)</p></li>
+<li><p>Pipes that to parallel, runs vacuumdb with a full vacuum (-f) in verbose mode (-v), placing the table names where we included the curly bracket pair</p></li>
+</ul>
+
+
+<p>UPDATE: Ole Tange, the author of the fantastic GNU Parallel package, wrote in with his own one-liner to do the same thing as mine.  His is a bit shorter and requires fewer pipes.  Take a look:</p>
+
+<pre><code>sql -n --list-tables pg:///DB_NAME | parallel -j0 -r --colsep '\|' sql pg:///DB_NAME vacuum full verbose {2}
+</code></pre>
+
+<p>What his does is:</p>
+
+<ul>
+<li><p>Gets a table list from GNU sql (which I had never used before, it&rsquo;s great to know that it exists!)</p></li>
+<li><p>Pipes that to GNU Parallel specifying it should run as many jobs as the machine has cores (-j0), should not run if there is no input (-r), and uses the pipe character as a column separator</p></li>
+<li><p>GNU Parallel then calls GNU sql, connects to the proper database executes a full, verbose vacuum on the second field it extracted from the table list (the table name)</p></li>
+</ul>
+
+
+<p>I added in the &ldquo;full verbose&rdquo; to Ole&rsquo;s example so the two scripts are doing the same work instead of just a plain vacuum.</p>
+
+<p>Compare that against the run time for a normal vacuum and report your results in the comments.  For databases that won&rsquo;t fit in your RAM it may not help that much but I&rsquo;d like to hear either way.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1072,60 +1147,6 @@ tail shake.full-output.*
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2011/07/12/how-to-fix-vmware-connectivity-problems-after-installing-avast-internet-security/">How-To: Fix VMware Connectivity Problems After Installing Avast! Internet Security</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-07-12T08:59:23-04:00" pubdate data-updated="true">Jul 12<span>th</span>, 2011</time>
-        
-           | <a href="/archives/2011/07/12/how-to-fix-vmware-connectivity-problems-after-installing-avast-internet-security/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2011/07/12/how-to-fix-vmware-connectivity-problems-after-installing-avast-internet-security/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I am a big fan of the Avast! line of security products.  I just upgraded from Pro to Internet Security since I got a new laptop and getting the Pro version for that was the same price as the Internet Security version and I figured that an added firewall couldn&rsquo;t hurt.  Naturally, it&rsquo;s never that simple and I realized that after I rebooted the firewall was causing the web browsers in my virtual machines to lose access to the Internet.  I was still able to ping things via the command line but I couldn&rsquo;t do much else.</p>
-
-<p>In order to fix this I found out that you just need to do the following steps and you&rsquo;re back online:</p>
-
-<ol>
-<li><p> Open Avast!</p></li>
-<li><p> Click the Firewall tab</p></li>
-<li><p> Make sure the Firewall Settings sub-tab is selected</p></li>
-<li><p> Click &ldquo;Expert Settings&rdquo; next to the &ldquo;Stop&rdquo; button</p></li>
-<li><p> Check &ldquo;Internet Connection Sharing mode&rdquo;</p></li>
-<li><p> Click OK</p></li>
-<li><p> Close Avast!</p></li>
-</ol>
-
-
-<p>Now your VMs are back online.  Post in the comments if you found it useful.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/4/">&larr; Older</a>
@@ -1143,6 +1164,10 @@ tail shake.full-output.*
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a>
       </li>
     
@@ -1156,10 +1181,6 @@ tail shake.full-output.*
     
       <li class="post">
         <a href="/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">How-To: Get Verizon&#8217;s Media Manager to Read Content From a Network Location</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/">Tip: Fix &#8220;&#8216;Xterm&#8217;: Unknown Terminal Type&#8221; Messages in Debian</a>
       </li>
     
   </ul>

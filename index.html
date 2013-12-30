@@ -9,7 +9,8 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="PoE (Power over Ethernet) is an exciting and promising technology. I think that a lot of people take it for granted now that you can plug your IP &hellip;">
+  <meta name="description" content="I finally got tired of dealing with Wordpress and all of the baggage that comes along with it. I&rsquo;ve migrated to Octopress and it feels nice.
+We &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +78,48 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-30T10:10:22-05:00" pubdate data-updated="true">Dec 30<span>th</span>, 2013</time>
+        
+           | <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I finally got tired of dealing with Wordpress and all of the baggage that comes along with it.  I&rsquo;ve migrated to Octopress and it feels nice.
+We&rsquo;ll see if it makes me post any more or not though.  It appears that this is my only post for the entire year so far.</p>
+
+<p>If you can recommend any themes that look a bit nicer than this please post in the comments.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -994,53 +1037,6 @@ setColor(0, 0, 255, false, true);
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/">Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-02T08:02:47-05:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2012</time>
-        
-           | <a href="/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests.  In the past few days I&rsquo;ve been playing around with Unicode and wanted to copy a code snippet from a Hadoop book to see how everything looks in the debugger.  When I entered the code I realized that I was missing some methods that I needed to complete the tests.</p>
-
-<p>Specifically I was trying to use assertThat() and is() but didn&rsquo;t know where to find them.  After a bit of Googling I found the two static imports that I needed to copy the code without qualifying assertThat() as Assert.assertThat() and the same goes for is().  They are:</p>
-
-<pre><code>import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-</code></pre>
-
-<p>I have to admit that org.hamcrest is a bit less obvious than I would have liked.  :)</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1056,6 +1052,10 @@ import static org.junit.Assert.assertThat;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a>
       </li>
     
@@ -1069,10 +1069,6 @@ import static org.junit.Assert.assertThat;
     
       <li class="post">
         <a href="/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">How-To: Get Verizon&#8217;s Media Manager to Read Content From a Network Location</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/">Tip: Fix &#8220;&#8216;Xterm&#8217;: Unknown Terminal Type&#8221; Messages in Debian</a>
       </li>
     
   </ul>

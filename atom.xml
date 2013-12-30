@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2013-12-30T09:52:48-05:00</updated>
+  <updated>2013-12-30T10:12:39-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,18 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Migrated From Wordpress to Octopress]]></title>
+    <link href="http://blog.timmattison.com/archives/2013/12/30/migrated-from-wordpress-to-octopress/"/>
+    <updated>2013-12-30T10:10:22-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2013/12/30/migrated-from-wordpress-to-octopress</id>
+    <content type="html"><![CDATA[<p>I finally got tired of dealing with Wordpress and all of the baggage that comes along with it.  I&rsquo;ve migrated to Octopress and it feels nice.
+We&rsquo;ll see if it makes me post any more or not though.  It appears that this is my only post for the entire year so far.</p>
+
+<p>If you can recommend any themes that look a bit nicer than this please post in the comments.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects]]></title>
@@ -1197,51 +1209,6 @@ public class TestClass {
 
 
 <p>If you use them please post in the comments below.  If you want to contribute to them just send me merge requests and open tickets!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Mini Hack: Parallel Vacuuming in PostgreSQL]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/"/>
-    <updated>2012-01-24T11:42:41-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql</id>
-    <content type="html"><![CDATA[<p>I run several development environments that I need to sync with production databases to do bug fixes and new feature development.  It&rsquo;s always good to vacuum these databases before using them especially if you&rsquo;re doing it via rsync on a live system.  If you don&rsquo;t you could end up with rows that are inaccessible from your indicies and get strange results from your database.</p>
-
-<p>Full vacuums are slow but we can&rsquo;t get around it here.  What I noticed is that normally in production vacuuming the database is an I/O bound operation but in development where we&rsquo;re working with dedicated development machines with tons of RAM we typically end up with a lot of the database for our smaller projects (&lt; 5 GB) in the cache.  This makes vacuuming a CPU bound process again and where there&rsquo;s a CPU bound process there&rsquo;s usually room for parallelism.</p>
-
-<p>Today I decided to test out how well <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> could speed up my development machine&rsquo;s vacuuming process and I&rsquo;m happy to report that it cuts it nearly in half.  If you&rsquo;re running into the same issue and waiting for vacuuming is eating into your development time try this one liner (make sure you have <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> installed first):</p>
-
-<pre><code>echo "\dt" | psql DB_NAME | head -n -2 | tail -n +4 | awk ' { print $3 } ' | parallel -I {} vacuumdb -f -v -d DB_NAME -t {}
-</code></pre>
-
-<p>What this does is:</p>
-
-<ul>
-<li><p>Sends the string &ldquo;\dt&rdquo; to PostgreSQL to list the table names</p></li>
-<li><p>Pipes that through head and removes the last two lines (they don&rsquo;t contain table names)</p></li>
-<li><p>Pipes that through tail and removes the first four lines (they also don&rsquo;t contain table names)</p></li>
-<li><p>Pipes that to awk and extracts the third field (the table name)</p></li>
-<li><p>Pipes that to parallel, runs vacuumdb with a full vacuum (-f) in verbose mode (-v), placing the table names where we included the curly bracket pair</p></li>
-</ul>
-
-
-<p>UPDATE: Ole Tange, the author of the fantastic GNU Parallel package, wrote in with his own one-liner to do the same thing as mine.  His is a bit shorter and requires fewer pipes.  Take a look:</p>
-
-<pre><code>sql -n --list-tables pg:///DB_NAME | parallel -j0 -r --colsep '\|' sql pg:///DB_NAME vacuum full verbose {2}
-</code></pre>
-
-<p>What his does is:</p>
-
-<ul>
-<li><p>Gets a table list from GNU sql (which I had never used before, it&rsquo;s great to know that it exists!)</p></li>
-<li><p>Pipes that to GNU Parallel specifying it should run as many jobs as the machine has cores (-j0), should not run if there is no input (-r), and uses the pipe character as a column separator</p></li>
-<li><p>GNU Parallel then calls GNU sql, connects to the proper database executes a full, verbose vacuum on the second field it extracted from the table list (the table name)</p></li>
-</ul>
-
-
-<p>I added in the &ldquo;full verbose&rdquo; to Ole&rsquo;s example so the two scripts are doing the same work instead of just a plain vacuum.</p>
-
-<p>Compare that against the run time for a normal vacuum and report your results in the comments.  For databases that won&rsquo;t fit in your RAM it may not help that much but I&rsquo;d like to hear either way.</p>
 ]]></content>
   </entry>
   
