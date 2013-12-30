@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | My Octopress Blog]]></title>
   <link href="http://timmattison.github.io/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://timmattison.github.io/"/>
-  <updated>2013-12-30T08:51:06-05:00</updated>
+  <updated>2013-12-30T09:20:05-05:00</updated>
   <id>http://timmattison.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Tip: Fix Basic Build Issues When Using Maven]]></title>
-    <link href="http://timmattison.github.io/2012/02/07/tip-fix-basic-build-issues-when-using-maven/"/>
+    <link href="http://timmattison.github.io/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/"/>
     <updated>2012-02-07T13:33:46-05:00</updated>
-    <id>http://timmattison.github.io/2012/02/07/tip-fix-basic-build-issues-when-using-maven</id>
+    <id>http://timmattison.github.io/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven</id>
     <content type="html"><![CDATA[<p>When trying to build Hadoop with Maven today I got this ugly error message:</p>
 
 <pre><code>[INFO] Scanning for projects...
@@ -92,9 +92,9 @@ export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
   
   <entry>
     <title type="html"><![CDATA[How-To: Debug HDFS Applications in Eclipse]]></title>
-    <link href="http://timmattison.github.io/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/"/>
+    <link href="http://timmattison.github.io/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/"/>
     <updated>2012-02-07T10:56:58-05:00</updated>
-    <id>http://timmattison.github.io/2012/02/07/how-to-debug-hdfs-applications-in-eclipse</id>
+    <id>http://timmattison.github.io/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse</id>
     <content type="html"><![CDATA[<p>I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS.  One thing that I noticed is that when running the application via &ldquo;hadoop jar&rdquo; it properly accessed HDFS and stored its files there but if I ran it in the debugger the API calls succeeded but the files never showed up.</p>
 
 <p>After a bit more investigation I saw that the HDFS API was unable to read my configuration files and find the NameNode so it defaulted to writing the files on the local file system instead.  This is nice behavior for debugging sometimes but can be dangerous if you&rsquo;re running an application that must put its files in HDFS like a mission critical application that doesn&rsquo;t fulfill its operational contract if data is lost.  In the case of an application like that accidentally writing to the local file system could be disastrous and expensive so it&rsquo;s good to know how to detect when this happens, and/or overcome it in a situation where you&rsquo;re trying to debug against your HDFS cluster.</p>
@@ -244,9 +244,9 @@ public class TestClass {
   
   <entry>
     <title type="html"><![CDATA[How-To: Disable HDFS Permissions for Hadoop Development]]></title>
-    <link href="http://timmattison.github.io/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/"/>
+    <link href="http://timmattison.github.io/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/"/>
     <updated>2011-12-26T11:47:35-05:00</updated>
-    <id>http://timmattison.github.io/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development</id>
+    <id>http://timmattison.github.io/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development</id>
     <content type="html"><![CDATA[<p>If you&rsquo;ve <a href="http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/">set up Hadoop for development</a> you may be wondering why you can&rsquo;t read or write files or create MapReduce jobs then you&rsquo;re probably missing a tiny bit of configuration.  For most development systems in pseudo-distributed mode it&rsquo;s easiest to disable permissions altogether.  This means that any user, not just the &ldquo;hdfs&rdquo; user, can do anything they want to HDFS so do not do this in production unless you have a very good reason.</p>
 
 <p>The error message you&rsquo;re most likely seeing if permissions are the problem is similar to this:</p>
@@ -271,9 +271,9 @@ put: org.apache.hadoop.security.AccessControlException: Permission denied: user=
   
   <entry>
     <title type="html"><![CDATA[How-To: Install Hadoop on Debian/Ubuntu]]></title>
-    <link href="http://timmattison.github.io/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/"/>
+    <link href="http://timmattison.github.io/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/"/>
     <updated>2011-12-23T11:19:43-05:00</updated>
-    <id>http://timmattison.github.io/2011/12/23/how-to-install-hadoop-on-debian-ubuntu</id>
+    <id>http://timmattison.github.io/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu</id>
     <content type="html"><![CDATA[<p><em>UPDATE 2012-02-06</em>: <strong>The native library issue has been resolved</strong>.  You can now keep the native library installed with just a minor configuration tweak.  If you have already followed these instructions just scroll down to the core-site.xml contents and the commands to make the &ldquo;/hadoop&rdquo; directory on your machine.  Those two things will get you up to date.</p>
 
 <p>Yesterday I passed my <a href="http://www.cloudera.com/hadoop-training/developer-training/">Cloudera Certified Hadoop Developer (CCHD)</a> certification.  The four day class was great and I learned a lot about everything from the architecture of HDFS all the way to specific MapReduce algorithms and how to implement them using Hadoop.</p>

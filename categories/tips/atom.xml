@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tips | My Octopress Blog]]></title>
   <link href="http://timmattison.github.io/categories/tips/atom.xml" rel="self"/>
   <link href="http://timmattison.github.io/"/>
-  <updated>2013-12-30T08:51:06-05:00</updated>
+  <updated>2013-12-30T09:20:05-05:00</updated>
   <id>http://timmattison.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Tips for Debugging Spring's @Transactional Annotation]]></title>
-    <link href="http://timmattison.github.io/2012/04/19/tips-for-debugging-springs-transactional-annotation/"/>
+    <link href="http://timmattison.github.io/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/"/>
     <updated>2012-04-19T10:31:14-04:00</updated>
-    <id>http://timmattison.github.io/2012/04/19/tips-for-debugging-springs-transactional-annotation</id>
+    <id>http://timmattison.github.io/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation</id>
     <content type="html"><![CDATA[<p>For over a week now I&rsquo;ve been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database.  The code works but it doesn&rsquo;t follow the strict philosophy of service oriented architecture in the sense that there are several places that Spring and Hibernate weren&rsquo;t doing what they were expected to do and a few workarounds had to be implemented.  Since we were bringing more programmers on board I wanted to make sure that everything played by the rules and was easy to update so I had to learn a lot that I had glossed over in the past.</p>
 
 <p>With some creative Googling I found two invaluable resources that I need to give credit to:</p>
@@ -197,9 +197,9 @@ class WorkingMyClass {
   
   <entry>
     <title type="html"><![CDATA[Tip: Fix "'Xterm': Unknown Terminal Type" Messages in Debian]]></title>
-    <link href="http://timmattison.github.io/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/"/>
+    <link href="http://timmattison.github.io/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/"/>
     <updated>2012-04-12T10:32:57-04:00</updated>
-    <id>http://timmattison.github.io/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian</id>
+    <id>http://timmattison.github.io/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian</id>
     <content type="html"><![CDATA[<p>This one has been a bit of a nuisance on newly spooled up Debian instances for me lately.  When I try to run &ldquo;top&rdquo; or &ldquo;clear&rdquo; or really anything that does something with the terminal I get the following message:</p>
 
 <pre><code>'xterm': unknown terminal type.
@@ -217,9 +217,9 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
   
   <entry>
     <title type="html"><![CDATA[Tip: Handle Failed Tasks Throwing "ENOENT" Errors in Hadoop]]></title>
-    <link href="http://timmattison.github.io/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/"/>
+    <link href="http://timmattison.github.io/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/"/>
     <updated>2012-03-21T19:09:48-04:00</updated>
-    <id>http://timmattison.github.io/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop</id>
+    <id>http://timmattison.github.io/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop</id>
     <content type="html"><![CDATA[<p>Today when I tried to run a new Hadoop job I got the following error:</p>
 
 <pre><code>     [exec] 12/03/21 22:51:47 INFO mapred.JobClient: Task Id : attempt_201203212250_0001_m_000002_1, Status : FAILED
@@ -262,9 +262,9 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
   
   <entry>
     <title type="html"><![CDATA[Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing]]></title>
-    <link href="http://timmattison.github.io/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/"/>
+    <link href="http://timmattison.github.io/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/"/>
     <updated>2012-03-02T08:02:47-05:00</updated>
-    <id>http://timmattison.github.io/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing</id>
+    <id>http://timmattison.github.io/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing</id>
     <content type="html"><![CDATA[<p>I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests.  In the past few days I&rsquo;ve been playing around with Unicode and wanted to copy a code snippet from a Hadoop book to see how everything looks in the debugger.  When I entered the code I realized that I was missing some methods that I needed to complete the tests.</p>
 
 <p>Specifically I was trying to use assertThat() and is() but didn&rsquo;t know where to find them.  After a bit of Googling I found the two static imports that I needed to copy the code without qualifying assertThat() as Assert.assertThat() and the same goes for is().  They are:</p>
@@ -279,9 +279,9 @@ import static org.junit.Assert.assertThat;
   
   <entry>
     <title type="html"><![CDATA[Tip: A Quick Primer on Waiting on Multiple Threads in Java]]></title>
-    <link href="http://timmattison.github.io/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/"/>
+    <link href="http://timmattison.github.io/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/"/>
     <updated>2012-02-28T16:32:21-05:00</updated>
-    <id>http://timmattison.github.io/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java</id>
+    <id>http://timmattison.github.io/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java</id>
     <content type="html"><![CDATA[<p>Last night I was writing some code to do some performance testing on HDFS.  I noticed that single threaded performance wasn&rsquo;t anywhere near as good as I expected and my CPUs were spending most of their time idle.  I decided to add some threads into the process to see if a multi-threaded speed test would consume some of that idle CPU.  It worked as expected so I figured I would share some basic knowledge on how to I started up multiple threads, had them do their work, waited for them to finish without polling, and then recorded the total duration to calculate my statistics.</p>
 
 <p>What you&rsquo;ll need to do first is decide what you want to do in the processing thread.  This code will go into a Java Runnable like this:</p>

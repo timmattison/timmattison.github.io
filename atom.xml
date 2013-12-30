@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://timmattison.github.io/atom.xml" rel="self"/>
   <link href="http://timmattison.github.io/"/>
-  <updated>2013-12-30T08:51:06-05:00</updated>
+  <updated>2013-12-30T09:20:05-05:00</updated>
   <id>http://timmattison.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects]]></title>
-    <link href="http://timmattison.github.io/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/"/>
+    <link href="http://timmattison.github.io/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/"/>
     <updated>2012-05-25T09:14:20-04:00</updated>
-    <id>http://timmattison.github.io/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects</id>
+    <id>http://timmattison.github.io/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects</id>
     <content type="html"><![CDATA[<p>PoE (<a href="http://en.wikipedia.org/wiki/Power_over_Ethernet">Power over Ethernet</a>) is an exciting and promising technology.  I think that a lot of people take it for granted now that you can plug your IP phone into an Ethernet jack and it gets data and power over that single connection.  It&rsquo;s easy to forget that your IP phone isn&rsquo;t a real landline with convenience like this.</p>
 
 <p>One thing that has been frustrating about PoE over the years is not supply side availability but consumption side hardware for hobbyists.  You can find very cheap PoE switches online and that&rsquo;s great for all of your pre-fab gadgets (IP phones, WiFi access points, even video cameras) but implementing PoE in your own projects has been tough to say the least.</p>
@@ -38,9 +38,9 @@
   
   <entry>
     <title type="html"><![CDATA[How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0]]></title>
-    <link href="http://timmattison.github.io/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/"/>
+    <link href="http://timmattison.github.io/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/"/>
     <updated>2012-05-04T09:06:30-04:00</updated>
-    <id>http://timmattison.github.io/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0</id>
+    <id>http://timmattison.github.io/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0</id>
     <content type="html"><![CDATA[<p><strong>Update 2012-06-16</strong>: This still happens on the 8.0.4 update so change the values that read &ldquo;8.0.3&rdquo; to &ldquo;8.0.4&rdquo; if you are using 8.0.4.  Also, if you have patched previously and try to run the script again after an upgrade you need to remove a file called &ldquo;/usr/lib/vmware/modules/source/.patched&rdquo; first.  The script will let you know that it won&rsquo;t patch because it has already been done if you forget.  Just delete it and re-run the script.</p>
 
 <p>Today I upgraded to VMware Workstation 8.0.3 and immediately I ran into the following error message:</p>
@@ -84,9 +84,9 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
   
   <entry>
     <title type="html"><![CDATA[Tips for Debugging Spring's @Transactional Annotation]]></title>
-    <link href="http://timmattison.github.io/2012/04/19/tips-for-debugging-springs-transactional-annotation/"/>
+    <link href="http://timmattison.github.io/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/"/>
     <updated>2012-04-19T10:31:14-04:00</updated>
-    <id>http://timmattison.github.io/2012/04/19/tips-for-debugging-springs-transactional-annotation</id>
+    <id>http://timmattison.github.io/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation</id>
     <content type="html"><![CDATA[<p>For over a week now I&rsquo;ve been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database.  The code works but it doesn&rsquo;t follow the strict philosophy of service oriented architecture in the sense that there are several places that Spring and Hibernate weren&rsquo;t doing what they were expected to do and a few workarounds had to be implemented.  Since we were bringing more programmers on board I wanted to make sure that everything played by the rules and was easy to update so I had to learn a lot that I had glossed over in the past.</p>
 
 <p>With some creative Googling I found two invaluable resources that I need to give credit to:</p>
@@ -266,9 +266,9 @@ class WorkingMyClass {
   
   <entry>
     <title type="html"><![CDATA[How-To: Get Verizon's Media Manager to Read Content From a Network Location]]></title>
-    <link href="http://timmattison.github.io/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/"/>
+    <link href="http://timmattison.github.io/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/"/>
     <updated>2012-04-17T15:45:12-04:00</updated>
-    <id>http://timmattison.github.io/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location</id>
+    <id>http://timmattison.github.io/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location</id>
     <content type="html"><![CDATA[<p>I ran into this problem today too when I first got FiOS installed.  Mapping a network drive won&rsquo;t work but using &ldquo;subst&rdquo; will.  I now have Media Manager reading my pictures over a network connection.  Here&rsquo;s how to do it:</p>
 
 <ol>
@@ -298,9 +298,9 @@ class WorkingMyClass {
   
   <entry>
     <title type="html"><![CDATA[Tip: Fix "'Xterm': Unknown Terminal Type" Messages in Debian]]></title>
-    <link href="http://timmattison.github.io/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/"/>
+    <link href="http://timmattison.github.io/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/"/>
     <updated>2012-04-12T10:32:57-04:00</updated>
-    <id>http://timmattison.github.io/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian</id>
+    <id>http://timmattison.github.io/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian</id>
     <content type="html"><![CDATA[<p>This one has been a bit of a nuisance on newly spooled up Debian instances for me lately.  When I try to run &ldquo;top&rdquo; or &ldquo;clear&rdquo; or really anything that does something with the terminal I get the following message:</p>
 
 <pre><code>'xterm': unknown terminal type.
@@ -318,9 +318,9 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
   
   <entry>
     <title type="html"><![CDATA[How-To: Write a Netduino Driver for the Grove Chainable RGB LED]]></title>
-    <link href="http://timmattison.github.io/2012/03/29/how-to-write-a-netduino-driver-for-the-grove-chainable-rgb-led/"/>
+    <link href="http://timmattison.github.io/archives/2012/03/29/how-to-write-a-netduino-driver-for-the-grove-chainable-rgb-led/"/>
     <updated>2012-03-29T10:58:01-04:00</updated>
-    <id>http://timmattison.github.io/2012/03/29/how-to-write-a-netduino-driver-for-the-grove-chainable-rgb-led</id>
+    <id>http://timmattison.github.io/archives/2012/03/29/how-to-write-a-netduino-driver-for-the-grove-chainable-rgb-led</id>
     <content type="html"><![CDATA[<p>A lot of people probably look at hardware that doesn&rsquo;t come with drivers for the Netduino or Arduino and don&rsquo;t even consider picking it up if they&rsquo;re new to this scene.  In this article I&rsquo;ll show you how I wrote a driver for <a href="http://www.epictinker.com/Grove-Chainable-RGB-LED-p/com53140p.htm">Grove&rsquo;s chainable RGB LED</a> by just carefully reading the specs and experimenting.  I am no Netduino expert, I have only written a tiny bit of code for it since I got it, but this just reinforces how easy some drivers can be to write.</p>
 
 <p>Keep in mind that my illustration of how easy it was to write this driver is not a reflection on how easy it is to write <strong><em>all</em></strong> drivers.  Some drivers take a ton of work.  Make sure you read the documentation before you buy something so you don&rsquo;t get stuck with some hardware you can&rsquo;t use.</p>
@@ -497,9 +497,9 @@ setColor(0, 0, 255, false, true);
   
   <entry>
     <title type="html"><![CDATA[How-To: Fix Maven Errors in Eclipse When Getting Started With Heroku]]></title>
-    <link href="http://timmattison.github.io/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/"/>
+    <link href="http://timmattison.github.io/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/"/>
     <updated>2012-03-28T09:15:24-04:00</updated>
-    <id>http://timmattison.github.io/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku</id>
+    <id>http://timmattison.github.io/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku</id>
     <content type="html"><![CDATA[<p>I haven&rsquo;t used Heroku much yet but with the addition of Java to their platform I&rsquo;m starting to see it as a really interesting option.  Yesterday I watched <a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=mkmWwA0EoGg#!">a great video on how to get started with Java on Heroku</a>.  It went well until I tried converting my project to a Maven project.  Then I got this error message in all of my pom.xml files:</p>
 
 <p><code>Plugin execution not covered by lifecycle configuration</code></p>
@@ -553,9 +553,9 @@ setColor(0, 0, 255, false, true);
   
   <entry>
     <title type="html"><![CDATA[Tip: Handle Failed Tasks Throwing "ENOENT" Errors in Hadoop]]></title>
-    <link href="http://timmattison.github.io/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/"/>
+    <link href="http://timmattison.github.io/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/"/>
     <updated>2012-03-21T19:09:48-04:00</updated>
-    <id>http://timmattison.github.io/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop</id>
+    <id>http://timmattison.github.io/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop</id>
     <content type="html"><![CDATA[<p>Today when I tried to run a new Hadoop job I got the following error:</p>
 
 <pre><code>     [exec] 12/03/21 22:51:47 INFO mapred.JobClient: Task Id : attempt_201203212250_0001_m_000002_1, Status : FAILED
@@ -598,9 +598,9 @@ setColor(0, 0, 255, false, true);
   
   <entry>
     <title type="html"><![CDATA[How-To: Install Perl Debugging in Eclipse on Debian/Ubuntu]]></title>
-    <link href="http://timmattison.github.io/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/"/>
+    <link href="http://timmattison.github.io/archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/"/>
     <updated>2012-03-14T12:31:48-04:00</updated>
-    <id>http://timmattison.github.io/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu</id>
+    <id>http://timmattison.github.io/archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu</id>
     <content type="html"><![CDATA[<p>If you&rsquo;re looking to use Eclipse as a debugger for your Perl scripts things can get a bit hairy quickly.  You need to do a lot of things to get it to be happy so let&rsquo;s step through them all rather than have you hunt for the secret sauce like I did today.</p>
 
 <p>First, you&rsquo;ll want to <a href="http://www.epic-ide.org/download.php">add the EPIC (Eclipse Perl Integration Component) as described on the EPIC site</a>.  That will add support for creating Perl projects, syntax highlighting, and all that.</p>
@@ -661,9 +661,9 @@ setColor(0, 0, 255, false, true);
   
   <entry>
     <title type="html"><![CDATA[Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing]]></title>
-    <link href="http://timmattison.github.io/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/"/>
+    <link href="http://timmattison.github.io/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/"/>
     <updated>2012-03-02T08:02:47-05:00</updated>
-    <id>http://timmattison.github.io/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing</id>
+    <id>http://timmattison.github.io/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing</id>
     <content type="html"><![CDATA[<p>I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests.  In the past few days I&rsquo;ve been playing around with Unicode and wanted to copy a code snippet from a Hadoop book to see how everything looks in the debugger.  When I entered the code I realized that I was missing some methods that I needed to complete the tests.</p>
 
 <p>Specifically I was trying to use assertThat() and is() but didn&rsquo;t know where to find them.  After a bit of Googling I found the two static imports that I needed to copy the code without qualifying assertThat() as Assert.assertThat() and the same goes for is().  They are:</p>
@@ -678,9 +678,9 @@ import static org.junit.Assert.assertThat;
   
   <entry>
     <title type="html"><![CDATA[Tip: A Quick Primer on Waiting on Multiple Threads in Java]]></title>
-    <link href="http://timmattison.github.io/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/"/>
+    <link href="http://timmattison.github.io/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/"/>
     <updated>2012-02-28T16:32:21-05:00</updated>
-    <id>http://timmattison.github.io/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java</id>
+    <id>http://timmattison.github.io/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java</id>
     <content type="html"><![CDATA[<p>Last night I was writing some code to do some performance testing on HDFS.  I noticed that single threaded performance wasn&rsquo;t anywhere near as good as I expected and my CPUs were spending most of their time idle.  I decided to add some threads into the process to see if a multi-threaded speed test would consume some of that idle CPU.  It worked as expected so I figured I would share some basic knowledge on how to I started up multiple threads, had them do their work, waited for them to finish without polling, and then recorded the total duration to calculate my statistics.</p>
 
 <p>What you&rsquo;ll need to do first is decide what you want to do in the processing thread.  This code will go into a Java Runnable like this:</p>
@@ -750,9 +750,9 @@ double operationsPerMillisecond = (double) operations / (double) durationInMilli
   
   <entry>
     <title type="html"><![CDATA[How-To: Fix "Chown: Cannot Dereference" Errors in Cloudera CDH on Debian/Ubuntu Linux When Upgrading]]></title>
-    <link href="http://timmattison.github.io/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/"/>
+    <link href="http://timmattison.github.io/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/"/>
     <updated>2012-02-26T12:10:47-05:00</updated>
-    <id>http://timmattison.github.io/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading</id>
+    <id>http://timmattison.github.io/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading</id>
     <content type="html"><![CDATA[<p><strong><em>WARNING!</em></strong> Do not do this on production clusters unless you are willing to take responsibility for any issues that may occur.  This wipes out all of your logs and potentially other files.  Always have a backup before trying anything like this.  I take no responsibility for issues that may arise from running any or all of these instructions.</p>
 
 <p>When I tried to upgrade my CDH installation today I received many errors from dpkg that caused the upgrade to fail.  The errors looked like this:</p>
@@ -795,9 +795,9 @@ dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
   
   <entry>
     <title type="html"><![CDATA[Tip: Trimming the Tops and Bottoms of Text Files With Head and Tail]]></title>
-    <link href="http://timmattison.github.io/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail/"/>
+    <link href="http://timmattison.github.io/archives/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail/"/>
     <updated>2012-02-16T09:05:21-05:00</updated>
-    <id>http://timmattison.github.io/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail</id>
+    <id>http://timmattison.github.io/archives/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail</id>
     <content type="html"><![CDATA[<p>Normally the head and tail applications on Linux are good for what their names imply.  head gives you the first few lines of a file, tail gives you last few lines of a file and even lets you watch the end of a file for changes.  This is great but what if you want to get an entire file <em>except</em> for the first few or last few lines?  It turns out that head and tail have options to do this and it&rsquo;s incredibly useful for trimming files without knowing exactly how many lines they contain.</p>
 
 <p>I&rsquo;m writing this because I keep forgetting which one does what.  Here&rsquo;s how you can remember it and use it every day&hellip;</p>
@@ -866,9 +866,9 @@ dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
   
   <entry>
     <title type="html"><![CDATA[Tip: Fix Basic Build Issues When Using Maven]]></title>
-    <link href="http://timmattison.github.io/2012/02/07/tip-fix-basic-build-issues-when-using-maven/"/>
+    <link href="http://timmattison.github.io/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/"/>
     <updated>2012-02-07T13:33:46-05:00</updated>
-    <id>http://timmattison.github.io/2012/02/07/tip-fix-basic-build-issues-when-using-maven</id>
+    <id>http://timmattison.github.io/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven</id>
     <content type="html"><![CDATA[<p>When trying to build Hadoop with Maven today I got this ugly error message:</p>
 
 <pre><code>[INFO] Scanning for projects...
@@ -943,9 +943,9 @@ export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
   
   <entry>
     <title type="html"><![CDATA[Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap]]></title>
-    <link href="http://timmattison.github.io/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/"/>
+    <link href="http://timmattison.github.io/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/"/>
     <updated>2012-02-07T11:16:19-05:00</updated>
-    <id>http://timmattison.github.io/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap</id>
+    <id>http://timmattison.github.io/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap</id>
     <content type="html"><![CDATA[<p>If you&rsquo;re writing code that accesses HDFS and you get an exception that looks like this:</p>
 
 <pre><code>Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap
@@ -967,9 +967,9 @@ export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
   
   <entry>
     <title type="html"><![CDATA[How-To: Debug HDFS Applications in Eclipse]]></title>
-    <link href="http://timmattison.github.io/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/"/>
+    <link href="http://timmattison.github.io/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/"/>
     <updated>2012-02-07T10:56:58-05:00</updated>
-    <id>http://timmattison.github.io/2012/02/07/how-to-debug-hdfs-applications-in-eclipse</id>
+    <id>http://timmattison.github.io/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse</id>
     <content type="html"><![CDATA[<p>I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS.  One thing that I noticed is that when running the application via &ldquo;hadoop jar&rdquo; it properly accessed HDFS and stored its files there but if I ran it in the debugger the API calls succeeded but the files never showed up.</p>
 
 <p>After a bit more investigation I saw that the HDFS API was unable to read my configuration files and find the NameNode so it defaulted to writing the files on the local file system instead.  This is nice behavior for debugging sometimes but can be dangerous if you&rsquo;re running an application that must put its files in HDFS like a mission critical application that doesn&rsquo;t fulfill its operational contract if data is lost.  In the case of an application like that accidentally writing to the local file system could be disastrous and expensive so it&rsquo;s good to know how to detect when this happens, and/or overcome it in a situation where you&rsquo;re trying to debug against your HDFS cluster.</p>
@@ -1119,9 +1119,9 @@ public class TestClass {
   
   <entry>
     <title type="html"><![CDATA[Why I Wrote dirhash.pl (a Whole Directory Filename and Contents Hashing System)]]></title>
-    <link href="http://timmattison.github.io/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/"/>
+    <link href="http://timmattison.github.io/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/"/>
     <updated>2012-01-29T17:17:15-05:00</updated>
-    <id>http://timmattison.github.io/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system</id>
+    <id>http://timmattison.github.io/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system</id>
     <content type="html"><![CDATA[<p>Over the years I have accumulated many, many disks full of data.  Ordinarily I migrate them to my latest disk and just keep a backup or two and get rid of the old disks.  However, every once in a while I come across an old disk that has a directory structure that I really want to keep but don&rsquo;t have the time to go through.  Recently this happened with a large directory of old projects and to make matters worse there were multiple copies of this directory in different places.</p>
 
 <p>I looked around and found some interesting stuff so I certainly didn&rsquo;t want to lose this time capsule of code but I now had an interesting problem.  How do I take multiple copies of what appear like identical directories and compare them so I can nuke them if they are duplicates?</p>
@@ -1156,9 +1156,9 @@ public class TestClass {
   
   <entry>
     <title type="html"><![CDATA[Why I Wrote prcp.pl (Copies Files With a Progress Indicator)]]></title>
-    <link href="http://timmattison.github.io/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/"/>
+    <link href="http://timmattison.github.io/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/"/>
     <updated>2012-01-29T17:01:40-05:00</updated>
-    <id>http://timmattison.github.io/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator</id>
+    <id>http://timmattison.github.io/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator</id>
     <content type="html"><![CDATA[<p>Just last night I had a few large files I wanted to bring to a friends house.  They were HD videos that I took a long time ago and were about 7 GB in total.  I figured I would just plop them on a USB drive and in a few minutes I&rsquo;d be ready to go.</p>
 
 <p>It didn&rsquo;t quite work out so easily.  15 minutes after I tried to drag the files to the drive in Nautilus it wasn&rsquo;t apparent that anything was happening.  The progress bar had frozen, the flash drive was still doing something, and some of the files looked like they were there.  I tried to do it again on the command line using &ldquo;cp&rdquo; and got the same results (with no progress bar).  I knew there had to be a better way to copy these files and know what was actually going on but first I had to figure out what was really happening.</p>
@@ -1185,9 +1185,9 @@ public class TestClass {
   
   <entry>
     <title type="html"><![CDATA[Free Tool Collection Available on Github]]></title>
-    <link href="http://timmattison.github.io/2012/01/29/free-tool-collection-available-on-github/"/>
+    <link href="http://timmattison.github.io/archives/2012/01/29/free-tool-collection-available-on-github/"/>
     <updated>2012-01-29T16:38:52-05:00</updated>
-    <id>http://timmattison.github.io/2012/01/29/free-tool-collection-available-on-github</id>
+    <id>http://timmattison.github.io/archives/2012/01/29/free-tool-collection-available-on-github</id>
     <content type="html"><![CDATA[<p>Today I just released <a href="https://github.com/timmattison/timmattison-tools">a few home brew tools</a> that I&rsquo;ve been meaning to write for a while.  I&rsquo;m going to write full articles on them soon but just as a preliminary taste here are descriptions of the two programs I released today:</p>
 
 <ul>
@@ -1202,9 +1202,9 @@ public class TestClass {
   
   <entry>
     <title type="html"><![CDATA[Mini Hack: Parallel Vacuuming in PostgreSQL]]></title>
-    <link href="http://timmattison.github.io/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/"/>
+    <link href="http://timmattison.github.io/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/"/>
     <updated>2012-01-24T11:42:41-05:00</updated>
-    <id>http://timmattison.github.io/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql</id>
+    <id>http://timmattison.github.io/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql</id>
     <content type="html"><![CDATA[<p>I run several development environments that I need to sync with production databases to do bug fixes and new feature development.  It&rsquo;s always good to vacuum these databases before using them especially if you&rsquo;re doing it via rsync on a live system.  If you don&rsquo;t you could end up with rows that are inaccessible from your indicies and get strange results from your database.</p>
 
 <p>Full vacuums are slow but we can&rsquo;t get around it here.  What I noticed is that normally in production vacuuming the database is an I/O bound operation but in development where we&rsquo;re working with dedicated development machines with tons of RAM we typically end up with a lot of the database for our smaller projects (&lt; 5 GB) in the cache.  This makes vacuuming a CPU bound process again and where there&rsquo;s a CPU bound process there&rsquo;s usually room for parallelism.</p>
