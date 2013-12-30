@@ -4,7 +4,7 @@
   <title><![CDATA[Category: How-To | Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/categories/how-to/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2013-12-30T10:12:39-05:00</updated>
+  <updated>2013-12-30T10:15:08-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -18,7 +18,9 @@
     <link href="http://blog.timmattison.com/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/"/>
     <updated>2012-05-25T09:14:20-04:00</updated>
     <id>http://blog.timmattison.com/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects</id>
-    <content type="html"><![CDATA[<p>PoE (<a href="http://en.wikipedia.org/wiki/Power_over_Ethernet">Power over Ethernet</a>) is an exciting and promising technology.  I think that a lot of people take it for granted now that you can plug your IP phone into an Ethernet jack and it gets data and power over that single connection.  It&rsquo;s easy to forget that your IP phone isn&rsquo;t a real landline with convenience like this.</p>
+    <content type="html"><![CDATA[<p>UPDATE 2013-12-30: This is on hold permanently.  I never ended up having the time (this post is from way over a year ago) and PoE just isn&rsquo;t on my radar lately as I&rsquo;ve shifted more towards security and software testing.</p>
+
+<p>PoE (<a href="http://en.wikipedia.org/wiki/Power_over_Ethernet">Power over Ethernet</a>) is an exciting and promising technology.  I think that a lot of people take it for granted now that you can plug your IP phone into an Ethernet jack and it gets data and power over that single connection.  It&rsquo;s easy to forget that your IP phone isn&rsquo;t a real landline with convenience like this.</p>
 
 <p>One thing that has been frustrating about PoE over the years is not supply side availability but consumption side hardware for hobbyists.  You can find very cheap PoE switches online and that&rsquo;s great for all of your pre-fab gadgets (IP phones, WiFi access points, even video cameras) but implementing PoE in your own projects has been tough to say the least.</p>
 
