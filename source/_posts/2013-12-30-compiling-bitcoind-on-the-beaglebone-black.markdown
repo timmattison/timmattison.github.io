@@ -51,8 +51,8 @@ rpcpassword=XxXXxXXxxxXxXXxXXXXXXxxxxXxxxxxXxXXXXXxXxxXx
 This password gives someone complete access to your bitcoind instance.  If you store money there and use the rpcpassword value that
 I put above you can and probably will lose it.
 
-Now, unless you have a giant SD card on your BeagleBone Black you'll probably want to put your blockchain on a different disk.  I
-have my Synology home directory mounted on my BeagleBone Black via sshfs (if you want to learn how to do that see my next post).
+Unless you have a giant SD card on your BeagleBone Black you'll probably want to put your blockchain on a different disk.  I
+have my Synology home directory mounted on my BeagleBone Black via NFS (if you want to learn how to do that see my next post).
 It is mounted at ~/synology.  In order to make sure my blockchain is on my Synology I did the following:
 
 ```bash
@@ -66,6 +66,22 @@ ln -s ~/synology/bitcoind/db.log ~/.bitcoin/db.log
 ln -s ~/synology/bitcoind/debug.log ~/.bitcoin/debug.log
 ```
 
-I was very careful here to not put the configuration or the wallet.dat file on the Synology.  You should also avoid putting those
-files on there.  Since the remote file system is potentially a shared resource an attacker can get into that and modify or steal
-data.  It's best to keep the wallet.dat, peers.dat, and bitcoin.conf local to your BeagleBone Black.
+You may get a few errors about files not existing when you run this.  This is normal and you should try to proceed and see if it
+works for you.  I was very careful here to not put bitcoin.conf or the wallet.dat file on the Synology.  You should also avoid
+putting those files on there.  Since the remote file system is potentially a shared resource an attacker can get into that and
+modify or steal data.  It's best to keep the wallet.dat, peers.dat, and bitcoin.conf local to your BeagleBone Black.
+
+At this point you can restart bitcoind.  I did this in a screen session rather than make it a true service since I'm still
+playing around with it.  Once I set it up as a service I'll post an update and include that information as well.
+
+Periodically check your free file system space and make sure that the blockchain isn't on your SD card.  In my case I can do this:
+
+```bash
+# Show the amount of free space on my SD card
+du -sh /
+
+# Show the amount of free space on my Synology NAS
+du -sh ~/synology/
+```
+
+Good luck and post in the comments if this helps you out or if you need any assistance.
