@@ -1,13 +1,17 @@
 ---
 layout: post
 title: "Compiling bitcoind on the BeagleBone Black"
-date: 2014-01-02 07:31:19 -0500
+date: 2014-01-02 18:29:05 -0500
 comments: true
 categories: 
 ---
 I am running Debian on a BeagleBone Black at home as a toy server to have a sandbox that I can play around on.  One application that I thought would be interesting to run on it was the standard Bitcoin client.  I think it is a bit strange that the latest version of the Bitcoin client (0.8.6 at the time I wrote this) doesn't use "configure" like most other Linux/Unix applications because it leads to having to track down dependencies during a build rather than before them.  On a normal system this might not be a big deal because Bitcoin compiles in just a minute or so.  On a smaller device like the BeagleBone Black though it means you'll end up checking in on it periodically over a long period of time only to find that it needs another dependency.
 
-In their defense the github version DOES use a "configure" script.  I found that out after going through a manual build on 0.8.6 so for completeness I'll show how to compile both and you can use whichever one suits your needs.
+In their defense the github version DOES use a "configure" script.  I found that out after going through a manual build on 0.8.6 so for completeness I'll show how to compile both and you can use whichever one suits your needs.  The configure script on a lean device like the BeagleBone Black still takes quite a while to run though so this should get you through doing the process just once.
+
+You can use either the current stable version today which is 0.8.6 or you can use the bleeding edge github source.  I would recommend 0.8.6 if you want something that is as stable as possible.  When compiling from source you should keep in mind that your build may not be compatible with old wallet formats.
+
+I cannot stress this enough - IF YOU HAVE AN OLD WALLET YOU ARE BEST OFF USING THE OFFICIAL BINARIES INSTEAD OF BUILDING FROM SOURCE!
 
 # Using version 0.8.6
 
@@ -58,13 +62,13 @@ git clone https://github.com/bitcoin/bitcoin.git
 cd bitcoin
 ./autogen.sh
 ./configure --with-incompatible-bdb
-make -f makefile.unix
+make
 ```
 
 Now you'll have the bitcoind executable sitting on your BeagleBone Black.  When you try to run it the first time it will complain that some variables aren't set and that your config is incomplete.  The output will look something like this:
 
 ``` bash
-debian@arm:~/bitcoin-0.8.6-linux/src/src$ ./bitcoind 
+debian@arm:~/bitcoin/src/src$ ./bitcoind 
 Error: To use bitcoind, you must set a rpcpassword in the configuration file:
 /home/debian/.bitcoin/bitcoin.conf
 It is recommended you use the following random password:
