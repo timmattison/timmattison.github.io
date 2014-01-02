@@ -45,7 +45,7 @@ If you want to use the latest development version here's what you need to do:
 
 0. Install the necessary dependencies
 ```bash
-sudo apt-get install g++ libboost-dev libdb-dev git automake
+sudo apt-get install g++ libboost-dev libdb-dev git automake pkg-config
 ```
 
 1. Clone the Bitcoin repository
