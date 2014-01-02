@@ -553,12 +553,18 @@
         <lastmod>2014-01-02T18:50:33-05:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://blog.timmattison.com/archives/2014/01/02/installing-unison-on-a-synology-nas/
+        </loc>
+        <lastmod>2014-01-02T18:57:00-05:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-01-02T18:50:33-05:00</lastmod>
+        <lastmod>2014-01-02T18:57:00-05:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-01-02T18:50:33-05:00</lastmod>
+        <lastmod>2014-01-02T18:57:00-05:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

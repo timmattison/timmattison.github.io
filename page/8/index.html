@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I just tried to upgrade trac on my Gentoo box to get back into the swing of tracking and squashing bugs. Gentoo was having none of it and reported & &hellip;">
+  <meta name="description" content="After a reinstall of Gentoo the other day I noticed that when I checked my logs with dmesg that all I saw was a ton of information relating to usb- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,64 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/02/how-to-stop-usb-storage-messages-from-filling-your-logs/">How-To: Stop USB Storage Messages From Filling Your Logs</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-02T18:59:59-05:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/02/how-to-stop-usb-storage-messages-from-filling-your-logs/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/02/how-to-stop-usb-storage-messages-from-filling-your-logs/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>After a reinstall of Gentoo the other day I noticed that when I checked my logs with dmesg that all I saw was a ton of information relating to usb-storage.  It turns out that the default kernel in some operating systems (and apparently the latest Gentoo is one of them) has the verbose USB storage debug logs enabled.</p>
+
+<p>In order to disable it you&rsquo;ll need to rebuild your kernel.  The option you&rsquo;re looking for is deep in the menu system but you can find it by drilling down like this</p>
+
+<ul>
+<li><p>Device Drivers</p>
+
+<ul>
+<li><p>USB support</p>
+
+<ul>
+<li>USB Mass Storage verbose debug</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>This option is also known as CONFIG_USB_STORAGE_DEBUG if you are editing your configuration manually.  Make sure this is unchecked in the menu (ie. no asterisk next to it) or set to &ldquo;=n&rdquo; in your configuration file.  Rebuild your kernel, reboot, and you&rsquo;ll never be bothered with these messages again.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -723,53 +781,6 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/10/15/how-to-resolve-pyunicodeucs2-decodeutf8-errors-in-gentoo/">How-To: Resolve PyUnicodeUCS2_DecodeUTF8 Errors in Gentoo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-10-15T09:37:59-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/10/15/how-to-resolve-pyunicodeucs2-decodeutf8-errors-in-gentoo/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/15/how-to-resolve-pyunicodeucs2-decodeutf8-errors-in-gentoo/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Just yesterday I was doing an upgrade of my Tomcat installation (and nearly everything on my virtual machine for that matter) and re-emerging the Tomcat servlet API kept giving me the error &ldquo;unresolved symbol PyUnicodeUCS2_DecodeUTF8&rdquo; and told me to re-emerge pyxml.  It turns out that pyxml is fine and thanks to <a href="http://bugs.gentoo.org/show_bug.cgi?id=282312#c2">a lone comment</a> on the Gentoo bug tracker I found a solution. Gentoo may break from time to time but their bug tracker is truly gold when you hit upon the right bug and the right comments.</p>
-
-<p>Step 1: Run &ldquo;emerge &mdash;sync&rdquo;</p>
-
-<p>Step 2: Update your packages as usual (I run &ldquo;emerge &mdash;update &mdash;deep &mdash;newuse -av world&rdquo; but people tell me I&rsquo;m crazy, it can break LOTS of things if you don&rsquo;t know what you&rsquo;re doing)</p>
-
-<p>Step 3: Wait for the unresolved symbol error to halt the emerge process and then run &ldquo;emerge -1 javatoolkit&rdquo;</p>
-
-<p>Step 4: Repeat step 2 and you should be in the clear</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -787,6 +798,10 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/01/02/installing-unison-on-a-synology-nas/">Installing Unison on a Synology NAS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a>
       </li>
     
@@ -800,10 +815,6 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
     
       <li class="post">
         <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a>
       </li>
     
   </ul>

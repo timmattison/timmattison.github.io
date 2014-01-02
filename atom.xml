@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-01-02T18:50:53-05:00</updated>
+  <updated>2014-01-02T18:57:35-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,85 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Installing Unison on a Synology NAS]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/01/02/installing-unison-on-a-synology-nas/"/>
+    <updated>2014-01-02T18:53:31-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/01/02/installing-unison-on-a-synology-nas</id>
+    <content type="html"><![CDATA[<p>This is all business.  I wrote this up a long time ago and never got a chance to put it online.  Enjoy!</p>
+
+<p>First, install SSH:</p>
+
+<ol>
+<li>Go to Synology web GUI</li>
+<li>Open Control Panel</li>
+<li>Click &ldquo;Terminal&rdquo;</li>
+<li>Check &ldquo;Enable SSH service&rdquo;</li>
+<li>Click &ldquo;Apply&rdquo;</li>
+</ol>
+
+
+<p>Set up your users so they have a home directory:</p>
+
+<ol>
+<li>Go to Synology web GUI</li>
+<li>Open Control Panel</li>
+<li>Click &ldquo;User&rdquo;</li>
+<li>Click &ldquo;User Home&rdquo; button at the top</li>
+<li>Check &ldquo;Enable user home service&rdquo;</li>
+<li>Select the volume on which the home directories should be stored</li>
+<li>Click &ldquo;OK&rdquo;</li>
+</ol>
+
+
+<p>Connect via SSH and make sure it works:</p>
+
+<ol>
+<li>ssh as admin to the Synology box.  Use the same password you use as admin on the web GUI.  <strong>If you leave it blank, even if your password is blank, it will always fail.  You must have a non-blank password!</strong> This is to protect against your device getting compromised from having no password.</li>
+<li>If you get the &ldquo;Diskstation>&rdquo; prompt then it is working</li>
+</ol>
+
+
+<p>Connect via SSH and make sure non-admin/non-root logins work:</p>
+
+<ol>
+<li>Connect as a regular user.  If you get permission denied SSH back in as root and change the desired user&rsquo;s shell from /sbin/nologin to /bin/ash in /etc/passwd.</li>
+<li>Try logging in again as that user</li>
+</ol>
+
+
+<p>Bootstrap for ipkg:</p>
+
+<ol>
+<li><a href="http://forum.synology.com/wiki/index.php/Overview_on_modifying_the_Synology_Server,_bootstrap,_ipkg_etc">http://forum.synology.com/wiki/index.php/Overview_on_modifying_the_Synology_Server,_bootstrap,_ipkg_etc</a></li>
+<li>Log in as root</li>
+<li>If you have DSM 4 or greater:</li>
+<li> Edit /root/.profile and comment out the lines that set and export the PATH variable</li>
+<li> Log out</li>
+<li> Log back in as root</li>
+<li>Run &ldquo;ipkg&rdquo;.  You should see the options come up and not an error message that ipkg can&rsquo;t be found.</li>
+</ol>
+
+
+<p>Compile and install Unison &ndash; <a href="http://www.multigesture.net/articles/how-to-compile-unison-for-a-synology-ds212/">http://www.multigesture.net/articles/how-to-compile-unison-for-a-synology-ds212/</a>
+This error is expected:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if [ -f `which etags` ]; then \
+</span><span class='line'>    etags *.mli */*.mli *.ml */*.ml */*.m *.c */*.c *.txt \
+</span><span class='line'>          ; fi
+</span><span class='line'>/bin/sh: etags: not found
+</span><span class='line'>make[1]: [tags] Error 127 (ignored)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Good luck and post success stories and issues in the comments and I&rsquo;ll help if I can.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Compiling Bitcoind on the BeagleBone Black]]></title>
@@ -1271,158 +1350,6 @@ export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
 </code></pre>
 
 <p>Make sure you include the guava-r09-jarjar.jar JAR in your build path.  This is usually located in /usr/lib/hadoop-0.20/lib.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How-To: Debug HDFS Applications in Eclipse]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/"/>
-    <updated>2012-02-07T10:56:58-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse</id>
-    <content type="html"><![CDATA[<p>I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS.  One thing that I noticed is that when running the application via &ldquo;hadoop jar&rdquo; it properly accessed HDFS and stored its files there but if I ran it in the debugger the API calls succeeded but the files never showed up.</p>
-
-<p>After a bit more investigation I saw that the HDFS API was unable to read my configuration files and find the NameNode so it defaulted to writing the files on the local file system instead.  This is nice behavior for debugging sometimes but can be dangerous if you&rsquo;re running an application that must put its files in HDFS like a mission critical application that doesn&rsquo;t fulfill its operational contract if data is lost.  In the case of an application like that accidentally writing to the local file system could be disastrous and expensive so it&rsquo;s good to know how to detect when this happens, and/or overcome it in a situation where you&rsquo;re trying to debug against your HDFS cluster.</p>
-
-<p>Let&rsquo;s look at a simple code snippet that connects to HDFS that is just a cleaned up version of <a href="http://developer.yahoo.com/hadoop/tutorial/module2.html#programmatically">Yahoo&rsquo;s Hadoop tutorial</a>:</p>
-
-<pre><code>import java.io.IOException;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-
-public class TestClass {
-    private static final String theFilename = "timmattison.txt";
-    private static final String message = "This is the message that gets put into the file";
-
-    public static void main(String[] args) {
-        try {
-            // Get the configuration and connect to the file system
-            Configuration conf = new Configuration();
-            FileSystem fs = FileSystem.get(conf);
-
-            // Create the path object for our output file
-            Path filenamePath = new Path(theFilename);
-
-            // Does it exist already?
-            if (fs.exists(filenamePath)) {
-                // Yes, remove it first
-                fs.delete(filenamePath);
-            }
-
-            // Create the output file and write the data into it
-            FSDataOutputStream out = fs.create(filenamePath);
-            out.writeUTF(message);
-            out.close();
-
-            // Open the output file as an input file and read it
-            FSDataInputStream in = fs.open(filenamePath);
-            String messageIn = in.readUTF();
-
-            // Print its contents and close the file
-            System.out.print(messageIn);
-            in.close();
-        } catch (IOException ioe) {
-            System.err.println("IOException during operation: "
-                    + ioe.toString());
-            System.exit(1);
-        }
-    }
-}
-</code></pre>
-
-<p>If you run this code with &ldquo;hadoop jar&rdquo; you&rsquo;ll see that it creates the expected file (timmattison.txt) in the current user&rsquo;s default path in HDFS.  If you run this code with Eclipse either in Run or Debug mode you&rsquo;ll see that the file is not created in HDFS, it is created relative to where Eclipse starts the JVM for the new process.</p>
-
-<p>We can tell where the HDFS library will attempt to write our files by very simply checking the type of the FileSystem object that is created by the call to <code>FileSystem.get(conf)</code>.  If that object&rsquo;s type is <a href="http://hadoop.apache.org/common/docs/current/api/org/apache/hadoop/fs/LocalFileSystem.html">LocalFileSystem</a> we are not connecting to HDFS.  However if that object&rsquo;s type is <a href="http://hadoop.apache.org/hdfs/docs/current/api/org/apache/hadoop/hdfs/DistributedFileSystem.html">DistributedFileSystem</a> then you know that you&rsquo;re connected to a Hadoop cluster and writing to a real instance of HDFS.</p>
-
-<p>In your code you can leverage this in a few ways.  First, if you always need to be sure you&rsquo;re writing to the cluster you can check the fs variable and see if it is an instance of LocalFileSystem.  If it is you can signal an error, e-mail an admin, etc.  Configuration changes in the field could cause this to happen so it is important to be aware of.  In general running programs through &ldquo;hadoop jar&rdquo; will make sure this doesn&rsquo;t happen but a little <a href="http://en.wikipedia.org/wiki/Defensive_programming">defensive programming</a> usually can&rsquo;t hurt.  Just consider what the cost of running your code against the wrong file system would be and trap this condition accordingly.</p>
-
-<p>If you&rsquo;re interested in handling this automatically in your development environment I&rsquo;ve come up with a simple pattern that works for me.  In some instances such as running your code outside of Eclipse without &ldquo;hadoop jar&rdquo; this pattern could fail so only use it specifically for debugging in Eclipse.  Here&rsquo;s what I do:</p>
-
-<pre><code>import java.io.IOException;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocalFileSystem;
-
-public class TestClass {
-    private static final String CORE_SITE_NAME = "core-site.xml";
-    private static final String CORE_SITE_LOCATION = "/etc/hadoop-0.20/conf.empty/"
-            + CORE_SITE_NAME;
-    private static final String LOCAL_SEARCH_PATH = "bin/";
-    private static final String LOCAL_CORE_SITE_LOCATION = LOCAL_SEARCH_PATH
-            + CORE_SITE_NAME;
-
-    private static boolean updatedConfiguration = false;
-
-    public static void main(String[] args) throws IOException {
-        try {
-            // Get the configuration and connect to the file system
-            Configuration conf = new Configuration();
-            FileSystem fs = FileSystem.get(conf);
-
-            // Is this the local file system?
-            if (fs instanceof LocalFileSystem) {
-                // Yes, we need to do use the cluster. Update the configuration.
-                updatedConfiguration = true;
-
-                /**
-                 * Remove the file if it already exists. Just in case this is a
-                 * symlink or something.
-                 */
-                removeTemporaryConfigurationFile();
-
-                // Copy the core-site.xml file to where our JVM can see it
-                copyConfigurationToTemporaryLocation();
-
-                // Recreate the configuration object
-                conf = new Configuration();
-
-                // Get a new file system object
-                fs = FileSystem.get(conf);
-
-                // Is this the local file system?
-                if (fs instanceof LocalFileSystem) {
-                    // Yes, give up. We cannot connect to the cluster.
-                    System.err.println("Failed to connect to the cluster.");
-                    System.exit(2);
-                }
-            }
-
-            // Do your HDFS related work here...
-        } catch (IOException ioe) {
-            // An IOException occurred, give up
-            System.err.println("IOException during operation: "
-                    + ioe.toString());
-            System.exit(1);
-        } finally {
-            // Did we update the configuration?
-            if (updatedConfiguration) {
-                // Yes, clean up the temporary configuration file
-                removeTemporaryConfigurationFile();
-            }
-        }
-    }
-
-    private static void copyConfigurationToTemporaryLocation()
-            throws IOException {
-        Runtime.getRuntime().exec(
-                new String[] { "cp", CORE_SITE_LOCATION,
-                        LOCAL_CORE_SITE_LOCATION });
-    }
-
-    private static void removeTemporaryConfigurationFile() throws IOException {
-        Runtime.getRuntime().exec(
-                new String[] { "rm", LOCAL_CORE_SITE_LOCATION });
-    }
-}
-</code></pre>
-
-<p>Now where it says &ldquo;Do your HDFS related work here&hellip;&rdquo; you can put your code and be sure that it&rsquo;s accessing the cluster, not your local file system.</p>
-
-<p>In a future article and on github I&rsquo;ll wrap this up in a reusable chunk so that you won&rsquo;t have to copy and paste this every time you start a new project.</p>
 ]]></content>
   </entry>
   
