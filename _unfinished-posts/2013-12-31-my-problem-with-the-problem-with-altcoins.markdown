@@ -58,4 +58,8 @@ Another partial agreement here so this is a quick one.  If your currency is exac
 
 My stance: Altcoins that don't innovate are junk. If you're going to create an altcoin it better have a few differentiators to be taken seriously.
 
+Issue #6:
 
+> Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.
+
+This is the biggest issue.  OMGRAMZ

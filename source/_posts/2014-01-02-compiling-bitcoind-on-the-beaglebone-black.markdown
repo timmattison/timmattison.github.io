@@ -5,14 +5,59 @@ date: 2014-01-02 07:31:19 -0500
 comments: true
 categories: 
 ---
-I am running Debian on a BeagleBone Black at home as a toy server to have a sandbox that I can play around on.  One application that I thought would be interesting to run on it was the standard Bitcoin client.  I think it is a bit strange that the Bitcoin client doesn't use "configure" like most other Linux/Unix applications because it leads to having to track down dependencies during a build rather than before them.  On a normal system this might not be a big deal because Bitcoin compiles in just a minute or so.  On a smaller device like the BeagleBone Black though it means you'll end up checking in on it periodically over a long period of time only to find that it needs another dependency.
+I am running Debian on a BeagleBone Black at home as a toy server to have a sandbox that I can play around on.  One application that I thought would be interesting to run on it was the standard Bitcoin client.  I think it is a bit strange that the latest version of the Bitcoin client (0.8.6 at the time I wrote this) doesn't use "configure" like most other Linux/Unix applications because it leads to having to track down dependencies during a build rather than before them.  On a normal system this might not be a big deal because Bitcoin compiles in just a minute or so.  On a smaller device like the BeagleBone Black though it means you'll end up checking in on it periodically over a long period of time only to find that it needs another dependency.
+
+In their defense the github version DOES use a "configure" script.  I found that out after going through a manual build on 0.8.6 so for completeness I'll show how to compile both and you can use whichever one suits your needs.
+
+# Using version 0.8.6
+
+If you want to use version 0.8.6 here's what you need to do:
+
+0. Install the necessary dependencies
+```bash
+sudo apt-get install g++ libboost-dev libdb-dev
+```
+1. Download the [Bitcoin 0.8.6 source](http://sourceforge.net/projects/bitcoin/files/Bitcoin/bitcoin-0.8.6/bitcoin-0.8.6-linux.tar.gz/download)
+2. Extract the source
+```bash
+tar xzvf bitcoin-0.8.6-linux.tar.gz
+```
+3. Remove the binaries, these are Intel binaries and won't work on the BeagleBone Black anyway
+```bash
+rm bitcoin-0.8.6-linux/bin/*/*
+```
+4. Go to the src directory
+```bash
+cd bitcoin-0.8.6-linux/src/src
+```
+5. Build the source
+```bash
+make -f makefile.unix
+```
 
 If you follow these instructions you should get Bitcoin up and running in just one build cycle.  Here are the commands that you should run:
 
+# Using the latest Bitcoin development version (NOT RECOMMENDED!)
+
+NOTE: I do not recommend that you use this version.  Currently Debian does not have libdb4.8 in its default repository and the Bitcoin client requires it to maintain compatibility with existing wallet files.
+
+If you want to use the latest development version here's what you need to do:
+
+0. Install the necessary dependencies
 ```bash
-sudo apt-get install g++ libboost-dev libdb-dev git
-git clone ...
-cd bitcoin ...
+sudo apt-get install g++ libboost-dev libdb-dev git automake
+```
+
+1. Clone the Bitcoin repository
+```bash
+git clone https://github.com/bitcoin/bitcoin.git
+```
+
+2. Configure the source
+```bash
+cd bitcoin
+./autogen.sh
+./configure --with-incompatible-bdb
 make -f makefile.unix
 ```
 
