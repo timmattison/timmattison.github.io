@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="When developing Linux kernel modules, specifically ones that tie into procfs via the seq_file interfaces and have circular buffers, it&rsquo;s handy &hellip;">
+  <meta name="description" content="gdgt has released a VMware image for Chrome OS this week. It works on all versions of VMware (not sure about ESX though), Virtual Box, and Parallels &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,104 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/12/15/how-to-fix-chrome-os-networking-problems-in-vmware-fusion/">How-To: Fix Chrome OS Networking Problems in VMware Fusion</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-12-15T07:54:00-05:00" pubdate data-updated="true">Dec 15<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/12/15/how-to-fix-chrome-os-networking-problems-in-vmware-fusion/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/15/how-to-fix-chrome-os-networking-problems-in-vmware-fusion/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>gdgt has <a href="http://gdgt.com/google/chrome-os/download/">released a VMware image for Chrome OS</a> this week.  It works on all versions of VMware (not sure about ESX though), Virtual Box, and Parallels.  When I started it up in VMware Fusion I kept getting the message &ldquo;Network not connected and offline login fail&rdquo;.</p>
+
+<p>The instructions explicitly say to switch from NAT to bridged but some users have found that it actually does work just fine with NAT.  In my case it still didn&rsquo;t work with either.  <a href="http://discuss.gdgt.com/google/chrome-os/general/Download-Chrome-OS-VMWare-image/page/2/">Luckily someone on the forums let us in on the secret</a> that you actually don&rsquo;t need a Google account at all to use this build.</p>
+
+<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#109;&#97;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#x63;&#x68;&#114;&#111;&#x6e;&#111;&#115;&#x40;&#103;&#109;&#x61;&#105;&#108;&#46;&#x63;&#111;&#109;">&#99;&#104;&#x72;&#x6f;&#110;&#x6f;&#115;&#64;&#103;&#x6d;&#x61;&#105;&#x6c;&#46;&#x63;&#111;&#109;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
+
+<p>Surprisingly, after doing that the networking system came to life and I could log into GMail and check other sites.  If you&rsquo;re hung up on getting past the initial login screen definitely try the &ldquo;chronos&rdquo; account and let me know if it works for you.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/">Tip: Monitor Networked Devices Aurally With Ping on Mac OS and Linux</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-12-07T18:59:59-05:00" pubdate data-updated="true">Dec 7<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I work with embedded Ethernet devices a lot and I need to monitor them to know exactly when they restart or if they go down during testing.  I used to do it with ping sitting on an external monitor and just glance up at it every few minutes to see what&rsquo;s happening.  This is a less than optimal solution since it requires me to constantly be distracted by a stream of information, it eats up screen real estate, and it forces me to keep an electron inhaling LCD panel running.</p>
+
+<p>I just discovered that the standard ping utility in Linux and Mac OS has a neat feature to alleviate this pain.  It will output an audible bell on every packet either received (showing a device is online) or missed (showing a device is offline). It&rsquo;s your choice which one you use, of course.  Personally, I have only needed the offline alert since I just need to be able to get into devices to see what they&rsquo;re doing immediately after a planned restart.</p>
+
+<p>To get audible notification for every packet missed do this:</p>
+
+<pre><code>ping -A hostname
+</code></pre>
+
+<p>To get audible notification for every packet received do this:</p>
+
+<pre><code>ping -a hostname
+</code></pre>
+
+<p>Now you can work without distraction until you hear those <a href="http://en.wikipedia.org/wiki/Bell_character">BEL</a>s.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -615,153 +713,6 @@ rc-update add vmware default
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/">How-To: Fix &#8220;This Selection Is Not Within a Valid Module&#8221; Errors in Eclipse When Refactoring Web Projects</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-12T14:20:47-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>After rebuilding my Eclipse environment I had the need to refactor one of my web projects.  Once I refactored it using the usual Eclipse method (right-click on the project &ndash;> Refactor &ndash;> Rename) I wasn&rsquo;t able to start the project on my web server.  The error message I got was</p>
-
-<pre><code>This selection is not within a valid module
-</code></pre>
-
-<p>Here are the steps to resolve this issue:</p>
-
-<p>Step 1: Select the &ldquo;Servers&rdquo; tab in Eclipse</p>
-
-<p>Step 2: Right-click on your server and select &ldquo;Delete&rdquo;</p>
-
-<p>Step 3: If prompted, make sure all options are checked (&ldquo;Delete unused server configuration(s)&rdquo;, &ldquo;Delete running server(s)&rdquo;, and &ldquo;Stop server(s) before deleting&rdquo;) and click OK</p>
-
-<p>Step 4: Close Eclipse</p>
-
-<p>Step 5: Go into your project&rsquo;s .settings directory and edit the org.eclipse.wst.common.component file</p>
-
-<p>Step 6: Change the following values to the name of your refactored project:</p>
-
-<pre><code>wb-module deploy-name
-property name="context-root" value
-</code></pre>
-
-<p>Step 7: Restart Eclipse and re-run your project</p>
-
-<p>Now your project should deploy to your servlet container properly.  Any time you refactor a web project in Eclipse you may need to do this so keep these instructions around if you think you&rsquo;ll need to do it often.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/">How-To: Fix a Broken Eclipse Environment Without Starting Completely From Scratch</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-10T08:46:58-05:00" pubdate data-updated="true">Nov 10<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Over time my Eclipse environment has become quiet a bit crufty.  I have a bunch of errors from plugins that I installed that didn&rsquo;t work properly and yesterday my environment completely stopped building my Java projects.  When I tried to export a JAR I got these two messages:</p>
-
-<p>JAR creation failed. See details for additional information.</p>
-
-<p>class file(s) on classpath not found or not accessible</p>
-
-<p>There are also some other errors you may see that indicate you should probahly rebuild your environment:</p>
-
-<p>No property tester contributes a property projectPersistentProperty org.eclipse.team.core.repository to type class org.eclipse.core.internal.resources.Project</p>
-
-<p>org.eclipse.core.runtime.CoreException: No property tester contributes a property projectPersistentProperty org.eclipse.team.core.repository to type class org.eclipse.core.internal.resources.Project</p>
-
-<p>java.util.zip.ZipException: error in opening zip file</p>
-
-<p>An internal error occurred during: &ldquo;Initializing Java Tooling&rdquo;</p>
-
-<p>An error occurred while loading the manifest</p>
-
-<p>In my case the class files that it couldn&rsquo;t find were classes that Eclipse was supposed to build.  After checking everything I couldn&rsquo;t figure it out so I decided that it was time to start fresh.  What I wanted to do was nuke the whole environment but not have to hunt around for all the JARs that I had in my user-defined libraries.  In the future I&rsquo;ll put all of those files in a directory for each library but right now I needed a fix so I could get back to work.</p>
-
-<p>Here are the steps to get a fresh start without reinstalling and without losing your user libraries:</p>
-
-<ul>
-<li><p>Step 1: Quit Eclipse</p></li>
-<li><p>Step 2: Make a backup of your workspace</p></li>
-<li><p>Step 3: Go into your workspace on the command-line and run</p>
-
-<p>mv .metadata .metadata-old</p></li>
-<li><p>Step 4: Restart Eclipse.  Don&rsquo;t panic!  Everything is only gone temporarily.  This step forces Eclipse to build a fresh .metadata directory.</p></li>
-<li><p>Step 5: Quit Eclipse</p></li>
-<li><p>Step 6: Restore your user-defined libraries on the command-line by running</p>
-
-<p>cp .metadata-old/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs</p></li>
-<li><p>Step 7: Restart Eclipse and import your projects back into the workspace</p></li>
-</ul>
-
-
-<p>If you are still having trouble and cannot build your code or export JARs make sure you right-click on a project that is having that problem, select &ldquo;Java Build Path&rdquo;, then select &ldquo;Libraries&rdquo;.  Any libraries marked with a red X are almost certainly your issue.  Resolve this issue (or remove them if they&rsquo;re not needed) and you&rsquo;ll be almost right where you left off but with a fresh, clean environment.</p>
-
-<p>You will lose settings like the location of your Android SDK if you use that, or the location where the save dialogs open up, but if you can deal with that this is a great way to start over.  Once you&rsquo;re comfortable with your setup you can remove the old metadata by running this on the command-line</p>
-
-<pre><code>rm -rf .metadata-old
-</code></pre>
-
-<p>Don&rsquo;t delete your backup copy though!  You never know when you&rsquo;ll need it.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/7/">&larr; Older</a>
@@ -779,6 +730,14 @@ property name="context-root" value
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Connecting a BeagleBone Black to a Synology NAS With NFS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a>
       </li>
     
@@ -788,14 +747,6 @@ property name="context-root" value
     
       <li class="post">
         <a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/">How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/">Tips for Debugging Spring&#8217;s @Transactional Annotation</a>
       </li>
     
   </ul>
@@ -849,7 +800,7 @@ property name="context-root" value
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Tim Mattison -
+  Copyright &copy; 2014 - Tim Mattison -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

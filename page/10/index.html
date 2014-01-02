@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I started using FreeSWITCH quite a while back but only recently got into rebuilding my home PBX with it. One of the things that always bothered me &hellip;">
+  <meta name="description" content="UPDATE #1: The latest portage now has a 3.x version of these tools. If you update to the latest portage as of 2009-03-05 then you likely won&rsquo;t &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,102 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/02/28/how-to-build-net-wirelessbluez-libs-2-25-and-net-wirelessbluez-utils-2-25-r1-on-gentoo-updated-2009-03-05/">How-To: Build net-wireless/bluez-libs-2.25 and net-wireless/bluez-utils-2.25-r1 on Gentoo [Updated 2009-03-05]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-02-28T12:43:19-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/02/28/how-to-build-net-wirelessbluez-libs-2-25-and-net-wirelessbluez-utils-2-25-r1-on-gentoo-updated-2009-03-05/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/02/28/how-to-build-net-wirelessbluez-libs-2-25-and-net-wirelessbluez-utils-2-25-r1-on-gentoo-updated-2009-03-05/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>UPDATE #1: The latest portage now has a 3.x version of these tools.  If you update to the latest portage as of 2009-03-05 then you likely won&rsquo;t have to jump through these hoops.</p>
+
+<p>I was trying to do some <spoiler>fun stuff with my Wii remote on Linux</spoiler> today and found that when I went to build the BlueZ utils on my Gentoo box it failed almost straight away.</p>
+
+<p>To save you the headache and I did some digging.  I have a quick and dirty way to fix your Gentoo setup if you&rsquo;re experiencing this problem.</p>
+
+<p>If you care it&rsquo;s related to GCC 4.x handling includes in C in a different way than previous versions.  If you don&rsquo;t care just ignore the previous sentence.  Here&rsquo;s the fix:</p>
+
+<p>Step 1: emerge bluez-libs.  When the emerge gets into the configure stage, press Control-Z to suspend the build.  The configure stage is when it spits out lots of &ldquo;Checking for &hellip;&rdquo; messages.</p>
+
+<p>Step 2: Edit the /var/tmp/portage/net-wireless/bluez-libs-2.25/work/bluez-libs-2.25/src/hci.c file with your favorite editor.  Within the chunk of includes you see at the top of the file add the line &ldquo;#include &rdquo;.</p>
+
+<p>Step 3: Run &ldquo;fg&rdquo; to continue the build.  bluez-libs should emerge normally now.</p>
+
+<p>Step 4: emerge bluez-utils.  When the emerge gets into the configure stage, press Control-Z to suspend the build.</p>
+
+<p>Step 5: Edit all of the following files and again add the line &ldquo;#include &rdquo; to them.  The files are: net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/tools/hciconfig.c, net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/tools/hciattach.c, net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/sdpd/request.c, net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/hidd/sdp.c</p>
+
+<p>Step 6: Run &ldquo;fg&rdquo; to continue the build.  bluez-utils should emerge normally now.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/02/28/testing-out-disqus-for-comments/">Testing Out Disqus for Comments</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-02-28T10:25:59-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/02/28/testing-out-disqus-for-comments/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/02/28/testing-out-disqus-for-comments/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I just spent some time playing around with getting Disqus comments set up so people don&rsquo;t have to bother with navigating to and registering on Twitter to join the conversation.  Comments will be available on each entry now.  I&rsquo;m still working on the comment count code.  I&rsquo;ll make a detailed post explaining how I integrated it with nanoblogger.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -162,6 +258,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Connecting a BeagleBone Black to a Synology NAS With NFS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a>
       </li>
     
@@ -171,14 +275,6 @@
     
       <li class="post">
         <a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/">How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/">Tips for Debugging Spring&#8217;s @Transactional Annotation</a>
       </li>
     
   </ul>
@@ -232,7 +328,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Tim Mattison -
+  Copyright &copy; 2014 - Tim Mattison -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
