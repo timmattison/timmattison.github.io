@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="VMware Fusion and VMware Workstation are both incredible products that will literally change the way you work if you are a developer or an IT admin. &hellip;">
+  <meta name="description" content="I have been rebuilding my Gentoo machine for a few days now. Not that it really takes that long, but I only have limited time I can dedicate to it &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,64 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/">Tip: Fix &#8220;NVIDIA(0): Failed to Initialize the GLX Module; Please Check in Your X Log File&#8221; on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have been rebuilding my Gentoo machine for a few days now.  Not that it really takes that long, but I only have limited time I can dedicate to it each day while still managing the time constraints of work.  After emerging xorg-x11 I restored my old configuration file that included my Nvidia Twinview display settings and I saw these errors popup</p>
+
+<pre><code>(EE) NVIDIA(0): Failed to initialize the GLX module; please check in your X
+(EE) NVIDIA(0):     log file that the GLX module has been loaded in your X
+(EE) NVIDIA(0):     server, and that the module is the NVIDIA GLX module.  If
+(EE) NVIDIA(0):     you continue to encounter problems, Please try
+(EE) NVIDIA(0):     reinstalling the NVIDIA driver.
+</code></pre>
+
+<p>What this means in a nutshell is that you haven&rsquo;t told Gentoo to use Nvidia&rsquo;s OpenGL support yet.  To fix that you can just run the following command</p>
+
+<pre><code>eselect opengl set nvidia
+</code></pre>
+
+<p>Gentoo should respond with this</p>
+
+<pre><code>Switching to nvidia OpenGL interface... done
+</code></pre>
+
+<p>You&rsquo;ll not only be rid of that error message but you&rsquo;ll have much better OpenGL performance than before.  Now I&rsquo;ve got to just get rid of those last few errors and fix my mouse and I&rsquo;ll be all set.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -713,71 +771,6 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/10/15/how-to-clear-out-tomcats-cache-and-fix-outdated-jsp-problems/">How-To: Clear Out Tomcat&#8217;s Cache and Fix Outdated JSP Problems</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-10-15T14:38:40-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/10/15/how-to-clear-out-tomcats-cache-and-fix-outdated-jsp-problems/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/15/how-to-clear-out-tomcats-cache-and-fix-outdated-jsp-problems/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I was updating a web application last night and after uploading the WAR file to my server, moving it into the servlet container&rsquo;s (Tomcat&rsquo;s) webapps directory, and restarting it I still got an old copy of a JSP showing up.  This was a particularly bad problem because I had refactored some classes and now even the old, previously valid JSP would fail to run since the imports were now invalid.  I went so far as removing the webapps directory entirely and still couldn&rsquo;t get it to work.  I came back the next day and all was fixed.  I was safe, I thought&hellip;</p>
-
-<p>The problem is this: My desktop&rsquo;s clock was correct and my server&rsquo;s clock was behind by a few minutes.  Tomcat keeps a cached copy of your JSPs in its &ldquo;work&rdquo; folder and only clears them out when it sees that the code in &ldquo;webapps&rdquo; is newer than the code in &ldquo;work&rdquo;.  The exception to that rule is when the code in &ldquo;webapps&rdquo; has a date in the future.  When that happens it doesn&rsquo;t update the code until that date passes.  This could be useful in some instances but for me it was a real problem.</p>
-
-<p>My workaround is pedantic but that&rsquo;s my style.  This assumes your Tomcat works in the /var/lib/tomcat-6 directory.  If not, change that path accordingly.  We&rsquo;ll also assume that your web application is called &ldquo;app-with-jsps.war&rdquo;.  Change that, too, if you need to.  Here&rsquo;s what I do:</p>
-
-<p>Step 1: Remove the WAR file from the webapps directory</p>
-
-<pre><code>rm -rf /var/lib/tomcat-6/webapps/app-with-jsps*
-</code></pre>
-
-<p>Step 2: Remove the application&rsquo;s work directory.  The two stars in that command-line traverses the Catalina/localhost path on my machine but on your machine the names could be different.  This makes sure it gets the files and, since it has no trailing wildcards, it pretty safe since it can only delete a directory called &ldquo;app-with-jsps&rdquo;.</p>
-
-<pre><code>rm -rf /var/lib/tomcat-6/work/*/*/app-with-jsps
-</code></pre>
-
-<p>Step 3: Copy your WAR file to the webapps directory</p>
-
-<pre><code>cp app-with-jsps.war /var/lib/tomcat-6/webapps
-</code></pre>
-
-<p>Step 4: Restart the servlet container</p>
-
-<pre><code>/etc/init.d/tomcat-6 restart
-</code></pre>
-
-<p>That should fix your cache problems.  A better long term solution is to sync your clocks but these steps come in handy when that&rsquo;s either difficult to do or completely out of your control.  Enjoy!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -795,6 +788,10 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Building Asterisk With Support for SIPML5</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">How to Get SIPML5 Working With Asterisk</a>
       </li>
     
@@ -808,10 +805,6 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
     
       <li class="post">
         <a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Connecting a BeagleBone Black to a Synology NAS With NFS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a>
       </li>
     
   </ul>

@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>How to Get SIPML5 Working With Asterisk - Tim Mattison</title>
+  <title>Building Asterisk With Support for SIPML5 - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months. Enjoy! Assume Asterisk is running on localhost and Apache is &hellip;">
+  <meta name="description" content="If you are trying to use SIPML5 with Asterisk there are some gotchas that often come up. If you&rsquo;re running it on Debian these tips below may &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">How to Get SIPML5 Working With Asterisk</h1>
+      <h1 class="entry-title">Building Asterisk With Support for SIPML5</h1>
     
     
       <p class="meta">
@@ -96,7 +96,7 @@
   
 
 
-<time datetime="2014-01-02T18:59:44-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+<time datetime="2014-01-02T19:06:58-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,79 +106,93 @@
   </header>
 
 
-<div class="entry-content"><p>Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months.  Enjoy!</p>
+<div class="entry-content"><p>If you are trying to use SIPML5 with Asterisk there are some gotchas that often come up.  If you&rsquo;re running it on Debian these tips below may help.</p>
 
-<p>Assume Asterisk is running on localhost and Apache is installed and running with /var/www at the htdocs directory</p>
-
-<p>http.conf changes:</p>
+<p>If you haven&rsquo;t gotten that far with Asterisk and don&rsquo;t care about your current configuration you can try this procedure that I use to build Asterisk myself:</p>
 
 <ul>
-<li>Set &ldquo;enabled=yes&rdquo; OR uncomment &ldquo;;enabled=yes&rdquo;</li>
-<li>Set &ldquo;bindport=8088&rdquo; OR uncomment &ldquo;;bindport=8088&rdquo;</li>
+<li>Download latest Asterisk, extract it, and cd into the directory it was extracted into</li>
+<li>Install some necessary dependencies</li>
 </ul>
 
 
-<p>sip.conf changes:</p>
-
-<ul>
-<li>Get the SIP code listening via TCP &ndash; set &ldquo;tcpenable=yes&rdquo;</li>
-<li>Add web socket support for SIP &ndash; set &ldquo;transport=udp,ws&rdquo; OR add &ldquo;,ws&rdquo; to existing transport list</li>
-<li>Uncomment xlite1 account</li>
-<li>Add &ldquo;avpf=yes&rdquo; to xlite1 account</li>
-<li>Add &ldquo;icesupport=yes&rdquo; to xlite1 account</li>
-</ul>
-
-
-<p>Steps to perform test call:</p>
-
-<ul>
-<li>Restart Asterisk</li>
-<li>Get the source from Subversion</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>svn checkout http://sipml5.googlecode.com/svn/trunk/ sipml5-read-only</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install build-essential libncurses5-dev libxml2-dev libsqlite3-dev libssl-dev libsrtp0-dev
+</span></code></pre></td></tr></table></div></figure>
 
 
 <ul>
-<li>Move the sipml5 source into /var/www</li>
-<li>Open Chrome and point it to the SIPML5 index.html in /var/www (or the subdirectory you put it in)</li>
-<li>Click &ldquo;Enjoy our live demo&rdquo;</li>
-<li>Set these values in the &ldquo;Registration&rdquo; panel
+<li>Run the configuration script</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>./configure
+</span></code></pre></td></tr></table></div></figure>
+
 
 <ul>
-<li>Display Name: xlite1</li>
-<li>Private Identity: xlite1</li>
-<li>Public Identity: sip:xlite1@localhost</li>
-<li>Realm: localhost</li>
-<li>Password is left blank</li>
+<li>Build Asterisk.  NOTE: I have only had problems running a multi-job make so I would suggest you do not include a -jX option to take advantage of all of your cores.</li>
 </ul>
-</li>
-<li>Click &ldquo;Expert Mode&rdquo;</li>
-<li>Set these values in &ldquo;Expert settings&rdquo;
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>make
+</span></code></pre></td></tr></table></div></figure>
+
 
 <ul>
-<li>Disable Video: Checked</li>
-<li>Enable RTCWeb Breaker: Unchecked</li>
-<li>WebSocket Server URL: ws://localhost:8088/ws</li>
-<li>SIP outbound Proxy URL: udp://localhost:5060</li>
-<li>Click &ldquo;Save&rdquo;</li>
-<li>Close &ldquo;Expert settings&rdquo; tab</li>
-</ul>
-</li>
-<li>Enter &ldquo;sip:2@localhost&rdquo; in the &ldquo;Call control&rdquo; field</li>
-<li>Click &ldquo;Call&rdquo;</li>
+<li>Install Asterisk</li>
 </ul>
 
 
-<p>At this point you should hear audio coming from Asterisk in a few seconds and your first call is complete.  Now you can build out your server as you&rsquo;d want!</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make install
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.</p>
 
-<p><img src="images/sipml5-asterisk/registration-and-call-control.png"></p>
+<ul>
+<li>Build the samples and <strong>overwrite your current configuration</strong>.  <strong>You lose everything here so skip this step if you want to keep your config</strong>.</li>
+</ul>
 
-<p><img src="images/sipml5-asterisk/expert-settings.png"></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make samples
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Start Asterisk with crazy verbosity so you can see what is going on</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo /usr/sbin/asterisk -vvvvvvvvvvvvvvg
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are two issues I ran into when trying to use SIPML5.</p>
+
+<h1>Error #1: no protocols out of &lsquo;sip&rsquo; supported &ndash; in Asterisk console</h1>
+
+<p>In this case chan_sip.so probably isn&rsquo;t built.  Check in make menuconfig, add libssl-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_crypto is enabled.</p>
+
+<h1>Error #2: SRTP issues</h1>
+
+<p>If you are having SRTP issues you probably get one or more of these messages:</p>
+
+<ul>
+<li>In the browser &ndash; Not acceptable here</li>
+<li>In the Asterisk console &ndash; Received SAVPF profile in audio offer but AVPF is not enabled</li>
+<li>In the Asterisk console &ndash; Insufficient information in SDP</li>
+<li>In the Asterisk console &ndash; No SRTP module loaded, can&rsquo;t setup SRTP session</li>
+<li>In the Asterisk console &ndash; Rejecting secure audio stream without encryption details</li>
+</ul>
+
+
+<p>In this case res_srtp.so probably isn&rsquo;t built.  Check in make menuconfig, add libsrtp0-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_srtp is enabled.</p>
+
+<p>Good luck and post in the comments if it worked for you or if you need some help.</p>
 </div>
 
 
@@ -201,7 +215,7 @@
   
 
 
-<time datetime="2014-01-02T18:59:44-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+<time datetime="2014-01-02T19:06:58-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
       
 
 
@@ -209,7 +223,7 @@
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -220,10 +234,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2014/01/02/installing-unison-on-a-synology-nas/" title="Previous Post: Installing unison on a Synology NAS">&laquo; Installing unison on a Synology NAS</a>
+        <a class="basic-alignment left" href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/" title="Previous Post: How to get SIPML5 working with Asterisk">&laquo; How to get SIPML5 working with Asterisk</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/" title="Next Post: Building Asterisk with support for SIPML5">Building Asterisk with support for SIPML5 &raquo;</a>
       
     </p>
   </footer>
@@ -327,8 +339,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5/';
         var disqus_script = 'embed.js';
       
     (function () {

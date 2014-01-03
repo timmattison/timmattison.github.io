@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Hibernate currently has some issues with Restrictions.in.  Basically if you try to pass it NULL it generates invalid SQL on at least MySQL and &hellip;">
+  <meta name="description" content="Ok, this mini-hack isn&rsquo;t pretty but it solves an issue that I have seen come up many times in Java. You&rsquo;re trying to add a method to an &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,68 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/">Mini Hack: Create Read-only Properties With Hibernate (Fixes &#8220;PropertyNotFoundException: Could Not Find a Setter&#8221; Issues)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-22T14:51:58-04:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2011</time>
+        
+           | <a href="/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ok, this mini-hack isn&rsquo;t pretty but it solves an issue that I have seen come up many times in Java.  You&rsquo;re trying to add a method to an object that you want Hibernate to persist.  Let&rsquo;s assume that your object is an elevator and it has the following real properties:</p>
+
+<ul>
+<li>Current floor (int)</li>
+<li>Hours in use (int)</li>
+<li>Pounds in elevator (int)</li>
+</ul>
+
+
+<p>You want to add a method that tells you how many days it has been in use.  Normally you&rsquo;d do this:</p>
+
+<pre><code>public double getDaysInUse() {
+  return this.hoursInUse / 24.0;
+}
+</code></pre>
+
+<p>However, if you do that you get the dreaded &ldquo;PropertyNotFoundException: Could not find a setter&rdquo; error.  How do we fix this?  Simply with a throw away parameter like this:</p>
+
+<pre><code>public double getDaysInUse(int unused) {
+  return this.hoursInUse / 24.0;
+}
+</code></pre>
+
+<p>And there you have it.  No more error!  I&rsquo;m sure there&rsquo;s a better way and when I find it I&rsquo;ll post again but for now this does the trick.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -658,49 +720,6 @@ $body = $body . $line;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2010/10/04/migrated-to-wordpress/">Migrated to WordPress</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-04T08:25:47-04:00" pubdate data-updated="true">Oct 4<span>th</span>, 2010</time>
-        
-           | <a href="/archives/2010/10/04/migrated-to-wordpress/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/04/migrated-to-wordpress/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I migrated to WordPress this weekend and after a few bumps in the road I think things are starting to settle.  Old static content is missing and the formatting of old posts probably needs to be touched up but it&rsquo;s a good start for now.</p>
-
-<p>I&rsquo;m going back and I&rsquo;m starting to categorize my articles.  First, one will be called &ldquo;uber&rdquo; and is for the most technical posts.  Then the two other standard categories will be &ldquo;mini-hacks&rdquo; for quick hacks and &ldquo;how-tos&rdquo; for longer how-to type posts.</p>
-
-<p>Comments have moved from Disqus to WordPress for now until I get a chance to install Disqus again.  Any comments between now and then may be lost.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/6/">&larr; Older</a>
@@ -718,6 +737,10 @@ $body = $body . $line;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Building Asterisk With Support for SIPML5</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">How to Get SIPML5 Working With Asterisk</a>
       </li>
     
@@ -731,10 +754,6 @@ $body = $body . $line;
     
       <li class="post">
         <a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Connecting a BeagleBone Black to a Synology NAS With NFS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a>
       </li>
     
   </ul>
