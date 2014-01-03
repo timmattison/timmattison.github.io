@@ -571,12 +571,18 @@
         <lastmod>2014-01-02T19:15:16-05:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://blog.timmattison.com/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/
+        </loc>
+        <lastmod>2014-01-02T19:21:43-05:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-01-02T19:15:16-05:00</lastmod>
+        <lastmod>2014-01-02T19:21:43-05:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-01-02T19:15:16-05:00</lastmod>
+        <lastmod>2014-01-02T19:21:43-05:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

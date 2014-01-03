@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I migrated to WordPress this weekend and after a few bumps in the road I think things are starting to settle.  Old static content is missing and the &hellip;">
+  <meta name="description" content="I just got a Samsung Fascinate a few weeks back and it’s a great phone.  When I tried to hook it up today to do some development on it though I ran &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,55 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2010/10/09/how-to-use-the-samsung-fascinategalaxy-s-to-debug-android-applications-on-windows/">How-To: Use the Samsung Fascinate/Galaxy S to Debug Android Applications on Windows</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-10-09T10:23:40-04:00" pubdate data-updated="true">Oct 9<span>th</span>, 2010</time>
+        
+           | <a href="/archives/2010/10/09/how-to-use-the-samsung-fascinategalaxy-s-to-debug-android-applications-on-windows/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/09/how-to-use-the-samsung-fascinategalaxy-s-to-debug-android-applications-on-windows/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I just got a Samsung Fascinate a few weeks back and it’s a great phone.  When I tried to hook it up today to do some development on it though I ran into trouble.  In the Windows device manager it just came up as a “Samsung Android” but Eclipse would not recognize it as a valid target.  In order to use this device, or any other Galaxy S product, as a debug target you need to do one more thing…</p>
+
+<p>The secret is that you need to download Samsung’s USB drivers.  The standard ones that come with the Android development kit will not work even if you modify the INF file to include the USB IDs of the phone.  Samsung has <a href="http://j.mp/SamsungFascinateUSB">drivers specifically for the Fascinate</a>.  I didn’t find the Samsung drivers right away so I settled for Softpedia.  Normally I avoid Softpedia downloads but I scanned them and looked at them closely before installing and they seem legitimate.  There are two versions listed but I think they may both be the same since the x64 version I installed claimed to be x86.  So here they are:</p>
+
+<p><a href="http://drivers.softpedia.com/get/MOBILES/Samsung/Samsung-Galaxy-S-USB-Driver-for-Windows-x64.shtml">Generic Galaxy S USB drivers for x64</a></p>
+
+<p><a href="http://drivers.softpedia.com/get/MOBILES/Samsung/Samsung-Galaxy-S-USB-Driver-for-Windows-x86.shtml">Generic Galaxy X USB drivers for x86</a></p>
+
+<p>Softpedia tries to trick you into clicking ads so first click “Download” to the left of the download counter for the file, then click the “Softpedia Secure Download (US) [ZIP]” link.  All of the other links are ads.</p>
+
+<p>After you have installed the drivers reconnect your phone and it should install four different drivers relating to ADB.  Then you should see your device come up in the Android device manager when you try to launch your project in Eclipse.  If the manager doesn’t come up you should go to the “Run Configurations” for your project, select the “Target” tab, and then select “Manual” under “Deployment Target Selection Mode”.  This makes sure that when you launch this project it’ll try to open device manager.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -238,7 +287,7 @@
 
 <p>The instructions explicitly say to switch from NAT to bridged but some users have found that it actually does work just fine with NAT.  In my case it still didn&rsquo;t work with either.  <a href="http://discuss.gdgt.com/google/chrome-os/general/Download-Chrome-OS-VMWare-image/page/2/">Luckily someone on the forums let us in on the secret</a> that you actually don&rsquo;t need a Google account at all to use this build.</p>
 
-<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#109;&#x61;&#x69;&#108;&#116;&#x6f;&#x3a;&#99;&#x68;&#x72;&#x6f;&#110;&#111;&#115;&#64;&#103;&#109;&#97;&#x69;&#x6c;&#x2e;&#99;&#111;&#x6d;">&#99;&#x68;&#x72;&#x6f;&#x6e;&#x6f;&#115;&#x40;&#103;&#x6d;&#97;&#x69;&#108;&#x2e;&#x63;&#111;&#109;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
+<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#109;&#97;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#99;&#104;&#x72;&#x6f;&#x6e;&#x6f;&#115;&#64;&#103;&#109;&#x61;&#x69;&#108;&#x2e;&#x63;&#111;&#109;">&#99;&#104;&#x72;&#111;&#x6e;&#x6f;&#115;&#64;&#x67;&#x6d;&#x61;&#x69;&#108;&#46;&#x63;&#111;&#109;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
 
 <p>Surprisingly, after doing that the networking system came to life and I could log into GMail and check other sites.  If you&rsquo;re hung up on getting past the initial login screen definitely try the &ldquo;chronos&rdquo; account and let me know if it works for you.</p>
 </div>
@@ -578,62 +627,6 @@ EndSection
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/">How-To: Fix &#8220;ERROR: Function information_schema._pg_keypositions() Does Not Exist&#8221; in PostgreSQL When Using Hibernate</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-24T07:01:25-05:00" pubdate data-updated="true">Nov 24<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I&rsquo;ll keep this one short.  If you&rsquo;re writing and debugging a Hibernate application and you&rsquo;re using PostgreSQL you may notice that you get the following error message when your application first connects to the database:</p>
-
-<pre><code>ERROR:  function information_schema._pg_keypositions() does not exist
-</code></pre>
-
-<p>According to <a href="http://qaix.com/postgresql-database-development/445-710-information-schema-pg-keypositions-in-8-1-read.shtml">a forum I came across</a> this is because the Hibernate team ended up depending on a function in PostgreSQL 8.0 that was dropped in 8.1+.  I needed to make some modifications to the code posted there to get it to work so here&rsquo;s what I came up with:</p>
-
-<pre><code>CREATE FUNCTION information_schema._pg_keypositions() RETURNS SETOF integer
-LANGUAGE sql
-IMMUTABLE
-AS $pg_keypositions$
-select g.s
-from generate_series(1,current_setting('max_index_keys')::int, 1)
-as g(s)
-$pg_keypositions$;
-</code></pre>
-
-<p>Once you run this code in your database you&rsquo;ll never be bothered with that error message again.  Basically this just gets the max_index_keys value and generates a list of integers from 1 to that value, inclusive.  Hibernate can live without it but removing a repetitive error message will keep your DBA and sysadmins sane a bit longer.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/7/">&larr; Older</a>
@@ -651,6 +644,10 @@ $pg_keypositions$;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Building Asterisk With Support for SIPML5</a>
       </li>
     
@@ -664,10 +661,6 @@ $pg_keypositions$;
     
       <li class="post">
         <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Connecting a BeagleBone Black to a Synology NAS With NFS</a>
       </li>
     
   </ul>
