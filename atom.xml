@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-01-02T18:57:35-05:00</updated>
+  <updated>2014-01-02T19:06:02-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,87 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[How to Get SIPML5 Working With Asterisk]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/"/>
+    <updated>2014-01-02T18:59:44-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk</id>
+    <content type="html"><![CDATA[<p>Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months.  Enjoy!</p>
+
+<p>Assume Asterisk is running on localhost and Apache is installed and running with /var/www at the htdocs directory</p>
+
+<p>http.conf changes:</p>
+
+<ul>
+<li>Set &ldquo;enabled=yes&rdquo; OR uncomment &ldquo;;enabled=yes&rdquo;</li>
+<li>Set &ldquo;bindport=8088&rdquo; OR uncomment &ldquo;;bindport=8088&rdquo;</li>
+</ul>
+
+
+<p>sip.conf changes:</p>
+
+<ul>
+<li>Get the SIP code listening via TCP &ndash; set &ldquo;tcpenable=yes&rdquo;</li>
+<li>Add web socket support for SIP &ndash; set &ldquo;transport=udp,ws&rdquo; OR add &ldquo;,ws&rdquo; to existing transport list</li>
+<li>Uncomment xlite1 account</li>
+<li>Add &ldquo;avpf=yes&rdquo; to xlite1 account</li>
+<li>Add &ldquo;icesupport=yes&rdquo; to xlite1 account</li>
+</ul>
+
+
+<p>Steps to perform test call:</p>
+
+<ul>
+<li>Restart Asterisk</li>
+<li>Get the source from Subversion</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>svn checkout http://sipml5.googlecode.com/svn/trunk/ sipml5-read-only</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Move the sipml5 source into /var/www</li>
+<li>Open Chrome and point it to the SIPML5 index.html in /var/www (or the subdirectory you put it in)</li>
+<li>Click &ldquo;Enjoy our live demo&rdquo;</li>
+<li>Set these values in the &ldquo;Registration&rdquo; panel
+
+<ul>
+<li>Display Name: xlite1</li>
+<li>Private Identity: xlite1</li>
+<li>Public Identity: sip:xlite1@localhost</li>
+<li>Realm: localhost</li>
+<li>Password is left blank</li>
+</ul>
+</li>
+<li>Click &ldquo;Expert Mode&rdquo;</li>
+<li>Set these values in &ldquo;Expert settings&rdquo;
+
+<ul>
+<li>Disable Video: Checked</li>
+<li>Enable RTCWeb Breaker: Unchecked</li>
+<li>WebSocket Server URL: ws://localhost:8088/ws</li>
+<li>SIP outbound Proxy URL: udp://localhost:5060</li>
+<li>Click &ldquo;Save&rdquo;</li>
+<li>Close &ldquo;Expert settings&rdquo; tab</li>
+</ul>
+</li>
+<li>Enter &ldquo;sip:2@localhost&rdquo; in the &ldquo;Call control&rdquo; field</li>
+<li>Click &ldquo;Call&rdquo;</li>
+</ul>
+
+
+<p>At this point you should hear audio coming from Asterisk in a few seconds and your first call is complete.  Now you can build out your server as you&rsquo;d want!</p>
+
+<p>Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.</p>
+
+<p><img src="images/sipml5-asterisk/registration-and-call-control.png"></p>
+
+<p><img src="images/sipml5-asterisk/expert-settings.png"></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Installing Unison on a Synology NAS]]></title>
@@ -1326,30 +1407,6 @@ export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
 </code></pre>
 
 <p>Good luck!  Post in the comments if you run into trouble.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/"/>
-    <updated>2012-02-07T11:16:19-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap</id>
-    <content type="html"><![CDATA[<p>If you&rsquo;re writing code that accesses HDFS and you get an exception that looks like this:</p>
-
-<pre><code>Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap
-    at org.apache.hadoop.hdfs.SocketCache.&lt;init&gt;(SocketCache.java:48)
-    at org.apache.hadoop.hdfs.DFSClient.&lt;init&gt;(DFSClient.java:240)
-    at org.apache.hadoop.hdfs.DFSClient.&lt;init&gt;(DFSClient.java:208)
-    at org.apache.hadoop.hdfs.DistributedFileSystem.initialize(DistributedFileSystem.java:89)
-    at org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:1563)
-    at org.apache.hadoop.fs.FileSystem.access$200(FileSystem.java:67)
-    at org.apache.hadoop.fs.FileSystem$Cache.getInternal(FileSystem.java:1597)
-    at org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:1579)
-    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:228)
-    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:111)
-</code></pre>
-
-<p>Make sure you include the guava-r09-jarjar.jar JAR in your build path.  This is usually located in /usr/lib/hadoop-0.20/lib.</p>
 ]]></content>
   </entry>
   

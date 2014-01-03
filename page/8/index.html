@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="After a reinstall of Gentoo the other day I noticed that when I checked my logs with dmesg that all I saw was a ton of information relating to usb- &hellip;">
+  <meta name="description" content="VMware Fusion and VMware Workstation are both incredible products that will literally change the way you work if you are a developer or an IT admin. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,73 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/">How-To: Migrate VMware Fusion-based Windows VMs to VMware Workstation on Linux</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>VMware Fusion and VMware Workstation are both incredible products that will literally change the way you work if you are a developer or an IT admin.  One thing that is a bit of a pain point, though, is moving virtual machines from VMware Fusion on the Mac to VMware Workstation on Linux.  If you move your VMs without doing this you may notice incredibly bad performance.  When I say bad performance I mean that the system is so slow it may take you 5 minutes to go from the desktop to the control panel.  Here is how to do it properly and avoid all of that&hellip;</p>
+
+<p>Note: You can do these steps either when going from VMware Fusion to VMware Workstation or the other way around.</p>
+
+<p>For the purposes of this article we&rsquo;ll skip calling them VMware Fusion and VMware Workstation and we&rsquo;ll refer to them as your source host and your destination host.</p>
+
+<p>Step 1: Take a snapshot of your VM so you can revert if anything goes wrong.</p>
+
+<p>Step 2: Start up your Windows VM on the source host.</p>
+
+<p>Step 3: Go to Control Panel &ndash;> Add/Remove programs</p>
+
+<p>Step 4: Uninstall VMware tools and shutdown</p>
+
+<p>If you don&rsquo;t need audio support, do steps 5 through 8 otherwise you&rsquo;re ready to move your VM over to the</p>
+
+<p>destination host.</p>
+
+<p>Step 5: Reboot and go to Control Panel &ndash;> Administrative Tools &ndash;> Services</p>
+
+<p>Step 6: Stop &ldquo;Windows Audio&rdquo;, and set it&rsquo;s startup mode to &ldquo;Disabled&rdquo;</p>
+
+<p>Step 7: Shutdown the VM</p>
+
+<p>Step 8: Open the VM settings and remove the audio device</p>
+
+<p>Now, move your VMs to the destination host.  If your destination host is Linux you can safely remove the &#8221;Applications&#8221; directory inside the vmwarevm directory.</p>
+
+<p>Finally, restart your host, install VMware Tools as you normally would, power off, and create another snapshot. This snapshot will serve as a clean starting off point if you need to tweak things experimentally to get the system running the way you&rsquo;d like.  Never underestimate the power of a few snapshots to save you hours upon hours even when you think that everything will go just fine.  Once things are stable you can remove them and reclaim the disk space. Also, don&rsquo;t forget about the VMware Tools &ldquo;Shrink&rdquo; function.  Once you&rsquo;re stable and you&rsquo;ve removed your snapshots you should always run &ldquo;Shrink&rdquo; to get back some storage.  Usually it trims a few hundred MB for me but sometimes it can free up a few GB if the VM has seen a lot of use.  You can&rsquo;t run &ldquo;Shrink&rdquo; if you have any snapshots on your virtual machine so it&rsquo;s really only good when you&rsquo;ve tweaked your setup and you&rsquo;re happy.  As soon as you &ldquo;Shrink&rdquo; you should always snapshot the machine again.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -711,76 +778,6 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/10/15/update-nicer-formatting-for-cisco-twitter-timelines-and-direct-message-support/">Update: Nicer Formatting for Cisco Twitter Timelines and Direct Message Support</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-10-15T10:38:07-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/10/15/update-nicer-formatting-for-cisco-twitter-timelines-and-direct-message-support/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/15/update-nicer-formatting-for-cisco-twitter-timelines-and-direct-message-support/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>A <a href="https://twitter.com/nikonshooter62">savvy guy in Germany</a> gave me some pointers on what could be improved in my previous post <a href="http://blog.timmattison.com/blog/archives/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/">How-To: Get a Twitter timeline on a Cisco 7960</a>.  Rather than updating that one again and having it get lost I&rsquo;ll put the newest stuff in new posts as they come up.</p>
-
-<p>First, rather than getting your friends timeline he suggested, and modified the script, to only pull the direct messages.  The change is straightforward and you can simply replace</p>
-
-<pre><code>$timeline = $twit-&gt;friends_timeline();
-</code></pre>
-
-<p>with</p>
-
-<pre><code>$timeline = $twit-&gt;direct_messages();
-</code></pre>
-
-<p>Second, the message formatting that comes from the API <a href="http://twitpic.com/llrfq">leaves a little bit to be desired</a>.  Therefore the two suggestions were to remove the &ldquo;+0000&rdquo; and move the year so it&rsquo;s between the date and time.  This change is a bit more tricky but can be done with regular expressions.  For the first I did this</p>
-
-<pre><code>$input =~ s/ \+0000//g;
-</code></pre>
-
-<p>and for the second I did this</p>
-
-<pre><code>$input =~ s/^([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*):/$1 $2 $3 $4 $5 $7 $6:/;
-</code></pre>
-
-<p>Put whichever of these you&rsquo;d like (or both) right before</p>
-
-<pre><code>return $input
-</code></pre>
-
-<p>in the fix_cisco_issues subroutine.  Make sure you copy them</p>
-
-<p>exactly or they can break the script.</p>
-
-<p>If you run into any trouble (ie. blank Cisco screen after doing the updates), run the script on the command-line and see if there are any errors showing up on STDERR. Usually, it&rsquo;s just a typo so pay attention to the error output and patch it up!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -798,6 +795,10 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">How to Get SIPML5 Working With Asterisk</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/01/02/installing-unison-on-a-synology-nas/">Installing Unison on a Synology NAS</a>
       </li>
     
@@ -811,10 +812,6 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
     
       <li class="post">
         <a href="/archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a>
       </li>
     
   </ul>

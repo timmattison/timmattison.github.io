@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>How-To: Fix LVM2's "No Extents Available for Allocation" Errors When Using Pvmove - Tim Mattison</title>
+  <title>How to Get SIPML5 Working With Asterisk - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I just started using LVM2 about two weeks ago. I recently wanted to shuffle around some physical extents on my disks to keep them from becoming a &hellip;">
+  <meta name="description" content="Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months. Enjoy! Assume Asterisk is running on localhost and Apache is &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">How-To: Fix LVM2's "No Extents Available for Allocation" Errors When Using Pvmove</h1>
+      <h1 class="entry-title">How to Get SIPML5 Working With Asterisk</h1>
     
     
       <p class="meta">
@@ -96,7 +96,7 @@
   
 
 
-<time datetime="2009-11-01T18:59:59-05:00" pubdate data-updated="true">Nov 1<span>st</span>, 2009</time>
+<time datetime="2014-01-02T18:59:44-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,57 +106,79 @@
   </header>
 
 
-<div class="entry-content"><p>I just started using LVM2 about two weeks ago.  I recently wanted to shuffle around some physical extents on my disks to keep them from becoming a mess as I added new logical volumes.  So in order to see how LVM2 laid out my logical volumes</p>
+<div class="entry-content"><p>Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months.  Enjoy!</p>
 
-<p>I ran:</p>
+<p>Assume Asterisk is running on localhost and Apache is installed and running with /var/www at the htdocs directory</p>
 
-<pre><code>pvdisplay -m
-</code></pre>
+<p>http.conf changes:</p>
 
-<p>This roughly translates to &ldquo;show me the physical volume information including the mapping data&rdquo;.  On my machine this printed out something like this</p>
+<ul>
+<li>Set &ldquo;enabled=yes&rdquo; OR uncomment &ldquo;;enabled=yes&rdquo;</li>
+<li>Set &ldquo;bindport=8088&rdquo; OR uncomment &ldquo;;bindport=8088&rdquo;</li>
+</ul>
 
-<pre><code>  --- Physical Segments ---
-  Physical extent 0 to 17066:
-    FREE
 
-  Physical extent 17067 to 29866:
-    Logical volume  /dev/vg-raid-array/work-area-1
-    Logical extents 0 to 51199
+<p>sip.conf changes:</p>
 
-  Physical extent 29867 to 31146:
-    Logical volume  /dev/vg-raid-array/postgresql
-    Logical extents 0 to 5119
+<ul>
+<li>Get the SIP code listening via TCP &ndash; set &ldquo;tcpenable=yes&rdquo;</li>
+<li>Add web socket support for SIP &ndash; set &ldquo;transport=udp,ws&rdquo; OR add &ldquo;,ws&rdquo; to existing transport list</li>
+<li>Uncomment xlite1 account</li>
+<li>Add &ldquo;avpf=yes&rdquo; to xlite1 account</li>
+<li>Add &ldquo;icesupport=yes&rdquo; to xlite1 account</li>
+</ul>
 
-  Physical extent 31147 to 59617:
-    FREE
 
-  --- Physical volume ---
-  PV Name               /dev/sdc
-  VG Name               vg-raid-array
-  PV Size               232.89 GB / not usable 3.18 MB
-  Allocatable           yes
-  PE Size (KByte)       4096
-  Total PE              59618
-  Free PE               45538
-  Allocated PE          14080
-  PV UUID               xxxxxx-xxxx-xxxx-xxxx-xxxx-xxxx-xxxxxx
-</code></pre>
+<p>Steps to perform test call:</p>
 
-<p>What you&rsquo;ll notice here is that my disk has my &ldquo;work-area-1&rdquo; volume starting at physical extent 17067 but the physical extents before that (0 &ndash; 17066) are empty.  What I wanted to do was move those extents to the beginning of the disk, then move the postgresql extents to the extents directly after that, so that I would have a large block of contiguous extents to add new partitions.  Here&rsquo;s what happened on my first try</p>
+<ul>
+<li>Restart Asterisk</li>
+<li>Get the source from Subversion</li>
+</ul>
 
-<pre><code># pvmove /dev/sdc:17067-29866 /dev/sdc:0-17066
 
-  No extents available for allocation
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>svn checkout http://sipml5.googlecode.com/svn/trunk/ sipml5-read-only</span></code></pre></td></tr></table></div></figure>
 
-<p>After lots of digging I found that <a href="http://lists.alioth.debian.org/pipermail/pkg-lvm-maintainers/2007-August/001322.html">I needed a magical, seemingly undocumented flag</a> to get it to work.  So now my command-line looked like this</p>
 
-<pre><code># pvmove -v /dev/sdc:17067-29866 /dev/sdc:0-17066 --alloc anywhere
-</code></pre>
+<ul>
+<li>Move the sipml5 source into /var/www</li>
+<li>Open Chrome and point it to the SIPML5 index.html in /var/www (or the subdirectory you put it in)</li>
+<li>Click &ldquo;Enjoy our live demo&rdquo;</li>
+<li>Set these values in the &ldquo;Registration&rdquo; panel
 
-<p>After that I was off and running.  <strong>If you&rsquo;re doing this on a remote terminal make sure you use <em>screen</em></strong> so you can disconnect!  The command I used runs pvmove in the foreground so if you disconnect while it&rsquo;s doing it bad things may happen.  This process usually takes a long time since you&rsquo;re reading and writing from the same disk.  Moving my 50GB of data took about 35 minutes.  Alternatively you can specify the background option (&ldquo;-b&rdquo; or &ldquo;&mdash;background&rdquo;) and let it run silently.</p>
+<ul>
+<li>Display Name: xlite1</li>
+<li>Private Identity: xlite1</li>
+<li>Public Identity: sip:xlite1@localhost</li>
+<li>Realm: localhost</li>
+<li>Password is left blank</li>
+</ul>
+</li>
+<li>Click &ldquo;Expert Mode&rdquo;</li>
+<li>Set these values in &ldquo;Expert settings&rdquo;
 
-<p>Good luck!  Make sure you always back up your data before you start moving partitions around with LVM2.  It&rsquo;s fairly safe with all of it&rsquo;s fancy checkpointing code but it&rsquo;s never fun to be in the situation where you have to depend on it. rsyncing to a backup first is much easier than trying to wade through documentation later.</p>
+<ul>
+<li>Disable Video: Checked</li>
+<li>Enable RTCWeb Breaker: Unchecked</li>
+<li>WebSocket Server URL: ws://localhost:8088/ws</li>
+<li>SIP outbound Proxy URL: udp://localhost:5060</li>
+<li>Click &ldquo;Save&rdquo;</li>
+<li>Close &ldquo;Expert settings&rdquo; tab</li>
+</ul>
+</li>
+<li>Enter &ldquo;sip:2@localhost&rdquo; in the &ldquo;Call control&rdquo; field</li>
+<li>Click &ldquo;Call&rdquo;</li>
+</ul>
+
+
+<p>At this point you should hear audio coming from Asterisk in a few seconds and your first call is complete.  Now you can build out your server as you&rsquo;d want!</p>
+
+<p>Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.</p>
+
+<p><img src="images/sipml5-asterisk/registration-and-call-control.png"></p>
+
+<p><img src="images/sipml5-asterisk/expert-settings.png"></p>
 </div>
 
 
@@ -165,7 +187,7 @@
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
 
       
 
@@ -179,21 +201,15 @@
   
 
 
-<time datetime="2009-11-01T18:59:59-05:00" pubdate data-updated="true">Nov 1<span>st</span>, 2009</time>
+<time datetime="2014-01-02T18:59:44-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/categories/how-to/'>How-To</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -204,10 +220,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2009/10/28/how-to-fix-the-cannot-find-luuid-error-on-gentoo/" title="Previous Post: How-To: Fix the "cannot find -luuid" error on Gentoo">&laquo; How-To: Fix the "cannot find -luuid" error on Gentoo</a>
+        <a class="basic-alignment left" href="/archives/2014/01/02/installing-unison-on-a-synology-nas/" title="Previous Post: Installing unison on a Synology NAS">&laquo; Installing unison on a Synology NAS</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/" title="Next Post: Tip: Perform a pvmove without calculating the start and end extent values">Tip: Perform a pvmove without calculating the start and end extent values &raquo;</a>
       
     </p>
   </footer>
@@ -311,8 +325,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/';
         var disqus_script = 'embed.js';
       
     (function () {
