@@ -46,4 +46,10 @@ Now you have your Synology all set up to accept NFS connections from your Beagle
 
 You can now add this to your /etc/fstab file if you'd like but I prefer to keep it in a script.  I have a script called mount-nfs.sh in my home directory that I run when necessary since I'm still testing out NFSv4.  Once I get it stable I'll make sure that I get it to mount automatically the proper way and update this post.
 
+# Potential issues
+
+If you receive an error message that says "mount.nfs: access denied by server while mounting synology" you probably have the wrong IP for your BeagleBone Black in the Synology configuration.
+
+If it appears to mount the volume but no files show up try unmounting it and re-mounting it.  If you unmount it successfully and when re-mounting it again it complains that the device is busy it is possible that your BeagleBone Black's IP address changed.  This happened on my test machine when its IP went from 192.168.1.109 to 192.168.1.110.  It didn't give me the access denied error message but instead exhibited this weird behavior.  If this is the case make sure you have your IP assigned statically, reboot the BeagleBone Black, verify the static IP in the Synology configuration again, and then try re-mounting the path.  After that mine started working again.
+
 Good luck!  Post any success stories or issues in the comments.  I'll do my best to help out if possible.
