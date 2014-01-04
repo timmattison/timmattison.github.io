@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-01-04T12:08:01-05:00</updated>
+  <updated>2014-01-04T14:03:19-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,25 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Testing a Video Plugin]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin/"/>
+    <updated>2014-01-04T13:54:46-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin</id>
+    <content type="html"><![CDATA[<p>Just testing an Octopress plugin from github called (Octopress responsive video embed)[<a href="https://github.com/optikfluffel/octopress-responsive-video-embed">https://github.com/optikfluffel/octopress-responsive-video-embed</a>].</p>
+
+<p>A Vimeo video:</p>
+
+<div class="embed-video-container"><iframe src="http://player.vimeo.com/video/82648212 "></iframe></div>
+
+
+<p>A YouTube video:</p>
+
+<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/T3gacnHb9TI "></iframe></div>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS]]></title>
@@ -1338,51 +1357,6 @@ double operationsPerMillisecond = (double) operations / (double) durationInMilli
 <p>These are just reciprocals of each other but sometimes one value is a lot easier to understand than the other so I usually calculate them both.</p>
 
 <p>Now that you have those statistics you can try different thread counts, optimize code/loops, etc.  Good luck!  Post in the comments with any ideas and/or issues.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How-To: Fix "Chown: Cannot Dereference" Errors in Cloudera CDH on Debian/Ubuntu Linux When Upgrading]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/"/>
-    <updated>2012-02-26T12:10:47-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading</id>
-    <content type="html"><![CDATA[<p><strong><em>WARNING!</em></strong> Do not do this on production clusters unless you are willing to take responsibility for any issues that may occur.  This wipes out all of your logs and potentially other files.  Always have a backup before trying anything like this.  I take no responsibility for issues that may arise from running any or all of these instructions.</p>
-
-<p>When I tried to upgrade my CDH installation today I received many errors from dpkg that caused the upgrade to fail.  The errors looked like this:</p>
-
-<pre><code>chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000015_0': No such file or directory
-chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000003_0': No such file or directory
-chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000009_0': No such file or directory
-chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000018_0': No such file or directory
-
-...
-
-dpkg: error processing hadoop-0.20 (--configure):
- subprocess installed post-installation script returned error exit status 123
-dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
- hadoop-0.20-tasktracker depends on hadoop-0.20 (= 0.20.2+923.195-1~squeeze-cdh3); however:
-  Package hadoop-0.20 is not configured yet.
-</code></pre>
-
-<p>My simple fix, not for production clusters, is to do the following:</p>
-
-<ul>
-<li><p>Step 1: Become the HDFS user and stop Hadoop by running</p>
-
-<p>~/bin/stop-all.sh</p></li>
-<li><p>Step 2: Become root and remove all of your Hadoop related logs by running</p>
-
-<p>rm -rf /var/log/hadoop-0.20/*</p></li>
-<li><p>Step 3: Become root and run your upgrade by running</p>
-
-<p>apt-get upgrade</p></li>
-<li><p>Step 4: Become the HDFS user and restart Hadoop by running</p>
-
-<p>~/bin/start-all.sh</p></li>
-</ul>
-
-
-<p>After that your installation should be working and up to date again.  Post in the comments if it works for your or if you need any assistance.</p>
 ]]></content>
   </entry>
   

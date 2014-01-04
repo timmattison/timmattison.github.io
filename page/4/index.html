@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Finding the size of an object or data structure used to be simple in &ldquo;the good old days&rdquo;. You could just use the sizeof function and it& &hellip;">
+  <meta name="description" content="In Java making your objects serializable is often required to work with certain libraries (ORM, GWT-RPC, etc). It&rsquo;s tempting when Eclipse tells &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,56 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/01/10/how-to-find-and-fix-duplicate-java-object-serial-numbers/">How-To: Find and Fix Duplicate Java Object Serial Numbers</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-10T09:43:03-05:00" pubdate data-updated="true">Jan 10<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/01/10/how-to-find-and-fix-duplicate-java-object-serial-numbers/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/10/how-to-find-and-fix-duplicate-java-object-serial-numbers/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In Java making your objects serializable is often required to work with certain libraries (<a href="http://en.wikipedia.org/wiki/Object-relational_mapping">ORM</a>, <a href="http://code.google.com/webtoolkit/doc/latest/tutorial/RPC.html">GWT-RPC</a>, etc).  It&rsquo;s tempting when Eclipse tells us that our object is missing a unique identifier to have it generate one on the fly.  However, in practice what happens sometimes in the field is that you&rsquo;ll create a serializable class and then copy it to make a new class.  When you do this you&rsquo;re inadvertently copying the objects &ldquo;serialVersionUID&rdquo; field.</p>
+
+<p>Why is this an issue?  Well, the serialVersionUID is supposed to be a universal identifier.  If it&rsquo;s not universal then you&rsquo;re asking for trouble.  When you deserialize a new version of this object or try to deserialize an object to the wrong object type you can end up with strange results or have your application crash altogether.</p>
+
+<p>How do we fix it?  I&rsquo;ve written a command-line one liner (even though it looks like three lines on the site) that will print out a list of the files that have duplicated serialVersionUID values.  Here it is:</p>
+
+<pre><code>grep -r serialVersionUID * | grep -o "private.*" | sort | uniq -d | sed 's/^.*=//' | sed 's/;//' | sed 's/^ //' | sed 's/^-/\\\\-/' | xargs -I PATTERNS grep -r PATTERNS . | cut -f1 -d ':'
+</code></pre>
+
+<p>Go into each of these files, remove their serialVersionUID field, and regenerate them.  Don&rsquo;t concern yourself with which ones overlap unless you already have serialized versions of these objects lying around.  If you do have serialized versions you should remove the field and reserialize your objects into your data store without it.  Then you can try to generate new values and again reserialize them into the data store.  DO NOT do this in production, always do it in a test environment to make sure that nothing breaks.  You do have unit tests that&rsquo;ll test these things, right?  :)</p>
+
+<p>Post in the comments if you find this useful and keep hacking!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -817,112 +867,6 @@ tail shake.full-output.*
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/">How-To: Extract Java Exceptions From Tomcat Logs</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-06-30T18:39:02-04:00" pubdate data-updated="true">Jun 30<span>th</span>, 2011</time>
-        
-           | <a href="/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I&rsquo;ve been digging through exceptions lately and it&rsquo;s sometimes a pain to dig through the Tomcat logs depending on your logging level.  Although it might sound like you should just turn your logging levels down sometimes that&rsquo;s not feasible.  If you want to get right to the exceptions I whipped up a little script that does exactly that so you can skip all of the log cruft and get right to the problem(s) you are looking to fix.  Just pipe or redirect your log into this script and the output will be a list of exceptions and their stack traces.  The output could potentially be huge to piping it through less or redirecting it to another file may make sense.</p>
-
-<p>Here&rsquo;s the script (exceptions-only.pl) and there&rsquo;ll be more soon&hellip;</p>
-
-<pre><code>#!/usr/bin/perl -w
-
-# The two states we can be in in our state machine.  Either looking for an exception or we found an exception.
-my $state_looking_for_exception = 0;
-my $state_found_exception = 1;
-
-# Start out looking for an exception, clear the output and the last time value
-my $state = $state_looking_for_exception;
-my $output = "";
-my $last_time = "";
-
-# Eat everything STDIN can give us
-while() {
-  my $line = $_;
-  chomp $line;
-
-  # Are we looking for an exception
-  if($state == $state_looking_for_exception) {
-    # Yes, did we find one?
-    if($line =~ m/^[0-9a-zA-Z\.]*Exception:/) {
-      # Yes, change state
-      $state = $state_found_exception;
-
-      # Do we have a timestamp for it?
-      if($last_time ne "") {
-        # Yes, add the timestamp data
-        $output .= "\n\n--- Start of exception at $last_time ---\n\n";
-      }
-
-      # Append the exception data to our output
-      $output .= $line . "\n";
-    }
-    # Didn't find an exception, does this look like a timestamp?
-    elsif($line =~ m/^[A-Za-z]{3} [0-9]{1,2}, [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}/) {
-      # Yes, save it as the last time we've seen
-      $last_time = $line;
-    }
-  }
-  # Not looking for an exception, did we already find one?
-  elsif($state == $state_found_exception) {
-    # Yes, does this line start with whitespace?
-    if(!($line =~ m/^\s/)) {
-      # No, no more stack trace data.  Change state.
-      $state = $state_looking_for_exception;
-
-      # Do we have a timestamp for it?
-      if($last_time ne "") {
-        # Yes, add the timestamp data
-        $output .= "\n\n--- End of exception at $last_time ---\n\n";
-
-        # Clear out the last time since we're done with this exception
-        $last_time = "";
-      }
-    }
-    else {
-      # Yes, this line starts with whitespace so it is stack trace data.  Append it to our output.
-      $output .= $line . "\n";
-    }
-  }
-}
-
-# Print the output and we're done
-print $output;
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/5/">&larr; Older</a>
@@ -940,6 +884,10 @@ print $output;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a>
       </li>
     
@@ -953,10 +901,6 @@ print $output;
     
       <li class="post">
         <a href="/archives/2014/01/02/installing-unison-on-a-synology-nas/">Installing Unison on a Synology NAS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a>
       </li>
     
   </ul>

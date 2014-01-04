@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>How-To: Fix Hibernate SQL Errors When Using Restrictions.in - Tim Mattison</title>
+  <title>Testing a Video Plugin - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Hibernate currently has some issues with Restrictions.in.  Basically if you try to pass it NULL it generates invalid SQL on at least MySQL and &hellip;">
+  <meta name="description" content="Just testing an Octopress plugin from github called (Octopress responsive video embed)[https://github.com/optikfluffel/octopress-responsive-video- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">How-To: Fix Hibernate SQL Errors When Using Restrictions.in</h1>
+      <h1 class="entry-title">Testing a Video Plugin</h1>
     
     
       <p class="meta">
@@ -96,7 +96,7 @@
   
 
 
-<time datetime="2011-06-22T12:36:03-04:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2011</time>
+<time datetime="2014-01-04T13:54:46-05:00" pubdate data-updated="true">Jan 4<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,34 +106,17 @@
   </header>
 
 
-<div class="entry-content"><p>Hibernate currently has some issues with Restrictions.in.  Basically if you try to pass it NULL it generates invalid SQL on at least MySQL and PostgreSQL.  I found a <a href="http://www.celerity.nl/blog/2009/01/hibernate-creating-invalid-quries-from-empty-lists/">blog post outlining how to fix this issue</a> and <a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-2776">the accompanying JIRA issue</a> which confirms that I&rsquo;m not the only one having this problem.  Unfortunately this person&rsquo;s fix didn&rsquo;t work for me but I think that&rsquo;s because they&rsquo;re using MySQL and I&rsquo;m using PostgreSQL.  Differences in the driver still make this fail on PostgreSQL.</p>
+<div class="entry-content"><p>Just testing an Octopress plugin from github called (Octopress responsive video embed)[<a href="https://github.com/optikfluffel/octopress-responsive-video-embed">https://github.com/optikfluffel/octopress-responsive-video-embed</a>].</p>
 
-<p>In order to remedy this I set out to find a better solution that would hopefully work on Hibernate with any backend.  What I came up with, <a href="http://stackoverflow.com/questions/2667131/is-there-something-like-restrictions-eqtrue-false-in-criteria-api">with some help from StackOverflow</a>, is this:</p>
+<p>A Vimeo video:</p>
 
-<pre><code>﻿﻿public static &lt;M&gt; void addInRestriction(DetachedCriteria dc, String idDbField, List ids) {
-    // Is our list empty?
-    if ((ids != null) &amp;&amp; (ids.size() &gt; 0)) {
-        // No, add this restriction to the detached object
-        dc.add(Restrictions.in(idDbField, ids));
-    } else {
-        // Yes, our list is empty.  Make this always fail.
-        // From: http://stackoverflow.com/questions/2667131/is-there-something-like-restrictions-eqtrue-false-in-criteria-api
-        dc.add(Restrictions.sqlRestriction("(1=0)"));
-    }
-}
-</code></pre>
+<div class="embed-video-container"><iframe src="http://player.vimeo.com/video/82648212 "></iframe></div>
 
-<p>I put this in a class with some other Hibernate helper functions and now instead of doing this:</p>
 
-<pre><code>dc.add(Restrictions.in("fieldName", fieldValues));
-</code></pre>
+<p>A YouTube video:</p>
 
-<p>I do this:</p>
+<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/T3gacnHb9TI "></iframe></div>
 
-<pre><code>HibernateQueryUtils.addInRestriction(dc, "fieldName", fieldValues);
-</code></pre>
-
-<p>This fixed all of my Hibernate issues when passing it a NULL or even an empty list.  Hope it works for you too!</p>
 </div>
 
 
@@ -142,7 +125,7 @@
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
 
       
 
@@ -156,21 +139,15 @@
   
 
 
-<time datetime="2011-06-22T12:36:03-04:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2011</time>
+<time datetime="2014-01-04T13:54:46-05:00" pubdate data-updated="true">Jan 4<span>th</span>, 2014</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/categories/how-to/'>How-To</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -181,10 +158,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files/" title="Previous Post: How-To: Improve your duplicity backup and restore times on Rackspace Cloud Files">&laquo; How-To: Improve your duplicity backup and restore times on Rackspace Cloud Files</a>
+        <a class="basic-alignment left" href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/" title="Previous Post: BeagleBone Black and Raspberry Pi SD card gotchas on Mac OS">&laquo; BeagleBone Black and Raspberry Pi SD card gotchas on Mac OS</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/" title="Next Post: Mini Hack: Create read-only properties with Hibernate (fixes "PropertyNotFoundException: Could not find a setter" issues)">Mini Hack: Create read-only properties with Hibernate (fixes "PropertyNotFoundException: Could not find a setter" issues) &raquo;</a>
       
     </p>
   </footer>
@@ -288,8 +263,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin/';
         var disqus_script = 'embed.js';
       
     (function () {

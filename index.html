@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="If you&rsquo;re using dd on the command-line to write SD card images in Mac OS then you may have run into a weird issue where the image is starting &hellip;">
+  <meta name="description" content="Just testing an Octopress plugin from github called (Octopress responsive video embed)[https://github.com/optikfluffel/octopress-responsive-video- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,55 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-04T13:54:46-05:00" pubdate data-updated="true">Jan 4<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/04/testing-a-video-plugin/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Just testing an Octopress plugin from github called (Octopress responsive video embed)[<a href="https://github.com/optikfluffel/octopress-responsive-video-embed">https://github.com/optikfluffel/octopress-responsive-video-embed</a>].</p>
+
+<p>A Vimeo video:</p>
+
+<div class="embed-video-container"><iframe src="http://player.vimeo.com/video/82648212 "></iframe></div>
+
+
+<p>A YouTube video:</p>
+
+<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/T3gacnHb9TI "></iframe></div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -964,82 +1013,6 @@ We&rsquo;ll see if it makes me post any more or not though.  It appears that thi
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/">How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-05-04T09:06:30-04:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><strong>Update 2012-06-16</strong>: This still happens on the 8.0.4 update so change the values that read &ldquo;8.0.3&rdquo; to &ldquo;8.0.4&rdquo; if you are using 8.0.4.  Also, if you have patched previously and try to run the script again after an upgrade you need to remove a file called &ldquo;/usr/lib/vmware/modules/source/.patched&rdquo; first.  The script will let you know that it won&rsquo;t patch because it has already been done if you forget.  Just delete it and re-run the script.</p>
-
-<p>Today I upgraded to VMware Workstation 8.0.3 and immediately I ran into the following error message:</p>
-
-<pre><code>make[1]: Entering directory `/usr/src/linux-headers-3.2.0-2-amd64'
-  CC [M]  /tmp/vmware-root/modules/vmnet-only/userif.o
-  CC [M]  /tmp/vmware-root/modules/vmnet-only/netif.o
-  CC [M]  /tmp/vmware-root/modules/vmnet-only/filter.o
-/tmp/vmware-root/modules/vmnet-only/userif.c: In function ‘VNetCsumCopyDatagram’:
-/tmp/vmware-root/modules/vmnet-only/userif.c:520:3: error: incompatible type for argument 1 of ‘kmap’
-/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:48:21: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
-/tmp/vmware-root/modules/vmnet-only/userif.c:523:3: error: incompatible type for argument 1 of ‘kunmap’
-/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:54:20: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
-/tmp/vmware-root/modules/vmnet-only/netif.c: In function ‘VNetNetIfSetup’:
-/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: error: unknown field ‘ndo_set_multicast_list’ specified in initializer
-/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: initialization from incompatible pointer type [enabled by default]
-/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: (near initialization for ‘vnetNetifOps.ndo_validate_addr’) [enabled by default]
-make[4]: *** [/tmp/vmware-root/modules/vmnet-only/userif.o] Error 1
-make[4]: *** Waiting for unfinished jobs....
-make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
-</code></pre>
-
-<p>After lots of Googling I found <a href="http://weltall.heliohost.org/wordpress/2012/01/26/vmware-workstation-8-0-2-player-4-0-2-fix-for-linux-kernel-3-2-and-3-3/">a blog post with a patch for kernels 3.2.0 and 3.3.0</a>.  Unfortunately when I tried to run the patch it failed and said:</p>
-
-<pre><code>Sorry, this script is only for VMWare WorkStation 8.0.2 or VMWare Player 4.0.2. Exiting
-</code></pre>
-
-<p>In order to fix this open up the script after you download it and change the line this line:</p>
-
-<pre><code>vmreqver=8.0.2
-</code></pre>
-
-<p>To this:</p>
-
-<pre><code>vmreqver=8.0.3
-</code></pre>
-
-<p>Re-run the script and you should be good to go.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1055,6 +1028,10 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a>
       </li>
     
@@ -1068,10 +1045,6 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
     
       <li class="post">
         <a href="/archives/2014/01/02/installing-unison-on-a-synology-nas/">Installing Unison on a Synology NAS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a>
       </li>
     
   </ul>
