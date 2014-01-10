@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-01-10T08:33:19-05:00</updated>
+  <updated>2014-01-10T09:11:02-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,91 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Fixing In-Page Analytics With Google Analytics]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/"/>
+    <updated>2014-01-10T08:40:24-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics</id>
+    <content type="html"><![CDATA[<p>After migrating to Octopress I started getting interested in my site&rsquo;s analytics again.  A co-worker told me about in-page analytics with Google Analytics and how it would show you what people were doing on your site so you could tune your layout.  We tried loading it and ran into some problems.</p>
+
+<p>First, we got the &ldquo;Loading&hellip;&rdquo; spinner for a long time:</p>
+
+<p><img src="images/in-page-analytics/loading.png"></p>
+
+<p>Then we got the &ldquo;Still loading&hellip;&rdquo; message that didn&rsquo;t inspire much confidence:</p>
+
+<p><img src="images/in-page-analytics/still-loading.png"></p>
+
+<p>Finally, we got a popup that said &ldquo;Problem loading In-Page Analytics&rdquo;:</p>
+
+<p><img src="images/in-page-analytics/problem-loading-in-page-analytics.png"></p>
+
+<p>What the problem was in my case was that I told Google Analytics that I wanted to track timmattison.com but my site redirects to blog.timmattison.com.  My two options were to make my site actually be served from timmattison.com or to change my tracking code.  I opted to change my tracking code.  I&rsquo;ll walk you through how I did it.</p>
+
+<p>NOTE: <em>You will lose your existing tracking data if you do this!</em>  If you want to keep your tracking data you&rsquo;ll need to find another way.  For me it wasn&rsquo;t a big deal because I just moved my site anyway and my analytics were reset a week or two ago already.</p>
+
+<p>Here are the steps:</p>
+
+<ul>
+<li>Log into your analytics account</li>
+</ul>
+
+
+<p><img src="images/in-page-analytics/log-into-your-analytics-account.png"></p>
+
+<ul>
+<li>Click the admin button</li>
+</ul>
+
+
+<p><img src="images/in-page-analytics/click-the-admin-button.png"></p>
+
+<ul>
+<li>Click &ldquo;View Settings&rdquo;</li>
+</ul>
+
+
+<p><img src="images/in-page-analytics/click-view-settings.png"></p>
+
+<ul>
+<li><p>Scroll all the way to the bottom of the page</p></li>
+<li><p>Click &ldquo;Delete View&rdquo;</p></li>
+</ul>
+
+
+<p><img src="images/in-page-analytics/click-delete-view.png"></p>
+
+<ul>
+<li>Click &ldquo;Delete View&rdquo; again.  <em>At this point you&rsquo;ll lose all of your analytics history!</em></li>
+</ul>
+
+
+<p><img src="images/in-page-analytics/click-delete-view-again.png"></p>
+
+<ul>
+<li>Click the admin button</li>
+</ul>
+
+
+<p><img src="images/in-page-analytics/click-the-admin-button.png"></p>
+
+<ul>
+<li>Click the property drop down and then click &ldquo;Create new property&rdquo;</li>
+</ul>
+
+
+<p><img src="images/in-page-analytics/click-property-drop-down-and-click-create-new-property.png"></p>
+
+<ul>
+<li><p>Re-create your property and make sure you use the site you redirect to.  In my case &ldquo;blog.timmattison.com&rdquo;, not &ldquo;timmattison.com&rdquo;.</p></li>
+<li><p>Put your new tracking code into your site.  <em>Don&rsquo;t forget to do this or tracking won&rsquo;t work at all!</em></p></li>
+</ul>
+
+
+<p>And that should do it.  Let me know if it works for you or if you need some help.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Testing a Video Plugin]]></title>
@@ -1285,78 +1370,6 @@ import static org.junit.Assert.assertThat;
 </code></pre>
 
 <p>I have to admit that org.hamcrest is a bit less obvious than I would have liked.  :)</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Tip: A Quick Primer on Waiting on Multiple Threads in Java]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/"/>
-    <updated>2012-02-28T16:32:21-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java</id>
-    <content type="html"><![CDATA[<p>Last night I was writing some code to do some performance testing on HDFS.  I noticed that single threaded performance wasn&rsquo;t anywhere near as good as I expected and my CPUs were spending most of their time idle.  I decided to add some threads into the process to see if a multi-threaded speed test would consume some of that idle CPU.  It worked as expected so I figured I would share some basic knowledge on how to I started up multiple threads, had them do their work, waited for them to finish without polling, and then recorded the total duration to calculate my statistics.</p>
-
-<p>What you&rsquo;ll need to do first is decide what you want to do in the processing thread.  This code will go into a Java Runnable like this:</p>
-
-<pre><code>Runnable runnable = new Runnable() {
-    @Override
-    public void run() {
-        // Do something exciting here
-    }
-};
-</code></pre>
-
-<p>Next you&rsquo;ll need to decide how many threads you want to run.  If you wanted to run four threads you could do this:</p>
-
-<pre><code>int threadCount = 4;
-
-for (int threadLoop = 0; threadLoop &lt; threadCount; threadLoop++) {
-    // XXX - Put the runnable block from above right here
-
-    // Create a new thread
-    Thread thread = new Thread(runnable);
-
-    // Add the thread to our thread list
-    threads.add(thread);
-
-    // Start the thread
-    thread.start();
-}
-</code></pre>
-
-<p>That will start four threads.  It&rsquo;s best to use a variable so you can update it and use it in other places like calculating your statistics.  Now let&rsquo;s wait for all the threads to finish:</p>
-
-<pre><code>// Loop through the threads
-for (Thread thread : threads) {
-    try {
-        // Wait for this thread to die
-        thread.join();
-    } catch (InterruptedException e) {
-        // Ignore this but print a stack trace
-        e.printStackTrace();
-    }
-}
-</code></pre>
-
-<p>Finally, you&rsquo;ll want to time all of this.  I do something very simple here.  Before all of the code I do this:</p>
-
-<pre><code>long startTime = new Date().getTime();
-</code></pre>
-
-<p>After all of the code I do this:</p>
-
-<pre><code>long endTime = new Date().getTime();
-long durationInMilliseconds = endTime - startTime;
-</code></pre>
-
-<p>With all of that in place you can now measure how long your code ran and then calculate important metrics about it.  For example, if this code did 10,000 operations per thread and ran with 4 threads you would then take the duration and divide that by 40,000 and you&rsquo;d get an idea of how many milliseconds it took per operation.  Just make sure you use doubles or you&rsquo;ll lose all of your precision due to coercion.  Do this (assuming that your number of operations is stored in a variable called &ldquo;operations&rdquo;):</p>
-
-<pre><code>double millisecondsPerOperation = (double) durationInMilliseconds / (double) operations;
-double operationsPerMillisecond = (double) operations / (double) durationInMilliseconds;
-</code></pre>
-
-<p>These are just reciprocals of each other but sometimes one value is a lot easier to understand than the other so I usually calculate them both.</p>
-
-<p>Now that you have those statistics you can try different thread counts, optimize code/loops, etc.  Good luck!  Post in the comments with any ideas and/or issues.</p>
 ]]></content>
   </entry>
   
