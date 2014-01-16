@@ -587,12 +587,18 @@
         <lastmod>2014-01-10T09:04:56-05:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://blog.timmattison.com/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/
+        </loc>
+        <lastmod>2014-01-16T09:06:13-05:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-01-10T09:04:56-05:00</lastmod>
+        <lastmod>2014-01-16T09:06:13-05:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-01-10T09:04:56-05:00</lastmod>
+        <lastmod>2014-01-16T09:06:13-05:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-01-10T09:11:02-05:00</updated>
+  <updated>2014-01-16T09:06:57-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,66 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Port 32764 - a Router Backdoor That You Need to Take Seriously]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/"/>
+    <updated>2014-01-16T08:50:19-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously</id>
+    <content type="html"><![CDATA[<p>TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default.  If you have Internet access at home or at a client location you care about then you should be testing to see if they are vulnerable with <a href="https://www.grc.com/x/portprobe=32764">ShieldsUP</a>.</p>
+
+<p>I would recommend running this test ASAP.  The <a href="https://github.com/elvanderb/TCP-32764">list of affected routers</a> includes Netgear, Linksys, and even “real” Cisco hardware.  That list is not exhaustive.</p>
+
+<p>If you need to run this test via SSH I’ve whipped up a script that will spit out whether you’re vulnerable or not based on the ShieldsUP results.  It was designed to run on Mac OS (because their version of sed is busted) and tested on Mavericks and Debian Linux.  Here’s what you can run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl -L http://bit.ly/port32764 2&gt;&amp;1 | <span class="se">\</span>
+</span><span class='line'>  tr <span class="s2">&quot;\n&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
+</span><span class='line'>  tr <span class="s2">&quot;\r&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/&lt;[^&gt;][^&gt;]*&gt;/ /g&#39;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/^.*32764/32764/&#39;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/Unknown.*$//&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The response should look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Stealth
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Closed
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you get anything else then you are vulnerable.  Even if you run this test I recommend running it in a browser on the connection you’re testing just in case the script has an issue.</p>
+
+<p>If you are vulnerable then the following pieces of information about your connection may have already been compromised:</p>
+
+<ul>
+<li>Your wireless key (in the clear, not hashed)</li>
+<li>Your router admin username and password (in the clear, not hashed)</li>
+<li>Your router’s SSID and MAC address (this can be used to add your router to a database of access points with passwords)</li>
+<li>Any custom settings you have on your router (port mapping to interesting devices, tunnels you thought would be hidden on a high port number, etc)</li>
+</ul>
+
+
+<p>People have written plenty of applications that do scans of the entire Internet in days <a href="http://zmap.io/">or even hours</a>.  This is being scanned for constantly right now and you cannot hide in the four billion addresses out there.</p>
+
+<p>If you are not vulnerable but you have used the same wireless password on an older router it is probably a good idea to change your password.  Nobody knows how long this has been in the wild.  It has been in the firmware for a long time.</p>
+
+<p>If you need help post in the comments.  Good luck!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Fixing In-Page Analytics With Google Analytics]]></title>
@@ -1353,23 +1413,6 @@ setColor(0, 0, 255, false, true);
 
 
 <p>Good luck.  Now clean up/fix that Perl code and post in the comments.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/"/>
-    <updated>2012-03-02T08:02:47-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing</id>
-    <content type="html"><![CDATA[<p>I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests.  In the past few days I&rsquo;ve been playing around with Unicode and wanted to copy a code snippet from a Hadoop book to see how everything looks in the debugger.  When I entered the code I realized that I was missing some methods that I needed to complete the tests.</p>
-
-<p>Specifically I was trying to use assertThat() and is() but didn&rsquo;t know where to find them.  After a bit of Googling I found the two static imports that I needed to copy the code without qualifying assertThat() as Assert.assertThat() and the same goes for is().  They are:</p>
-
-<pre><code>import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-</code></pre>
-
-<p>I have to admit that org.hamcrest is a bit less obvious than I would have liked.  :)</p>
 ]]></content>
   </entry>
   
