@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-17T19:11:59-04:00</updated>
+  <updated>2014-06-17T19:15:24-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -14,10 +14,10 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Why Hashing Algorithms Need to Use Memory Bound Functions]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/06/17/why-hashing-algorithms-need-to-use-memory-bound-functions/"/>
+    <title type="html"><![CDATA[Why Proof of Work Algorithms Need to Use Memory Bound Functions]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/"/>
     <updated>2014-06-17T20:09:15-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/06/17/why-hashing-algorithms-need-to-use-memory-bound-functions</id>
+    <id>http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions</id>
     <content type="html"><![CDATA[<p>Recently I read an article called <a href="http://en.wikipedia.org/wiki/Memory_bound_function">&ldquo;The Problem with Altcoins&rdquo;</a> and the author states this about Litecoin:</p>
 
 <blockquote><p>Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.</p></blockquote>
