@@ -9,7 +9,8 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I just started using LVM2 about two weeks ago. I recently wanted to shuffle around some physical extents on my disks to keep them from becoming a &hellip;">
+  <meta name="description" content="If you&rsquo;re used pvmove before you might be in the habit of doing the following: Determining where you want to move an extent (new_start)
+Getting &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +78,70 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/">Tip: Perform a Pvmove Without Calculating the Start and End Extent Values</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-01T18:59:59-05:00" pubdate data-updated="true">Nov 1<span>st</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;re used pvmove before you might be in the habit of doing the following:</p>
+
+<ul>
+<li><p>Determining where you want to move an extent (new_start)</p></li>
+<li><p>Getting the start and end of the existing extent to move (original_start, original_end)</p></li>
+<li><p>Calculating the length of the extent from original_end &ndash; original_start (length)</p></li>
+<li><p>Adding the length to new_start (new_end)</p></li>
+<li><p>Running pvmove</p></li>
+</ul>
+
+
+<p>Well, there is an easier way.  Let&rsquo;s assume you originally would&rsquo;ve done this</p>
+
+<pre><code>pvmove -v /dev/sdc:17067-29866 /dev/sdc:0-17066 --alloc anywhere
+</code></pre>
+
+<p>If you want to be lazy (and let LVM2 figure out whether you&rsquo;re doing the right thing or not) you can just do this instead</p>
+
+<pre><code>pvmove -v /dev/sdc:17067-29866 /dev/sdc:0-`echo "0+29866-17067" | bc` --alloc anywhere
+</code></pre>
+
+<p>Basically, after you&rsquo;ve determined where you want the new extent to start you put that extent number (&ldquo;0&rdquo; in this case) and just follow it up with that bc recipe.  This tells bc to calculate the length and feed it to LVM2.</p>
+
+<p>The bc formula should be new_start plus original_end minus original_start.  That will calculate the length and then add it to the new_start.</p>
+
+<p>Isn&rsquo;t that what you&rsquo;d expect it to do anyway?  :)</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -750,47 +815,6 @@ ae8767bc7d86071b202415aa69cc6c9db451300c  /Library/Frameworks/FxPlug.framework/V
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/09/19/just-upgraded-to-nanoblogger-3-4-1/">Just Upgraded to Nanoblogger 3.4.1</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-09-19T13:03:29-04:00" pubdate data-updated="true">Sep 19<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/09/19/just-upgraded-to-nanoblogger-3-4-1/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/09/19/just-upgraded-to-nanoblogger-3-4-1/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>After all these years I still use nanoblogger.  I love it.  It&rsquo;s simple, fast, and not much can break.  A few things broke when I reinstalled my operating system but after moving up to nanoblogger 3.4.1 and copying my old data and templates over we are back to normal.</p>
-
-<p>More exciting posts coming soon&hellip; :P</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -828,6 +852,10 @@ ae8767bc7d86071b202415aa69cc6c9db451300c  /Library/Frameworks/FxPlug.framework/V
       </li>
     
       <li class="post">
+        <a href="/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo/">How to: Remotely Reboot a Server That Requires You to Su or Sudo</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a>
       </li>
     
@@ -837,10 +865,6 @@ ae8767bc7d86071b202415aa69cc6c9db451300c  /Library/Frameworks/FxPlug.framework/V
     
       <li class="post">
         <a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Reading resources in Java has always been a mystery to me. It&rsquo;s not because I don&rsquo;t understand how to do it but more that I do it so &hellip;">
+  <meta name="description" content="I originally purchased my Synology NAS because of all of the packages that it offers and the fact that it was supposed to give me one less thing to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,97 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Connecting a BeagleBone Black to a Synology NAS With NFS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T06:52:06-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I originally purchased my Synology NAS because of all of the packages that it offers and the fact that it was supposed to give me one less thing to manage.  After a few failed attempts at getting OpenVPN to work and some Plex issues I decided that I needed to have something a little less opaque that I could install different packages on.  I wanted something small, low power, and solid state so I decided to use the BeagleBone Black.</p>
+
+<p>I tried using both CIFS/Samba and sshfs to mount the Synology&rsquo;s filesystem but both of them had extremely strange issues with the applications I planned on using.  I wouldn&rsquo;t recommend either of them for production work involving Linux and NAS.  Often it would tell me that files didn&rsquo;t exist even though I could clearly see they were there.  After moving to NFS none of this happened anymore.</p>
+
+<p>NOTE: Security here is all done by IP address so this is not suitable for a sensitive environment!</p>
+
+<p>Here are the steps I went through to connect my first enable and configure NFS on my Synoloy NAS:</p>
+
+<ol>
+<li>Make sure your BeagleBone Black has a static IP and that you know what it is</li>
+<li>Log into the Synology web GUI as an admin</li>
+<li>Click &ldquo;Control Panel&rdquo;</li>
+<li>Click &ldquo;Win/Mac/NFS&rdquo;</li>
+<li>Click &ldquo;NFS Service&rdquo;</li>
+<li>Make sure that &ldquo;Enable NFS&rdquo; and &ldquo;Enable NFSv4 support&rdquo; are checked</li>
+<li>Click the link that says &ldquo;Shared Folder&rdquo;</li>
+<li>Find and select the directory you want to share.  In my case it was my user account&rsquo;s home directory so I selected &ldquo;homes&rdquo;.</li>
+<li>Click the &ldquo;Privileges&rdquo; drop down</li>
+<li>Select &ldquo;NFS Privileges&rdquo;</li>
+<li>Click &ldquo;Create&rdquo;</li>
+<li>Enter your BeagleBone Black&rsquo;s IP address into the &ldquo;Hostname or IP&rdquo; field</li>
+<li>Make sure that the &ldquo;Privilege&rdquo; field is set to &ldquo;Read/Write&rdquo;</li>
+<li>Make sure that the &ldquo;Root squash&rdquo; field is set to &ldquo;No mapping&rdquo;</li>
+<li>Make sure that &ldquo;Enable asynchronous&rdquo; is checked</li>
+<li>Make sure that &ldquo;Allow connections from non-privileged ports (ports higher than 1024&rdquo; is NOT checked</li>
+<li>Click &ldquo;OK&rdquo; in the &ldquo;Create an NFS rule&rdquo; popup</li>
+<li>Take note of the &ldquo;Mount path&rdquo; field in the &ldquo;Edit NFS privileges of homes&rdquo; window, you&rsquo;ll need this later</li>
+<li>Click &ldquo;OK&rdquo; in the &ldquo;Edit NFS privileges of homes&rdquo; window</li>
+<li>Log out of the Synology web GUI</li>
+</ol>
+
+
+<p>Now you have your Synology all set up to accept NFS connections from your BeagleBone Black.  Here are the steps to do that:</p>
+
+<ol>
+<li>Connect to your BeagleBone Black via SSH as a user that can run sudo</li>
+<li>Install the NFS utilities and client by running &ldquo;sudo apt-get install nfs-common&rdquo;</li>
+<li>Go to your home directory</li>
+<li>Create a directory for your Synology mount point.  I chose &ldquo;synology&rdquo;.</li>
+<li>Mount your directory using the &ldquo;Mount path&rdquo; from above along with any additional paths to get you to the desired directory you want.  My mount path was &ldquo;/volume1/homes&rdquo; but I wanted &ldquo;/volume1/homes/tim&rdquo; for my actual home directory.  The command I used was &ldquo;sudo mount -t nfs synology:/volume1/homes/tim /home/tim/synology/&rdquo;</li>
+<li>Test out your newly mounted Synology NAS</li>
+</ol>
+
+
+<p>You can now add this to your /etc/fstab file if you&rsquo;d like but I prefer to keep it in a script.  I have a script called mount-nfs.sh in my home directory that I run when necessary since I&rsquo;m still testing out NFSv4.  Once I get it stable I&rsquo;ll make sure that I get it to mount automatically the proper way and update this post.</p>
+
+<h1>Potential issues</h1>
+
+<p>If you receive an error message that says &ldquo;mount.nfs: access denied by server while mounting synology&rdquo; you probably have the wrong IP for your BeagleBone Black in the Synology configuration.</p>
+
+<p>If it appears to mount the volume but no files show up try unmounting it and re-mounting it.  If you unmount it successfully and when re-mounting it again it complains that the device is busy it is possible that your BeagleBone Black&rsquo;s IP address changed.  This happened on my test machine when its IP went from 192.168.1.109 to 192.168.1.110.  It didn&rsquo;t give me the access denied error message but instead exhibited this weird behavior.  If this is the case make sure you have your IP assigned statically, reboot the BeagleBone Black, verify the static IP in the Synology configuration again, and then try re-mounting the path.  After that mine started working again.</p>
+
+<p>Good luck!  Post any success stories or issues in the comments.  I&rsquo;ll do my best to help out if possible.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -946,81 +1037,6 @@ setColor(0, 0, 255, false, true);
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/">Tip: Handle Failed Tasks Throwing &#8220;ENOENT&#8221; Errors in Hadoop</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-21T19:09:48-04:00" pubdate data-updated="true">Mar 21<span>st</span>, 2012</time>
-        
-           | <a href="/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Today when I tried to run a new Hadoop job I got the following error:</p>
-
-<pre><code>     [exec] 12/03/21 22:51:47 INFO mapred.JobClient: Task Id : attempt_201203212250_0001_m_000002_1, Status : FAILED
-     [exec] Error initializing attempt_201203212250_0001_m_000002_1:
-     [exec] ENOENT: No such file or directory
-     [exec]     at org.apache.hadoop.io.nativeio.NativeIO.chmod(Native Method)
-     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.setPermission(RawLocalFileSystem.java:521)
-     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.mkdirs(RawLocalFileSystem.java:344)
-     [exec]     at org.apache.hadoop.mapred.JobLocalizer.initializeJobLogDir(JobLocalizer.java:240)
-     [exec]     at org.apache.hadoop.mapred.DefaultTaskController.initializeJob(DefaultTaskController.java:216)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker$4.run(TaskTracker.java:1352)
-     [exec]     at java.security.AccessController.doPrivileged(Native Method)
-     [exec]     at javax.security.auth.Subject.doAs(Subject.java:416)
-     [exec]     at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1157)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker.initializeJob(TaskTracker.java:1327)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker.localizeJob(TaskTracker.java:1242)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker.startNewTask(TaskTracker.java:2541)
-     [exec]     at org.apac
-</code></pre>
-
-<p>It wasn&rsquo;t immediately apparent to me what file wasn&rsquo;t found from the error messages so I checked the logs, the JobTracker, my code, ran some known good jobs that also failed, basically everything I could think of.  It turns out that due to me accidentally running a script as &ldquo;root&rdquo; (don&rsquo;t worry, it was only on my desktop) that the permissions of several files in the hdfs user&rsquo;s home directory had changed ownership to &ldquo;root&rdquo;.  Because of that Hadoop was unable to create files in the /usr/lib/hadoop-0.20 directory.</p>
-
-<p>NOTE: These steps assume you are using Hadoop 0.20.  Adjust the paths in the commands accordingly if you aren&rsquo;t.</p>
-
-<p>If you want a quick fix try these steps (only if you take full responsibility for anything that may go wrong):</p>
-
-<ol>
-<li><p> Stop Hadoop using the stop-all.sh script as the hdfs user</p></li>
-<li><p> su to the hdfs user</p></li>
-<li><p> Run this:</p>
-
-<p>chown -R hdfs:hdfs /usr/lib/hadoop-0.20 /var/*/hadoop-0.20</p></li>
-<li><p> Restart Hadoop using the start-all.sh script as the hdfs user</p></li>
-</ol>
-
-
-<p>Now your jobs should start running again.  Post in the comments if this procedure works for you or if you need any help.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1058,6 +1074,10 @@ setColor(0, 0, 255, false, true);
       </li>
     
       <li class="post">
+        <a href="/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo/">How to: Remotely Reboot a Server That Requires You to Su or Sudo</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a>
       </li>
     
@@ -1067,10 +1087,6 @@ setColor(0, 0, 255, false, true);
     
       <li class="post">
         <a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a>
       </li>
     
   </ul>

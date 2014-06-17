@@ -1,0 +1,470 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How to: Remotely Reboot a Server That Requires You to Su or Sudo - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="Recently I ran into a situation where I had to reboot a ton of machines remotely. I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Every day I hack a bit</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How to: Remotely Reboot a Server That Requires You to Su or Sudo</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-13T14:28:49-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Recently I ran into a situation where I had to reboot a ton of machines remotely.  I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do that anyway, so I thought I might be stuck trying to SSH in, &ldquo;sudo reboot&rdquo;, enter the password, and go on to the next machine.  One snag was that some machines supported sudo and some required me to su.</p>
+
+<p>I didn&rsquo;t want to have to do this for all of the machines I was working on so I searched around and found <a href="https://github.com/paramiko/paramiko">Paramiko</a>.  Paramiko is an SSH library for Python that lets you tell Python the login password and also gives you direct access to the terminal stream from your SSH session.  This means that I can send su or sudo and then send the password without the user doing anything.</p>
+
+<p>Security wise this is an obvious hole in many ways.  First of all if you do this for a machine and specify the password on the command-line it is going to end up in your history file.  So without going through the exhaustive list of reasons why this is generally a bad idea lets just say that you should use this sparingly.</p>
+
+<p>Set the variable <code>root_command</code> to the command that you want to execute as root, set <code>root_command_result</code> to the expected result of the command.  The command needs to have <code>\n</code> on the end of it because it simulates the user pressing enter.  Without it the system will never execute the command.  Pass these command-line parameters in this order:</p>
+
+<ul>
+<li>The IP of the system you want to connect to</li>
+<li>The username of the user that can su to root</li>
+<li>The password of the user that can su to root</li>
+<li>The password required to su to root</li>
+</ul>
+
+
+<p>And here&rsquo;s the script&hellip; don&rsquo;t forget to install Paramiko!</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/env python
+</span><span class='line'>
+</span><span class='line'>__author__ = 'timmattison'
+</span><span class='line'>
+</span><span class='line'>import paramiko
+</span><span class='line'>import sys
+</span><span class='line'>import time
+</span><span class='line'>
+</span><span class='line'>root_command = "whoami\n"
+</span><span class='line'>root_command_result = "root"
+</span><span class='line'>
+</span><span class='line'>def send_string_and_wait(command, wait_time, should_print):
+</span><span class='line'>    # Send the su command
+</span><span class='line'>    shell.send(command)
+</span><span class='line'>
+</span><span class='line'>    # Wait a bit, if necessary
+</span><span class='line'>    time.sleep(wait_time)
+</span><span class='line'>
+</span><span class='line'>    # Flush the receive buffer
+</span><span class='line'>    receive_buffer = shell.recv(1024)
+</span><span class='line'>
+</span><span class='line'>    # Print the receive buffer, if necessary
+</span><span class='line'>    if should_print:
+</span><span class='line'>        print receive_buffer
+</span><span class='line'>
+</span><span class='line'>def send_string_and_wait_for_string(command, wait_string, should_print):
+</span><span class='line'>    # Send the su command
+</span><span class='line'>    shell.send(command)
+</span><span class='line'>
+</span><span class='line'>    # Create a new receive buffer
+</span><span class='line'>    receive_buffer = ""
+</span><span class='line'>
+</span><span class='line'>    while not wait_string in receive_buffer:
+</span><span class='line'>        # Flush the receive buffer
+</span><span class='line'>        receive_buffer += shell.recv(1024)
+</span><span class='line'>
+</span><span class='line'>    # Print the receive buffer, if necessary
+</span><span class='line'>    if should_print:
+</span><span class='line'>        print receive_buffer
+</span><span class='line'>
+</span><span class='line'># Get the command-line arguments
+</span><span class='line'>system_ip = sys.argv[1]
+</span><span class='line'>system_username = sys.argv[2]
+</span><span class='line'>system_ssh_password = sys.argv[3]
+</span><span class='line'>system_su_password = sys.argv[4]
+</span><span class='line'>
+</span><span class='line'># Create an SSH client
+</span><span class='line'>client = paramiko.SSHClient()
+</span><span class='line'>
+</span><span class='line'># Make sure that we add the remote server's SSH key automatically
+</span><span class='line'>client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+</span><span class='line'>
+</span><span class='line'># Connect to the client
+</span><span class='line'>client.connect(system_ip, username=system_username, password=system_ssh_password)
+</span><span class='line'>
+</span><span class='line'># Create a raw shell
+</span><span class='line'>shell = client.invoke_shell()
+</span><span class='line'>
+</span><span class='line'># Send the su command
+</span><span class='line'>send_string_and_wait("su\n", 1, True)
+</span><span class='line'>
+</span><span class='line'># Send the client's su password followed by a newline
+</span><span class='line'>send_string_and_wait(system_su_password + "\n", 1, True)
+</span><span class='line'>
+</span><span class='line'># Send the install command followed by a newline and wait for the done string
+</span><span class='line'>send_string_and_wait_for_string(root_command, root_command_result, True)
+</span><span class='line'>
+</span><span class='line'># Close the SSH connection
+</span><span class='line'>client.close()</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-13T14:28:49-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/" title="Previous Post: Port 32764 - A router backdoor that you need to take seriously">&laquo; Port 32764 - A router backdoor that you need to take seriously</a>
+      
+      
+        <a class="basic-alignment right" href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/" title="Next Post: True remote debugging with Chrome's remote debugging feature">True remote debugging with Chrome's remote debugging feature &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome's Remote Debugging Feature</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo/">How to: Remotely Reboot a Server That Requires You to Su or Sudo</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/">Fixing In-Page Analytics With Google Analytics</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

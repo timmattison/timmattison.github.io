@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-17T09:46:29-04:00</updated>
+  <updated>2014-06-17T18:39:52-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -52,6 +52,171 @@
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>killall socat</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to: Remotely Reboot a Server That Requires You to Su or Sudo]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo/"/>
+    <updated>2014-02-13T14:28:49-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo</id>
+    <content type="html"><![CDATA[<p>Recently I ran into a situation where I had to reboot a ton of machines remotely.  I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do that anyway, so I thought I might be stuck trying to SSH in, &ldquo;sudo reboot&rdquo;, enter the password, and go on to the next machine.  One snag was that some machines supported sudo and some required me to su.</p>
+
+<p>I didn&rsquo;t want to have to do this for all of the machines I was working on so I searched around and found <a href="https://github.com/paramiko/paramiko">Paramiko</a>.  Paramiko is an SSH library for Python that lets you tell Python the login password and also gives you direct access to the terminal stream from your SSH session.  This means that I can send su or sudo and then send the password without the user doing anything.</p>
+
+<p>Security wise this is an obvious hole in many ways.  First of all if you do this for a machine and specify the password on the command-line it is going to end up in your history file.  So without going through the exhaustive list of reasons why this is generally a bad idea lets just say that you should use this sparingly.</p>
+
+<p>Set the variable <code>root_command</code> to the command that you want to execute as root, set <code>root_command_result</code> to the expected result of the command.  The command needs to have <code>\n</code> on the end of it because it simulates the user pressing enter.  Without it the system will never execute the command.  Pass these command-line parameters in this order:</p>
+
+<ul>
+<li>The IP of the system you want to connect to</li>
+<li>The username of the user that can su to root</li>
+<li>The password of the user that can su to root</li>
+<li>The password required to su to root</li>
+</ul>
+
+
+<p>And here&rsquo;s the script&hellip; don&rsquo;t forget to install Paramiko!</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/env python
+</span><span class='line'>
+</span><span class='line'>__author__ = 'timmattison'
+</span><span class='line'>
+</span><span class='line'>import paramiko
+</span><span class='line'>import sys
+</span><span class='line'>import time
+</span><span class='line'>
+</span><span class='line'>root_command = "whoami\n"
+</span><span class='line'>root_command_result = "root"
+</span><span class='line'>
+</span><span class='line'>def send_string_and_wait(command, wait_time, should_print):
+</span><span class='line'>    # Send the su command
+</span><span class='line'>    shell.send(command)
+</span><span class='line'>
+</span><span class='line'>    # Wait a bit, if necessary
+</span><span class='line'>    time.sleep(wait_time)
+</span><span class='line'>
+</span><span class='line'>    # Flush the receive buffer
+</span><span class='line'>    receive_buffer = shell.recv(1024)
+</span><span class='line'>
+</span><span class='line'>    # Print the receive buffer, if necessary
+</span><span class='line'>    if should_print:
+</span><span class='line'>        print receive_buffer
+</span><span class='line'>
+</span><span class='line'>def send_string_and_wait_for_string(command, wait_string, should_print):
+</span><span class='line'>    # Send the su command
+</span><span class='line'>    shell.send(command)
+</span><span class='line'>
+</span><span class='line'>    # Create a new receive buffer
+</span><span class='line'>    receive_buffer = ""
+</span><span class='line'>
+</span><span class='line'>    while not wait_string in receive_buffer:
+</span><span class='line'>        # Flush the receive buffer
+</span><span class='line'>        receive_buffer += shell.recv(1024)
+</span><span class='line'>
+</span><span class='line'>    # Print the receive buffer, if necessary
+</span><span class='line'>    if should_print:
+</span><span class='line'>        print receive_buffer
+</span><span class='line'>
+</span><span class='line'># Get the command-line arguments
+</span><span class='line'>system_ip = sys.argv[1]
+</span><span class='line'>system_username = sys.argv[2]
+</span><span class='line'>system_ssh_password = sys.argv[3]
+</span><span class='line'>system_su_password = sys.argv[4]
+</span><span class='line'>
+</span><span class='line'># Create an SSH client
+</span><span class='line'>client = paramiko.SSHClient()
+</span><span class='line'>
+</span><span class='line'># Make sure that we add the remote server's SSH key automatically
+</span><span class='line'>client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+</span><span class='line'>
+</span><span class='line'># Connect to the client
+</span><span class='line'>client.connect(system_ip, username=system_username, password=system_ssh_password)
+</span><span class='line'>
+</span><span class='line'># Create a raw shell
+</span><span class='line'>shell = client.invoke_shell()
+</span><span class='line'>
+</span><span class='line'># Send the su command
+</span><span class='line'>send_string_and_wait("su\n", 1, True)
+</span><span class='line'>
+</span><span class='line'># Send the client's su password followed by a newline
+</span><span class='line'>send_string_and_wait(system_su_password + "\n", 1, True)
+</span><span class='line'>
+</span><span class='line'># Send the install command followed by a newline and wait for the done string
+</span><span class='line'>send_string_and_wait_for_string(root_command, root_command_result, True)
+</span><span class='line'>
+</span><span class='line'># Close the SSH connection
+</span><span class='line'>client.close()</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>
@@ -1348,51 +1513,6 @@ setColor(0, 0, 255, false, true);
 <p>After that you&rsquo;ll have to do the quick fix for the error &ldquo;Project configuration is not up-to-date&rdquo; again and then you&rsquo;ll be error free, at least in your pom.xml&hellip;</p>
 
 <p>Post in the comments and let me know if it worked or if you need any help.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Tip: Handle Failed Tasks Throwing "ENOENT" Errors in Hadoop]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/"/>
-    <updated>2012-03-21T19:09:48-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop</id>
-    <content type="html"><![CDATA[<p>Today when I tried to run a new Hadoop job I got the following error:</p>
-
-<pre><code>     [exec] 12/03/21 22:51:47 INFO mapred.JobClient: Task Id : attempt_201203212250_0001_m_000002_1, Status : FAILED
-     [exec] Error initializing attempt_201203212250_0001_m_000002_1:
-     [exec] ENOENT: No such file or directory
-     [exec]     at org.apache.hadoop.io.nativeio.NativeIO.chmod(Native Method)
-     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.setPermission(RawLocalFileSystem.java:521)
-     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.mkdirs(RawLocalFileSystem.java:344)
-     [exec]     at org.apache.hadoop.mapred.JobLocalizer.initializeJobLogDir(JobLocalizer.java:240)
-     [exec]     at org.apache.hadoop.mapred.DefaultTaskController.initializeJob(DefaultTaskController.java:216)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker$4.run(TaskTracker.java:1352)
-     [exec]     at java.security.AccessController.doPrivileged(Native Method)
-     [exec]     at javax.security.auth.Subject.doAs(Subject.java:416)
-     [exec]     at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1157)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker.initializeJob(TaskTracker.java:1327)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker.localizeJob(TaskTracker.java:1242)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker.startNewTask(TaskTracker.java:2541)
-     [exec]     at org.apac
-</code></pre>
-
-<p>It wasn&rsquo;t immediately apparent to me what file wasn&rsquo;t found from the error messages so I checked the logs, the JobTracker, my code, ran some known good jobs that also failed, basically everything I could think of.  It turns out that due to me accidentally running a script as &ldquo;root&rdquo; (don&rsquo;t worry, it was only on my desktop) that the permissions of several files in the hdfs user&rsquo;s home directory had changed ownership to &ldquo;root&rdquo;.  Because of that Hadoop was unable to create files in the /usr/lib/hadoop-0.20 directory.</p>
-
-<p>NOTE: These steps assume you are using Hadoop 0.20.  Adjust the paths in the commands accordingly if you aren&rsquo;t.</p>
-
-<p>If you want a quick fix try these steps (only if you take full responsibility for anything that may go wrong):</p>
-
-<ol>
-<li><p> Stop Hadoop using the stop-all.sh script as the hdfs user</p></li>
-<li><p> su to the hdfs user</p></li>
-<li><p> Run this:</p>
-
-<p>chown -R hdfs:hdfs /usr/lib/hadoop-0.20 /var/*/hadoop-0.20</p></li>
-<li><p> Restart Hadoop using the start-all.sh script as the hdfs user</p></li>
-</ol>
-
-
-<p>Now your jobs should start running again.  Post in the comments if this procedure works for you or if you need any help.</p>
 ]]></content>
   </entry>
   
