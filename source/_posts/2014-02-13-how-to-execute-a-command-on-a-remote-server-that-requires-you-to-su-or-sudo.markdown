@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "How To: Remotely reboot a server that requires you to su or sudo"
+title: "How To: Execute a command on a remote server that requires you to su or sudo"
 date: 2014-02-13 14:28:49 -0500
 comments: true
 categories: 
