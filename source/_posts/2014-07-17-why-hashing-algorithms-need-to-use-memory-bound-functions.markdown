@@ -26,7 +26,7 @@ But anyway what I really want to address is this particular section of the state
 
 This is a fundamental misunderstanding of computer architecture.  An ASIC is super fast because it doesn't have a pool of shared memory.  The memory is exactly where it needs to be for each stage.
 
-Do you know what the technical term for "ASICs with shared memory" is?  A general purpose CPU.  :)  Yes, an ASIC with a pool of memory like this would still have some advantage but not much since it would be bound to the same limits a CPU is bound to which is the relatively slow access time of RAM versus the CPU's clock speed.
+Do you know what the technical term for "ASICs with shared memory" is?  A general purpose CPU.  :)  Yes, an ASIC with a pool of memory like this would still have some advantage but not the orders of magnitude we see now.  This is because it would be bound to the same limits a CPU is bound to which is the relatively slow access time of RAM versus the CPU's clock speed.
 
 What can we do to make sure mining stays CPU bound?  We should be using [memory bound functions](https://en.wikipedia.org/wiki/Memory_bound_function) which are sometimes also called memory hard problems.  These memory bound functions should require enormous amounts of memory.  More than a Raspberry Pi has, more than a BeagleBone Black, more than a GPU.  I mean ridiculous gobs of memory.  Why not?  If the proof of work function can be adjusted, and it has to be to keep up with Moore's law, we can adjust the work to be easy in the sense that it requires few iterations but tons of memory.  As CPUs and memory get faster and people join the network we just adjust it as we always have.
 
