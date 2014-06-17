@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-17T18:43:32-04:00</updated>
+  <updated>2014-06-17T19:10:19-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,43 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Why Hashing Algorithms Need to Use Memory Bound Functions]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/06/17/why-hashing-algorithms-need-to-use-memory-bound-functions/"/>
+    <updated>2014-06-17T20:09:15-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/06/17/why-hashing-algorithms-need-to-use-memory-bound-functions</id>
+    <content type="html"><![CDATA[<p>Recently I read an article called <a href="http://en.wikipedia.org/wiki/Memory_bound_function">&ldquo;The Problem with Altcoins&rdquo;</a> and the author states this about Litecoin:</p>
+
+<blockquote><p>Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.</p></blockquote>
+
+<p>This is something that I hear a lot and it needs to be cleared up.  There are some things <a href="http://en.wikipedia.org/wiki/Application-specific_integrated_circuit">ASICs</a> are not good at.  Where ASICs really shine are problems where you can design a pipeline that the data goes through in a mostly fixed order.  <a href="http://en.wikipedia.org/wiki/SHA-2">SHA256</a> is perfect for ASICs.  Each step of the algorithm requires very little storage.  If I&rsquo;m counting correctly you need 64 32-bit words, 16 16-bit words, and somewhere around 22 32-bit registers.</p>
+
+<p>We&rsquo;re talking about a really small amount of storage here.  ((64 * 4) + (16 * 2) + (22 * 4)) == 376 bytes</p>
+
+<p>Even if we bump it up to 512 bytes it is still a miniscule amount of storage in the grand scheme of all of the kinds of storage that we use today (registers, L1 cache, L2 cache, L3 cache, RAM, and hard drive space).  Because of this it is cheap to make it very, very fast to read and write this data.  Physically it occupies little space so you can put the components for this storage exactly where it needs to go on the chip.</p>
+
+<p>Litecoin, and several other cryptocurrencies, use <a href="http://en.wikipedia.org/wiki/scrypt">scrypt</a> instead of SHA256.  This algorithm was supposed to make mining only feasibly on CPUs.  Modern GPUs though were found to have a bit of an edge over CPUs and the memory requirements weren&rsquo;t high enough to really take GPUs out of the running.</p>
+
+<p>Now there is <a href="http://cpucoinlist.com/cryptocurrency-algorithms/x11/">X11</a>, and <a href="http://cpucoinlist.com/cryptocurrency-algorithms/cryptonight/">CryptoNight</a> which are even harder to implement on ASICs&hellip;</p>
+
+<p>But anyway what I really want to address is this particular section of the statement:</p>
+
+<blockquote><p>an ASIC machine could be produced with a shared memory</p></blockquote>
+
+<p>This is a fundamental misunderstanding of computer architecture.  An ASIC is super fast because it doesn&rsquo;t have a pool of shared memory.  The memory is exactly where it needs to be for each stage.</p>
+
+<p>Do you know what the technical term for &ldquo;ASICs with shared memory&rdquo; is?  A general purpose CPU.  :)  Yes, an ASIC with a pool of memory like this would still have some advantage but not much since it would be bound to the same limits a CPU is bound to which is the relatively slow access time of RAM versus the CPU&rsquo;s clock speed.</p>
+
+<p>What can we do to make sure mining stays CPU bound?  We should be using <a href="https://en.wikipedia.org/wiki/Memory_bound_function">memory bound functions</a> which are sometimes also called memory hard problems.  These memory bound functions should require enormous amounts of memory.  More than a Raspberry Pi has, more than a BeagleBone Black, more than a GPU.  I mean ridiculous gobs of memory.  Why not?  If the proof of work function can be adjusted, and it has to be to keep up with Moore&rsquo;s law, we can adjust the work to be easy in the sense that it requires few iterations but tons of memory.  As CPUs and memory get faster and people join the network we just adjust it as we always have.</p>
+
+<p>X11 and CryptoNight seem like a good start but there are still problems with them.  It turns out there is one big benefit from algorithms that are not profitable on CPUs and that is that bot net operators are much less likely to waste their bot net time on mining those currencies.  I have a feeling that X11 and CryptoNight are very profitable to mine on bot nets right now.</p>
+
+<p>Is there a solution to level the playing field?  Considering the bot net angle what does that even mean?  I believe that there is a solution that would allow people to participate with CPUs, not require GPU and ASIC investments, and would prevent bot net operators from profiting on mining.  I&rsquo;ve been thinking about this for over a year and I&rsquo;m getting very close to having what I think is a workable solution.  There still is one hole in it but I think that it may be better than what is out there.  Stay tuned and when I&rsquo;m ready I&rsquo;ll post it on my blog.</p>
+
+<p>BTW, I started this blog post on 2014-01-10 and just finished it on 2014-06-17 so it may be a while before I release something.  Be patient!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[True Remote Debugging With Chrome's Remote Debugging Feature]]></title>
@@ -1457,62 +1494,6 @@ setColor(0, 0, 255, false, true);
 
 
 <p>Post in the comments and share your thoughts and project ideas.  If you use this library please let me know!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How-To: Fix Maven Errors in Eclipse When Getting Started With Heroku]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/"/>
-    <updated>2012-03-28T09:15:24-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku</id>
-    <content type="html"><![CDATA[<p>I haven&rsquo;t used Heroku much yet but with the addition of Java to their platform I&rsquo;m starting to see it as a really interesting option.  Yesterday I watched <a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=mkmWwA0EoGg#!">a great video on how to get started with Java on Heroku</a>.  It went well until I tried converting my project to a Maven project.  Then I got this error message in all of my pom.xml files:</p>
-
-<p><code>Plugin execution not covered by lifecycle configuration</code></p>
-
-<p>I checked the usual places but didn&rsquo;t find a solution to the issue.  Then I decided to try adding the m2e plugin from this update site:</p>
-
-<p><code>http://download.eclipse.org/technology/m2e/releases</code></p>
-
-<p>After adding the plugin and restarting my IDE I got two different error messages:</p>
-
-<p><code>maven-dependency-plugin (goals "copy-dependencies", "unpack") is not supported by m2e.</code>
-<code>Project configuration is not up-to-date with pom.xml.  Run project configuration update.</code></p>
-
-<p>The second error had a quick fix so I tried that and it worked.  Now the Java example application that uses the Play framework and the one that uses Spring MVC and Hibernate both work.  However, the ones that used JAX-RS and embedded Jetty did not.  They still showed the maven-dependency-plugin error.  The fix is to add the following XML in the build section of your pom.xml:</p>
-
-<pre><code>&lt;pluginmanagement&gt;
-    &lt;plugins&gt;
-        &lt;plugin&gt;
-            &lt;groupid&gt;org.eclipse.m2e&lt;/groupid&gt;
-                &lt;artifactid&gt;lifecycle-mapping&lt;/artifactid&gt;
-                &lt;version&gt;1.0.0&lt;/version&gt;
-                &lt;configuration&gt;
-                    &lt;lifecyclemappingmetadata&gt;
-                        &lt;pluginexecutions&gt;
-                            &lt;pluginexecution&gt;
-                                &lt;pluginexecutionfilter&gt;
-                                    &lt;groupid&gt;org.apache.maven.plugins&lt;/groupid&gt;
-                                    &lt;artifactid&gt;maven-dependency-plugin&lt;/artifactid&gt;
-                                    &lt;versionrange&gt;[1.0.0,)&lt;/versionrange&gt;
-                                    &lt;goals&gt;
-                                        &lt;goal&gt;copy-dependencies&lt;/goal&gt;
-                                    &lt;/goals&gt;
-                                &lt;/pluginexecutionfilter&gt;
-                                &lt;action&gt;
-                                    &lt;ignore&gt;&lt;/ignore&gt;
-                                &lt;/action&gt;
-                            &lt;/pluginexecution&gt;
-                        &lt;/pluginexecutions&gt;
-                    &lt;/lifecyclemappingmetadata&gt;
-                &lt;/configuration&gt;
-            &lt;/plugin&gt;
-        &lt;/plugins&gt;
-    &lt;/pluginmanagement&gt;
-</code></pre>
-
-<p>After that you&rsquo;ll have to do the quick fix for the error &ldquo;Project configuration is not up-to-date&rdquo; again and then you&rsquo;ll be error free, at least in your pom.xml&hellip;</p>
-
-<p>Post in the comments and let me know if it worked or if you need any help.</p>
 ]]></content>
   </entry>
   

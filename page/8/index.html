@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Over time my Eclipse environment has become quiet a bit crufty. I have a bunch of errors from plugins that I installed that didn&rsquo;t work &hellip;">
+  <meta name="description" content="After rebuilding my Eclipse environment I had the need to refactor one of my web projects. Once I refactored it using the usual Eclipse method (right &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,70 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/">How-To: Fix &#8220;This Selection Is Not Within a Valid Module&#8221; Errors in Eclipse When Refactoring Web Projects</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-12T14:20:47-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>After rebuilding my Eclipse environment I had the need to refactor one of my web projects.  Once I refactored it using the usual Eclipse method (right-click on the project &ndash;> Refactor &ndash;> Rename) I wasn&rsquo;t able to start the project on my web server.  The error message I got was</p>
+
+<pre><code>This selection is not within a valid module
+</code></pre>
+
+<p>Here are the steps to resolve this issue:</p>
+
+<p>Step 1: Select the &ldquo;Servers&rdquo; tab in Eclipse</p>
+
+<p>Step 2: Right-click on your server and select &ldquo;Delete&rdquo;</p>
+
+<p>Step 3: If prompted, make sure all options are checked (&ldquo;Delete unused server configuration(s)&rdquo;, &ldquo;Delete running server(s)&rdquo;, and &ldquo;Stop server(s) before deleting&rdquo;) and click OK</p>
+
+<p>Step 4: Close Eclipse</p>
+
+<p>Step 5: Go into your project&rsquo;s .settings directory and edit the org.eclipse.wst.common.component file</p>
+
+<p>Step 6: Change the following values to the name of your refactored project:</p>
+
+<pre><code>wb-module deploy-name
+property name="context-root" value
+</code></pre>
+
+<p>Step 7: Restart Eclipse and re-run your project</p>
+
+<p>Now your project should deploy to your servlet container properly.  Any time you refactor a web project in Eclipse you may need to do this so keep these instructions around if you think you&rsquo;ll need to do it often.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -768,63 +832,6 @@ EndSection
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/02/how-to-fix-importerror-no-module-named-webappconfig-config-on-gentoo/">How-To: Fix &#8220;ImportError: No Module Named WebappConfig.config&#8221; on Gentoo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-02T18:59:59-05:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/02/how-to-fix-importerror-no-module-named-webappconfig-config-on-gentoo/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/02/how-to-fix-importerror-no-module-named-webappconfig-config-on-gentoo/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I just tried to upgrade <a href="http://trac.edgewall.org/">trac</a> on my Gentoo box to get back into the swing of tracking and squashing bugs.  Gentoo was having none of it and reported &ldquo;ImportError: No module named WebappConfig.config&rdquo;. That error by itself isn&rsquo;t terribly helpful so in order to fix it I determined you usually need to do a few things. If you aren&rsquo;t installing trac, replace trac in these steps to the application you are trying to install.</p>
-
-<p>Step 1) Run</p>
-
-<pre><code>python-updater
-</code></pre>
-
-<p>This can take a LONG time so be ready to wait.</p>
-
-<p>Step 2) Try to run trac.  If that doesn&rsquo;t work, go on to step 3.  If it does, you&rsquo;re done.</p>
-
-<p>Step 3) Try to emerge trac again.  If that doesn&rsquo;t work, go on to step 4.</p>
-
-<p>Step 4) Run</p>
-
-<pre><code>emerge webapp-config
-</code></pre>
-
-<p>trac should be updated by python-updater but the three other steps are just a backup to be extra sure that everything is installed properly.  After jumping through those hoops you should be back online again.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -858,6 +865,10 @@ EndSection
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/17/why-hashing-algorithms-need-to-use-memory-bound-functions/">Why Hashing Algorithms Need to Use Memory Bound Functions</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a>
       </li>
     
@@ -871,10 +882,6 @@ EndSection
     
       <li class="post">
         <a href="/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/">Fixing In-Page Analytics With Google Analytics</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a>
       </li>
     
   </ul>

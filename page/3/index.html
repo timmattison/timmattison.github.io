@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Today when I tried to run a new Hadoop job I got the following error: [exec] 12/03/21 22:51:47 INFO mapred.JobClient: Task Id : &hellip;">
+  <meta name="description" content="I haven&rsquo;t used Heroku much yet but with the addition of Java to their platform I&rsquo;m starting to see it as a really interesting option. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,92 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/">How-To: Fix Maven Errors in Eclipse When Getting Started With Heroku</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-28T09:15:24-04:00" pubdate data-updated="true">Mar 28<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I haven&rsquo;t used Heroku much yet but with the addition of Java to their platform I&rsquo;m starting to see it as a really interesting option.  Yesterday I watched <a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=mkmWwA0EoGg#!">a great video on how to get started with Java on Heroku</a>.  It went well until I tried converting my project to a Maven project.  Then I got this error message in all of my pom.xml files:</p>
+
+<p><code>Plugin execution not covered by lifecycle configuration</code></p>
+
+<p>I checked the usual places but didn&rsquo;t find a solution to the issue.  Then I decided to try adding the m2e plugin from this update site:</p>
+
+<p><code>http://download.eclipse.org/technology/m2e/releases</code></p>
+
+<p>After adding the plugin and restarting my IDE I got two different error messages:</p>
+
+<p><code>maven-dependency-plugin (goals "copy-dependencies", "unpack") is not supported by m2e.</code>
+<code>Project configuration is not up-to-date with pom.xml.  Run project configuration update.</code></p>
+
+<p>The second error had a quick fix so I tried that and it worked.  Now the Java example application that uses the Play framework and the one that uses Spring MVC and Hibernate both work.  However, the ones that used JAX-RS and embedded Jetty did not.  They still showed the maven-dependency-plugin error.  The fix is to add the following XML in the build section of your pom.xml:</p>
+
+<pre><code>&lt;pluginmanagement&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupid&gt;org.eclipse.m2e&lt;/groupid&gt;
+                &lt;artifactid&gt;lifecycle-mapping&lt;/artifactid&gt;
+                &lt;version&gt;1.0.0&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;lifecyclemappingmetadata&gt;
+                        &lt;pluginexecutions&gt;
+                            &lt;pluginexecution&gt;
+                                &lt;pluginexecutionfilter&gt;
+                                    &lt;groupid&gt;org.apache.maven.plugins&lt;/groupid&gt;
+                                    &lt;artifactid&gt;maven-dependency-plugin&lt;/artifactid&gt;
+                                    &lt;versionrange&gt;[1.0.0,)&lt;/versionrange&gt;
+                                    &lt;goals&gt;
+                                        &lt;goal&gt;copy-dependencies&lt;/goal&gt;
+                                    &lt;/goals&gt;
+                                &lt;/pluginexecutionfilter&gt;
+                                &lt;action&gt;
+                                    &lt;ignore&gt;&lt;/ignore&gt;
+                                &lt;/action&gt;
+                            &lt;/pluginexecution&gt;
+                        &lt;/pluginexecutions&gt;
+                    &lt;/lifecyclemappingmetadata&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/pluginmanagement&gt;
+</code></pre>
+
+<p>After that you&rsquo;ll have to do the quick fix for the error &ldquo;Project configuration is not up-to-date&rdquo; again and then you&rsquo;ll be error free, at least in your pom.xml&hellip;</p>
+
+<p>Post in the comments and let me know if it worked or if you need any help.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -914,73 +1000,6 @@ public class TestClass {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/">Why I Wrote dirhash.pl (a Whole Directory Filename and Contents Hashing System)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-01-29T17:17:15-05:00" pubdate data-updated="true">Jan 29<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Over the years I have accumulated many, many disks full of data.  Ordinarily I migrate them to my latest disk and just keep a backup or two and get rid of the old disks.  However, every once in a while I come across an old disk that has a directory structure that I really want to keep but don&rsquo;t have the time to go through.  Recently this happened with a large directory of old projects and to make matters worse there were multiple copies of this directory in different places.</p>
-
-<p>I looked around and found some interesting stuff so I certainly didn&rsquo;t want to lose this time capsule of code but I now had an interesting problem.  How do I take multiple copies of what appear like identical directories and compare them so I can nuke them if they are duplicates?</p>
-
-<p>I could rsync one to the other but that would involve modifying one or both copies and I wasn&rsquo;t excited about that since there&rsquo;s the chance that one is newer than the other and I could mix them up.  There are flags to check that but I didn&rsquo;t want to go the potentially destructive route.</p>
-
-<p>I could hash each file and determine which are dupes but with over 20,000 files it becomes tedious work.  Dupe removers are OK but it still felt clunky.  I just wanted a quick yea or nay as to whether I could give these files the good old &ldquo;rm -rf&rdquo;.</p>
-
-<p>Hashing the files, dumping it to a list, and then hashing the list sounds good but there are a few problems:</p>
-
-<ul>
-<li><p>If the files are in different order the results will be different but I can resolve this with &ldquo;sort&rdquo;</p></li>
-<li><p>If the hashing program reports the relative path names then the file list will definitely be different and therefore the final hash will be different.  I could resolve this with some vi-fu or sed-fu but that leaves me with some work that is just lost when I need to do it again.</p></li>
-</ul>
-
-
-<p>My solution was to write a Perl script that rolled all of that logic into one package.  It does the following:</p>
-
-<ul>
-<li><p>Gets a list of files in the specified directory</p></li>
-<li><p>Sorts that list</p></li>
-<li><p>Hashes each entry in the list.  If it is a file it is hashed and its filename is appended to the hash, if it is a directory it is opened up and those files are run through this process recursively.</p></li>
-<li><p>The final list of hashes and filenames itself is hashed to make sure we get one hash for the entire directory</p></li>
-</ul>
-
-
-<p>This solves the order problem and the script removes the relative path elements from each filename automatically so that&rsquo;s no longer an issue as well.</p>
-
-<p>If you&rsquo;re looking to see if two directory structures are equal (filenames all equal, no files added or removed between the two of them, and file contents equal) give it a shot and let me know how it works for you.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/4/">&larr; Older</a>
@@ -1014,6 +1033,10 @@ public class TestClass {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/17/why-hashing-algorithms-need-to-use-memory-bound-functions/">Why Hashing Algorithms Need to Use Memory Bound Functions</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a>
       </li>
     
@@ -1027,10 +1050,6 @@ public class TestClass {
     
       <li class="post">
         <a href="/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/">Fixing In-Page Analytics With Google Analytics</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a>
       </li>
     
   </ul>
