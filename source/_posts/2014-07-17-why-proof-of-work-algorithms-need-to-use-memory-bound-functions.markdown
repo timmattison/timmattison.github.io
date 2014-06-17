@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Why hashing algorithms need to use memory bound functions"
+title: "Why proof of work algorithms need to use memory bound functions"
 date: 2014-06-17 19:09:15 -0500
 comments: true
 categories: 
