@@ -594,9 +594,9 @@
     </url>
     <url>
         <loc>
-            http://blog.timmattison.com/archives/2014/02/13/how-to-remotely-reboot-a-server-that-requires-you-to-su-or-sudo/
+            http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/
         </loc>
-        <lastmod>2014-06-17T18:39:48-04:00</lastmod>
+        <lastmod>2014-06-17T18:42:40-04:00</lastmod>
     </url>
     <url>
         <loc>
@@ -606,11 +606,11 @@
     </url>
     <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-06-17T18:39:48-04:00</lastmod>
+        <lastmod>2014-06-17T18:42:40-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-06-17T18:39:48-04:00</lastmod>
+        <lastmod>2014-06-17T18:42:40-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>
