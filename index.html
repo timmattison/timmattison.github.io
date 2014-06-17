@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default. If you have &hellip;">
+  <meta name="description" content="Have you used Chrome&rsquo;s remote debugging feature? It is a handy tool for debugging JavaScript in another tab/window. That&rsquo;s nice, but have &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,79 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="./archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-17T09:19:34-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
+        
+           | <a href="./archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Have you used <a href="http://blog.chromium.org/2011/05/remote-debugging-with-chrome-developer.html">Chrome&rsquo;s remote debugging feature</a>?  It is a handy tool for debugging JavaScript in another tab/window.</p>
+
+<p>That&rsquo;s nice, but have you ever wanted to debug JavaScript that was running on another machine running Chrome?  If so, and you&rsquo;re running on Mac OS, you&rsquo;ve come to the right place.</p>
+
+<p>The first step in this process is to disable <a href="http://joshuamcginnis.com/2011/02/28/how-to-disable-same-origin-policy-in-chrome/">Chrome&rsquo;s same origin policy</a>.  This may not be necessary in your application but I&rsquo;ve always found I needed to do it in mine.</p>
+
+<p>Now you&rsquo;ll need to make sure you have <a href="http://www.dest-unreach.org/socat/">socat</a> installed.  The easiest way to do this is with <a href="http://brew.sh/">Homebrew</a>.  Install Homebrew, and then run this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install socat</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That will install socat if it isn&rsquo;t installed already.</p>
+
+<p>Now start Chrome remote debugging on the system that you want to connect to.</p>
+
+<p>Next, get socat to relay traffic from port 9223 to port 9222 using this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>socat tcp-listen:9223,fork tcp:localhost:9222</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, try to connect to the remote computer using <em>its IP address, not localhost</em> with a URL like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://IP_ADDRESS:9223</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should be connected to the remote system&rsquo;s debugger using port 9223.</p>
+
+<p>When you are done be sure to do this to stop socat:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>killall socat</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1045,82 +1118,6 @@ This error is expected:</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="./archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-30T11:02:52-05:00" pubdate data-updated="true">Dec 30<span>th</span>, 2013</time>
-        
-           | <a href="./archives/2013/12/30/reading-resources-in-java/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2013/12/30/reading-resources-in-java/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Reading resources in Java has always been a mystery to me.  It&rsquo;s not because I don&rsquo;t understand how to do it but more that I do it so infrequently that
-I always forget what I need to do.  In Java&rsquo;s defense once you understand what you need to do it&rsquo;s actually very simple.  I&rsquo;ve run into this issue
-many times in a professional context.  Usually it is just trying to load a simple resource so I can keep it inside the JAR file I&rsquo;m delivering to a
-client.</p>
-
-<p>The sixty second explanation of how to do this is as follows.  If you&rsquo;re using an IDE and have a standard project layout you can simply follow these steps:</p>
-
-<ol>
-<li>Under your src/main directory create a new directory called &ldquo;resources&rdquo;</li>
-<li>Put your static file in the &ldquo;resources&rdquo; directory.  For example, &ldquo;jquery-1.10.2.min.js&rdquo; if you want to serve this file from an embedded web server.</li>
-<li>When you want to load the file do this:</li>
-</ol>
-
-
-<p>The long way:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">URL</span> <span class="n">jqueryUrl</span> <span class="o">=</span> <span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="n">InputStream</span> <span class="n">jqueryInputStream</span> <span class="o">=</span> <span class="n">jqueryUrl</span><span class="o">.</span><span class="na">openStream</span><span class="o">();</span>
-</span><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">jqueryInputStream</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The short way:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">).</span><span class="na">openStream</span><span class="o">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And that&rsquo;s it!  I recommend the long way because you can step through it if the file isn&rsquo;t found and get some insight into what happened rather than
-just getting an opaque NullPointerException.  If you don&rsquo;t have the file in the directory, or you have the wrong file name, after attempting to get
-the jqueryUrl it&rsquo;ll just be NULL.  If that happens just check to make sure that you have the file name correct, resources is spelled correctly, and
-it is in the right location.</p>
-
-<p>Good luck!  Post in the comments if you find this useful or if you have trouble.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="./page/2/">&larr; Older</a>
@@ -1152,6 +1149,10 @@ it is in the right location.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="./archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a>
+      </li>
+    
+      <li class="post">
         <a href="./archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a>
       </li>
     
@@ -1165,10 +1166,6 @@ it is in the right location.</p>
     
       <li class="post">
         <a href="./archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a>
-      </li>
-    
-      <li class="post">
-        <a href="./archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Building Asterisk With Support for SIPML5</a>
       </li>
     
   </ul>

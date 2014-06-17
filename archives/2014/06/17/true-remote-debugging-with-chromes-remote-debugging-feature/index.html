@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>How-To: Extract Java Exceptions From Tomcat Logs - Tim Mattison</title>
+  <title>True Remote Debugging With Chrome's Remote Debugging Feature - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I&rsquo;ve been digging through exceptions lately and it&rsquo;s sometimes a pain to dig through the Tomcat logs depending on your logging level.   &hellip;">
+  <meta name="description" content="Have you used Chrome&rsquo;s remote debugging feature? It is a handy tool for debugging JavaScript in another tab/window. That&rsquo;s nice, but have &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature">
   <link href="./favicon.png" rel="icon">
   <link href="./stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">How-To: Extract Java Exceptions From Tomcat Logs</h1>
+      <h1 class="entry-title">True Remote Debugging With Chrome's Remote Debugging Feature</h1>
     
     
       <p class="meta">
@@ -96,7 +96,7 @@
   
 
 
-<time datetime="2011-06-30T18:39:02-04:00" pubdate data-updated="true">Jun 30<span>th</span>, 2011</time>
+<time datetime="2014-06-17T09:19:34-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,74 +106,41 @@
   </header>
 
 
-<div class="entry-content"><p>I&rsquo;ve been digging through exceptions lately and it&rsquo;s sometimes a pain to dig through the Tomcat logs depending on your logging level.  Although it might sound like you should just turn your logging levels down sometimes that&rsquo;s not feasible.  If you want to get right to the exceptions I whipped up a little script that does exactly that so you can skip all of the log cruft and get right to the problem(s) you are looking to fix.  Just pipe or redirect your log into this script and the output will be a list of exceptions and their stack traces.  The output could potentially be huge to piping it through less or redirecting it to another file may make sense.</p>
+<div class="entry-content"><p>Have you used <a href="http://blog.chromium.org/2011/05/remote-debugging-with-chrome-developer.html">Chrome&rsquo;s remote debugging feature</a>?  It is a handy tool for debugging JavaScript in another tab/window.</p>
 
-<p>Here&rsquo;s the script (exceptions-only.pl) and there&rsquo;ll be more soon&hellip;</p>
+<p>That&rsquo;s nice, but have you ever wanted to debug JavaScript that was running on another machine running Chrome?  If so, and you&rsquo;re running on Mac OS, you&rsquo;ve come to the right place.</p>
 
-<pre><code>#!/usr/bin/perl -w
+<p>The first step in this process is to disable <a href="http://joshuamcginnis.com/2011/02/28/how-to-disable-same-origin-policy-in-chrome/">Chrome&rsquo;s same origin policy</a>.  This may not be necessary in your application but I&rsquo;ve always found I needed to do it in mine.</p>
 
-# The two states we can be in in our state machine.  Either looking for an exception or we found an exception.
-my $state_looking_for_exception = 0;
-my $state_found_exception = 1;
+<p>Now you&rsquo;ll need to make sure you have <a href="http://www.dest-unreach.org/socat/">socat</a> installed.  The easiest way to do this is with <a href="http://brew.sh/">Homebrew</a>.  Install Homebrew, and then run this command:</p>
 
-# Start out looking for an exception, clear the output and the last time value
-my $state = $state_looking_for_exception;
-my $output = "";
-my $last_time = "";
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install socat</span></code></pre></td></tr></table></div></figure>
 
-# Eat everything STDIN can give us
-while() {
-  my $line = $_;
-  chomp $line;
 
-  # Are we looking for an exception
-  if($state == $state_looking_for_exception) {
-    # Yes, did we find one?
-    if($line =~ m/^[0-9a-zA-Z\.]*Exception:/) {
-      # Yes, change state
-      $state = $state_found_exception;
+<p>That will install socat if it isn&rsquo;t installed already.</p>
 
-      # Do we have a timestamp for it?
-      if($last_time ne "") {
-        # Yes, add the timestamp data
-        $output .= "\n\n--- Start of exception at $last_time ---\n\n";
-      }
+<p>Now start Chrome remote debugging on the system that you want to connect to.</p>
 
-      # Append the exception data to our output
-      $output .= $line . "\n";
-    }
-    # Didn't find an exception, does this look like a timestamp?
-    elsif($line =~ m/^[A-Za-z]{3} [0-9]{1,2}, [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}/) {
-      # Yes, save it as the last time we've seen
-      $last_time = $line;
-    }
-  }
-  # Not looking for an exception, did we already find one?
-  elsif($state == $state_found_exception) {
-    # Yes, does this line start with whitespace?
-    if(!($line =~ m/^\s/)) {
-      # No, no more stack trace data.  Change state.
-      $state = $state_looking_for_exception;
+<p>Next, get socat to relay traffic from port 9223 to port 9222 using this command:</p>
 
-      # Do we have a timestamp for it?
-      if($last_time ne "") {
-        # Yes, add the timestamp data
-        $output .= "\n\n--- End of exception at $last_time ---\n\n";
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>socat tcp-listen:9223,fork tcp:localhost:9222</span></code></pre></td></tr></table></div></figure>
 
-        # Clear out the last time since we're done with this exception
-        $last_time = "";
-      }
-    }
-    else {
-      # Yes, this line starts with whitespace so it is stack trace data.  Append it to our output.
-      $output .= $line . "\n";
-    }
-  }
-}
 
-# Print the output and we're done
-print $output;
-</code></pre>
+<p>Finally, try to connect to the remote computer using <em>its IP address, not localhost</em> with a URL like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://IP_ADDRESS:9223</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should be connected to the remote system&rsquo;s debugger using port 9223.</p>
+
+<p>When you are done be sure to do this to stop socat:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>killall socat</span></code></pre></td></tr></table></div></figure>
+
 </div>
 
 
@@ -182,7 +149,7 @@ print $output;
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
 
       
 
@@ -196,21 +163,15 @@ print $output;
   
 
 
-<time datetime="2011-06-30T18:39:02-04:00" pubdate data-updated="true">Jun 30<span>th</span>, 2011</time>
+<time datetime="2014-06-17T09:19:34-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='./categories/how-to/'>How-To</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -221,10 +182,8 @@ print $output;
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="./archives/2011/06/23/how-to-fix-eclipse-tomcat-and-spring-when-things-stop-working/" title="Previous Post: How-To: Fix Eclipse, Tomcat, and Spring when things stop working">&laquo; How-To: Fix Eclipse, Tomcat, and Spring when things stop working</a>
+        <a class="basic-alignment left" href="./archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/" title="Previous Post: Port 32764 - A router backdoor that you need to take seriously">&laquo; Port 32764 - A router backdoor that you need to take seriously</a>
       
-      
-        <a class="basic-alignment right" href="./archives/2011/07/07/how-to-get-vmware-virtual-machines-to-use-three-or-more-monitors/" title="Next Post: How-To: Get VMware virtual machines to use three or more monitors">How-To: Get VMware virtual machines to use three or more monitors &raquo;</a>
       
     </p>
   </footer>
@@ -344,8 +303,8 @@ print $output;
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/';
         var disqus_script = 'embed.js';
       
     (function () {

@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests. In the past few days I&rsquo; &hellip;">
+  <meta name="description" content="If you&rsquo;re looking to use Eclipse as a debugger for your Perl scripts things can get a bit hairy quickly. You need to do a lot of things to get &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,99 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="./archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/">How-To: Install Perl Debugging in Eclipse on Debian/Ubuntu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-14T12:31:48-04:00" pubdate data-updated="true">Mar 14<span>th</span>, 2012</time>
+        
+           | <a href="./archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;re looking to use Eclipse as a debugger for your Perl scripts things can get a bit hairy quickly.  You need to do a lot of things to get it to be happy so let&rsquo;s step through them all rather than have you hunt for the secret sauce like I did today.</p>
+
+<p>First, you&rsquo;ll want to <a href="http://www.epic-ide.org/download.php">add the EPIC (Eclipse Perl Integration Component) as described on the EPIC site</a>.  That will add support for creating Perl projects, syntax highlighting, and all that.</p>
+
+<p>Next, set a breakpoint in one of your Perl scripts and try to debug it.  If you&rsquo;re unlucky you may get one of two error messages.  One error message wants you to install <a href="http://search.cpan.org/~robin/PadWalker-1.93/PadWalker.pm">PadWalker</a> which is a Perl module that handles all of the debugging niceties for Eclipse.  To install that you can either use CPAN or apt.  Using apt is as simple as:</p>
+
+<pre><code>sudo apt-get install libpadwalker-perl
+</code></pre>
+
+<p>Once you install PadWalker restart Perl and try to debug one of your scripts again.  If it works, you&rsquo;re set.  The second possible error message is below&hellip;</p>
+
+<p>Now, you&rsquo;ve come all this way and it still doesn&rsquo;t work.  You&rsquo;ve probably received an error message like this:</p>
+
+<pre><code>Could not create the view: Plug-in "org.eclipse.debug.ui" was unable to instantiate class "org.eclipse.debug.internal.ui.views.variables.VariablesView".
+</code></pre>
+
+<p>If you dig deeper you&rsquo;ll see errors like this:</p>
+
+<pre><code>java.lang.ClassCircularityError: org/eclipse/debug/internal/ui/DebugUIPlugin
+</code></pre>
+
+<p>And if you dig <em>even</em> deeper you&rsquo;ll see errors like this:</p>
+
+<pre><code>Conflict for 'org.epic.perleditor.commands.clearMarker'
+</code></pre>
+
+<p>The fix for this was tricky to figure out so just follow these steps:</p>
+
+<ol>
+<li><p> Close Eclipse</p></li>
+<li><p> Uninstall libpadwalker-perl by running</p>
+
+<p>sudo apt-get remove &mdash;purge libpadwalker-perl</p></li>
+<li><p> Restart Eclipse and try to set a breakpoint in a Perl script, it should fail (no breakpoint should appear)</p></li>
+<li><p> Close Eclipse</p></li>
+<li><p> Reinstall libpadwalker-perl by running</p>
+
+<p>sudo apt-get install libpadwalker-perl</p></li>
+<li><p> Restart Eclipse, set a breakpoint, and start debugging again</p></li>
+</ol>
+
+
+<p>At this point the variables and breakpoints should always work.  Unfortunately the expressions panel will not.  It looks like this is not supported in EPIC just yet.  But, in any case, you now have a full fledged Perl debugger so you can (mostly) stop using print statements to debug your code post mortem.</p>
+
+<p>There are some quirks to note:</p>
+
+<ol>
+<li><p> &ldquo;Step Over&rdquo; (typically F6) does not work as expected and will step into modules.  If &ldquo;Step Return&rdquo; worked this wouldn&rsquo;t be a problem but it doesn&rsquo;t (see the next bullet point).  In this case if you are trying to step over a module you may have to back out and set a breakpoint where the execution will return to the script you want to debug.</p></li>
+<li><p> &ldquo;Step Return&rdquo; (typically F7) does not work as expected.  It will usually run until your script ends or hits a breakpoint.</p></li>
+<li><p> The console window will not let you run arbitrary Perl code so it&rsquo;s not a simple replacement for the expressions panel</p></li>
+<li><p> Perl modules (files with a .pm extension) may not appear with syntax highlighting enabled.  If you are debugging Perl modules you may want to retool your setup and run the module as a Perl script OR have Perl load your module from a file with a .pl extension.</p></li>
+</ol>
+
+
+<p>Good luck.  Now clean up/fix that Perl code and post in the comments.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -872,53 +965,6 @@ public class TestClass {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="./archives/2012/01/29/free-tool-collection-available-on-github/">Free Tool Collection Available on Github</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-01-29T16:38:52-05:00" pubdate data-updated="true">Jan 29<span>th</span>, 2012</time>
-        
-           | <a href="./archives/2012/01/29/free-tool-collection-available-on-github/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/29/free-tool-collection-available-on-github/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Today I just released <a href="https://github.com/timmattison/timmattison-tools">a few home brew tools</a> that I&rsquo;ve been meaning to write for a while.  I&rsquo;m going to write full articles on them soon but just as a preliminary taste here are descriptions of the two programs I released today:</p>
-
-<ul>
-<li><p>prcp.pl &ndash; Copies files and has a progress indicator</p></li>
-<li><p>dirhash.pl &ndash; Hashes the names and contents of an entire directory to a single hash</p></li>
-</ul>
-
-
-<p>If you use them please post in the comments below.  If you want to contribute to them just send me merge requests and open tickets!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="./page/4/">&larr; Older</a>
@@ -952,6 +998,10 @@ public class TestClass {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="./archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a>
+      </li>
+    
+      <li class="post">
         <a href="./archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a>
       </li>
     
@@ -965,10 +1015,6 @@ public class TestClass {
     
       <li class="post">
         <a href="./archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a>
-      </li>
-    
-      <li class="post">
-        <a href="./archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Building Asterisk With Support for SIPML5</a>
       </li>
     
   </ul>

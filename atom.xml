@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-14T08:49:06-04:00</updated>
+  <updated>2014-06-17T09:33:05-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,49 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[True Remote Debugging With Chrome's Remote Debugging Feature]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/"/>
+    <updated>2014-06-17T09:19:34-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature</id>
+    <content type="html"><![CDATA[<p>Have you used <a href="http://blog.chromium.org/2011/05/remote-debugging-with-chrome-developer.html">Chrome&rsquo;s remote debugging feature</a>?  It is a handy tool for debugging JavaScript in another tab/window.</p>
+
+<p>That&rsquo;s nice, but have you ever wanted to debug JavaScript that was running on another machine running Chrome?  If so, and you&rsquo;re running on Mac OS, you&rsquo;ve come to the right place.</p>
+
+<p>The first step in this process is to disable <a href="http://joshuamcginnis.com/2011/02/28/how-to-disable-same-origin-policy-in-chrome/">Chrome&rsquo;s same origin policy</a>.  This may not be necessary in your application but I&rsquo;ve always found I needed to do it in mine.</p>
+
+<p>Now you&rsquo;ll need to make sure you have <a href="http://www.dest-unreach.org/socat/">socat</a> installed.  The easiest way to do this is with <a href="http://brew.sh/">Homebrew</a>.  Install Homebrew, and then run this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install socat</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That will install socat if it isn&rsquo;t installed already.</p>
+
+<p>Now start Chrome remote debugging on the system that you want to connect to.</p>
+
+<p>Next, get socat to relay traffic from port 9223 to port 9222 using this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>socat tcp-listen:9223,fork tcp:localhost:9222</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, try to connect to the remote computer using <em>its IP address, not localhost</em> with a URL like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://IP_ADDRESS:9223</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should be connected to the remote system&rsquo;s debugger using port 9223.</p>
+
+<p>When you are done be sure to do this to stop socat:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>killall socat</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Port 32764 - a Router Backdoor That You Need to Take Seriously]]></title>
@@ -1350,69 +1393,6 @@ setColor(0, 0, 255, false, true);
 
 
 <p>Now your jobs should start running again.  Post in the comments if this procedure works for you or if you need any help.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How-To: Install Perl Debugging in Eclipse on Debian/Ubuntu]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu/"/>
-    <updated>2012-03-14T12:31:48-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/03/14/how-to-install-perl-debugging-in-eclipse-on-debian-ubuntu</id>
-    <content type="html"><![CDATA[<p>If you&rsquo;re looking to use Eclipse as a debugger for your Perl scripts things can get a bit hairy quickly.  You need to do a lot of things to get it to be happy so let&rsquo;s step through them all rather than have you hunt for the secret sauce like I did today.</p>
-
-<p>First, you&rsquo;ll want to <a href="http://www.epic-ide.org/download.php">add the EPIC (Eclipse Perl Integration Component) as described on the EPIC site</a>.  That will add support for creating Perl projects, syntax highlighting, and all that.</p>
-
-<p>Next, set a breakpoint in one of your Perl scripts and try to debug it.  If you&rsquo;re unlucky you may get one of two error messages.  One error message wants you to install <a href="http://search.cpan.org/~robin/PadWalker-1.93/PadWalker.pm">PadWalker</a> which is a Perl module that handles all of the debugging niceties for Eclipse.  To install that you can either use CPAN or apt.  Using apt is as simple as:</p>
-
-<pre><code>sudo apt-get install libpadwalker-perl
-</code></pre>
-
-<p>Once you install PadWalker restart Perl and try to debug one of your scripts again.  If it works, you&rsquo;re set.  The second possible error message is below&hellip;</p>
-
-<p>Now, you&rsquo;ve come all this way and it still doesn&rsquo;t work.  You&rsquo;ve probably received an error message like this:</p>
-
-<pre><code>Could not create the view: Plug-in "org.eclipse.debug.ui" was unable to instantiate class "org.eclipse.debug.internal.ui.views.variables.VariablesView".
-</code></pre>
-
-<p>If you dig deeper you&rsquo;ll see errors like this:</p>
-
-<pre><code>java.lang.ClassCircularityError: org/eclipse/debug/internal/ui/DebugUIPlugin
-</code></pre>
-
-<p>And if you dig <em>even</em> deeper you&rsquo;ll see errors like this:</p>
-
-<pre><code>Conflict for 'org.epic.perleditor.commands.clearMarker'
-</code></pre>
-
-<p>The fix for this was tricky to figure out so just follow these steps:</p>
-
-<ol>
-<li><p> Close Eclipse</p></li>
-<li><p> Uninstall libpadwalker-perl by running</p>
-
-<p>sudo apt-get remove &mdash;purge libpadwalker-perl</p></li>
-<li><p> Restart Eclipse and try to set a breakpoint in a Perl script, it should fail (no breakpoint should appear)</p></li>
-<li><p> Close Eclipse</p></li>
-<li><p> Reinstall libpadwalker-perl by running</p>
-
-<p>sudo apt-get install libpadwalker-perl</p></li>
-<li><p> Restart Eclipse, set a breakpoint, and start debugging again</p></li>
-</ol>
-
-
-<p>At this point the variables and breakpoints should always work.  Unfortunately the expressions panel will not.  It looks like this is not supported in EPIC just yet.  But, in any case, you now have a full fledged Perl debugger so you can (mostly) stop using print statements to debug your code post mortem.</p>
-
-<p>There are some quirks to note:</p>
-
-<ol>
-<li><p> &ldquo;Step Over&rdquo; (typically F6) does not work as expected and will step into modules.  If &ldquo;Step Return&rdquo; worked this wouldn&rsquo;t be a problem but it doesn&rsquo;t (see the next bullet point).  In this case if you are trying to step over a module you may have to back out and set a breakpoint where the execution will return to the script you want to debug.</p></li>
-<li><p> &ldquo;Step Return&rdquo; (typically F7) does not work as expected.  It will usually run until your script ends or hits a breakpoint.</p></li>
-<li><p> The console window will not let you run arbitrary Perl code so it&rsquo;s not a simple replacement for the expressions panel</p></li>
-<li><p> Perl modules (files with a .pm extension) may not appear with syntax highlighting enabled.  If you are debugging Perl modules you may want to retool your setup and run the module as a Perl script OR have Perl load your module from a file with a .pl extension.</p></li>
-</ol>
-
-
-<p>Good luck.  Now clean up/fix that Perl code and post in the comments.</p>
 ]]></content>
   </entry>
   
