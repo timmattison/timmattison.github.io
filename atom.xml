@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-17T19:15:24-04:00</updated>
+  <updated>2014-06-18T06:42:48-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -113,6 +113,8 @@
 <li>The password required to su to root</li>
 </ul>
 
+
+<p>This particular version of the script just performs the &ldquo;su&rdquo; command.  It can be modified to do a &ldquo;sudo&rdquo; with just a few tweaks.  If there&rsquo;s demand I&rsquo;ll post a version that lets you swap between both and does some additional error handling.</p>
 
 <p>And here&rsquo;s the script&hellip; don&rsquo;t forget to install Paramiko!</p>
 
