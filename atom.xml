@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-18T08:38:01-04:00</updated>
+  <updated>2014-06-18T09:55:34-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,27 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Use Git to Figure Out What You Did Yesterday]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/"/>
+    <updated>2014-06-18T09:10:21-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday</id>
+    <content type="html"><![CDATA[<p>Are you a developer?  Do you have trouble remembering what you did yesterday when it is time for your daily standup?  Do you use git?  Do you commit regularly?  If you answered yes to those questions you can now quickly figure out what you did yesterday with the help of <a href="https://github.com/timmattison/gitrdun">gitrdun</a>.</p>
+
+<p>gitrdun simply looks for git repos in your home directory, lists all of the commits in those repos from yesterday, and then prints that on the screen.  The current iteration is the &ldquo;5 minute version&rdquo;.  It literally took 5 minutes to write.  The &ldquo;5 hour version&rdquo; may make the formatting a bit nicer and add some features but don&rsquo;t hold your breath for that to come out.</p>
+
+<p>Don&rsquo;t want to fork the repo?  No problem, it&rsquo;s just a one liner anyway.  Use this alias&hellip;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>alias gitrdun="clear ; PAGER=\"cat\" find ~ -name \".git\" -type d -exec sh -c \"cd '{}' ; echo '{}'; git log --all --since='yesterday'\" \; | less"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This clears the screen, uses &ldquo;cat&rdquo; as the pager so that the pager doesn&rsquo;t clear the screen between repo checks, finds all git repos, goes into their directory that is under version control, and then lists all commits on all branches from yesterday.</p>
+
+<p>Enjoy!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Octal and Hexadecimal IP Addresses With Ping]]></title>
@@ -1367,38 +1388,6 @@ class WorkingMyClass {
 </code></pre>
 
 <p>That&rsquo;s it.  Post in the comments if this helps you out or if you want to add to the code.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How-To: Get Verizon's Media Manager to Read Content From a Network Location]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/"/>
-    <updated>2012-04-17T15:45:12-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location</id>
-    <content type="html"><![CDATA[<p>I ran into this problem today too when I first got FiOS installed.  Mapping a network drive won&rsquo;t work but using &ldquo;subst&rdquo; will.  I now have Media Manager reading my pictures over a network connection.  Here&rsquo;s how to do it:</p>
-
-<ol>
-<li><p> Open the start menu</p></li>
-<li><p> Type &ldquo;cmd&rdquo;</p></li>
-<li><p> Right click on &ldquo;cmd&rdquo; and select &ldquo;Run as administrator&rdquo;</p></li>
-<li><p> Run subst like this:</p>
-
-<p>subst DRIVE: LOCATION</p></li>
-</ol>
-
-
-<p>  DRIVE: will need to be a free drive letter like &ldquo;F:&rdquo;, &ldquo;G:&rdquo;, etc
-  LOCATION will need to be the <a href="http://en.wikipedia.org/wiki/Path_(computing">UNC path</a>#Uniform_Naming_Convention) to your network share like this &ldquo;\myothercomputer\pictures\&rdquo;
-  Don&rsquo;t forget to include the quotes if your LOCATION has spaces in it!</p>
-
-<ol>
-<li> Restart Media Manager and try to add the new virtual drive to it, it should start working right away</li>
-</ol>
-
-
-<p>You may need to do this on each reboot.  I never reboot this computer so I haven&rsquo;t tested it yet.  You can put these commands in a batch file to make your life easier but you&rsquo;ll need to make sure the batch file runs as an administrator.</p>
-
-<p>Let me know in the comments if it works for you or not.  If not I can probably help work out any kinks with you.</p>
 ]]></content>
   </entry>
   

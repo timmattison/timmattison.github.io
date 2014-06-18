@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="A savvy guy in Germany gave me some pointers on what could be improved in my previous post How-To: Get a Twitter timeline on a Cisco 7960. Rather &hellip;">
+  <meta name="description" content="I was updating a web application last night and after uploading the WAR file to my server, moving it into the servlet container&rsquo;s (Tomcat&rsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,71 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/10/15/how-to-clear-out-tomcats-cache-and-fix-outdated-jsp-problems/">How-To: Clear Out Tomcat&#8217;s Cache and Fix Outdated JSP Problems</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-15T14:38:40-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/10/15/how-to-clear-out-tomcats-cache-and-fix-outdated-jsp-problems/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/15/how-to-clear-out-tomcats-cache-and-fix-outdated-jsp-problems/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I was updating a web application last night and after uploading the WAR file to my server, moving it into the servlet container&rsquo;s (Tomcat&rsquo;s) webapps directory, and restarting it I still got an old copy of a JSP showing up.  This was a particularly bad problem because I had refactored some classes and now even the old, previously valid JSP would fail to run since the imports were now invalid.  I went so far as removing the webapps directory entirely and still couldn&rsquo;t get it to work.  I came back the next day and all was fixed.  I was safe, I thought&hellip;</p>
+
+<p>The problem is this: My desktop&rsquo;s clock was correct and my server&rsquo;s clock was behind by a few minutes.  Tomcat keeps a cached copy of your JSPs in its &ldquo;work&rdquo; folder and only clears them out when it sees that the code in &ldquo;webapps&rdquo; is newer than the code in &ldquo;work&rdquo;.  The exception to that rule is when the code in &ldquo;webapps&rdquo; has a date in the future.  When that happens it doesn&rsquo;t update the code until that date passes.  This could be useful in some instances but for me it was a real problem.</p>
+
+<p>My workaround is pedantic but that&rsquo;s my style.  This assumes your Tomcat works in the /var/lib/tomcat-6 directory.  If not, change that path accordingly.  We&rsquo;ll also assume that your web application is called &ldquo;app-with-jsps.war&rdquo;.  Change that, too, if you need to.  Here&rsquo;s what I do:</p>
+
+<p>Step 1: Remove the WAR file from the webapps directory</p>
+
+<pre><code>rm -rf /var/lib/tomcat-6/webapps/app-with-jsps*
+</code></pre>
+
+<p>Step 2: Remove the application&rsquo;s work directory.  The two stars in that command-line traverses the Catalina/localhost path on my machine but on your machine the names could be different.  This makes sure it gets the files and, since it has no trailing wildcards, it pretty safe since it can only delete a directory called &ldquo;app-with-jsps&rdquo;.</p>
+
+<pre><code>rm -rf /var/lib/tomcat-6/work/*/*/app-with-jsps
+</code></pre>
+
+<p>Step 3: Copy your WAR file to the webapps directory</p>
+
+<pre><code>cp app-with-jsps.war /var/lib/tomcat-6/webapps
+</code></pre>
+
+<p>Step 4: Restart the servlet container</p>
+
+<pre><code>/etc/init.d/tomcat-6 restart
+</code></pre>
+
+<p>That should fix your cache problems.  A better long term solution is to sync your clocks but these steps come in handy when that&rsquo;s either difficult to do or completely out of your control.  Enjoy!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -652,51 +717,6 @@ pageTracker._trackPageview();
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/03/07/how-to-get-vim-syntax-highlighting-working-on-a-mac/">How-To: Get Vim Syntax Highlighting Working on a Mac</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-03-07T18:59:59-05:00" pubdate data-updated="true">Mar 7<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/03/07/how-to-get-vim-syntax-highlighting-working-on-a-mac/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/03/07/how-to-get-vim-syntax-highlighting-working-on-a-mac/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This has been a nuisance for me since I started using a Mac but only today did I finally spend the time to figure it out.  I found <a href="http://www.alangalloway.com/vim.html">a post that has almost everything you need</a> but leaves out some key details and the direct download link is dead.  I&rsquo;ve <a href="/static/vimrc-2009-03-07">recreated the file</a> and you can install it automagically like this in a</p>
-
-<p>Terminal window:</p>
-
-<p>wget <a href="http://blog.timmattison.com/static/vimrc-2009-03-07">http://blog.timmattison.com/static/vimrc-2009-03-07</a> -O ~/.vimrc</p>
-
-<p>This will nuke your existing .vimrc if you have one so save it first!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/11/">&larr; Older</a>
@@ -730,6 +750,10 @@ pageTracker._trackPageview();
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Octal and Hexadecimal IP Addresses With Ping</a>
       </li>
     
@@ -743,10 +767,6 @@ pageTracker._trackPageview();
     
       <li class="post">
         <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">How to: Execute a Command on a Remote Server That Requires You to Su or Sudo</a>
       </li>
     
   </ul>
