@@ -18,8 +18,9 @@ Set the variable `root_command` to the command that you want to execute as root,
 * The password of the user that can su to root
 * The password required to su to root
 
-And here's the script... don't forget to install Paramiko!
+This particular version of the script just performs the "su" command.  It can be modified to do a "sudo" with just a few tweaks.  If there's demand I'll post a version that lets you swap between both and does some additional error handling.
 
+And here's the script... don't forget to install Paramiko!
 
 ```
 #!/usr/bin/env python
