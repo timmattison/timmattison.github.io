@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="If you are reading this article I, unlike the rest of the Internet, will assume you have a good reason to run Teamviewer as root. I won&rsquo;t spend &hellip;">
+  <meta name="description" content="Today I had to reinstall the Android plugin on my system and I recently upgraded to a 64-bit development VM. To my surprise the installation didn& &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,66 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/11/02/how-to-install-googles-android-eclipse-plugin-and-or-adb-on-64-bit-debian-ubuntu/">How-To: Install Google&#8217;s Android Eclipse Plugin (And/or Adb) on 64-bit Debian/Ubuntu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-11-02T09:00:48-04:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2011</time>
+        
+           | <a href="/archives/2011/11/02/how-to-install-googles-android-eclipse-plugin-and-or-adb-on-64-bit-debian-ubuntu/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/11/02/how-to-install-googles-android-eclipse-plugin-and-or-adb-on-64-bit-debian-ubuntu/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today I had to reinstall the Android plugin on my system and I recently upgraded to a 64-bit development VM.  To my surprise the installation didn&rsquo;t go smoothly at all.  After restarting Eclipse twice I was constantly presented with two error messages &ldquo;Failed to parse the output of &lsquo;adb version&rsquo;&rdquo; and &ldquo;adb: error while loading shared libraries: libncurses.so.5: cannot open shared object file: No such file or directory&rdquo;.  Your system may also present another error message that reads &ldquo;adb: error while loading shared libraries: libstdc++.so.6: cannot open shared object file: No such file or directory&rdquo;.</p>
+
+<p>I could see that it was looking for libncurses.so.5 however I know that ncurses is already installed on my machine in /lib as /lib/libncurses.so.5.  So where exactly was Eclipse/adb looking for it?  It turns out that it wants to find its libraries in the /lib32 directory but you can&rsquo;t just symlink it or you&rsquo;ll get an error that reads &ldquo;wrong ELF class: ELFCLASS64&rdquo;.  adb needs to have the 32-bit versions installed or it won&rsquo;t function at all.</p>
+
+<p>So to get up and running just run the following command to fix the issue:</p>
+
+<pre><code>sudo apt-get install lib32ncurses5 lib32stdc++6
+</code></pre>
+
+<p>After that just restart Eclipse and the issue should be fully put to bed.  Let me know how it works out for you or if you run into trouble.</p>
+
+<p>If you still run into trouble like an error message that reads &ldquo;aapt: error while loading shared libraries: libz.so.1: cannot open shared object file: No such file or directory&rdquo; you need to install the ia32-libs like this:</p>
+
+<pre><code>sudo apt-get install ia32-libs
+</code></pre>
+
+<p>Then rebuild your project and the errors should be gone.</p>
+
+<p>UPDATE 2012-02-14: Rortian reports that the following command words on Fedora 16:</p>
+
+<pre><code>yum install ncurses-libs.i686 libstdc++.i686 libgcc.i686
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -685,63 +745,6 @@ INFO: Server startup in 18871 ms
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files/">How-To: Improve Your Duplicity Backup and Restore Times on Rackspace Cloud Files</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-06-15T22:42:36-04:00" pubdate data-updated="true">Jun 15<span>th</span>, 2011</time>
-        
-           | <a href="/archives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Using duplicity and backing up a Rackspace Cloud Server to Cloud Files is great.  The bandwidth is free (if you don&rsquo;t forget to enable service net), storage is relatively cheap, and duplicity offers lots of great options to tune the tradeoffs between disk space/bandwidth and storage.</p>
-
-<p>One thing you will notice though is that if Rackspace Cloud Files ever times out you will end up waiting, and waiting, and waiting for it to retry.  The command line &ldquo;&mdash;timeout&rdquo; option doesn&rsquo;t fix it either since the timeout is actually hard coded in the python-cloudfiles module.  By default this timeout is 30 seconds.  Want to get better backup and restore performance?  Follow these steps to reduce the delay to one second and you&rsquo;ll be a lot happier.  Note: These instructions assume you already have everything installed and configured to do duplicity backups to Cloud Files already.</p>
-
-<ul>
-<li><p>Step 1: Locate the cloudfilesbackend.py file that your system uses.  Mine was in /usr/lib64/python2.4/site-packages/duplicity/backends/cloudfilesbackend.py so you will need to replace this path with the proper one in all of the following commands.</p></li>
-<li><p>Step 2: Run sed to replace the calls to &ldquo;time.sleep(30)&rdquo; with &ldquo;time.sleep(1)&rdquo; like this:</p>
-
-<p>sed -i s/time.sleep(30)/time.sleep(1)/g /usr/lib64/python2.4/site-packages/duplicity/backends/cloudfilesbackend.py</p></li>
-<li><p>Step 3: Remove the pre-compiled version of the existing Python code like this:</p>
-
-<p>rm /usr/lib64/python2.4/site-packages/duplicity/backends/cloudfilesbackend.pyc</p></li>
-<li><p>Step 4: Adjust your duplicity backup and restore code to include two updated options.  First, add &ldquo;&mdash;timeout=1&rdquo; just to be double-extra sure that all timeouts are 1 second long.  Second, add &ldquo;&mdash;num-retries=30&rdquo; so that the script retries for 30 seconds if necessary.  If you don&rsquo;t add the second option you will run the risk of possibly failing to do a restore when there is a legitimate connectivity issue.  The default options with the changes from step 2 would only allow for a 5 second hiccup in network traffic so definitely don&rsquo;t forget to do this.</p></li>
-</ul>
-
-
-<p>That&rsquo;s it.  I&rsquo;ve personally seen my restore times decrease dramatically by doing this simple change.  Initially I wasn&rsquo;t even able to sync the duplicity information in 30 minutes and now I am doing full restores in under 25 minutes.  Had I left the settings the way they were I estimate that I would&rsquo;ve spent between 6 and 12 hours on a restore.</p>
-
-<p>UPDATE: The issue and fix here is entirely with the duplicity code, not python-cloudfiles.  Sorry for any confusion that may have caused.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/6/">&larr; Older</a>
@@ -775,6 +778,10 @@ INFO: Server startup in 18871 ms
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/07/18/my-problem-with-the-problem-with-altcoins/">My Problem With &#8216;the Problem With Altcoins&#8217;</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a>
       </li>
     
@@ -788,10 +795,6 @@ INFO: Server startup in 18871 ms
     
       <li class="post">
         <a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/">Fixing In-Page Analytics With Google Analytics</a>
       </li>
     
   </ul>
