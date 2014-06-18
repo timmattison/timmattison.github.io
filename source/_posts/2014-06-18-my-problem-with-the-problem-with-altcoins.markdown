@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "My problem with 'The Problem with Altcoins'"
-date: 2014-07-18 06:49:30 -0500
+rate: 2014-06-18 06:49:30 -0500
 comments: true
 categories: 
 ---
