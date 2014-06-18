@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Just yesterday I was doing an upgrade of my Tomcat installation (and nearly everything on my virtual machine for that matter) and re-emerging the  &hellip;">
+  <meta name="description" content="A savvy guy in Germany gave me some pointers on what could be improved in my previous post How-To: Get a Twitter timeline on a Cisco 7960. Rather &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,76 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/10/15/update-nicer-formatting-for-cisco-twitter-timelines-and-direct-message-support/">Update: Nicer Formatting for Cisco Twitter Timelines and Direct Message Support</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-15T10:38:07-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/10/15/update-nicer-formatting-for-cisco-twitter-timelines-and-direct-message-support/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/15/update-nicer-formatting-for-cisco-twitter-timelines-and-direct-message-support/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>A <a href="https://twitter.com/nikonshooter62">savvy guy in Germany</a> gave me some pointers on what could be improved in my previous post <a href="http://blog.timmattison.com/blog/archives/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/">How-To: Get a Twitter timeline on a Cisco 7960</a>.  Rather than updating that one again and having it get lost I&rsquo;ll put the newest stuff in new posts as they come up.</p>
+
+<p>First, rather than getting your friends timeline he suggested, and modified the script, to only pull the direct messages.  The change is straightforward and you can simply replace</p>
+
+<pre><code>$timeline = $twit-&gt;friends_timeline();
+</code></pre>
+
+<p>with</p>
+
+<pre><code>$timeline = $twit-&gt;direct_messages();
+</code></pre>
+
+<p>Second, the message formatting that comes from the API <a href="http://twitpic.com/llrfq">leaves a little bit to be desired</a>.  Therefore the two suggestions were to remove the &ldquo;+0000&rdquo; and move the year so it&rsquo;s between the date and time.  This change is a bit more tricky but can be done with regular expressions.  For the first I did this</p>
+
+<pre><code>$input =~ s/ \+0000//g;
+</code></pre>
+
+<p>and for the second I did this</p>
+
+<pre><code>$input =~ s/^([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*):/$1 $2 $3 $4 $5 $7 $6:/;
+</code></pre>
+
+<p>Put whichever of these you&rsquo;d like (or both) right before</p>
+
+<pre><code>return $input
+</code></pre>
+
+<p>in the fix_cisco_issues subroutine.  Make sure you copy them</p>
+
+<p>exactly or they can break the script.</p>
+
+<p>If you run into any trouble (ie. blank Cisco screen after doing the updates), run the script on the command-line and see if there are any errors showing up on STDERR. Usually, it&rsquo;s just a typo so pay attention to the error output and patch it up!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -627,117 +697,6 @@ pageTracker._trackPageview();
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/">How-To: Get a Twitter Timeline on a Cisco 7960 [Updated 2009-03-10]</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-03-07T17:59:59-05:00" pubdate data-updated="true">Mar 7<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>UPDATE #1: I just noticed that if someone uses an ampersand in their tweet then the CISCO XML parser freaks out.  Unfortunately the &amp; code doesn&#8217;t work either so I have updated the code to replace all of the ampersands with plus characters.</p>
-
-<p>Now that my Cisco phone is set up I&rsquo;ve started on a quest to find fun, yet marginally useful, things that I can do with it.  Without going too crazy I wanted to start with some basics and then move into the really fancy stuff.  A Twitter timeline is just about as basic as can be while still being novel enough to keep my interest.</p>
-
-<p>You&rsquo;ll need a few things to make this work&hellip;</p>
-
-<p>1: A Cisco 7960 that you can edit the configuration for and is provisioned properly.  Articles on this coming soon&hellip;</p>
-
-<p>2: A Linux box with cron, Perl, Apache, and PHP installed and running.  There are tutorials on that everywhere so I&rsquo;ll leave that up to you.</p>
-
-<p>3: A Twitter account.</p>
-
-<p>If you have all of those things you can just follow these steps:</p>
-
-<p>Step 1: Log into your Linux box and install the Perl Twitter package (you may need to do this as root): perl -MCPAN -e &ldquo;install Net::Twitter&rdquo;</p>
-
-<p>Step 2: Modify this code by changing the username and password to your Twitter credentials.  Save this script on your Linux server as get-twitter-timeline.pl.</p>
-
-<h1>!/usr/bin/perl -w</h1>
-
-<pre><code>use Net::Twitter;
-$username = "twitterusername";
-$password = "twitterpassword";
-my $twit = Net::Twitter-&gt;new({username=&gt;$username, password=&gt;$password});
-$timeline = $twit-&gt;friends_timeline();
-
-
-
-
-foreach my $tweet (@{$timeline}) {
-   my $speaker = $tweet-&gt;{user}-&gt;{screen_name};
-   my $text = $tweet-&gt;{text};
-   print fix_cisco_issues("$speaker: $text\n");
-}
-
-sub fix_cisco_issues {
-  $input = $_[0];
-  $input =~ s/&amp;/+/g;
-  return $input;
-}
-</code></pre>
-
-<p>Step 3: Make the script executable (chmod +x get-twitter-timeline.pl) and add it to your crontab.  Your crontab may be different depending on your cron version, desired location on the webserver, frequency of updates, etc.  I&rsquo;m checking for updates once every 2 minutes (henec &ldquo;*/2&rdquo;).  BTW, my webserver is private so security is not my focus.</p>
-
-<p>*/2 * * * * get-twitter-timeline.pl > /var/www/localhost/htdocs/twitter-timeline.txt</p>
-
-<p>Step 4: Now you need to create a PHP script that will serve this up to your phone.  It&rsquo;s not quite as easy as pointing the phone to raw text since it needs a sprinkling of Cisco magic to get it to work.  My script is here:</p>
-
-<p>&lt;?php</p>
-
-<p>header (&ldquo;Refresh: 30&rdquo;);</p>
-
-<pre><code>?&gt;
-
-&lt;CiscoIPPhoneText&gt;
-  &lt;Title&gt;timmattison's timeline&lt;/Title&gt;
-  &lt;Text&gt;&lt;?php print file_get_contents("/var/www/localhost/htdocs/twitter-timeline.txt"); ?&gt;&lt;/Text&gt;
-&lt;/CiscoIPPhoneText&gt;
-</code></pre>
-
-<p>The tags just put my name on the top line and the content in a scrolling text area below it.  Refresh 30 means that the phone will fetch this every 30 seconds while it&rsquo;s on the services screen.  Now all some clever person needs to do is put some Cisco exploit in my Twitter timeline&hellip; as with all good security we&rsquo;ll worry about that later.  :)</p>
-
-<p>Step 5: Now you&rsquo;ll need to edit your Cisco configuration to point to this PHP script.  You can modify your SIPDefault.cnf or SIPMACADDR.cnf depending on whether you want all of your Cisco phones to have this code on them or not.  The line you&rsquo;ll need to update or add is:</p>
-
-<p>services_url: &ldquo;<a href="http://10.0.1.251/cisco/services.php">http://10.0.1.251/cisco/services.php</a>&rdquo;   ; URL for external Phone Services</p>
-
-<p>Again, that&rsquo;ll need to be updated to meet your specs.</p>
-
-<p>Step 6: If you did all of that correctly you can restart your phone (*, 6, settings simultaneously) and then press the services button. It should come right up.</p>
-
-<p>Here&rsquo;s a glimpse of the final product, enjoy!</p>
-
-<p><img src="/pictures/cisco-twitter-small.jpg" alt="" /></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/11/">&larr; Older</a>
@@ -775,6 +734,10 @@ sub fix_cisco_issues {
       </li>
     
       <li class="post">
+        <a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Octal and Hexadecimal IP Addresses With Ping</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a>
       </li>
     
@@ -784,10 +747,6 @@ sub fix_cisco_issues {
     
       <li class="post">
         <a href="/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">How to: Execute a Command on a Remote Server That Requires You to Su or Sudo</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a>
       </li>
     
   </ul>

@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-18T06:50:16-04:00</updated>
+  <updated>2014-06-18T07:21:24-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -75,6 +75,43 @@
 <blockquote><p>Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.</p></blockquote>
 
 <p>I have another post that touches this topic and explains <a href="http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">why all proof of work algorithms need to use memory bound functions</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Octal and Hexadecimal IP Addresses With Ping]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/"/>
+    <updated>2014-06-18T07:12:14-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping</id>
+    <content type="html"><![CDATA[<p>Have you ever seen a system print out an IP address like this?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Disconnected from 010.000.001.133</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you try to ping this IP address you&rsquo;ll get quite interesting results.  What the IP address should be is 10.0.1.133 but what ping reports that it is if you run the command with those leading zeroes included looks very odd.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 010.000.001.133
+</span><span class='line'>PING 010.000.001.133 (8.0.1.133): 56 data bytes
+</span><span class='line'>Request timeout for icmp_seq 0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>See that <code>8.0.1.133</code> IP address that it is trying to reach?  It turns out that if you put leading zeroes into an IP address that you pass to <code>ping</code>, and possibly other network tools, it treats those numbers as <a href="https://en.wikipedia.org/wiki/Octal">octal</a>.  Octal isn&rsquo;t something most end-users deal with unless they&rsquo;re reminiscing about their old <a href="https://en.wikipedia.org/wiki/CompuServe">Compuserve</a> addresses.</p>
+
+<p>In any case, if you find yourself trying to ping a machine with an IP address that has leading zeroes make sure you remove them!</p>
+
+<p>This got me wondering what other weird things ping might do with IP addresses so I played around a bit and saw that it actually allows you to enter them in hex as well.  This is useful for IPv6 but really strange for IPv4.  Try it out and try to ping the above address with the first octet in hex:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 0xa.0.1.133
+</span><span class='line'>PING 0xa.0.1.133 (10.0.1.133): 56 data bytes</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sure enough it converts <code>0xa</code> into <code>10</code>.  I&rsquo;m not sure I&rsquo;ll ever use that feature but its good to know what ping does to its input in the even that some other weird situation pops up.</p>
 ]]></content>
   </entry>
   
@@ -1362,26 +1399,6 @@ class WorkingMyClass {
 <p>You may need to do this on each reboot.  I never reboot this computer so I haven&rsquo;t tested it yet.  You can put these commands in a batch file to make your life easier but you&rsquo;ll need to make sure the batch file runs as an administrator.</p>
 
 <p>Let me know in the comments if it works for you or not.  If not I can probably help work out any kinks with you.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Tip: Fix "'Xterm': Unknown Terminal Type" Messages in Debian]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/"/>
-    <updated>2012-04-12T10:32:57-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian</id>
-    <content type="html"><![CDATA[<p>This one has been a bit of a nuisance on newly spooled up Debian instances for me lately.  When I try to run &ldquo;top&rdquo; or &ldquo;clear&rdquo; or really anything that does something with the terminal I get the following message:</p>
-
-<pre><code>'xterm': unknown terminal type.
-</code></pre>
-
-<p>This is because either you haven&rsquo;t installed ncurses-term (unlikely) or a symlink from /lib/terminfo/x/xterm to /usr/share/terminfo/x/xterm is missing.  To cover all possibilities do this:</p>
-
-<pre><code>sudo apt-get install ncurses-term
-sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
-</code></pre>
-
-<p>Poof, your terminal works again!</p>
 ]]></content>
   </entry>
   
