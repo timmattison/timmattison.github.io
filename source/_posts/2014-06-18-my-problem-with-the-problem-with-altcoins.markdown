@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "My problem with 'The Problem with Altcoins'"
-date: 2013-12-31 10:40:30 -0500
+date: 2014-07-18 06:49:30 -0500
 comments: true
 categories: 
 ---
@@ -18,7 +18,7 @@ Issue #1:
 
 This paragraph does quite a good job of shooting itself down unknowingly.  I agree with the statement "a medium of exchange that is more widely accepted on the market is more useful than one that is not".  The leap that it then goes to make isn't very well thought out.  Just because something is better does not mean that eventually it will be the only thing.  If that was the case then why are there so many different brands of any product you can think of?
 
-The end of this paragraph is its complete downfall.  It states "until a single one overwhelms the rest".  There is no example of this happening as far as I know.  Is there only one currency in the world?  You might think the world currency is the US Dollar but I can assure you it isn't.
+The end of this paragraph is its complete downfall.  It states "until a single one overwhelms the rest".  There is no example of this happening as far as I know.  Is there only one currency in the world?  You might think the world currency is the US Dollar but I can assure you it isn't.  Admittedly it does say it will "overwhelm" the rest and not "extinguish" the rest but I believe overwhelm here was meant to imply that the others would disappear.
 
 My stance: There is room for more than one physical currency.  There is room for more than one digital currency.
 
@@ -62,4 +62,4 @@ Issue #6:
 
 > Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.
 
-This is the biggest issue.  OMGRAMZ
+I have another post that touches this topic and explains [why all proof of work algorithms need to use memory bound functions](http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/).
