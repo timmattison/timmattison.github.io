@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-19T08:46:16-04:00</updated>
+  <updated>2014-06-19T18:40:33-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,145 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Forcing Java's Logger to Work, Even When It Doesn't Want To]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/"/>
+    <updated>2014-06-19T18:31:42-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to</id>
+    <content type="html"><![CDATA[<p>If you do any Java development I&rsquo;m sure you&rsquo;ve run into a situation where the logger just does not do what you want it to do.  Sometimes you can&rsquo;t get it to print messages other than <code>INFO</code> level messages, sometimes you can&rsquo;t get it to print anything to the console at all.</p>
+
+<p>In order to get around this I have a few convenience methods that I&rsquo;ve migrated from project to project that I wanted to share.  Soon I&rsquo;ll put them in <a href="https://github.com/timmattison/jayuda">Jayuda</a> when I revamp it.  For now, you can just copy them from the blocks below.</p>
+
+<p><strong><em>NOTE:</em></strong> All of this info is for plain <code>java.util.logging</code>.  If you are using another logging system this probably won&rsquo;t work for you.</p>
+
+<p>The first function makes sure that there is at least one console logger in your logging system.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public static void forceConsoleLogging() {
+</span><span class='line'>    // Get the root logger instance
+</span><span class='line'>    LogManager logManager = LogManager.getLogManager();
+</span><span class='line'>    Logger rootLogger = logManager.getLogger("");
+</span><span class='line'>    
+</span><span class='line'>    // Set the default logging level to all
+</span><span class='line'>    rootLogger.setLevel(Level.ALL);
+</span><span class='line'>
+</span><span class='line'>    // Loop and see if a console handler is already installed
+</span><span class='line'>    boolean consoleHandlerInstalled = false;
+</span><span class='line'>
+</span><span class='line'>    for (Handler handler : rootLogger.getHandlers()) {
+</span><span class='line'>        if (handler instanceof ConsoleHandler) {
+</span><span class='line'>            consoleHandlerInstalled = true;
+</span><span class='line'>            break;
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    // Is a console handler already installed?
+</span><span class='line'>    if (consoleHandlerInstalled) {
+</span><span class='line'>        // Yes, do nothing
+</span><span class='line'>        return;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    // No console handler installed, install one
+</span><span class='line'>    rootLogger.addHandler(new ConsoleHandler());
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The second function is a bit more aggressive.  It iterates over your console loggers and makes sure all of them log everything.  You can use this in a pinch when you&rsquo;re having serious issues and you need to see everything.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>   public static void configureLogger() {
+</span><span class='line'>        // Get the logger instance
+</span><span class='line'>        LogManager logManager = LogManager.getLogManager();
+</span><span class='line'>        Logger rootLogger = logManager.getLogger("");
+</span><span class='line'>
+</span><span class='line'>        // Set the default logging level to all
+</span><span class='line'>        rootLogger.setLevel(Level.ALL);
+</span><span class='line'>
+</span><span class='line'>        // Loop and see if any console handlers are already installed
+</span><span class='line'>        List&lt;ConsoleHandler&gt; consoleHandlers = new ArrayList&lt;ConsoleHandler&gt;();
+</span><span class='line'>
+</span><span class='line'>        for (Handler handler : rootLogger.getHandlers()) {
+</span><span class='line'>            if (handler instanceof ConsoleHandler) {
+</span><span class='line'>                consoleHandlers.add((ConsoleHandler) handler);
+</span><span class='line'>            }
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        // Is a console handler already installed?
+</span><span class='line'>        if (consoleHandlers.size() == 0) {
+</span><span class='line'>            // No, create one.  Add it to the list and to the root logger.
+</span><span class='line'>            Handler consoleHandler = new ConsoleHandler();
+</span><span class='line'>            consoleHandlers.add((ConsoleHandler) consoleHandler);
+</span><span class='line'>            rootLogger.addHandler(consoleHandler);
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        // Loop through all console handlers and make them log everything
+</span><span class='line'>        for (ConsoleHandler consoleHandler : consoleHandlers) {
+</span><span class='line'>            consoleHandler.setLevel(Level.ALL);
+</span><span class='line'>        }
+</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you do this be prepared to see TONS of output including output from all of the libraries you use.  Most of the time this is overkill.  But sometimes when the logger just won&rsquo;t do what you want no matter how hard you try this will save your sanity.</p>
+
+<p>Have better ways to do this?  Did this get you out of a jam?  Please post in the comments below.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch]]></title>
@@ -1208,52 +1347,6 @@ We&rsquo;ll see if it makes me post any more or not though.  It appears that thi
 <p>I&rsquo;m hoping to get some time next week to try Silvertel&rsquo;s modules out.  Once I do I&rsquo;ll be posting my results and, if I&rsquo;m successful, some information on how to convert your Netduino Plus into a Netduino Plus with PoE.  Either way I&rsquo;ll post updates next week and keep everyone up to date on my progress.  I expect that if it works PoE will be a major player in most or all of my future projects.</p>
 
 <p>What projects do you have that you would like to add PoE to?  What has stopped you from doing it so far other than a lack of time?  Post in the comments and let me know.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/"/>
-    <updated>2012-05-04T09:06:30-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0</id>
-    <content type="html"><![CDATA[<p><strong>Update 2012-06-16</strong>: This still happens on the 8.0.4 update so change the values that read &ldquo;8.0.3&rdquo; to &ldquo;8.0.4&rdquo; if you are using 8.0.4.  Also, if you have patched previously and try to run the script again after an upgrade you need to remove a file called &ldquo;/usr/lib/vmware/modules/source/.patched&rdquo; first.  The script will let you know that it won&rsquo;t patch because it has already been done if you forget.  Just delete it and re-run the script.</p>
-
-<p>Today I upgraded to VMware Workstation 8.0.3 and immediately I ran into the following error message:</p>
-
-<pre><code>make[1]: Entering directory `/usr/src/linux-headers-3.2.0-2-amd64'
-  CC [M]  /tmp/vmware-root/modules/vmnet-only/userif.o
-  CC [M]  /tmp/vmware-root/modules/vmnet-only/netif.o
-  CC [M]  /tmp/vmware-root/modules/vmnet-only/filter.o
-/tmp/vmware-root/modules/vmnet-only/userif.c: In function ‘VNetCsumCopyDatagram’:
-/tmp/vmware-root/modules/vmnet-only/userif.c:520:3: error: incompatible type for argument 1 of ‘kmap’
-/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:48:21: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
-/tmp/vmware-root/modules/vmnet-only/userif.c:523:3: error: incompatible type for argument 1 of ‘kunmap’
-/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:54:20: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
-/tmp/vmware-root/modules/vmnet-only/netif.c: In function ‘VNetNetIfSetup’:
-/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: error: unknown field ‘ndo_set_multicast_list’ specified in initializer
-/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: initialization from incompatible pointer type [enabled by default]
-/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: (near initialization for ‘vnetNetifOps.ndo_validate_addr’) [enabled by default]
-make[4]: *** [/tmp/vmware-root/modules/vmnet-only/userif.o] Error 1
-make[4]: *** Waiting for unfinished jobs....
-make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
-</code></pre>
-
-<p>After lots of Googling I found <a href="http://weltall.heliohost.org/wordpress/2012/01/26/vmware-workstation-8-0-2-player-4-0-2-fix-for-linux-kernel-3-2-and-3-3/">a blog post with a patch for kernels 3.2.0 and 3.3.0</a>.  Unfortunately when I tried to run the patch it failed and said:</p>
-
-<pre><code>Sorry, this script is only for VMWare WorkStation 8.0.2 or VMWare Player 4.0.2. Exiting
-</code></pre>
-
-<p>In order to fix this open up the script after you download it and change the line this line:</p>
-
-<pre><code>vmreqver=8.0.2
-</code></pre>
-
-<p>To this:</p>
-
-<pre><code>vmreqver=8.0.3
-</code></pre>
-
-<p>Re-run the script and you should be good to go.</p>
 ]]></content>
   </entry>
   

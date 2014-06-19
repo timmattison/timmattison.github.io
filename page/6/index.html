@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Update 2011-12-23: I&rsquo;m experiencing this error less and less lately but I&rsquo;ve significantly streamlined the process. We&rsquo;ve all &hellip;">
+  <meta name="description" content="I&rsquo;ve been digging through exceptions lately and it&rsquo;s sometimes a pain to dig through the Tomcat logs depending on your logging level.   &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,112 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/">How-To: Extract Java Exceptions From Tomcat Logs</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-30T18:39:02-04:00" pubdate data-updated="true">Jun 30<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/30/how-to-extract-java-exceptions-from-tomcat-logs/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;ve been digging through exceptions lately and it&rsquo;s sometimes a pain to dig through the Tomcat logs depending on your logging level.  Although it might sound like you should just turn your logging levels down sometimes that&rsquo;s not feasible.  If you want to get right to the exceptions I whipped up a little script that does exactly that so you can skip all of the log cruft and get right to the problem(s) you are looking to fix.  Just pipe or redirect your log into this script and the output will be a list of exceptions and their stack traces.  The output could potentially be huge to piping it through less or redirecting it to another file may make sense.</p>
+
+<p>Here&rsquo;s the script (exceptions-only.pl) and there&rsquo;ll be more soon&hellip;</p>
+
+<pre><code>#!/usr/bin/perl -w
+
+# The two states we can be in in our state machine.  Either looking for an exception or we found an exception.
+my $state_looking_for_exception = 0;
+my $state_found_exception = 1;
+
+# Start out looking for an exception, clear the output and the last time value
+my $state = $state_looking_for_exception;
+my $output = "";
+my $last_time = "";
+
+# Eat everything STDIN can give us
+while() {
+  my $line = $_;
+  chomp $line;
+
+  # Are we looking for an exception
+  if($state == $state_looking_for_exception) {
+    # Yes, did we find one?
+    if($line =~ m/^[0-9a-zA-Z\.]*Exception:/) {
+      # Yes, change state
+      $state = $state_found_exception;
+
+      # Do we have a timestamp for it?
+      if($last_time ne "") {
+        # Yes, add the timestamp data
+        $output .= "\n\n--- Start of exception at $last_time ---\n\n";
+      }
+
+      # Append the exception data to our output
+      $output .= $line . "\n";
+    }
+    # Didn't find an exception, does this look like a timestamp?
+    elsif($line =~ m/^[A-Za-z]{3} [0-9]{1,2}, [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}/) {
+      # Yes, save it as the last time we've seen
+      $last_time = $line;
+    }
+  }
+  # Not looking for an exception, did we already find one?
+  elsif($state == $state_found_exception) {
+    # Yes, does this line start with whitespace?
+    if(!($line =~ m/^\s/)) {
+      # No, no more stack trace data.  Change state.
+      $state = $state_looking_for_exception;
+
+      # Do we have a timestamp for it?
+      if($last_time ne "") {
+        # Yes, add the timestamp data
+        $output .= "\n\n--- End of exception at $last_time ---\n\n";
+
+        # Clear out the last time since we're done with this exception
+        $last_time = "";
+      }
+    }
+    else {
+      # Yes, this line starts with whitespace so it is stack trace data.  Append it to our output.
+      $output .= $line . "\n";
+    }
+  }
+}
+
+# Print the output and we're done
+print $output;
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -658,101 +764,6 @@ make install
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2010/10/11/how-to-migrate-away-from-nanoblogger/">How-To: Migrate Away From Nanoblogger</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-11T22:15:11-04:00" pubdate data-updated="true">Oct 11<span>th</span>, 2010</time>
-        
-           | <a href="/archives/2010/10/11/how-to-migrate-away-from-nanoblogger/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/11/how-to-migrate-away-from-nanoblogger/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I’ve been using Nanoblogger for years now and I really didn’t want to ditch it.  After seeing how infrequently I post though I realized that Nanoblogger was getting in the way ever since I switched back from my Mac to a PC.  Without decent command-line support Nanoblogger required me to fire up a VM, edit in vim, update the blog, and sync it with rsync.</p>
-
-<p>All of this is computationally and bandwidth efficient but not exactly convenient.  Convenience is key for me when keeping a blog up to date.  Anything that I have to do that doesn’t involve writing articles just gets in the way.</p>
-
-<p>So, I wanted to switch from Nanoblogger to WordPress.  There’s no simple migration path here for several reasons but I came up with something that does the job and doesn’t require you to mess with your Nanoblogger settings.  This way you can leave everything in place and come back to it if something breaks.</p>
-
-<p>First, you’ll need to navigate to your blog/data directory.  This is where all of your blog posts are stored as text files.  Then, using the Perl script at the bottom of this page, convert them into a full RSS feed by running this command:</p>
-
-<p>cat *.txt | perl convert.pl > myblog.rss</p>
-
-<p>With the myblog.rss file you can import your posts using the WordPress RSS importer and it’ll contain every post you’ve ever written.  If you use the RSS feed that Nanoblogger generates on your site you’ll only get the last few posts.</p>
-
-<p>The script, convert.pl, is simply this:</p>
-
-<h1>!/usr/bin/perl -w</h1>
-
-<p>my $title;
-my $date;
-my $body;</p>
-
-<p>my $inbody = 0;</p>
-
-<p>while(<STDIN>) {
-my $line = $_;</p>
-
-<p>if($line =~ m/^TITLE: (.<em>)$/) {
-$title = $1;
-}
-elsif ($line =~ m/^DATE: (.</em>)$/) {
-$date = $1;</p>
-
-<p>$date =~ s/^(&hellip;) (&hellip;) ([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9]) (&hellip;) (20[0-9][0-9])/$1, $3 $2 $8 $4:$5:$6 -0500/;
-}
-elsif($line =~ m/BODY:/) {
-$inbody = 1;
-$body = &ldquo;&rdquo;;
-}
-elsif($line =~ /END&mdash;&mdash;&ndash;/) {</p>
-
-<h1>Done, write it all out</h1>
-
-<p>print(&ldquo;<item>\n&rdquo;);
-print(&ldquo;  <pubDate>$date</pubDate>\n&rdquo;);
-print(&ldquo;  <title>$title</title>\n&rdquo;);
-print(&ldquo;  &lt;content:encoded>$body&lt;/content:encoded>\n&rdquo;);
-print(&ldquo;</item>\n&rdquo;);</p>
-
-<p>$date = &ldquo;&rdquo;;
-$title = &ldquo;&rdquo;;
-$body = &ldquo;&rdquo;;
-}
-elsif($inbody == 1) {
-$body = $body . $line;
-}
-}</p>
-
-<p>Note that the date conversion code isn’t perfect so some posts will come out with dates of Dec. 31st, 1969.  You’ll have to fix those by hand.  Also, sometimes formatting isn’t perfect depending on how you wrote your posts initially.  Either way this turned hours of agonizing transcription into just a few seconds of work.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/7/">&larr; Older</a>
@@ -786,6 +797,10 @@ $body = $body . $line;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Forcing Java&#8217;s Logger to Work, Even When It Doesn&#8217;t Want To</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
       </li>
     
@@ -799,10 +814,6 @@ $body = $body . $line;
     
       <li class="post">
         <a href="/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/">My Problem With &#8216;the Problem With Altcoins&#8217;</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a>
       </li>
     
   </ul>

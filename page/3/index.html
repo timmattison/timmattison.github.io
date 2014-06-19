@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="For over a week now I&rsquo;ve been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database. The &hellip;">
+  <meta name="description" content="Update 2012-06-16: This still happens on the 8.0.4 update so change the values that read &ldquo;8.0.3&rdquo; to &ldquo;8.0.4&rdquo; if you are using &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,82 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/">How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-04T09:06:30-04:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><strong>Update 2012-06-16</strong>: This still happens on the 8.0.4 update so change the values that read &ldquo;8.0.3&rdquo; to &ldquo;8.0.4&rdquo; if you are using 8.0.4.  Also, if you have patched previously and try to run the script again after an upgrade you need to remove a file called &ldquo;/usr/lib/vmware/modules/source/.patched&rdquo; first.  The script will let you know that it won&rsquo;t patch because it has already been done if you forget.  Just delete it and re-run the script.</p>
+
+<p>Today I upgraded to VMware Workstation 8.0.3 and immediately I ran into the following error message:</p>
+
+<pre><code>make[1]: Entering directory `/usr/src/linux-headers-3.2.0-2-amd64'
+  CC [M]  /tmp/vmware-root/modules/vmnet-only/userif.o
+  CC [M]  /tmp/vmware-root/modules/vmnet-only/netif.o
+  CC [M]  /tmp/vmware-root/modules/vmnet-only/filter.o
+/tmp/vmware-root/modules/vmnet-only/userif.c: In function ‘VNetCsumCopyDatagram’:
+/tmp/vmware-root/modules/vmnet-only/userif.c:520:3: error: incompatible type for argument 1 of ‘kmap’
+/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:48:21: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
+/tmp/vmware-root/modules/vmnet-only/userif.c:523:3: error: incompatible type for argument 1 of ‘kunmap’
+/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:54:20: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
+/tmp/vmware-root/modules/vmnet-only/netif.c: In function ‘VNetNetIfSetup’:
+/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: error: unknown field ‘ndo_set_multicast_list’ specified in initializer
+/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: initialization from incompatible pointer type [enabled by default]
+/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: (near initialization for ‘vnetNetifOps.ndo_validate_addr’) [enabled by default]
+make[4]: *** [/tmp/vmware-root/modules/vmnet-only/userif.o] Error 1
+make[4]: *** Waiting for unfinished jobs....
+make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
+</code></pre>
+
+<p>After lots of Googling I found <a href="http://weltall.heliohost.org/wordpress/2012/01/26/vmware-workstation-8-0-2-player-4-0-2-fix-for-linux-kernel-3-2-and-3-3/">a blog post with a patch for kernels 3.2.0 and 3.3.0</a>.  Unfortunately when I tried to run the patch it failed and said:</p>
+
+<pre><code>Sorry, this script is only for VMWare WorkStation 8.0.2 or VMWare Player 4.0.2. Exiting
+</code></pre>
+
+<p>In order to fix this open up the script after you download it and change the line this line:</p>
+
+<pre><code>vmreqver=8.0.2
+</code></pre>
+
+<p>To this:</p>
+
+<pre><code>vmreqver=8.0.3
+</code></pre>
+
+<p>Re-run the script and you should be good to go.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1014,81 +1090,6 @@ double operationsPerMillisecond = (double) operations / (double) durationInMilli
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/">How-To: Fix &#8220;Chown: Cannot Dereference&#8221; Errors in Cloudera CDH on Debian/Ubuntu Linux When Upgrading</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-02-26T12:10:47-05:00" pubdate data-updated="true">Feb 26<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><strong><em>WARNING!</em></strong> Do not do this on production clusters unless you are willing to take responsibility for any issues that may occur.  This wipes out all of your logs and potentially other files.  Always have a backup before trying anything like this.  I take no responsibility for issues that may arise from running any or all of these instructions.</p>
-
-<p>When I tried to upgrade my CDH installation today I received many errors from dpkg that caused the upgrade to fail.  The errors looked like this:</p>
-
-<pre><code>chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000015_0': No such file or directory
-chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000003_0': No such file or directory
-chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000009_0': No such file or directory
-chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000018_0': No such file or directory
-
-...
-
-dpkg: error processing hadoop-0.20 (--configure):
- subprocess installed post-installation script returned error exit status 123
-dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
- hadoop-0.20-tasktracker depends on hadoop-0.20 (= 0.20.2+923.195-1~squeeze-cdh3); however:
-  Package hadoop-0.20 is not configured yet.
-</code></pre>
-
-<p>My simple fix, not for production clusters, is to do the following:</p>
-
-<ul>
-<li><p>Step 1: Become the HDFS user and stop Hadoop by running</p>
-
-<p>~/bin/stop-all.sh</p></li>
-<li><p>Step 2: Become root and remove all of your Hadoop related logs by running</p>
-
-<p>rm -rf /var/log/hadoop-0.20/*</p></li>
-<li><p>Step 3: Become root and run your upgrade by running</p>
-
-<p>apt-get upgrade</p></li>
-<li><p>Step 4: Become the HDFS user and restart Hadoop by running</p>
-
-<p>~/bin/start-all.sh</p></li>
-</ul>
-
-
-<p>After that your installation should be working and up to date again.  Post in the comments if it works for your or if you need any assistance.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/4/">&larr; Older</a>
@@ -1122,6 +1123,10 @@ dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Forcing Java&#8217;s Logger to Work, Even When It Doesn&#8217;t Want To</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
       </li>
     
@@ -1135,10 +1140,6 @@ dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
     
       <li class="post">
         <a href="/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/">My Problem With &#8216;the Problem With Altcoins&#8217;</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a>
       </li>
     
   </ul>
