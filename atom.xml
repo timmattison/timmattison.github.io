@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-19T19:11:38-04:00</updated>
+  <updated>2014-06-19T19:15:10-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -149,6 +149,8 @@
 <p>If you do this be prepared to see TONS of output including output from all of the libraries you use.  Most of the time this is overkill.  But sometimes when the logger just won&rsquo;t do what you want no matter how hard you try this will save your sanity.</p>
 
 <p>Have better ways to do this?  Did this get you out of a jam?  Please post in the comments below.</p>
+
+<p>UPDATE: <a href="https://github.com/timmattison/jayuda/commit/1484b47d72c6f5943340eebc8d78fafaa9604485">Added to Jayuda</a>!</p>
 ]]></content>
   </entry>
   
