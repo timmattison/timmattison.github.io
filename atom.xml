@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-19T18:40:33-04:00</updated>
+  <updated>2014-06-19T19:11:38-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -114,7 +114,7 @@
 <span class='line-number'>28</span>
 <span class='line-number'>29</span>
 <span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>   public static void configureLogger() {
+</pre></td><td class='code'><pre><code class=''><span class='line'>   public static void logEverything() {
 </span><span class='line'>        // Get the logger instance
 </span><span class='line'>        LogManager logManager = LogManager.getLogManager();
 </span><span class='line'>        Logger rootLogger = logManager.getLogger("");
