@@ -47,7 +47,7 @@ The first function makes sure that there is at least one console logger in your 
 The second function is a bit more aggressive.  It iterates over your console loggers and makes sure all of them log everything.  You can use this in a pinch when you're having serious issues and you need to see everything.
 
 ```
-   public static void configureLogger() {
+   public static void logEverything() {
         // Get the logger instance
         LogManager logManager = LogManager.getLogManager();
         Logger rootLogger = logManager.getLogger("");
