@@ -35,3 +35,5 @@ These videos are all part of the [Google Tech Talk](https://www.youtube.com/chan
 
 * [Big Modular Java with Guice](http://www.youtube.com/watch?v=hBVJbzAagfs) - Discusses how to use Guice to write maintainable, large Java projects
 * [Java on Guice: Dependency Injection, the Java Way](http://www.youtube.com/watch?v=0iSB0L9avmg) - One of the earlier Guice talks that compares and contrasts using Guice with the non-DI way
+
+Have any other recommendations?  Please post them in the comments below!
