@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="If you&rsquo;ve set up Hadoop for development you may be wondering why you can&rsquo;t read or write files or create MapReduce jobs then you&rsquo;re &hellip;">
+  <meta name="description" content="Finding the size of an object or data structure used to be simple in &ldquo;the good old days&rdquo;. You could just use the sizeof function and it& &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,77 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/01/09/mini-hack-approximating-the-size-of-a-java-object/">Mini Hack: Approximating the Size of a Java Object</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-09T16:31:08-05:00" pubdate data-updated="true">Jan 9<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/01/09/mini-hack-approximating-the-size-of-a-java-object/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/09/mini-hack-approximating-the-size-of-a-java-object/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Finding the size of an object or data structure used to be simple in &ldquo;the good old days&rdquo;.  You could just use the sizeof function and it&rsquo;d spit out something that usually made sense.  In Java there&rsquo;s nothing that seems to do it quite that simply.  I&rsquo;ve seen some solutions that involve using Java instrumentation but they have interesting quirks that can confuse things considerably.  For example, using it to obtain the size of a String object will always show 32 bytes as I found out by reading a thread on StackOverflow.</p>
+
+<p>In any case I wanted something simple that would do the job.  My requirements were that there was minimal or zero setup, results were fairly close to the actual memory footprint, and that it work consistently unless I was using some kind of very strange data structure.  Here&rsquo;s what I came up with:</p>
+
+<pre><code>try {
+  // Get a ByteArrayOutputStream to catch the output of the
+  //   ObjectOutputStream without going to disk
+  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+  // Get an ObjectOutputStream so we can dump the entire
+  //   object at one shot
+  ObjectOutputStream oos = new ObjectOutputStream(baos);
+
+  // Write the object
+  oos.writeObject(o);
+
+  // Close the stream
+  oos.close();
+
+  // Query the ByteArrayOutputStream for its size
+  return baos.size();
+} catch (IOException e) {
+  // Something went wrong.  Print the stack trace.
+  e.printStackTrace();
+
+  // Return -1 so the caller knows we failed
+  return -1;
+}
+</code></pre>
+
+<p>Put this into your standard utility class as a static method and call it whenever you&rsquo;re curious about memory usage.  The output of this should be a little higher than the actual in-memory usage so you can consider this a high water mark for your object&rsquo;s size.</p>
+
+<p>Post in the comments if you end up using it!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -852,88 +923,6 @@ print $output;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2011/06/23/how-to-fix-eclipse-tomcat-and-spring-when-things-stop-working/">How-To: Fix Eclipse, Tomcat, and Spring When Things Stop Working</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-06-23T19:15:16-04:00" pubdate data-updated="true">Jun 23<span>rd</span>, 2011</time>
-        
-           | <a href="/archives/2011/06/23/how-to-fix-eclipse-tomcat-and-spring-when-things-stop-working/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/23/how-to-fix-eclipse-tomcat-and-spring-when-things-stop-working/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Update 2011-12-23: I&rsquo;m experiencing this error less and less lately but I&rsquo;ve significantly streamlined the process.</p>
-
-<p>We&rsquo;ve all experienced this scenario before&hellip; you&rsquo;re working on a Java project with Spring, you restart your server and everything stops working. Normally you&rsquo;d see something like this:</p>
-
-<pre><code>INFO: Initializing ProtocolHandler ["ajp-bio-8009"]
-Jun 23, 2011 7:06:02 PM org.apache.catalina.startup.Catalina load
-INFO: Initialization processed in 654 ms
-Jun 23, 2011 7:06:02 PM org.apache.catalina.core.StandardService startInternal
-INFO: Starting service Catalina
-Jun 23, 2011 7:06:02 PM org.apache.catalina.core.StandardEngine startInternal
-INFO: Starting Servlet Engine: Apache Tomcat/7.0.14
-</code></pre>
-
-<p>Followed by this to let you know Spring is doing its thing:</p>
-
-<pre><code>Jun 23, 2011 7:06:12 PM org.apache.catalina.core.ApplicationContext log
-INFO: Initializing Spring root WebApplicationContext
-</code></pre>
-
-<p>And then finally this to let you know it&rsquo;s ready:</p>
-
-<pre><code>Jun 23, 2011 7:06:21 PM org.apache.catalina.startup.Catalina start
-INFO: Server startup in 18871 ms
-</code></pre>
-
-<p>In this case you get no messages about Spring. Your server starts up really quickly but nothing runs. Everything returns a 404. This is bad.</p>
-
-<p>If you&rsquo;re feeling like you want to spend a few hours figuring it out then hats off to you.  I, on the other hand, have never seen a reliable fix for this other than the sledgehammer method I&rsquo;m about to show you below.</p>
-
-<p>Caution!  You are about to do something drastic that works for me but may not work for you.  It is possible that by doing this you will break lots of things and lose data.  This is a complete clean start for your server.  Make a backup, make sure you can restore that backup, and proceed with caution.  When in doubt, bail out.</p>
-
-<ol>
-<li><p> Stop your servlet container</p></li>
-<li><p> Close Eclipse.</p></li>
-<li><p> Go to your workspace in a console and navigate to the .metadata/.plugins directory</p></li>
-<li><p> Forcibly remove the org.eclipse.wst.server.core directory.  This will delete all of your entries in &ldquo;Servers&rdquo;, be careful!  I use</p>
-
-<p>rm -rf org.eclipse.wst.server.core/</p></li>
-<li><p> Restart Eclipse</p></li>
-<li><p> Recreate your servers and launch your application.  You should be good to go.</p></li>
-</ol>
-
-
-<p>I did say it wasn&rsquo;t elegant, didn&rsquo;t I?  Either way this has saved me dozens of hours of debugging.  I&rsquo;ve had some Java gurus suggest a lot of things to try but none of them worked 100% of the time.  This one has never failed me.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/6/">&larr; Older</a>
@@ -967,6 +956,10 @@ INFO: Server startup in 18871 ms
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a>
       </li>
     
@@ -980,10 +973,6 @@ INFO: Server startup in 18871 ms
     
       <li class="post">
         <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a>
       </li>
     
   </ul>

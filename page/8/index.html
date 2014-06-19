@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Last week my fiancée&rsquo;s brand new HP laptop started turning off after being unplugged for less than 3 minutes. The battery was in such bad shape &hellip;">
+  <meta name="description" content="I&rsquo;ll keep this one short. If you&rsquo;re writing and debugging a Hibernate application and you&rsquo;re using PostgreSQL you may notice that &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,62 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/">How-To: Fix &#8220;ERROR: Function information_schema._pg_keypositions() Does Not Exist&#8221; in PostgreSQL When Using Hibernate</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-24T07:01:25-05:00" pubdate data-updated="true">Nov 24<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;ll keep this one short.  If you&rsquo;re writing and debugging a Hibernate application and you&rsquo;re using PostgreSQL you may notice that you get the following error message when your application first connects to the database:</p>
+
+<pre><code>ERROR:  function information_schema._pg_keypositions() does not exist
+</code></pre>
+
+<p>According to <a href="http://qaix.com/postgresql-database-development/445-710-information-schema-pg-keypositions-in-8-1-read.shtml">a forum I came across</a> this is because the Hibernate team ended up depending on a function in PostgreSQL 8.0 that was dropped in 8.1+.  I needed to make some modifications to the code posted there to get it to work so here&rsquo;s what I came up with:</p>
+
+<pre><code>CREATE FUNCTION information_schema._pg_keypositions() RETURNS SETOF integer
+LANGUAGE sql
+IMMUTABLE
+AS $pg_keypositions$
+select g.s
+from generate_series(1,current_setting('max_index_keys')::int, 1)
+as g(s)
+$pg_keypositions$;
+</code></pre>
+
+<p>Once you run this code in your database you&rsquo;ll never be bothered with that error message again.  Basically this just gets the max_index_keys value and generates a list of integers from 1 to that value, inclusive.  Hibernate can live without it but removing a repetitive error message will keep your DBA and sysadmins sane a bit longer.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -787,72 +843,6 @@ EndSection
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/">Tip: Get VMware Workstation 6.5.3 Working on Gentoo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>The final piece to my reinstall was to get VMware Workstation 6.5.3 running so I could use my nice Linux box (8GB RAM, fast RAID configuration) to run virtual machines instead of running them on my much less powerful MacBook Pro.</p>
-
-<p>To do this installation you need to download the files from VMware directly, move them into portage, then do the installation from a real console (SSH or screen sessions won&rsquo;t cut it).  That was no problem but I ended up staring at a message like this</p>
-
-<pre><code>process XXXXX: Attempt to remove filter function 0xXXXXXXXX user data 0x88162a8, but no such filter has been added
-  D-Bus not built with -rdynamic so unable to print a backtrace
-</code></pre>
-
-<p>I tried to re-emerge dbus with that option but there are no USE flags that correspond to it that I could see.  I checked if D-Bus was even running and it was.  At this point I randomly and luckily found the fix.  All you need to do is to stop D-Bus via</p>
-
-<pre><code>/etc/init.d/dbus stop
-</code></pre>
-
-<p>As soon as I did that VMware started up, asked me to accept the EULA, and I was straight back on the virtualization track.</p>
-
-<p>Note: While stopping DBus will get VMware to start you&rsquo;ll still need to do two last things to make everything happy</p>
-
-<p>Step 1: Run</p>
-
-<pre><code>/etc/init.d/vmware start
-</code></pre>
-
-<p>Step 2: Run</p>
-
-<pre><code>rc-update add vmware default
-</code></pre>
-
-<p>This makes sure that VMware creates all the device nodes that it needs, loads all of the modules for virtual networking, monitoring, etc., and that this will always come up after a reboot.  Without this you can end up chasing down some seriously weird error messages.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -886,6 +876,10 @@ EndSection
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a>
       </li>
     
@@ -899,10 +893,6 @@ EndSection
     
       <li class="post">
         <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a>
       </li>
     
   </ul>

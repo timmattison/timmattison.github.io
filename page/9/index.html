@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I have been rebuilding my Gentoo machine for a few days now. Not that it really takes that long, but I only have limited time I can dedicate to it &hellip;">
+  <meta name="description" content="The final piece to my reinstall was to get VMware Workstation 6.5.3 running so I could use my nice Linux box (8GB RAM, fast RAID configuration) to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,72 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/">Tip: Get VMware Workstation 6.5.3 Working on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The final piece to my reinstall was to get VMware Workstation 6.5.3 running so I could use my nice Linux box (8GB RAM, fast RAID configuration) to run virtual machines instead of running them on my much less powerful MacBook Pro.</p>
+
+<p>To do this installation you need to download the files from VMware directly, move them into portage, then do the installation from a real console (SSH or screen sessions won&rsquo;t cut it).  That was no problem but I ended up staring at a message like this</p>
+
+<pre><code>process XXXXX: Attempt to remove filter function 0xXXXXXXXX user data 0x88162a8, but no such filter has been added
+  D-Bus not built with -rdynamic so unable to print a backtrace
+</code></pre>
+
+<p>I tried to re-emerge dbus with that option but there are no USE flags that correspond to it that I could see.  I checked if D-Bus was even running and it was.  At this point I randomly and luckily found the fix.  All you need to do is to stop D-Bus via</p>
+
+<pre><code>/etc/init.d/dbus stop
+</code></pre>
+
+<p>As soon as I did that VMware started up, asked me to accept the EULA, and I was straight back on the virtualization track.</p>
+
+<p>Note: While stopping DBus will get VMware to start you&rsquo;ll still need to do two last things to make everything happy</p>
+
+<p>Step 1: Run</p>
+
+<pre><code>/etc/init.d/vmware start
+</code></pre>
+
+<p>Step 2: Run</p>
+
+<pre><code>rc-update add vmware default
+</code></pre>
+
+<p>This makes sure that VMware creates all the device nodes that it needs, loads all of the modules for virtual networking, monitoring, etc., and that this will always come up after a reboot.  Without this you can end up chasing down some seriously weird error messages.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -681,96 +747,6 @@ $$ LANGUAGE plperlu;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/">How-To: Set Up iSCSI Between Linux and Mac OS (Tested on 10.6.1)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-10-20T09:12:51-04:00" pubdate data-updated="true">Oct 20<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Last week I read LinuxJournal magazine and it talked about all of the cool things you could do with two Linux machines and the open source iSCSI code that&rsquo;s floating around out there.  I do have two Linux machines but I really wanted to see if I could get iSCSI working on my MacBook Pro and iMac so I could easily offload some files from their main drives to my larger file server.  I did it and here&rsquo;s how you can do it too.</p>
-
-<p>The terminology that you&rsquo;ll need to know here is target (the server that has the disk where you&rsquo;re putting the data) and initiator (the machine that wants access to the target).  In my scenario my Dell Linux machine is the target and my Mac is the initiator.  You should also know that the iSCSI volumes I created were not raw drives.  I created a file filled with zeroes that the iSCSI software treats as a raw disk.</p>
-
-<p>There are other ways to do this but this way is really cool because the underlying system can be any mix of systems you want (ext2/&frac34;, ZFS, LVM RAID, etc.).  Using LVM gives you redundancy without your client having to worry about it.</p>
-
-<p><strong>Disclaimer:</strong> I use Gentoo so your steps may be different.</p>
-
-<p>Step 1: Install iSCSI target software on Linux.  I used the <a href="http://iscsitarget.sourceforge.net/">iSCSI Enterprise target</a> package.</p>
-
-<pre><code>emerge -av iscsitarget
-</code></pre>
-
-<p>Step 2: Create a directory on your Linux machine where you want to store your iSCSI disk images.  I used &ldquo;/srv&rdquo;</p>
-
-<pre><code>sudo mkdir /srv
-</code></pre>
-
-<p>Step 3: Create a file that will contain your first iSCSI volume with dd.  Don&rsquo;t go crazy here yet.  Let&rsquo;s create two 1GB disks for testing and you can recreate larger ones later.</p>
-
-<pre><code>sudo dd if=/dev/zero of=/srv/iscsi.disk.0 bs=1 seek=1024M count=1
-sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
-</code></pre>
-
-<p>Step 4: Edit the iSCSI configuration files.  My system was a bit different than the one in LinuxJournal.  I had to edit only the /etc/ietd.conf file.  Here is my entire configuration file:</p>
-
-<pre><code>Target iqn.2009-09.org.mattison:iscsi-target
-        IncomingUser test secretpasswd
-        OutgoingUser test secretpasswd
-        Lun 0 Path=/srv/iscsi.disk.0,Type=fileio
-        Lun 1 Path=/srv/iscsi.disk.1,Type=fileio
-        Alias Test
-</code></pre>
-
-<p>Keep in mind that to comply with the standards your password must be twelve characters.  Also, don&rsquo;t forget to change the target name from iqn.2009-09.org.mattison:iscsi-target to something that makes more sense to you.  Typically the 2009-09 is the year and month in which the filesystem went live, org.mattison is just your domain name in reverse, and iscsi-target is what you want to call this target.</p>
-
-<p>Step 5: Start the iSCSI target.</p>
-
-<pre><code>/etc/init.d/ietd restart
-</code></pre>
-
-<p>Step 6: Install an iSCSI initiator on your Mac and reboot (it is required by the installer).  I used <a href="http://www.studionetworksolutions.com/products/product_detail.php?t=more&amp;pi=11">GlobalSAN&rsquo;s iSCSI Initiator for Mac OS X</a></p>
-
-<p>Step 7: After the reboot open the GlobalSAN system preferences panel.  Then click on &ldquo;Portals&rdquo;, click the plus sign, and then enter in the DNS name or IP address of your Linux server.  The default port should be fine unless you changed it on the Linux machine.</p>
-
-<p>Click &ldquo;OK&rdquo;.</p>
-
-<p>Step 8: Click the &ldquo;Targets&rdquo; tab and you should see your &ldquo;iscsi-target&rdquo; item listed there.  Click the &ldquo;Connected&rdquo; checkbox.  Then, check the &ldquo;Use CHAP Login Information&rdquo; box, fill in the user name, target secret, and initiator secret fields. In my example the username was &ldquo;test&rdquo; and the passwords were both &ldquo;secretpasswd&rdquo;.  If you changed them then use your values here. The &ldquo;IncomingUser&rdquo; password is what GlobalSAN refers to as the &ldquo;Target Secret&rdquo;, the &ldquo;OutgoingUser&rdquo; password is what GlobalSAN refers to as the &ldquo;Initiator Secret&rdquo;.</p>
-
-<p>Step 9: Now partition and use the disks just like any other disk.  They&rsquo;ll show up as iSCSI &ldquo;IET VIRTUAL-DISK Media&rdquo; in Apple&rsquo;s Disk Utility.</p>
-
-<p>From here you can do all kinds of crazy things.  You can even set up a RAID, run iDefrag on them, use them for Time Machine, etc.  Of course a RAID over iSCSI in this setup will yield very low performance so it&rsquo;s not recommended for production, just for fun.  Defragging an iSCSI volume is also not worth it especially since the file that contains the whole filesystem on the Linux machine is most likely where the fragmentation is occurring.  Again, these two examples are just to show you that Mac OS really does treat these devices as a low-level block device.  Time Machine may not be such a bad idea actually&hellip;</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -804,6 +780,10 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a>
       </li>
     
@@ -817,10 +797,6 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
     
       <li class="post">
         <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a>
       </li>
     
   </ul>

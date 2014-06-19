@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Ok, this mini-hack isn&rsquo;t pretty but it solves an issue that I have seen come up many times in Java. You&rsquo;re trying to add a method to an &hellip;">
+  <meta name="description" content="Update 2011-12-23: I&rsquo;m experiencing this error less and less lately but I&rsquo;ve significantly streamlined the process. We&rsquo;ve all &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,88 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/06/23/how-to-fix-eclipse-tomcat-and-spring-when-things-stop-working/">How-To: Fix Eclipse, Tomcat, and Spring When Things Stop Working</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-23T19:15:16-04:00" pubdate data-updated="true">Jun 23<span>rd</span>, 2011</time>
+        
+           | <a href="/archives/2011/06/23/how-to-fix-eclipse-tomcat-and-spring-when-things-stop-working/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/23/how-to-fix-eclipse-tomcat-and-spring-when-things-stop-working/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Update 2011-12-23: I&rsquo;m experiencing this error less and less lately but I&rsquo;ve significantly streamlined the process.</p>
+
+<p>We&rsquo;ve all experienced this scenario before&hellip; you&rsquo;re working on a Java project with Spring, you restart your server and everything stops working. Normally you&rsquo;d see something like this:</p>
+
+<pre><code>INFO: Initializing ProtocolHandler ["ajp-bio-8009"]
+Jun 23, 2011 7:06:02 PM org.apache.catalina.startup.Catalina load
+INFO: Initialization processed in 654 ms
+Jun 23, 2011 7:06:02 PM org.apache.catalina.core.StandardService startInternal
+INFO: Starting service Catalina
+Jun 23, 2011 7:06:02 PM org.apache.catalina.core.StandardEngine startInternal
+INFO: Starting Servlet Engine: Apache Tomcat/7.0.14
+</code></pre>
+
+<p>Followed by this to let you know Spring is doing its thing:</p>
+
+<pre><code>Jun 23, 2011 7:06:12 PM org.apache.catalina.core.ApplicationContext log
+INFO: Initializing Spring root WebApplicationContext
+</code></pre>
+
+<p>And then finally this to let you know it&rsquo;s ready:</p>
+
+<pre><code>Jun 23, 2011 7:06:21 PM org.apache.catalina.startup.Catalina start
+INFO: Server startup in 18871 ms
+</code></pre>
+
+<p>In this case you get no messages about Spring. Your server starts up really quickly but nothing runs. Everything returns a 404. This is bad.</p>
+
+<p>If you&rsquo;re feeling like you want to spend a few hours figuring it out then hats off to you.  I, on the other hand, have never seen a reliable fix for this other than the sledgehammer method I&rsquo;m about to show you below.</p>
+
+<p>Caution!  You are about to do something drastic that works for me but may not work for you.  It is possible that by doing this you will break lots of things and lose data.  This is a complete clean start for your server.  Make a backup, make sure you can restore that backup, and proceed with caution.  When in doubt, bail out.</p>
+
+<ol>
+<li><p> Stop your servlet container</p></li>
+<li><p> Close Eclipse.</p></li>
+<li><p> Go to your workspace in a console and navigate to the .metadata/.plugins directory</p></li>
+<li><p> Forcibly remove the org.eclipse.wst.server.core directory.  This will delete all of your entries in &ldquo;Servers&rdquo;, be careful!  I use</p>
+
+<p>rm -rf org.eclipse.wst.server.core/</p></li>
+<li><p> Restart Eclipse</p></li>
+<li><p> Recreate your servers and launch your application.  You should be good to go.</p></li>
+</ol>
+
+
+<p>I did say it wasn&rsquo;t elegant, didn&rsquo;t I?  Either way this has saved me dozens of hours of debugging.  I&rsquo;ve had some Java gurus suggest a lot of things to try but none of them worked 100% of the time.  This one has never failed me.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -671,55 +753,6 @@ $body = $body . $line;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2010/10/09/how-to-use-the-samsung-fascinategalaxy-s-to-debug-android-applications-on-windows/">How-To: Use the Samsung Fascinate/Galaxy S to Debug Android Applications on Windows</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-09T10:23:40-04:00" pubdate data-updated="true">Oct 9<span>th</span>, 2010</time>
-        
-           | <a href="/archives/2010/10/09/how-to-use-the-samsung-fascinategalaxy-s-to-debug-android-applications-on-windows/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/09/how-to-use-the-samsung-fascinategalaxy-s-to-debug-android-applications-on-windows/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I just got a Samsung Fascinate a few weeks back and it’s a great phone.  When I tried to hook it up today to do some development on it though I ran into trouble.  In the Windows device manager it just came up as a “Samsung Android” but Eclipse would not recognize it as a valid target.  In order to use this device, or any other Galaxy S product, as a debug target you need to do one more thing…</p>
-
-<p>The secret is that you need to download Samsung’s USB drivers.  The standard ones that come with the Android development kit will not work even if you modify the INF file to include the USB IDs of the phone.  Samsung has <a href="http://j.mp/SamsungFascinateUSB">drivers specifically for the Fascinate</a>.  I didn’t find the Samsung drivers right away so I settled for Softpedia.  Normally I avoid Softpedia downloads but I scanned them and looked at them closely before installing and they seem legitimate.  There are two versions listed but I think they may both be the same since the x64 version I installed claimed to be x86.  So here they are:</p>
-
-<p><a href="http://drivers.softpedia.com/get/MOBILES/Samsung/Samsung-Galaxy-S-USB-Driver-for-Windows-x64.shtml">Generic Galaxy S USB drivers for x64</a></p>
-
-<p><a href="http://drivers.softpedia.com/get/MOBILES/Samsung/Samsung-Galaxy-S-USB-Driver-for-Windows-x86.shtml">Generic Galaxy X USB drivers for x86</a></p>
-
-<p>Softpedia tries to trick you into clicking ads so first click “Download” to the left of the download counter for the file, then click the “Softpedia Secure Download (US) [ZIP]” link.  All of the other links are ads.</p>
-
-<p>After you have installed the drivers reconnect your phone and it should install four different drivers relating to ADB.  Then you should see your device come up in the Android device manager when you try to launch your project in Eclipse.  If the manager doesn’t come up you should go to the “Run Configurations” for your project, select the “Target” tab, and then select “Manual” under “Deployment Target Selection Mode”.  This makes sure that when you launch this project it’ll try to open device manager.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/7/">&larr; Older</a>
@@ -753,6 +786,10 @@ $body = $body . $line;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a>
       </li>
     
@@ -766,10 +803,6 @@ $body = $body . $line;
     
       <li class="post">
         <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a>
       </li>
     
   </ul>

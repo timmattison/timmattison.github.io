@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-18T09:55:34-04:00</updated>
+  <updated>2014-06-19T08:45:12-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,52 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/"/>
+    <updated>2014-06-19T07:06:23-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch</id>
+    <content type="html"><![CDATA[<p>I often get asked about what recommendations I would make to people to make them better developers.  After working on a very large project last year I have consistently told people that no matter what platform they use they should work on and think about two things: software testing and dependency injection.</p>
+
+<p>Software testing includes unit tests, integration tests, regression tests, human testing, and a lot more.  It is a broad set of topics that is hard to distill into just a few bits that will always be applicable.</p>
+
+<p>But how about getting people to write code that is testable?  Testability is an easy concept to gloss over.  While there is a stigma associated with writing code that has no test coverage there is nowhere near as much of a stigma for having to jump through endless hoops to get your software to be tested.  In fact, these hoops combined with time pressure are probably why a lot of developers don&rsquo;t do proper testing.</p>
+
+<p>There are three things that you can do immediately to start writing more testable code.  First, <a href="https://en.wikipedia.org/wiki/SOLID_(object-oriented_design">learn the SOLID principle</a> and if you need tighter focus then just start with S (single responsibility principle) and D (dependency inversion principle).  Second, use a <a href="https://en.wikipedia.org/wiki/Dependency_injection">dependency injection</a> framework (AKA &ldquo;DI framework&rdquo;).  Third, try to follow the <a href="https://en.wikipedia.org/wiki/Law_of_Demeter">Law of Demeter</a> as much as possible.</p>
+
+<p>Here are some dependency injection framework recommendations:</p>
+
+<ul>
+<li>For Java developers I recommend <a href="https://code.google.com/p/google-guice/">Guice</a>.</li>
+<li>For Android developers I recommend <a href="https://square.github.io/dagger/">Dagger</a>.</li>
+<li>For .NET developers I recommend <a href="http://www.ninject.org/">Ninject</a>.</li>
+</ul>
+
+
+<p>Those Wikipedia links are only meant for basic information on the topics.  Once you&rsquo;re ready to learn about these principles you can get a serious head start by watching a few videos.  The videos by Misko Hevery are some of my favorites and they&rsquo;re 30 minutes versus 60 minutes which is a little easier to carve out of your day.  I suggest watching those first.</p>
+
+<p>These videos are all part of the <a href="https://www.youtube.com/channel/UCtXKDgv1AVoG88PLl8nGXmw">Google Tech Talk</a> series.</p>
+
+<p>30 minute sessions with Misko:</p>
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=RlfLCWKxHJ0">Don’t look for things</a> &ndash; Discusses how the object model of a system may be broken if you’re not directly handed what your object needs to get its job done.  In the best case this is handled automatically by dependency injection which makes it so you’re never shuffling in and out constructor argument lists as you swap implementations.</li>
+<li><a href="http://www.youtube.com/watch?v=-FRm3VPhseI">Global State and Singletons</a> &ndash; Discusses how global state can silently break tests and how to try to avoid it</li>
+<li><a href="http://www.youtube.com/watch?v=wEhu57pih5w">Unit Testing</a> &ndash; Discusses how unit tests should be structured and that the goal should be to have unit tests that run so fast that you’re running them all the time.  Integration tests and user simulations will still take longer but you should always try to write unit tests that run in milliseconds when possible.  An interesting fact that he drops in this talk, I think, is that Google’s set of tests for a project are often as large as or even larger than the actual project itself.</li>
+<li><a href="http://www.youtube.com/watch?v=4F72VULWFvc">Inheritance, Polymorphism, &amp; Testing</a> &ndash; Discusses how dense code can be unraveled with polymorphism and how that can make it easier to test and get complete testing coverage</li>
+</ul>
+
+
+<p>60 minute sessions:</p>
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=hBVJbzAagfs">Big Modular Java with Guice</a> &ndash; Discusses how to use Guice to write maintainable, large Java projects</li>
+<li><a href="http://www.youtube.com/watch?v=0iSB0L9avmg">Java on Guice: Dependency Injection, the Java Way</a> &ndash; One of the earlier Guice talks that compares and contrasts using Guice with the non-DI way</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Use Git to Figure Out What You Did Yesterday]]></title>
@@ -1206,188 +1252,6 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
 </code></pre>
 
 <p>Re-run the script and you should be good to go.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Tips for Debugging Spring's @Transactional Annotation]]></title>
-    <link href="http://blog.timmattison.com/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/"/>
-    <updated>2012-04-19T10:31:14-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation</id>
-    <content type="html"><![CDATA[<p>For over a week now I&rsquo;ve been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database.  The code works but it doesn&rsquo;t follow the strict philosophy of service oriented architecture in the sense that there are several places that Spring and Hibernate weren&rsquo;t doing what they were expected to do and a few workarounds had to be implemented.  Since we were bringing more programmers on board I wanted to make sure that everything played by the rules and was easy to update so I had to learn a lot that I had glossed over in the past.</p>
-
-<p>With some creative Googling I found two invaluable resources that I need to give credit to:</p>
-
-<ul>
-<li><p><a href="http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1">Monitoring Declarative Transactions in Spring</a></p></li>
-<li><p><a href="http://stackoverflow.com/questions/3037006/starting-new-transaction-in-spring-bean">Starting new transactions in Spring bean</a></p></li>
-</ul>
-
-
-<p>Here&rsquo;s what I distilled out of everything I went through:</p>
-
-<ol>
-<li><p> @Transactional annotations only work on public methods.  If you have a private or protected method with this annotation there&rsquo;s no (easy) way for Spring AOP to see the annotation.  It doesn&rsquo;t go crazy trying to find them so make sure all of your annotated methods are public.</p></li>
-<li><p> Transaction boundaries are only created when properly annotated (see above) methods are called through a Spring proxy.  This means that you need to call your annotated method directly through an @Autowired bean or the transaction will never start.  If you call a method on an @Autowired bean that isn&rsquo;t annotated which itself calls a public method that is annotated <strong><em>YOUR ANNOTATION IS IGNORED</em></strong>.  This is because Spring AOP is only checking annotations when it first enters the @Autowired code.</p></li>
-<li><p> Never blindly trust that your @Transactional annotations are actually creating transaction boundaries.  When in doubt test whether a transaction really is active (see below)</p></li>
-</ol>
-
-
-<p>My first problem was that the code was annotated improperly like this:</p>
-
-<pre><code>/**
- * This code example is BAD code, do not use it!
- */
-class NonWorkingMyClass {
-
-  @Autowired
-  protected MyService myService;
-
-  public void calledFirst() {
-    // Do some setup work...
-
-    // Call our internal method
-    calledSecond();
-  }
-
-  @Transactional
-  private void calledSecond() {
-    MyObject myObject = myService.retrieveLatest();
-
-    // Update some object fields
-    myObject.setName("New Name");
-  }
-}
-</code></pre>
-
-<p>In this case someone would call NonWorkingMyClass.calledFirst(), it would then call calledSecond() and try to update the name field.  This works if your XML configuration is set up properly but it will not be in a transaction.  This can cause concurrency issues that won&rsquo;t show up until it&rsquo;s really inconvenient.</p>
-
-<p>Here&rsquo;s the working version of that code:</p>
-
-<pre><code>/**
- * This code example works
- */
-class WorkingMyClass {
-
-  @Autowired
-  protected MyService myService;
-
-  @Transactional
-  public void calledFirst() {
-    // Do some setup work...
-
-    // Call our internal method
-    calledSecond();
-  }
-
-  private void calledSecond() {
-    MyObject myObject = myService.retrieveLatest();
-
-    // Update some object fields
-    myObject.setName("New Name");
-  }
-}
-</code></pre>
-
-<p>Now when someone called WorkingMyClass.calledFirst() it would do what you expect in a transaction and the transaction boundaries are properly respected.</p>
-
-<p>This looks like a simple fix that should only take a few minutes but finding out that was the problem involved turning on lots of Spring DEBUG level logging, Googling, and actually testing to make sure the transactions were active.  Before I knew what I know now I used some code from the first site I listed to show if I was inside a transaction or not.  I was shocked and relieved when it showed that I wasn&rsquo;t because it meant the concurrency issues weren&rsquo;t due to bad programming, just bad configuration.  Here are the methods that I came up with that you can use to see if you are in a transaction and even force your code to throw an exception if it isn&rsquo;t.  This can be invaluable if someone messes up an annotation in the future or breaks your XML configuration.</p>
-
-<p>This code belongs in a utility class that is accessible from anywhere.  There are two flags you will need to put somewhere:</p>
-
-<p>transactionDebugging &ndash; Indicates we should do the transaction tests
-verboseTransactionDebugging &ndash; Indicates we should print debug messages with the transaction tests</p>
-
-<p>verboseTransactionDebugging has no effect if transactionDebugging is false.</p>
-
-<pre><code>class DebugUtils {
-    private static final transactionDebugging = true;
-    private static final verboseTransactionDebugging = true;
-
-    public static void showTransactionStatus(String message) {
-        System.out.println(((transactionActive()) ? "[+] " : "[-] ") + message);
-    }
-
-    // Some guidance from: http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1
-    public static boolean transactionActive() {
-        try {
-            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            Class tsmClass = contextClassLoader.loadClass("org.springframework.transaction.support.TransactionSynchronizationManager");
-            Boolean isActive = (Boolean) tsmClass.getMethod("isActualTransactionActive", null).invoke(null, null);
-
-            return isActive;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-
-        // If we got here it means there was an exception
-        throw new IllegalStateException("ServerUtils.transactionActive was unable to complete properly");
-    }
-
-    public static void transactionRequired(String message) {
-        // Are we debugging transactions?
-        if (!transactionDebugging) {
-            // No, just return
-            return;
-        }
-
-        // Are we doing verbose transaction debugging?
-        if (verboseTransactionDebugging) {
-            // Yes, show the status before we get to the possibility of throwing an exception
-            showTransactionStatus(message);
-        }
-
-        // Is there a transaction active?
-        if (!transactionActive()) {
-            // No, throw an exception
-            throw new IllegalStateException("Transaction required but not active [" + message + "]");
-        }
-    }
-}
-</code></pre>
-
-<p>In our previous code example we could use these new methods like this:</p>
-
-<pre><code>/**
- * This code example works
- */
-class WorkingMyClass {
-
-  @Autowired
-  protected MyService myService;
-
-  @Transactional
-  public void calledFirst() {
-    // Make sure we're using transactions.  Include the name of the class and method
-    //   so it is easier to track down later if there are problems.
-    DebugUtils.transactionRequired("WorkingMyClass.calledFirst");
-
-    // Do some setup work...
-
-    // Call our internal method
-    calledSecond();
-  }
-
-  private void calledSecond() {
-    MyObject myObject = myService.retrieveLatest();
-
-    // Update some object fields
-    myObject.setName("New Name");
-  }
-}
-</code></pre>
-
-<p>That&rsquo;s it.  Post in the comments if this helps you out or if you want to add to the code.</p>
 ]]></content>
   </entry>
   
