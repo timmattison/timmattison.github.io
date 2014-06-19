@@ -82,3 +82,5 @@ The second function is a bit more aggressive.  It iterates over your console log
 If you do this be prepared to see TONS of output including output from all of the libraries you use.  Most of the time this is overkill.  But sometimes when the logger just won't do what you want no matter how hard you try this will save your sanity.
 
 Have better ways to do this?  Did this get you out of a jam?  Please post in the comments below.
+
+UPDATE: [Added to Jayuda](https://github.com/timmattison/jayuda/commit/1484b47d72c6f5943340eebc8d78fafaa9604485)!
