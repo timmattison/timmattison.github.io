@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>True Remote Debugging With Chrome's Remote Debugging Feature - Tim Mattison</title>
+  <title>Advanced Port Forwarding With SSH - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Have you used Chrome&rsquo;s remote debugging feature? It is a handy tool for debugging JavaScript in another tab/window. That&rsquo;s nice, but have &hellip;">
+  <meta name="description" content="NOTE: This has all been done on a Mac running OS 10.9. YMMV on other operating systems or versions. If you&rsquo;ve ever had to use an SSH server as &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/06/20/advanced-port-forwarding-with-ssh">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">True Remote Debugging With Chrome's Remote Debugging Feature</h1>
+      <h1 class="entry-title">Advanced Port Forwarding With SSH</h1>
     
     
       <p class="meta">
@@ -96,7 +96,7 @@
   
 
 
-<time datetime="2014-06-17T09:19:34-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
+<time datetime="2014-06-20T06:38:14-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,41 +106,65 @@
   </header>
 
 
-<div class="entry-content"><p>Have you used <a href="http://blog.chromium.org/2011/05/remote-debugging-with-chrome-developer.html">Chrome&rsquo;s remote debugging feature</a>?  It is a handy tool for debugging JavaScript in another tab/window.</p>
+<div class="entry-content"><p><strong><em>NOTE</em></strong>: This has all been done on a Mac running OS 10.9.  YMMV on other operating systems or versions.</p>
 
-<p>That&rsquo;s nice, but have you ever wanted to debug JavaScript that was running on another machine running Chrome?  If so, and you&rsquo;re running on Mac OS, you&rsquo;ve come to the right place.</p>
-
-<p>The first step in this process is to disable <a href="http://joshuamcginnis.com/2011/02/28/how-to-disable-same-origin-policy-in-chrome/">Chrome&rsquo;s same origin policy</a>.  This may not be necessary in your application but I&rsquo;ve always found I needed to do it in mine.</p>
-
-<p>Now you&rsquo;ll need to make sure you have <a href="http://www.dest-unreach.org/socat/">socat</a> installed.  The easiest way to do this is with <a href="http://brew.sh/">Homebrew</a>.  Install Homebrew, and then run this command:</p>
+<p>If you&rsquo;ve ever had to use an SSH server as a jump off point, possibly to get to machines that don&rsquo;t have a public IP address, then you know that it can be complicated to set up, manage, and annoying if you need to access a lot of machines and/or a lot of different services.  Typically, using local port forwarding you can do something like this:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>brew install socat</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ssh -L8080:REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span></code></pre></td></tr></table></div></figure>
 
 
-<p>That will install socat if it isn&rsquo;t installed already.</p>
-
-<p>Now start Chrome remote debugging on the system that you want to connect to.</p>
-
-<p>Next, get socat to relay traffic from port 9223 to port 9222 using this command:</p>
+<p>That will let you connect to localhost on port 8080 to get to <code>REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service.  What if you needed to get to two services?  You start stacking them up:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>socat tcp-listen:9223,fork tcp:localhost:9222</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ssh -L8080:REMOTE_PRIVATE_SERVER:80 -L8181:ANOTHER_REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Finally, try to connect to the remote computer using <em>its IP address, not localhost</em> with a URL like this:</p>
+<p>Now you can get to <code>REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service and <code>ANOTHER_REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service.  You just have to configure your applications to use ports 8080 and 8181 on localhost instead of port 80 on the two remote hosts.</p>
+
+<p>Wouldn&rsquo;t it be nice if you could not worry about re-mapping ports and could just connect to <code>REMOTE_PRIVATE_SERVER</code> and <code>ANOTHER_REMOTE_PRIVATE_SERVER</code> as if they were hosts on your network?  SSH does offer you a way to do this but I have never seen it documented anywhere.  There is <a href="http://www.securitybulletins.com/mediawiki/index.php/SSH_Tunnelling#Using_SSH_to_build_a_Virtual_Private_Network_.28VPN.29">a way to create a VPN using pppd</a> and <a href="http://www.securitybulletins.com/mediawiki/index.php/SSH_Tunnelling#Using_SSH_to_emulate_a_SOCKS_proxy">a way to use SOCKS</a> but those are no fun.  I don&rsquo;t want to use pppd and I have applications that don&rsquo;t support SOCKS.</p>
+
+<p>rsync and other applications that depend on SSH can be particularly tricky.  On top of the command-line options you need to pass to your main application you need to pass options to SSH directly (not so bad), use each applications special syntax to pass those options to SSH (really bad), or convince the application to shell out to the OS with a specific command-line you&rsquo;ve concocted for SSH (also really bad).</p>
+
+<p>Instead, what I do is I make use of the 127.0.0.0/8 address space that is available to everyone but rarely used.  You can always use 127.0.0.1 to access your local machine but you may not realize that you can bind to all of the rest of the addresses in that space.</p>
+
+<p>I need to set up some terminology so this will be easier to discuss.  The machine that you&rsquo;re SSHing will be the &ldquo;source machine&rdquo;.  The machine that is publicly accessible on the remote network that you SSH into will be called the &ldquo;gateway machine&rdquo;.  The machine that provides the remote service that only has a private IP address will be called the &ldquo;destination machine&rdquo;.</p>
+
+<p>My first use case is that the source machine wants to connect to a web server on the destination machine but I want to do it on port 80.  We can do this:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>http://IP_ADDRESS:9223</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo ifconfig lo0 alias 127.0.0.2
+</span><span class='line'>sudo ssh -L127.0.0.2:80:DESTINATION_MACHINE:80 user@GATEWAY_MACHINE</span></code></pre></td></tr></table></div></figure>
 
 
-<p>You should be connected to the remote system&rsquo;s debugger using port 9223.</p>
+<p>That first line creates an alias IP address of <code>127.0.0.2</code> on your <code>lo0</code> interface.  Then we ssh to the gateway machine and port forward the destination machine&rsquo;s port 80 to <code>127.0.0.1</code>.  Since 80 is a privileged port you need to sudo your ssh session.</p>
 
-<p>When you are done be sure to do this to stop socat:</p>
+<p>Now instead of having to point our browser to something like <code>localhost:9000</code> we can point our browser directly to <code>127.0.0.2</code>.  What can we do this to make it even better?  Create a host entry for <code>127.0.0.2</code> that gives it a descriptive name like <code>remote_application_server</code>.</p>
+
+<p>Is that not enough?  How about this:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>killall socat</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo ifconfig lo0 alias 127.0.0.2
+</span><span class='line'>sudo ssh -L127.0.0.2:22:DESTINATION_MACHINE:22 user@GATEWAY_MACHINE</span></code></pre></td></tr></table></div></figure>
 
+
+<p>All that changed here is the port number.  It was 80 and now it is 22 which is the ssh port.  Now you can ssh to this machine in one step like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ssh user@127.0.0.2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This also means that you can sftp, scp, and rsync directly to that IP address.  Without this trick to rsync you&rsquo;d need to do something like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rsync -rvz -e 'ssh -p 2222' ./dir user@host:/dir</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It may not seem like much but if you have to do it a lot it can get ugly.  Especially since it is one of those options you always forget since you don&rsquo;t use it that often.</p>
+
+<p>I&rsquo;m thinking about scripting the IP aliasing and port forwarding so that it can be specified in a simple configuration file.  If you&rsquo;re interested in that post in the comments below and let me know!</p>
 </div>
 
 
@@ -163,7 +187,7 @@
   
 
 
-<time datetime="2014-06-17T09:19:34-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
+<time datetime="2014-06-20T06:38:14-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
       
 
 
@@ -171,7 +195,7 @@
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/06/20/advanced-port-forwarding-with-ssh/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/06/20/advanced-port-forwarding-with-ssh/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -182,10 +206,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/" title="Previous Post: How To: Execute a command on a remote server that requires you to su or sudo">&laquo; How To: Execute a command on a remote server that requires you to su or sudo</a>
+        <a class="basic-alignment left" href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/" title="Previous Post: Forcing Java's logger to work, even when it doesn't want to">&laquo; Forcing Java's logger to work, even when it doesn't want to</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/" title="Next Post: Why proof of work algorithms need to use memory bound functions">Why proof of work algorithms need to use memory bound functions &raquo;</a>
       
     </p>
   </footer>
@@ -305,8 +327,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/06/20/advanced-port-forwarding-with-ssh/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/06/20/advanced-port-forwarding-with-ssh/';
         var disqus_script = 'embed.js';
       
     (function () {

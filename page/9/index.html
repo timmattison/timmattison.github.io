@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I finally got my mouse and keyboard back. After changing profiles on Gentoo and doing a complete rebuild my mouse was totally unresponsive. Since I &hellip;">
+  <meta name="description" content="If you&rsquo;re doing a remote system upgrade from time to time you&rsquo;ll have to deal with changes in OpenSSH (sshd). I just did an update on a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,70 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/">How-To: Restart OpenSSH (Sshd) When It Doesn&#8217;t Want To</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-06T18:59:59-05:00" pubdate data-updated="true">Nov 6<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;re doing a remote system upgrade from time to time you&rsquo;ll have to deal with changes in OpenSSH (sshd).  I just did an update on a Gentoo machine and afterwards I couldn&rsquo;t get OpenSSH to stop, much less restart.  When you&rsquo;re in these kinds of situations you risk losing remote access to the machine if it&rsquo;s not a VPS (like <a href="http://linode.com">Linode</a>, my favorite VPS hosting company so far) or doesn&rsquo;t have a KVM.  You can&rsquo;t just killall sshd since that&rsquo;ll disconnect you, and in my case running /etc/init.d/sshd restart failed to stop sshd.  If you don&rsquo;t restart sshd then all of those security patches are going to waste since your system is relying on the original copy of sshd in RAM.</p>
+
+<p>So what do you do?  <strong>NOT THIS UNLESS YOU ARE CONNECTED VIA A SERIAL PORT!</strong> I have remote console access do I can just fire up Linode&#8217; AJAX console and do the following:</p>
+
+<pre><code>killall sshd
+
+/etc/init.d/sshd restart
+</code></pre>
+
+<p>That got me running and I was all set. But you can do something similar remotely.  The trick is that you&rsquo;ll need to run it in <a href="http://www.gnu.org/software/screen/">GNU&rsquo;s screen</a> utility to make sure that all of the commands are run.  Here&rsquo;s what you should do:</p>
+
+<pre><code>screen
+
+killall sshd ; sleep 5 ; /etc/init.d/sshd restart
+</code></pre>
+
+<p>It&rsquo;s a bit risky because there&rsquo;s no guarantee that sshd will come up after that but this is a last ditch effort only.  Make sure all of your ducks are in a row, double check the upgrade process, run revdep-rebuild on Gentoo if you have to to make sure all of your libraries are correct.  I take no responsibility if you lose your connection and need to drive to the colo or sheepishly call for a reboot or remote hands.</p>
+
+<p>I can tell you that in my case, a Gentoo upgrade, it did work fine.  You lose your connection but you can reconnect in 10 or so seconds, and then run</p>
+
+<pre><code>screen -r
+</code></pre>
+
+<p>to see that all of the commands executed successfully.</p>
+
+<p>Make sure you separate the commands by semi-colons though.  It&rsquo;s required, not just stylistic here.  You can&rsquo;t killall sshd and then keep issuing the commands interactively.  You have to let the shell do it for you inside screen, or else.  :)</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -753,78 +817,6 @@ revdep-rebuild
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/10/26/how-to-add-support-for-sha1-and-sha512-functions-in-postgresql/">How-To: Add Support for SHA1 and SHA512 Functions in PostgreSQL</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-10-26T18:51:03-04:00" pubdate data-updated="true">Oct 26<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/10/26/how-to-add-support-for-sha1-and-sha512-functions-in-postgresql/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/26/how-to-add-support-for-sha1-and-sha512-functions-in-postgresql/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I was working on comparing some data in PostgreSQL today and I realized just how long it can take to compare millions of rows of bytea data in raw form. The bytea fields ranged from 30 bytes to several kilobytes so I figured that maybe pre-computing the hash and then comparing the hashes would be faster. PostgreSQL only has support for MD5 hashing and <a href="http://www.mathstat.dal.ca/~selinger/md5collision/">we all know how reliable that can be</a>. So, I fired up Google and set out to figure out the best way to do it.  It turns out that if you install pgcrypto.so via the contrib directory you can get SHA1 support and use it directly with the DIGEST function like this:</p>
-
-<pre><code>CREATE OR REPLACE FUNCTION secure_hash(bytea) RETURNS character varying (128) AS $$
-BEGIN
-  RETURN ENCODE(DIGEST($1, 'sha1'), 'hex');
-END;
-</code></pre>
-
-<p>There are some good reasons to do it this way but sometimes you want options.  If you&rsquo;re in an environment where installing pgcrypto.so it out of the question you may have some luck trying to do it using PL/Perl.  The caveat here is that <a href="http://www.postgresql.org/docs/8.4/interactive/plperl-trusted.html">PL/Perl must run in trusted mode</a> for this to work and you must have the Digest::SHA package for Perl installed.  If you can meet those criteria here&rsquo;s how you get it running.</p>
-
-<p>Step 1: Add <em>trusted</em> PL/Perl support to your database</p>
-
-<pre><code>createlang plperlu database_name
-</code></pre>
-
-<p>Step 2: Create the PL/Perl function that returns the SHA1/SHA512 hash (replace &ldquo;sha512_base64&rdquo; with &ldquo;sha1_base64&rdquo; if you want SHA1 instead)</p>
-
-<pre><code>CREATE FUNCTION secure_digest(bytea) RETURNS character varying(128) AS $$
-  use Digest::SHA qw(sha512_base64);
-  my $digest = sha512_base64($_[0]);
-  return $digest;
-$$ LANGUAGE plperlu;
-</code></pre>
-
-<p>Step 3: Test the function</p>
-
-<pre><code>database_name=# select secure_digest('timmattison.com');
-                                     secure_digest
-----------------------------------------------------------------------------------------
- D5/O3RbUhj+1xWfIoikashEo92zCHwna69ffz+koxoQdUTxe2FP5rPmMKeUBU7FbmhQ0+WMKJbCeayhCwANGhA
-(1 row)
-</code></pre>
-
-<p>That&rsquo;s it, you&rsquo;re ready to start hashing/digesting away.  Is this the most efficient way to do a hash?  No.  The first method is best.  Will it work in a pinch?  Yes.  Some DBAs will not let you install random shared objects on their machine but will install functions like this for you.  Hopefully you either don&rsquo;t have to deal with a DBA or your DBA is nice enough to do one of these solutions.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -858,6 +850,10 @@ $$ LANGUAGE plperlu;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/20/advanced-port-forwarding-with-ssh/">Advanced Port Forwarding With SSH</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Forcing Java&#8217;s Logger to Work, Even When It Doesn&#8217;t Want To</a>
       </li>
     
@@ -871,10 +867,6 @@ $$ LANGUAGE plperlu;
     
       <li class="post">
         <a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Octal and Hexadecimal IP Addresses With Ping</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/">My Problem With &#8216;the Problem With Altcoins&#8217;</a>
       </li>
     
   </ul>
