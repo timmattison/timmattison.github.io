@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-20T09:22:27-04:00</updated>
+  <updated>2014-06-25T07:23:27-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -262,6 +262,7 @@
 <ul>
 <li><a href="http://www.youtube.com/watch?v=hBVJbzAagfs">Big Modular Java with Guice</a> &ndash; Discusses how to use Guice to write maintainable, large Java projects</li>
 <li><a href="http://www.youtube.com/watch?v=0iSB0L9avmg">Java on Guice: Dependency Injection, the Java Way</a> &ndash; One of the earlier Guice talks that compares and contrasts using Guice with the non-DI way</li>
+<li><a href="https://www.youtube.com/watch?v=XcT4yYu_TTs">How to Write Clean, Testable Code</a> &ndash; Discusses the Law of Demeter, and getting buried in setup code</li>
 </ul>
 
 
