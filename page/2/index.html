@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="After migrating to Octopress I started getting interested in my site&rsquo;s analytics again. A co-worker told me about in-page analytics with Google &hellip;">
+  <meta name="description" content="TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default. If you have &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,96 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-16T08:50:19-05:00" pubdate data-updated="true">Jan 16<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default.  If you have Internet access at home or at a client location you care about then you should be testing to see if they are vulnerable with <a href="https://www.grc.com/x/portprobe=32764">ShieldsUP</a>.</p>
+
+<p>I would recommend running this test ASAP.  The <a href="https://github.com/elvanderb/TCP-32764">list of affected routers</a> includes Netgear, Linksys, and even “real” Cisco hardware.  That list is not exhaustive.</p>
+
+<p>If you need to run this test via SSH I’ve whipped up a script that will spit out whether you’re vulnerable or not based on the ShieldsUP results.  It was designed to run on Mac OS (because their version of sed is busted) and tested on Mavericks and Debian Linux.  Here’s what you can run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl -L http://bit.ly/port32764 2&gt;&amp;1 | <span class="se">\</span>
+</span><span class='line'>  tr <span class="s2">&quot;\n&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
+</span><span class='line'>  tr <span class="s2">&quot;\r&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/&lt;[^&gt;][^&gt;]*&gt;/ /g&#39;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/^.*32764/32764/&#39;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/Unknown.*$//&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The response should look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Stealth
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Closed
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you get anything else then you are vulnerable.  Even if you run this test I recommend running it in a browser on the connection you’re testing just in case the script has an issue.</p>
+
+<p>If you are vulnerable then the following pieces of information about your connection may have already been compromised:</p>
+
+<ul>
+<li>Your wireless key (in the clear, not hashed)</li>
+<li>Your router admin username and password (in the clear, not hashed)</li>
+<li>Your router’s SSID and MAC address (this can be used to add your router to a database of access points with passwords)</li>
+<li>Any custom settings you have on your router (port mapping to interesting devices, tunnels you thought would be hidden on a high port number, etc)</li>
+</ul>
+
+
+<p>People have written plenty of applications that do scans of the entire Internet in days <a href="http://zmap.io/">or even hours</a>.  This is being scanned for constantly right now and you cannot hide in the four billion addresses out there.</p>
+
+<p>If you are not vulnerable but you have used the same wireless password on an older router it is probably a good idea to change your password.  Nobody knows how long this has been in the wild.  It has been in the firmware for a long time.</p>
+
+<p>If you need help post in the comments.  Good luck!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1031,48 +1121,6 @@ it is in the right location.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-30T10:10:22-05:00" pubdate data-updated="true">Dec 30<span>th</span>, 2013</time>
-        
-           | <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I finally got tired of dealing with Wordpress and all of the baggage that comes along with it.  I&rsquo;ve migrated to Octopress and it feels nice.
-We&rsquo;ll see if it makes me post any more or not though.  It appears that this is my only post for the entire year so far.</p>
-
-<p>If you can recommend any themes that look a bit nicer than this please post in the comments.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1106,6 +1154,10 @@ We&rsquo;ll see if it makes me post any more or not though.  It appears that thi
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/06/25/automating-cisco-switch-interactions/">Automating Cisco Switch Interactions</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/20/advanced-port-forwarding-with-ssh/">Advanced Port Forwarding With SSH</a>
       </li>
     
@@ -1119,10 +1171,6 @@ We&rsquo;ll see if it makes me post any more or not though.  It appears that thi
     
       <li class="post">
         <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Octal and Hexadecimal IP Addresses With Ping</a>
       </li>
     
   </ul>
