@@ -37,6 +37,8 @@ This is an incredibly handy flag if you ever need to debug Paramiko yourself so 
 
 Anyway, the solution is normally to add the `look_for_keys=False` option to your Paramiko connect call.  However, as I found out that works on some systems and not others.  To be certain that it only tried password authentication I needed to also add the `allow_agent=False` flag.
 
+The other quirk I hit was that my script initially waited forever for a response when I sent it commands that had a lot of output.  This was because the Cisco shell's pager was on.  Turning it off meant sending one additional command `terminal length 0\n`.
+
 In the end I ended up with a script that lets me check the PoE state of a port and enable/disable PoE on a per port basis.  If you need a script that does that it is included below.  Two important points to remember are that I only needed to use this on interfaces that start with `Gi1/0/` so that value is hardcoded and you'll need to change it if your switch is different.  You will also need to install my little Python library called [pyuda](https://pypi.python.org/pypi/pyuda/0.1dev) because I use it to process the command-line arguments.  Rip that out if you want to simplify things.
 
 ```
