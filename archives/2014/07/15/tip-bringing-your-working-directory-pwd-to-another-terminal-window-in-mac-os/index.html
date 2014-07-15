@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Tip: Get VMware Workstation 6.5.3 Working on Gentoo - Tim Mattison</title>
+  <title>Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="The final piece to my reinstall was to get VMware Workstation 6.5.3 running so I could use my nice Linux box (8GB RAM, fast RAID configuration) to &hellip;">
+  <meta name="description" content="Mac OS, as far as I can remember, used to start tabbed Terminal sessions and put you into the working directory of your last tab. New Terminal &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">Tip: Get VMware Workstation 6.5.3 Working on Gentoo</h1>
+      <h1 class="entry-title">Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS</h1>
     
     
       <p class="meta">
@@ -96,7 +96,7 @@
   
 
 
-<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+<time datetime="2014-07-15T18:37:23-04:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,34 +106,51 @@
   </header>
 
 
-<div class="entry-content"><p>The final piece to my reinstall was to get VMware Workstation 6.5.3 running so I could use my nice Linux box (8GB RAM, fast RAID configuration) to run virtual machines instead of running them on my much less powerful MacBook Pro.</p>
+<div class="entry-content"><p>Mac OS, as far as I can remember, used to start tabbed Terminal sessions and put you into the working directory of your last tab.  New Terminal windows didn&rsquo;t do this but recently new Terminal tabs stopped doing it too.</p>
 
-<p>To do this installation you need to download the files from VMware directly, move them into portage, then do the installation from a real console (SSH or screen sessions won&rsquo;t cut it).  That was no problem but I ended up staring at a message like this</p>
+<p>I got tired of renavigating to the paths in the projects I was working on and I didn&rsquo;t want to launch a Terminal from within a Terminal so I came up with something else.  I added a few lines to my <code>.bash_profile</code> and now I have two new commands.  <code>ccd</code> copies your current directory to the clipboard, and <code>pcd</code> pastes your clipboard into the <code>cd</code> command.</p>
 
-<pre><code>process XXXXX: Attempt to remove filter function 0xXXXXXXXX user data 0x88162a8, but no such filter has been added
-  D-Bus not built with -rdynamic so unable to print a backtrace
-</code></pre>
+<p>Now when I&rsquo;m in a deep directory tree like this:</p>
 
-<p>I tried to re-emerge dbus with that option but there are no USE flags that correspond to it that I could see.  I checked if D-Bus was even running and it was.  At this point I randomly and luckily found the fix.  All you need to do is to stop D-Bus via</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>/etc/init.d/dbus stop
-</code></pre>
 
-<p>As soon as I did that VMware started up, asked me to accept the EULA, and I was straight back on the virtualization track.</p>
+<p>I can do this in the existing Terminal:</p>
 
-<p>Note: While stopping DBus will get VMware to start you&rsquo;ll still need to do two last things to make everything happy</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $ ccd</span></code></pre></td></tr></table></div></figure>
 
-<p>Step 1: Run</p>
 
-<pre><code>/etc/init.d/vmware start
-</code></pre>
+<p>And this in the new Terminal:</p>
 
-<p>Step 2: Run</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ pcd
+</span><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>rc-update add vmware default
-</code></pre>
 
-<p>This makes sure that VMware creates all the device nodes that it needs, loads all of the modules for virtual networking, monitoring, etc., and that this will always come up after a reboot.  Without this you can end up chasing down some seriously weird error messages.</p>
+<p>And there you have it.  Back into my beloved directory in no time.  Here&rsquo;s what I added to <code>.bash_profile</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>alias ccd="pwd | pbcopy"
+</span><span class='line'>alias pcd="paste_cd"
+</span><span class='line'>
+</span><span class='line'>function paste_cd() {
+</span><span class='line'>        cd "`pbpaste`"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>ccd</code> alias just pipes <code>pwd</code> into <code>pbcopy</code>, which is one of the best tools ever, so that it ends up in the clipboard.</p>
+
+<p>The <code>pcd</code> alias is a little more complex.  If you try to do this without a bash function your alias will get evaluated as soon as your shell starts.  This means that when you open your shell whatever is in your clipboard will be what <code>pcd</code> tries to <code>cd</code> to.  Using a function we let it run <code>pbpaste</code> when it is called so it always uses the up-to-date info.</p>
+
+<p>Enjoy!  Let me know if you find it useful!</p>
 </div>
 
 
@@ -142,7 +159,7 @@
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
 
       
 
@@ -156,21 +173,15 @@
   
 
 
-<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+<time datetime="2014-07-15T18:37:23-04:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/categories/tips/'>Tips</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -181,10 +192,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/" title="Previous Post: Tip: Fix "NVIDIA(0): Failed to initialize the GLX module; please check in your X log file" on Gentoo">&laquo; Tip: Fix "NVIDIA(0): Failed to initialize the GLX module; please check in your X log file" on Gentoo</a>
+        <a class="basic-alignment left" href="/archives/2014/06/25/automating-cisco-switch-interactions/" title="Previous Post: Automating Cisco switch interactions">&laquo; Automating Cisco switch interactions</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2009/11/03/tip-get-your-mouse-and-keyboard-back-after-upgrading-xorgx11/" title="Next Post: Tip: Get your mouse and keyboard back after upgrading Xorg/X11">Tip: Get your mouse and keyboard back after upgrading Xorg/X11 &raquo;</a>
       
     </p>
   </footer>
@@ -304,8 +313,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/';
         var disqus_script = 'embed.js';
       
     (function () {

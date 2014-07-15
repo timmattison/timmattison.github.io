@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default. If you have &hellip;">
+  <meta name="description" content="Recently I ran into a situation where I had to reboot a ton of machines remotely. I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,203 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">How to: Execute a Command on a Remote Server That Requires You to Su or Sudo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-13T14:28:49-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Recently I ran into a situation where I had to reboot a ton of machines remotely.  I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do that anyway, so I thought I might be stuck trying to SSH in, &ldquo;sudo reboot&rdquo;, enter the password, and go on to the next machine.  One snag was that some machines supported sudo and some required me to su.</p>
+
+<p>I didn&rsquo;t want to have to do this for all of the machines I was working on so I searched around and found <a href="https://github.com/paramiko/paramiko">Paramiko</a>.  Paramiko is an SSH library for Python that lets you tell Python the login password and also gives you direct access to the terminal stream from your SSH session.  This means that I can send su or sudo and then send the password without the user doing anything.</p>
+
+<p>Security wise this is an obvious hole in many ways.  First of all if you do this for a machine and specify the password on the command-line it is going to end up in your history file.  So without going through the exhaustive list of reasons why this is generally a bad idea lets just say that you should use this sparingly.</p>
+
+<p>Set the variable <code>root_command</code> to the command that you want to execute as root, set <code>root_command_result</code> to the expected result of the command.  The command needs to have <code>\n</code> on the end of it because it simulates the user pressing enter.  Without it the system will never execute the command.  Pass these command-line parameters in this order:</p>
+
+<ul>
+<li>The IP of the system you want to connect to</li>
+<li>The username of the user that can su to root</li>
+<li>The password of the user that can su to root</li>
+<li>The password required to su to root</li>
+</ul>
+
+
+<p>This particular version of the script just performs the &ldquo;su&rdquo; command.  It can be modified to do a &ldquo;sudo&rdquo; with just a few tweaks.  If there&rsquo;s demand I&rsquo;ll post a version that lets you swap between both and does some additional error handling.</p>
+
+<p>And here&rsquo;s the script&hellip; don&rsquo;t forget to install Paramiko!</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/env python
+</span><span class='line'>
+</span><span class='line'>__author__ = 'timmattison'
+</span><span class='line'>
+</span><span class='line'>import paramiko
+</span><span class='line'>import sys
+</span><span class='line'>import time
+</span><span class='line'>
+</span><span class='line'>root_command = "whoami\n"
+</span><span class='line'>root_command_result = "root"
+</span><span class='line'>
+</span><span class='line'>def send_string_and_wait(command, wait_time, should_print):
+</span><span class='line'>    # Send the su command
+</span><span class='line'>    shell.send(command)
+</span><span class='line'>
+</span><span class='line'>    # Wait a bit, if necessary
+</span><span class='line'>    time.sleep(wait_time)
+</span><span class='line'>
+</span><span class='line'>    # Flush the receive buffer
+</span><span class='line'>    receive_buffer = shell.recv(1024)
+</span><span class='line'>
+</span><span class='line'>    # Print the receive buffer, if necessary
+</span><span class='line'>    if should_print:
+</span><span class='line'>        print receive_buffer
+</span><span class='line'>
+</span><span class='line'>def send_string_and_wait_for_string(command, wait_string, should_print):
+</span><span class='line'>    # Send the su command
+</span><span class='line'>    shell.send(command)
+</span><span class='line'>
+</span><span class='line'>    # Create a new receive buffer
+</span><span class='line'>    receive_buffer = ""
+</span><span class='line'>
+</span><span class='line'>    while not wait_string in receive_buffer:
+</span><span class='line'>        # Flush the receive buffer
+</span><span class='line'>        receive_buffer += shell.recv(1024)
+</span><span class='line'>
+</span><span class='line'>    # Print the receive buffer, if necessary
+</span><span class='line'>    if should_print:
+</span><span class='line'>        print receive_buffer
+</span><span class='line'>
+</span><span class='line'># Get the command-line arguments
+</span><span class='line'>system_ip = sys.argv[1]
+</span><span class='line'>system_username = sys.argv[2]
+</span><span class='line'>system_ssh_password = sys.argv[3]
+</span><span class='line'>system_su_password = sys.argv[4]
+</span><span class='line'>
+</span><span class='line'># Create an SSH client
+</span><span class='line'>client = paramiko.SSHClient()
+</span><span class='line'>
+</span><span class='line'># Make sure that we add the remote server's SSH key automatically
+</span><span class='line'>client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+</span><span class='line'>
+</span><span class='line'># Connect to the client
+</span><span class='line'>client.connect(system_ip, username=system_username, password=system_ssh_password)
+</span><span class='line'>
+</span><span class='line'># Create a raw shell
+</span><span class='line'>shell = client.invoke_shell()
+</span><span class='line'>
+</span><span class='line'># Send the su command
+</span><span class='line'>send_string_and_wait("su\n", 1, True)
+</span><span class='line'>
+</span><span class='line'># Send the client's su password followed by a newline
+</span><span class='line'>send_string_and_wait(system_su_password + "\n", 1, True)
+</span><span class='line'>
+</span><span class='line'># Send the install command followed by a newline and wait for the done string
+</span><span class='line'>send_string_and_wait_for_string(root_command, root_command_result, True)
+</span><span class='line'>
+</span><span class='line'># Close the SSH connection
+</span><span class='line'>client.close()</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1045,82 +1242,6 @@ This error is expected:</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-30T11:02:52-05:00" pubdate data-updated="true">Dec 30<span>th</span>, 2013</time>
-        
-           | <a href="/archives/2013/12/30/reading-resources-in-java/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2013/12/30/reading-resources-in-java/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Reading resources in Java has always been a mystery to me.  It&rsquo;s not because I don&rsquo;t understand how to do it but more that I do it so infrequently that
-I always forget what I need to do.  In Java&rsquo;s defense once you understand what you need to do it&rsquo;s actually very simple.  I&rsquo;ve run into this issue
-many times in a professional context.  Usually it is just trying to load a simple resource so I can keep it inside the JAR file I&rsquo;m delivering to a
-client.</p>
-
-<p>The sixty second explanation of how to do this is as follows.  If you&rsquo;re using an IDE and have a standard project layout you can simply follow these steps:</p>
-
-<ol>
-<li>Under your src/main directory create a new directory called &ldquo;resources&rdquo;</li>
-<li>Put your static file in the &ldquo;resources&rdquo; directory.  For example, &ldquo;jquery-1.10.2.min.js&rdquo; if you want to serve this file from an embedded web server.</li>
-<li>When you want to load the file do this:</li>
-</ol>
-
-
-<p>The long way:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">URL</span> <span class="n">jqueryUrl</span> <span class="o">=</span> <span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="n">InputStream</span> <span class="n">jqueryInputStream</span> <span class="o">=</span> <span class="n">jqueryUrl</span><span class="o">.</span><span class="na">openStream</span><span class="o">();</span>
-</span><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">jqueryInputStream</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The short way:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">).</span><span class="na">openStream</span><span class="o">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And that&rsquo;s it!  I recommend the long way because you can step through it if the file isn&rsquo;t found and get some insight into what happened rather than
-just getting an opaque NullPointerException.  If you don&rsquo;t have the file in the directory, or you have the wrong file name, after attempting to get
-the jqueryUrl it&rsquo;ll just be NULL.  If that happens just check to make sure that you have the file name correct, resources is spelled correctly, and
-it is in the right location.</p>
-
-<p>Good luck!  Post in the comments if you find this useful or if you have trouble.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1154,6 +1275,10 @@ it is in the right location.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/">Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/25/automating-cisco-switch-interactions/">Automating Cisco Switch Interactions</a>
       </li>
     
@@ -1167,10 +1292,6 @@ it is in the right location.</p>
     
       <li class="post">
         <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a>
       </li>
     
   </ul>

@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-06-26T06:41:01-04:00</updated>
+  <updated>2014-07-15T18:54:22-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,59 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/"/>
+    <updated>2014-07-15T18:37:23-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os</id>
+    <content type="html"><![CDATA[<p>Mac OS, as far as I can remember, used to start tabbed Terminal sessions and put you into the working directory of your last tab.  New Terminal windows didn&rsquo;t do this but recently new Terminal tabs stopped doing it too.</p>
+
+<p>I got tired of renavigating to the paths in the projects I was working on and I didn&rsquo;t want to launch a Terminal from within a Terminal so I came up with something else.  I added a few lines to my <code>.bash_profile</code> and now I have two new commands.  <code>ccd</code> copies your current directory to the clipboard, and <code>pcd</code> pastes your clipboard into the <code>cd</code> command.</p>
+
+<p>Now when I&rsquo;m in a deep directory tree like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I can do this in the existing Terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $ ccd</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And this in the new Terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ pcd
+</span><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And there you have it.  Back into my beloved directory in no time.  Here&rsquo;s what I added to <code>.bash_profile</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>alias ccd="pwd | pbcopy"
+</span><span class='line'>alias pcd="paste_cd"
+</span><span class='line'>
+</span><span class='line'>function paste_cd() {
+</span><span class='line'>        cd "`pbpaste`"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>ccd</code> alias just pipes <code>pwd</code> into <code>pbcopy</code>, which is one of the best tools ever, so that it ends up in the clipboard.</p>
+
+<p>The <code>pcd</code> alias is a little more complex.  If you try to do this without a bash function your alias will get evaluated as soon as your shell starts.  This means that when you open your shell whatever is in your clipboard will be what <code>pcd</code> tries to <code>cd</code> to.  Using a function we let it run <code>pbpaste</code> when it is called so it always uses the up-to-date info.</p>
+
+<p>Enjoy!  Let me know if you find it useful!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Automating Cisco Switch Interactions]]></title>
@@ -1661,52 +1714,6 @@ This error is expected:</p>
 <p>If it appears to mount the volume but no files show up try unmounting it and re-mounting it.  If you unmount it successfully and when re-mounting it again it complains that the device is busy it is possible that your BeagleBone Black&rsquo;s IP address changed.  This happened on my test machine when its IP went from 192.168.1.109 to 192.168.1.110.  It didn&rsquo;t give me the access denied error message but instead exhibited this weird behavior.  If this is the case make sure you have your IP assigned statically, reboot the BeagleBone Black, verify the static IP in the Synology configuration again, and then try re-mounting the path.  After that mine started working again.</p>
 
 <p>Good luck!  Post any success stories or issues in the comments.  I&rsquo;ll do my best to help out if possible.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Reading Resources in Java]]></title>
-    <link href="http://blog.timmattison.com/archives/2013/12/30/reading-resources-in-java/"/>
-    <updated>2013-12-30T11:02:52-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2013/12/30/reading-resources-in-java</id>
-    <content type="html"><![CDATA[<p>Reading resources in Java has always been a mystery to me.  It&rsquo;s not because I don&rsquo;t understand how to do it but more that I do it so infrequently that
-I always forget what I need to do.  In Java&rsquo;s defense once you understand what you need to do it&rsquo;s actually very simple.  I&rsquo;ve run into this issue
-many times in a professional context.  Usually it is just trying to load a simple resource so I can keep it inside the JAR file I&rsquo;m delivering to a
-client.</p>
-
-<p>The sixty second explanation of how to do this is as follows.  If you&rsquo;re using an IDE and have a standard project layout you can simply follow these steps:</p>
-
-<ol>
-<li>Under your src/main directory create a new directory called &ldquo;resources&rdquo;</li>
-<li>Put your static file in the &ldquo;resources&rdquo; directory.  For example, &ldquo;jquery-1.10.2.min.js&rdquo; if you want to serve this file from an embedded web server.</li>
-<li>When you want to load the file do this:</li>
-</ol>
-
-
-<p>The long way:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">URL</span> <span class="n">jqueryUrl</span> <span class="o">=</span> <span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="n">InputStream</span> <span class="n">jqueryInputStream</span> <span class="o">=</span> <span class="n">jqueryUrl</span><span class="o">.</span><span class="na">openStream</span><span class="o">();</span>
-</span><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">jqueryInputStream</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The short way:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">).</span><span class="na">openStream</span><span class="o">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And that&rsquo;s it!  I recommend the long way because you can step through it if the file isn&rsquo;t found and get some insight into what happened rather than
-just getting an opaque NullPointerException.  If you don&rsquo;t have the file in the directory, or you have the wrong file name, after attempting to get
-the jqueryUrl it&rsquo;ll just be NULL.  If that happens just check to make sure that you have the file name correct, resources is spelled correctly, and
-it is in the right location.</p>
-
-<p>Good luck!  Post in the comments if you find this useful or if you have trouble.</p>
 ]]></content>
   </entry>
   

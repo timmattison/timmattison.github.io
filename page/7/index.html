@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Another day, another free radio application for your desktop.  This time it&rsquo;s for WCDB on 90.9 FM in Albany, NY.  So go and install Adobe AIR &hellip;">
+  <meta name="description" content="Are you looking for a no-nonsense way to install all of these applications and don&rsquo;t want to dig through any documentation?  Just run this list &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,82 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/04/26/installing-nodejs-couchdb-and-npm-on-debian-the-easy-way/">How-To: Install NodeJS, CouchDB, and Npm on Debian (the Easy Way)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-26T09:21:32-04:00" pubdate data-updated="true">Apr 26<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/04/26/installing-nodejs-couchdb-and-npm-on-debian-the-easy-way/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/04/26/installing-nodejs-couchdb-and-npm-on-debian-the-easy-way/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Are you looking for a no-nonsense way to install all of these applications and don&rsquo;t want to dig through any documentation?  Just run this list of commands (replacing the word CORES for the number of cores you have):</p>
+
+<pre><code>git clone https://github.com/joyent/node.git
+cd node
+export JOBS=CORES # optional, sets number of parallel commands.
+mkdir ~/local
+./configure --prefix=$HOME/local/node
+make -jCORES
+make install
+cd ..
+git clone git://github.com/apache/couchdb.git
+cd couchdb
+sudo apt-get install automake
+sudo apt-get install libmozjs-dev
+sudo apt-get install libicu-dev
+sudo apt-get install erlang
+./bootstrap
+./configure --prefix=$HOME/local/couchdb
+make -jCORES
+make install
+</code></pre>
+
+<p>After that, update your path in .bashrc by adding this line to the bottom:</p>
+
+<pre><code>export PATH=$HOME/local/node/bin:$HOME/local/couchdb/bin:$PATH
+</code></pre>
+
+<p>Now, you can run both NodeJS and CouchDB from anywhere once you log out and log back in again.  Finally, installing npm is just one more step:</p>
+
+<pre><code>curl http://npmjs.org/install.sh | sh
+</code></pre>
+
+<p>That&rsquo;s it, you&rsquo;ve now got all of the latest code installed.  To start couchdb run</p>
+
+<pre><code>couchdb -b
+</code></pre>
+
+<p>from anywhere and connect to Futon <a href="http://localhost:5984/_utils/">locally via http://localhost:5984/_utils/</a>.  BTW, to use CouchDB from NodeJS I recommend <a href="https://github.com/cloudhead/cradle">Cradle</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -464,7 +540,7 @@ $body = $body . $line;
 
 <p>The instructions explicitly say to switch from NAT to bridged but some users have found that it actually does work just fine with NAT.  In my case it still didn&rsquo;t work with either.  <a href="http://discuss.gdgt.com/google/chrome-os/general/Download-Chrome-OS-VMWare-image/page/2/">Luckily someone on the forums let us in on the secret</a> that you actually don&rsquo;t need a Google account at all to use this build.</p>
 
-<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#109;&#97;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#99;&#x68;&#114;&#x6f;&#110;&#x6f;&#x73;&#64;&#x67;&#109;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#x63;&#x68;&#x72;&#x6f;&#110;&#x6f;&#x73;&#64;&#103;&#x6d;&#x61;&#105;&#108;&#x2e;&#99;&#x6f;&#x6d;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
+<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#58;&#x63;&#104;&#x72;&#111;&#x6e;&#x6f;&#115;&#64;&#103;&#x6d;&#x61;&#105;&#108;&#x2e;&#x63;&#111;&#109;">&#x63;&#104;&#114;&#111;&#110;&#x6f;&#x73;&#64;&#103;&#109;&#97;&#x69;&#x6c;&#46;&#x63;&#x6f;&#109;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
 
 <p>Surprisingly, after doing that the networking system came to life and I could log into GMail and check other sites.  If you&rsquo;re hung up on getting past the initial login screen definitely try the &ldquo;chronos&rdquo; account and let me know if it works for you.</p>
 </div>
@@ -527,63 +603,6 @@ $body = $body . $line;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/12/07/how-to-fix-unresolved-moddi3-symbols-when-developing-linux-kernel-modules/">How-To: Fix Unresolved _moddi3 Symbols When Developing Linux Kernel Modules</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-12-07T18:59:59-05:00" pubdate data-updated="true">Dec 7<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/12/07/how-to-fix-unresolved-moddi3-symbols-when-developing-linux-kernel-modules/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/07/how-to-fix-unresolved-moddi3-symbols-when-developing-linux-kernel-modules/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>When developing Linux kernel modules, specifically ones that tie into procfs via the seq_file interfaces and have circular buffers, it&rsquo;s handy to be able to take an offset into your buffer and use the modulo operator (%) to make it wrap around easily.  In the kernel you&rsquo;re restricted to a smaller set of available operators however and modulo only works on certain types.</p>
-
-<p>One type that it doesn&rsquo;t work on that happens to be used in the seq_file interface is loff_t.  If you try something like this:</p>
-
-<pre><code>static void *my_procfs_seq_start(struct seq_file *s, loff_t *pos)
-{
-  return global_pointer + ((*pos) % CIRCULAR_BUFFER_SIZE);
-}
-</code></pre>
-
-<p>You will probably get an error about the unresolved symbol &ldquo;_moddi3&rdquo;.  The quick fix for this is to do the following instead:</p>
-
-<pre><code>static void *my_procfs_seq_start(struct seq_file *s, loff_t *pos)
-{
-  return global_pointer + (((int) (*pos)) % CIRCULAR_BUFFER_SIZE);
-}
-</code></pre>
-
-<p>This simply converts your dereferenced loff_t pointer to an int.  <strong>Make sure your value will fit into your architecture&rsquo;s int size!</strong>.  If it doesn&rsquo;t, you&#8217;ll get strange results.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/8/">&larr; Older</a>
@@ -617,6 +636,10 @@ $body = $body . $line;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/">Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/25/automating-cisco-switch-interactions/">Automating Cisco Switch Interactions</a>
       </li>
     
@@ -630,10 +653,6 @@ $body = $body . $line;
     
       <li class="post">
         <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a>
       </li>
     
   </ul>

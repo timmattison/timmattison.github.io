@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="This morning when I opened up an old GWT project to rebuild it and bring it from GWT 1.5 to GWT 1.7 Eclipse spit out this error message: [ERROR] &hellip;">
+  <meta name="description" content="I encountered this message today when trying to update glib-2.20.5-r1 on my 64-bit Gentoo box. I&rsquo;ve seen this error message before but today,  &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,64 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/">How-To: Fix &#8220;Configure: Error: C Compiler Cannot Create Executables&#8221; on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-09T18:59:59-05:00" pubdate data-updated="true">Nov 9<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I encountered this message today when trying to update glib-2.20.5-r1 on my 64-bit Gentoo box.  I&rsquo;ve seen this error message before but today, as luck would have it, I had just made some changes to my make.conf so I knew exactly where to look.  What I was doing was preparing my system for Xen and I was duped into adding the &ldquo;&mdash;mno-tls-direct-seg-refs&rdquo; option to my CFLAGS.  It turns out that 64-bit Gentoo doesn&rsquo;t need this option and actually it will cause your C compiler to fail.</p>
+
+<p>If you have this option and you&rsquo;re trying to get Xen running, remove it and try again.  That will most likely fix your problem.  If the problem persists you can dig a bit deeper and figure it out like this.</p>
+
+<ul>
+<li><p>Step 1: Scroll back through your emerge error.  If it&rsquo;s too far gone then retry the emerge and get it to report the error again.  If you&#8217;re using screen don&rsquo;t forget that you can use CTRL-A and then left bracket to enter copy mode and maneuver through the scrollback buffer.  Press escape to exit it when you&rsquo;re done.  You&rsquo;re looking for something that looks like this:</p>
+
+<p>configure: error: in <code>/var/tmp/portage/dev-libs/glib-2.20.5-r1/work/glib-2.20.5':
+configure: error: C compiler cannot create executables
+See</code>config.log&#8217; for more details.
+!!! Please attach the following file when seeking support:
+!!! /var/tmp/portage/dev-libs/glib-2.20.5-r1/work/glib-2.20.5/config.log</p></li>
+<li><p>Step 2: Open the file residing at the full path of the config.log file (in my case /var/tmp/portage/dev-libs/glib-2.20.5-r1/work/glib-2.20.5/config.log)</p></li>
+<li><p>Step 3: Search the file for the string &ldquo;failed program&rdquo;.  A few lines up from this message you&rsquo;ll see the true error.  In my case it was:</p>
+
+<p>configure:3385: x86_64-pc-linux-gnu-gcc -O2 -pipe -fomit-frame-pointer &mdash;mno-tls-direct-seg-refs   -Wl,-O1 conftest.c  >&amp;5
+cc1: error: unrecognized command line option &ldquo;-fmno-tls-direct-seg-refs&rdquo;</p></li>
+<li><p>Step 4: Remove the unrecognized command line option.  It is reported here as &ldquo;-fmno-tls-direct-seg-refs&rdquo; but in the make.conf file it is &#8221;&mdash;mno-tls-direct-seg-refs&#8221;.  You&rsquo;ll see that in the line above the error message.  I&rsquo;ve left it in there so you can see what that line should look like too.  Your error may be different entirely or just a different flag.  Either way, fixing the issue reported there should bring your compiler back to life and keep you emerging in the future.</p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -748,95 +806,6 @@ EndSection
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/">How-To: Fix LVM2&#8217;s &#8220;No Extents Available for Allocation&#8221; Errors When Using Pvmove</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-01T18:59:59-05:00" pubdate data-updated="true">Nov 1<span>st</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I just started using LVM2 about two weeks ago.  I recently wanted to shuffle around some physical extents on my disks to keep them from becoming a mess as I added new logical volumes.  So in order to see how LVM2 laid out my logical volumes</p>
-
-<p>I ran:</p>
-
-<pre><code>pvdisplay -m
-</code></pre>
-
-<p>This roughly translates to &ldquo;show me the physical volume information including the mapping data&rdquo;.  On my machine this printed out something like this</p>
-
-<pre><code>  --- Physical Segments ---
-  Physical extent 0 to 17066:
-    FREE
-
-  Physical extent 17067 to 29866:
-    Logical volume  /dev/vg-raid-array/work-area-1
-    Logical extents 0 to 51199
-
-  Physical extent 29867 to 31146:
-    Logical volume  /dev/vg-raid-array/postgresql
-    Logical extents 0 to 5119
-
-  Physical extent 31147 to 59617:
-    FREE
-
-  --- Physical volume ---
-  PV Name               /dev/sdc
-  VG Name               vg-raid-array
-  PV Size               232.89 GB / not usable 3.18 MB
-  Allocatable           yes
-  PE Size (KByte)       4096
-  Total PE              59618
-  Free PE               45538
-  Allocated PE          14080
-  PV UUID               xxxxxx-xxxx-xxxx-xxxx-xxxx-xxxx-xxxxxx
-</code></pre>
-
-<p>What you&rsquo;ll notice here is that my disk has my &ldquo;work-area-1&rdquo; volume starting at physical extent 17067 but the physical extents before that (0 &ndash; 17066) are empty.  What I wanted to do was move those extents to the beginning of the disk, then move the postgresql extents to the extents directly after that, so that I would have a large block of contiguous extents to add new partitions.  Here&rsquo;s what happened on my first try</p>
-
-<pre><code># pvmove /dev/sdc:17067-29866 /dev/sdc:0-17066
-
-  No extents available for allocation
-</code></pre>
-
-<p>After lots of digging I found that <a href="http://lists.alioth.debian.org/pipermail/pkg-lvm-maintainers/2007-August/001322.html">I needed a magical, seemingly undocumented flag</a> to get it to work.  So now my command-line looked like this</p>
-
-<pre><code># pvmove -v /dev/sdc:17067-29866 /dev/sdc:0-17066 --alloc anywhere
-</code></pre>
-
-<p>After that I was off and running.  <strong>If you&rsquo;re doing this on a remote terminal make sure you use <em>screen</em></strong> so you can disconnect!  The command I used runs pvmove in the foreground so if you disconnect while it&rsquo;s doing it bad things may happen.  This process usually takes a long time since you&rsquo;re reading and writing from the same disk.  Moving my 50GB of data took about 35 minutes.  Alternatively you can specify the background option (&ldquo;-b&rdquo; or &ldquo;&mdash;background&rdquo;) and let it run silently.</p>
-
-<p>Good luck!  Make sure you always back up your data before you start moving partitions around with LVM2.  It&rsquo;s fairly safe with all of it&rsquo;s fancy checkpointing code but it&rsquo;s never fun to be in the situation where you have to depend on it. rsyncing to a backup first is much easier than trying to wade through documentation later.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -870,6 +839,10 @@ EndSection
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/">Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/06/25/automating-cisco-switch-interactions/">Automating Cisco Switch Interactions</a>
       </li>
     
@@ -883,10 +856,6 @@ EndSection
     
       <li class="post">
         <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a>
       </li>
     
   </ul>

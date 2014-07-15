@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Tip: Get VMware Workstation 6.5.3 Working on Gentoo - Tim Mattison</title>
+  <title>Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="The final piece to my reinstall was to get VMware Workstation 6.5.3 running so I could use my nice Linux box (8GB RAM, fast RAID configuration) to &hellip;">
+  <meta name="description" content="I started using FreeSWITCH quite a while back but only recently got into rebuilding my home PBX with it. One of the things that always bothered me &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo">
+  <link rel="canonical" href="http://blog.timmattison.com/page/12">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -75,12 +75,15 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div>
-<article class="hentry" role="article">
+      <div class="blog-index">
   
+  
+  
+    <article>
+      
   <header>
     
-      <h1 class="entry-title">Tip: Get VMware Workstation 6.5.3 Working on Gentoo</h1>
+      <h1 class="entry-title"><a href="/archives/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch/">Mini-hack: last.fm Music on Hold for FreeSWITCH</a></h1>
     
     
       <p class="meta">
@@ -96,108 +99,62 @@
   
 
 
-<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+<time datetime="2009-02-24T09:45:36-05:00" pubdate data-updated="true">Feb 24<span>th</span>, 2009</time>
         
-           | <a href="#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+           | <a href="/archives/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/02/24/mini-hack-last-fm-music-on-hold-for-freeswitch/">Comments</a>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>The final piece to my reinstall was to get VMware Workstation 6.5.3 running so I could use my nice Linux box (8GB RAM, fast RAID configuration) to run virtual machines instead of running them on my much less powerful MacBook Pro.</p>
+  <div class="entry-content"><p>I started using FreeSWITCH quite a while back but only recently got into rebuilding my home PBX with it.  One of the things that always bothered me about Asterisk, which may or may not have changed since the last time I looked, was that it wasn&rsquo;t straight-forward to get streaming MOH (music on hold) working.</p>
 
-<p>To do this installation you need to download the files from VMware directly, move them into portage, then do the installation from a real console (SSH or screen sessions won&rsquo;t cut it).  That was no problem but I ended up staring at a message like this</p>
+<p>Sure, I eventually got it to work but it wasn&rsquo;t fun and not really all that reliable.</p>
 
-<pre><code>process XXXXX: Attempt to remove filter function 0xXXXXXXXX user data 0x88162a8, but no such filter has been added
-  D-Bus not built with -rdynamic so unable to print a backtrace
-</code></pre>
+<p>Just this morning I decided to try to get some real variety in my MOH and came up with a quick hack that surprisingly only involves a few basic elements:</p>
 
-<p>I tried to re-emerge dbus with that option but there are no USE flags that correspond to it that I could see.  I checked if D-Bus was even running and it was.  At this point I randomly and luckily found the fix.  All you need to do is to stop D-Bus via</p>
+<p>Step 1: Download Vidar Madsen&rsquo;s <a href="http://vidar.gimp.org/?page_id=50">LastFMProxy python application</a> onto your <a href="http://freeswitch.org">FreeSWITCH</a> server</p>
 
-<pre><code>/etc/init.d/dbus stop
-</code></pre>
+<p>Step 2: Update config.py with your username and password for last.fm</p>
 
-<p>As soon as I did that VMware started up, asked me to accept the EULA, and I was straight back on the virtualization track.</p>
+<p>Step 3: Run <a href="http://www.gnu.org/software/screen/">screen</a>, start last.fm proxy&rsquo;s main.py, and then detach and leave it running in the background</p>
 
-<p>Note: While stopping DBus will get VMware to start you&rsquo;ll still need to do two last things to make everything happy</p>
+<p>Step 4: Find the hold_music variable and update it to look like this:</p>
 
-<p>Step 1: Run</p>
+<p>&lt;X-PRE-PROCESS cmd=&ldquo;set&rdquo; data=&ldquo;hold_music=shout://localhost:1881/lastfm.mp3&rdquo;/></p>
 
-<pre><code>/etc/init.d/vmware start
-</code></pre>
+<p>Step 5: Point your browser (on the server directly or using X-forwarding over SSH) to one of the example links from the LastFMProxy README:</p>
 
-<p>Step 2: Run</p>
+<p><a href="http://localhost:1881/lastfm://globaltags/rock">http://localhost:1881/lastfm://globaltags/rock</a></p>
 
-<pre><code>rc-update add vmware default
-</code></pre>
+<p><a href="http://localhost:1881/lastfm://artist/Madonna/similarartists">http://localhost:1881/lastfm://artist/Madonna/similarartists</a></p>
 
-<p>This makes sure that VMware creates all the device nodes that it needs, loads all of the modules for virtual networking, monitoring, etc., and that this will always come up after a reboot.  Without this you can end up chasing down some seriously weird error messages.</p>
+<p><a href="http://localhost:1881/lastfm://user/vidarino/neighbours">http://localhost:1881/lastfm://user/vidarino/neighbours</a></p>
+
+<p>Or you can build your own.  The format is somewhat obvious so I&rsquo;ll leave that as an exercise for the reader.</p>
+
+<p>6: Restart FreeSWITCH when convenient and enjoy your new music on hold.  Disclaimer: I only use this internally for testing, not production.  I don&rsquo;t claim to know or understand the licensing issues here so proceed at your own risk.</p>
+
+<p>One really nice thing about this hack is that you can change your music selection on-the-fly, programmatically.  If you hit one of the URLs from step 5 with wget or LWP then FreeSWITCH will seamlessly switch to the new music after the current track has finished.  You won&rsquo;t be jarred into the new music selection with an instant track change.  This is what I usually go for:</p>
+
+<p>wget -O /dev/null <a href="http://localhost:1881/lastfm://artist/KMFDM/similarartists">http://localhost:1881/lastfm://artist/KMFDM/similarartists</a></p>
 </div>
-
-
-  <footer>
-    <p class="meta">
-      
   
-
-<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
-
-      
-
-
-
-
-
-
-
-
   
 
 
-<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
-      
-
-<span class="categories">
+    </article>
   
-    <a class='category' href='/categories/tips/'>Tips</a>
-  
-</span>
-
-
-    </p>
+  <div class="pagination">
     
-      <div class="sharing">
-  
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/" >Tweet</a>
-  
-  
-  <div class="g-plusone" data-size="medium"></div>
-  
-  
-</div>
-
+    <a href="/archives">Archives</a>
     
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/" title="Previous Post: Tip: Fix "NVIDIA(0): Failed to initialize the GLX module; please check in your X log file" on Gentoo">&laquo; Tip: Fix "NVIDIA(0): Failed to initialize the GLX module; please check in your X log file" on Gentoo</a>
-      
-      
-        <a class="basic-alignment right" href="/archives/2009/11/03/tip-get-your-mouse-and-keyboard-back-after-upgrading-xorgx11/" title="Next Post: Tip: Get your mouse and keyboard back after upgrading Xorg/X11">Tip: Get your mouse and keyboard back after upgrading Xorg/X11 &raquo;</a>
-      
-    </p>
-  </footer>
-</article>
-
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a class="next" href="/page/11/">Newer &rarr;</a>
+    
+  </div>
 </div>
-  </section>
-
-</div>
-
 <aside class="sidebar">
   
     <section>
@@ -233,7 +190,7 @@
       </li>
     
       <li class="post">
-        <a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Forcing Java's Logger to Work, Even When It Doesn't Want To</a>
+        <a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Forcing Java&#8217;s Logger to Work, Even When It Doesn&#8217;t Want To</a>
       </li>
     
       <li class="post">
@@ -246,7 +203,7 @@
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
+    <li class="loading">Status updating&#8230;</li>
   </ul>
   
   <a href="https://github.com/timmattison">@timmattison</a> on GitHub
@@ -288,7 +245,6 @@
   
 </aside>
 
-
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -303,10 +259,7 @@
       var disqus_shortname = 'timmattison';
       
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/';
-        var disqus_script = 'embed.js';
+        var disqus_script = 'count.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
