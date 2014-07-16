@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Are you looking for a no-nonsense way to install all of these applications and don&rsquo;t want to dig through any documentation?  Just run this list &hellip;">
+  <meta name="description" content="Don&rsquo;t care about the narrative?  Jump to the instructions. These days password security is paramount. In recent news we have seen several high- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,87 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/">How-To: Secure Your WordPress Blog With Two-factor Authentication</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-13T10:06:25-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Don&rsquo;t care about the narrative?  Jump to the <a href="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/#instructions">instructions</a>.</p>
+
+<p>These days password security is paramount.  In recent news we have seen several high-profile breaches against <a href="http://www.telegraph.co.uk/technology/news/8553979/Sony-hack-private-details-of-million-people-posted-online.html">Sony</a>, <a href="http://www.rsa.com/node.aspx?id=3891">RSA</a>, and <a href="http://www.theregister.co.uk/2011/06/13/games_firm_epic_breach/">Epic</a> where passwords were lost, mission-critical keys were pilfered, and user details were leaked, respectively.</p>
+
+<p>Security professionals understand that multi-factor authentication is important.  Multi-factor authentication means that you access resources using something you know (ie. a password) and something you have (ie. a token that generates a unique code each time it is used).  This way someone would need to know your username, password, and have your token to gain access to whatever you are protecting.  Without any one of those things they will be denied access.  With a secure token even if they capture the data as it goes across the wire the token can only be used once.  If they attempt to reuse it they will be denied access yet again.</p>
+
+<p>Previously RSA was the place to go for this kind of security and it was too expensive for individuals to use.  But now a company called <a href="http://yubico.com/">Yubico</a> offers affordable tokens that can be used for a multitude of applications (<a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/YubiCloud">online services</a>, <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Enterprisesecuritysolutions">enterprise security solutions</a>, <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Otherenterprisesolutions">enterprise services</a>, and <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Opensource">open-source applications</a>).  If you have custom needs they also have a <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Systemintegrators">world-wide list of system integrators</a> that can help you through it.</p>
+
+<p>With the Yubikey Wordpress plugin you can now add this security to your Wordpress blog and make sure that your password and account information can&rsquo;t be nabbed by someone looking over your shoulder at a coffee shop.  Installing the plugin isn&rsquo;t hard but there are some things that are easy to miss.  To help you out I&rsquo;ve laid out all the steps from start to finish including testing and verification.  Here goes&hellip;</p>
+
+<p><strong>NOTE:</strong> You will not be able to complete beyond step 2 until you receive your Yubikey(s) in the mail.</p>
+
+<p>There are a lot of steps here but it is broken down into very small chunks.  Installation should take less than 5 minutes from start to finish.</p>
+
+<ul>
+<li><p>Step 1: Obtain a Yubikey (<a href="https://store.yubico.com/store/catalog/product_info.php?ref=232&amp;products_id=2&amp;affiliate_banner_id=1">YubiKey in Black</a>, <a href="https://store.yubico.com/store/catalog/product_info.php?ref=232&amp;products_id=3&amp;affiliate_banner_id=1">YubiKey in White</a>)</p></li>
+<li><p>Step 2: <a href="https://upgrade.yubico.com/getapikey/">Get an API key</a>.  Your API key is a client ID (a number) and a secret key (a long string).  Copy these to a safe place and make sure you copy the entire secret key.  It ends with an equals sign &ldquo;=&rdquo; and won&rsquo;t work without it!</p></li>
+<li><p>Step 3: Download the <a href="http://downloads.wordpress.org/plugin/yubikey-plugin.0.94.zip">Wordpress plugin for Yubikey authentication</a> to your computer</p></li>
+<li><p>Step 4: Sign into your Wordpress blog as an administrator.  If you are the only user on your blog then you are the administrator.</p></li>
+<li><p>Step 5: Click on the &ldquo;Plugins&rdquo; link on the left side of the screen</p></li>
+<li><p>Step 6: Click &ldquo;Add New&rdquo; either on the top or the left side of the screen.  They both go to the same place.</p></li>
+<li><p>Step 7: Click the &ldquo;Upload&rdquo; link on the top of the screen directly below &ldquo;Install Plugins&rdquo;</p></li>
+<li><p>Step 8: Click &ldquo;Browse&rdquo; and find the ZIP file you downloaded in step 3.  Then click &ldquo;Install Now&rdquo;.</p></li>
+<li><p>Step 9: Click &ldquo;Activate&rdquo;.</p></li>
+<li><p>Step 10: Click &ldquo;Settings&rdquo; on the left side of the screen.</p></li>
+<li><p>Step 11: Click &ldquo;Yubikey&rdquo; on the left side of the screen below &ldquo;Settings&rdquo;.  If there is no &ldquo;Yubikey&rdquo; link then click &ldquo;Plugins&rdquo; and make sure the Yubikey plugin is in the list and activated.  If it has a link that says &ldquo;Activate&rdquo; click it and go back to step 10.</p></li>
+<li><p>Step 12: Enter your client ID in the &ldquo;Yubico API ID&rdquo; field and your secret key in the &ldquo;Yubico API key&rdquo; field.  Make sure the equals sign &ldquo;=&rdquo; isn&rsquo;t missing from the end of the secret key.</p></li>
+<li><p>Step 13: Click &ldquo;Users&rdquo; on the left side of the screen.</p></li>
+<li><p>Step 14: Find and click on the username of the account that you want to enable the Yubikey on.  If you are the only user then this may be &ldquo;admin&rdquo;.</p></li>
+<li><p>Step 15: Locate the &ldquo;Yubikey Settings&rdquo; section and change the option from &ldquo;Disabled&rdquo; to &ldquo;Use Yubico server&rdquo;.</p></li>
+<li><p>Step 16: Click on the text box next to &ldquo;Key ID 1&rdquo;.</p></li>
+<li><p>Step 17: Insert your Yubikey.</p></li>
+<li><p>Step 18: Press the button on your Yubikey for two seconds and the form will fill in.</p></li>
+<li><p>Step 19: Scroll down to the bottom of the page and click &ldquo;Update profile&rdquo;.</p></li>
+<li><p>Step 20: Log out and try to log in with your Yubikey!</p></li>
+</ul>
+
+
+<p>When you get to your login screen you will now see a new field labeled &ldquo;Yubikey OTP&rdquo;.  When you log in now you&rsquo;ll enter your username and password as you used to but then you&rsquo;ll click in the Yubikey OTP box, plug your Yubikey in, and press the button.  That will complete your login process.</p>
+
+<p>One thing you MUST do before you consider this task done is test to make sure the Yubikey authentication isn&rsquo;t disabled.  A lot of people miss this and don&rsquo;t realize that their token isn&rsquo;t actually enabled.  To test this try logging in to your site but instead of using the Yubikey in the Yubikey OTP field just type some random characters.  If it still lets you log in you need to go back and do step 15 and then step 19 again.  Test it again and make sure it works.  If it is set up properly it will tell you your password is incorrect when you type random characters in the OTP field.</p>
+
+<p>Good luck and post any questions in the comments.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -540,62 +621,9 @@ $body = $body . $line;
 
 <p>The instructions explicitly say to switch from NAT to bridged but some users have found that it actually does work just fine with NAT.  In my case it still didn&rsquo;t work with either.  <a href="http://discuss.gdgt.com/google/chrome-os/general/Download-Chrome-OS-VMWare-image/page/2/">Luckily someone on the forums let us in on the secret</a> that you actually don&rsquo;t need a Google account at all to use this build.</p>
 
-<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#x3a;&#99;&#x68;&#x72;&#111;&#x6e;&#x6f;&#x73;&#x40;&#103;&#109;&#97;&#105;&#108;&#x2e;&#99;&#x6f;&#109;">&#99;&#104;&#x72;&#111;&#110;&#x6f;&#115;&#64;&#x67;&#109;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
+<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#109;&#97;&#x69;&#108;&#116;&#x6f;&#58;&#x63;&#x68;&#114;&#x6f;&#110;&#x6f;&#115;&#x40;&#103;&#x6d;&#97;&#x69;&#108;&#46;&#x63;&#111;&#x6d;">&#99;&#x68;&#114;&#x6f;&#x6e;&#111;&#115;&#x40;&#x67;&#x6d;&#x61;&#x69;&#108;&#x2e;&#99;&#x6f;&#x6d;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
 
 <p>Surprisingly, after doing that the networking system came to life and I could log into GMail and check other sites.  If you&rsquo;re hung up on getting past the initial login screen definitely try the &ldquo;chronos&rdquo; account and let me know if it works for you.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/">Tip: Monitor Networked Devices Aurally With Ping on Mac OS and Linux</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-12-07T18:59:59-05:00" pubdate data-updated="true">Dec 7<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I work with embedded Ethernet devices a lot and I need to monitor them to know exactly when they restart or if they go down during testing.  I used to do it with ping sitting on an external monitor and just glance up at it every few minutes to see what&rsquo;s happening.  This is a less than optimal solution since it requires me to constantly be distracted by a stream of information, it eats up screen real estate, and it forces me to keep an electron inhaling LCD panel running.</p>
-
-<p>I just discovered that the standard ping utility in Linux and Mac OS has a neat feature to alleviate this pain.  It will output an audible bell on every packet either received (showing a device is online) or missed (showing a device is offline). It&rsquo;s your choice which one you use, of course.  Personally, I have only needed the offline alert since I just need to be able to get into devices to see what they&rsquo;re doing immediately after a planned restart.</p>
-
-<p>To get audible notification for every packet missed do this:</p>
-
-<pre><code>ping -A hostname
-</code></pre>
-
-<p>To get audible notification for every packet received do this:</p>
-
-<pre><code>ping -a hostname
-</code></pre>
-
-<p>Now you can work without distraction until you hear those <a href="http://en.wikipedia.org/wiki/Bell_character">BEL</a>s.</p>
 </div>
   
   
@@ -636,6 +664,10 @@ $body = $body . $line;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/">Common Android Wear Tasks for Developers</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/">Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS</a>
       </li>
     
@@ -649,10 +681,6 @@ $body = $body . $line;
     
       <li class="post">
         <a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Forcing Java&#8217;s Logger to Work, Even When It Doesn&#8217;t Want To</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a>
       </li>
     
   </ul>
