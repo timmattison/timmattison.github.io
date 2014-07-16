@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-07-16T13:31:16-04:00</updated>
+  <updated>2014-07-16T13:32:21-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -59,7 +59,9 @@
 
 <ol>
 <li>Open the &ldquo;Android Wear&rdquo; app</li>
-<li>Tap the settings icon at the top of the screen <img src="http://blog.timmattison.com/images/android-wear-for-developers/settings-icon.png" alt="two small gears" /></li>
+<li><p>Tap the settings icon at the top of the screen</p>
+
+<p>  <img src="http://blog.timmattison.com/images/android-wear-for-developers/settings-icon.png" alt="two small gears" /></p></li>
 <li>Make sure &ldquo;Debugging over Bluetooth&rdquo; is checked</li>
 <li>Once it is checked two fields will appear below it.  They are &ldquo;Host&rdquo; and &ldquo;Target&rdquo;.  &ldquo;Target&rdquo; will say &ldquo;connected&rdquo; when your watch is connected to your phone.  &ldquo;Host&rdquo; will say &ldquo;connected&rdquo; when ADB is connected to your watch.</li>
 </ol>
