@@ -10,15 +10,15 @@ After migrating to Octopress I started getting interested in my site's analytics
 
 First, we got the "Loading..." spinner for a long time:
 
-{% img images/in-page-analytics/loading.png %}
+![Loading...](/images/in-page-analytics/loading.png)
 
 Then we got the "Still loading..." message that didn't inspire much confidence:
 
-{% img images/in-page-analytics/still-loading.png %}
+![Still loading...](/images/in-page-analytics/still-loading.png)
 
 Finally, we got a popup that said "Problem loading In-Page Analytics":
 
-{% img images/in-page-analytics/problem-loading-in-page-analytics.png %}
+![Problem loading In-Page Analytics](/images/in-page-analytics/problem-loading-in-page-analytics.png)
 
 What the problem was in my case was that I told Google Analytics that I wanted to track timmattison.com but my site redirects to blog.timmattison.com.  My two options were to make my site actually be served from timmattison.com or to change my tracking code.  I opted to change my tracking code.  I'll walk you through how I did it.
 
@@ -28,33 +28,33 @@ Here are the steps:
 
 * Log into your analytics account
 
-{% img images/in-page-analytics/log-into-your-analytics-account.png %}
+![Log into your analytics account](/images/in-page-analytics/log-into-your-analytics-account.png)
 
 * Click the admin button
 
-{% img images/in-page-analytics/click-the-admin-button.png %}
+![Click the admin button](/images/in-page-analytics/click-the-admin-button.png)
 
 * Click "View Settings"
 
-{% img images/in-page-analytics/click-view-settings.png %}
+![Click "View Settings"](/images/in-page-analytics/click-view-settings.png)
 
 * Scroll all the way to the bottom of the page
 
 * Click "Delete View"
 
-{% img images/in-page-analytics/click-delete-view.png %}
+![Click "Delete View"](/images/in-page-analytics/click-delete-view.png)
 
 * Click "Delete View" again.  *At this point you'll lose all of your analytics history!*
 
-{% img images/in-page-analytics/click-delete-view-again.png %}
+![Click "Delete View" again](/images/in-page-analytics/click-delete-view-again.png)
 
 * Click the admin button
 
-{% img images/in-page-analytics/click-the-admin-button.png %}
+![Click the admin button](/images/in-page-analytics/click-the-admin-button.png)
 
 * Click the property drop down and then click "Create new property"
 
-{% img images/in-page-analytics/click-property-drop-down-and-click-create-new-property.png %}
+![Click the property drop down and then click "Create new property"](/images/in-page-analytics/click-property-drop-down-and-click-create-new-property.png)
 
 * Re-create your property and make sure you use the site you redirect to.  In my case "blog.timmattison.com", not "timmattison.com".
 
