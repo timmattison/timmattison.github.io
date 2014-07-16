@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-07-15T18:54:22-04:00</updated>
+  <updated>2014-07-16T08:10:11-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -1089,15 +1089,15 @@
 
 <p>First, we got the &ldquo;Loading&hellip;&rdquo; spinner for a long time:</p>
 
-<p><img src="images/in-page-analytics/loading.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/loading.png" alt="Loading..." /></p>
 
 <p>Then we got the &ldquo;Still loading&hellip;&rdquo; message that didn&rsquo;t inspire much confidence:</p>
 
-<p><img src="images/in-page-analytics/still-loading.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/still-loading.png" alt="Still loading..." /></p>
 
 <p>Finally, we got a popup that said &ldquo;Problem loading In-Page Analytics&rdquo;:</p>
 
-<p><img src="images/in-page-analytics/problem-loading-in-page-analytics.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/problem-loading-in-page-analytics.png" alt="Problem loading In-Page Analytics" /></p>
 
 <p>What the problem was in my case was that I told Google Analytics that I wanted to track timmattison.com but my site redirects to blog.timmattison.com.  My two options were to make my site actually be served from timmattison.com or to change my tracking code.  I opted to change my tracking code.  I&rsquo;ll walk you through how I did it.</p>
 
@@ -1110,21 +1110,21 @@
 </ul>
 
 
-<p><img src="images/in-page-analytics/log-into-your-analytics-account.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/log-into-your-analytics-account.png" alt="Log into your analytics account" /></p>
 
 <ul>
 <li>Click the admin button</li>
 </ul>
 
 
-<p><img src="images/in-page-analytics/click-the-admin-button.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-the-admin-button.png" alt="Click the admin button" /></p>
 
 <ul>
 <li>Click &ldquo;View Settings&rdquo;</li>
 </ul>
 
 
-<p><img src="images/in-page-analytics/click-view-settings.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-view-settings.png" alt="Click &quot;View Settings&quot;" /></p>
 
 <ul>
 <li><p>Scroll all the way to the bottom of the page</p></li>
@@ -1132,28 +1132,28 @@
 </ul>
 
 
-<p><img src="images/in-page-analytics/click-delete-view.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-delete-view.png" alt="Click &quot;Delete View&quot;" /></p>
 
 <ul>
 <li>Click &ldquo;Delete View&rdquo; again.  <em>At this point you&rsquo;ll lose all of your analytics history!</em></li>
 </ul>
 
 
-<p><img src="images/in-page-analytics/click-delete-view-again.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-delete-view-again.png" alt="Click &quot;Delete View&quot; again" /></p>
 
 <ul>
 <li>Click the admin button</li>
 </ul>
 
 
-<p><img src="images/in-page-analytics/click-the-admin-button.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-the-admin-button.png" alt="Click the admin button" /></p>
 
 <ul>
 <li>Click the property drop down and then click &ldquo;Create new property&rdquo;</li>
 </ul>
 
 
-<p><img src="images/in-page-analytics/click-property-drop-down-and-click-create-new-property.png"></p>
+<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-property-drop-down-and-click-create-new-property.png" alt="Click the property drop down and then click &quot;Create new property&quot;" /></p>
 
 <ul>
 <li><p>Re-create your property and make sure you use the site you redirect to.  In my case &ldquo;blog.timmattison.com&rdquo;, not &ldquo;timmattison.com&rdquo;.</p></li>
@@ -1377,9 +1377,9 @@
 
 <p>Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.</p>
 
-<p><img src="images/sipml5-asterisk/registration-and-call-control.png"></p>
+<p><img src="http://blog.timmattison.com/images/sipml5-asterisk/registration-and-call-control.png" alt="Registration and call control" /></p>
 
-<p><img src="images/sipml5-asterisk/expert-settings.png"></p>
+<p><img src="http://blog.timmattison.com/images/sipml5-asterisk/expert-settings.png" alt="Expert settings" /></p>
 ]]></content>
   </entry>
   
