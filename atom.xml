@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-07-16T13:32:21-04:00</updated>
+  <updated>2014-07-16T13:33:07-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -59,7 +59,7 @@
 
 <ol>
 <li>Open the &ldquo;Android Wear&rdquo; app</li>
-<li><p>Tap the settings icon at the top of the screen</p>
+<li><p>Tap the settings icon at the top of the screen (the two gears that look like the icon below)</p>
 
 <p>  <img src="http://blog.timmattison.com/images/android-wear-for-developers/settings-icon.png" alt="two small gears" /></p></li>
 <li>Make sure &ldquo;Debugging over Bluetooth&rdquo; is checked</li>
