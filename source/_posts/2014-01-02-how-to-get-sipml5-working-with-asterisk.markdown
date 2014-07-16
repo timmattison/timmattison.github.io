@@ -54,6 +54,6 @@ At this point you should hear audio coming from Asterisk in a few seconds and yo
 
 Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.
 
-{% img images/sipml5-asterisk/registration-and-call-control.png %}
+![Registration and call control](/images/sipml5-asterisk/registration-and-call-control.png)
 
-{% img images/sipml5-asterisk/expert-settings.png %}
+![Expert settings](/images/sipml5-asterisk/expert-settings.png)
