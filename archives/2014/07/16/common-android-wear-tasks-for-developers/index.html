@@ -163,27 +163,27 @@
 <li>Connect your phone via USB and make sure USB debugging is enabled</li>
 <li><p>Run <code>adb devices</code> from the command line.  You should get some output like this:</p>
 
-<p>  <code>
-  $ adb devices
-  List of devices attached
-  01234567890abcdef  device
- </code></p></li>
-<li>Check to see if there is a device in the list called &ldquo;localhost:4444&rdquo;.  If so, you are already paired and ready to go.  You do not need to do this procedure.</li>
+<p> <div class="highlight"><pre><code>
+ <span class="line">$ adb devices</span>
+ <span class="line">List of devices attached</span>
+ <span class="line">01234567890abcdef    device</span>
+ </code></pre></div></p></li>
+<li><p>Check to see if there is a device in the list called &ldquo;localhost:4444&rdquo;.  If so, you are already paired and ready to go.  You do not need to do this procedure.</p></li>
 <li><p>To connect ADB to your watch run <code>adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</code> and you should see this:</p>
 
-<p>  <code>
-  $ adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444
-  connected to localhost:4444
- </code></p></li>
+<p> <div class="highlight"><pre><code>
+ <span class="line">$ adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</span>
+ <span class="line">connected to localhost:4444</span>
+ </code></pre></div></p></li>
 <li><p>Run <code>adb devices</code> again and you should see this:</p>
 
-<p>  <code>
-  $ adb devices
-  List of devices attached
-  01234567890abcdef  device
-  localhost:4444     device
- </code></p></li>
-<li>If you do not see the <code>localhost:4444</code> entry then double check that ADB debugging and Bluetooth debugging are enabled on your watch.  Then check to make sure Bluetooth debugging is enabled in the Android Wear app on your phone.  Once those are verified you can run this command again and it will try to reconnect.</li>
+<p> <div class="highlight"><pre><code>
+ <span class="line">$ adb devices</span>
+ <span class="line">List of devices attached</span>
+ <span class="line">01234567890abcdef    device</span>
+ <span class="line">localhost:4444       device</span>
+ </code></pre></div></p></li>
+<li><p>If you do not see the <code>localhost:4444</code> entry then double check that ADB debugging and Bluetooth debugging are enabled on your watch.  Then check to make sure Bluetooth debugging is enabled in the Android Wear app on your phone.  Once those are verified you can run this command again and it will try to reconnect.</p></li>
 </ol>
 
 
