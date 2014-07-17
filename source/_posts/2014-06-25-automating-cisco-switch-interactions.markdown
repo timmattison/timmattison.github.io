@@ -41,7 +41,7 @@ The other quirk I hit was that my script initially waited forever for a response
 
 In the end I ended up with a script that lets me check the PoE state of a port and enable/disable PoE on a per port basis.  If you need a script that does that it is included below.  Two important points to remember are that I only needed to use this on interfaces that start with `Gi1/0/` so that value is hardcoded and you'll need to change it if your switch is different.  You will also need to install my little Python library called [pyuda](https://pypi.python.org/pypi/pyuda/0.1dev) because I use it to process the command-line arguments.  Rip that out if you want to simplify things.
 
-```
+```python
 #!/usr/bin/env python
 
 __author__ = 'timmattison'
