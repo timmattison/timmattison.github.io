@@ -53,26 +53,29 @@ Make sure ADB sees your phone:
 1. Connect your phone via USB and make sure USB debugging is enabled
 2. Run `adb devices` from the command line.  You should get some output like this:
 
-     ```
-     $ adb devices
-     List of devices attached 
-     01234567890abcdef	device
-     ```
+    <div class="highlight"><pre><code>
+    <span class="line">$ adb devices</span>
+    <span class="line">List of devices attached</span>
+    <span class="line">01234567890abcdef	device</span>
+    </code></pre></div>
+
 3. Check to see if there is a device in the list called "localhost:4444".  If so, you are already paired and ready to go.  You do not need to do this procedure.
 4. To connect ADB to your watch run `adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444` and you should see this:
 
-     ```
-     $ adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444
-     connected to localhost:4444
-     ```
+    <div class="highlight"><pre><code>
+    <span class="line">$ adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</span>
+    <span class="line">connected to localhost:4444</span>
+    </code></pre></div>
+
 5. Run `adb devices` again and you should see this:
 
-     ```
-     $ adb devices
-     List of devices attached 
-     01234567890abcdef	device
-     localhost:4444 	device
-     ```
+    <div class="highlight"><pre><code>
+    <span class="line">$ adb devices</span>
+    <span class="line">List of devices attached</span>
+    <span class="line">01234567890abcdef	device</span>
+    <span class="line">localhost:4444   	device</span>
+    </code></pre></div>
+
 6. If you do not see the `localhost:4444` entry then double check that ADB debugging and Bluetooth debugging are enabled on your watch.  Then check to make sure Bluetooth debugging is enabled in the Android Wear app on your phone.  Once those are verified you can run this command again and it will try to reconnect.
 
 Now that you've done all of that Android Studio should give you a dialog like this when you try to run or debug an application:
