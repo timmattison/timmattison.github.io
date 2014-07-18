@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>How-To: Disable Screen Blanking in X on Gentoo (and Other Distros) - Tim Mattison</title>
+  <title>Fenced Code Blocks in Ordered Lists in Octopress - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Even though I have a nice dual monitor setup in my office I tend to use my laptop for almost everything. The dual monitor system ends up holding a &hellip;">
+  <meta name="description" content="While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown. I searched around and came across a gist that &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2009/11/24/how-to-disable-screen-blanking-in-x-on-gentoo-and-other-distros">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">How-To: Disable Screen Blanking in X on Gentoo (and Other Distros)</h1>
+      <h1 class="entry-title">Fenced Code Blocks in Ordered Lists in Octopress</h1>
     
     
       <p class="meta">
@@ -96,7 +96,7 @@
   
 
 
-<time datetime="2009-11-24T07:12:28-05:00" pubdate data-updated="true">Nov 24<span>th</span>, 2009</time>
+<time datetime="2014-07-17T06:54:17-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,17 +106,74 @@
   </header>
 
 
-<div class="entry-content"><p>Even though I have a nice dual monitor setup in my office I tend to use my laptop for almost everything.  The dual monitor system ends up holding a bunch of diagnostic and performance information (top, PProcM, tail of application/database logs, etc)  about the various machines I&rsquo;m working on.  Because of this I&rsquo;m almost never using the keyboard and mouse on that machine and in fact it often doesn&rsquo;t have a keyboard and mouse hooked up.  Typically I just access it just using <a href="http://www.karlrunge.com/x11vnc/">x11vnc</a> so I don&rsquo;t have to switch my wireless mouse over or go find a free keyboard.</p>
+<div class="entry-content"><p>While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown.  I searched around and came across <a href="https://gist.github.com/clintel/1155906">a gist that showed how to do it</a> but I still couldn&rsquo;t get it to work.</p>
 
-<p>The problem is that the screen blanker kicks in every 15 minutes or so.  I got tired of reconnecting via VNC to turn the displays back on so I just did a quick mod to my /etc/X11/xorg.conf and now I just turn the displays off manually whenever I don&rsquo;t need them.  If you want to do the same thing just add the following section right before the input device section (found on <a href="http://www.linuxquestions.org/questions/slackware-14/cannot-unset-powersave-mode-582229/">these forums</a>):</p>
+<p>It turns out that the parser used in Octopress is slightly different than some of the other parsers out there and treats this markdown differently.  There is <a href="https://github.com/imathis/octopress/issues/488">an issue filed for this</a> but the issue resolution is to use a workaround.</p>
 
-<pre><code>Section "ServerFlags"
-    Option         "blank time" "0"
-    Option         "standby time" "0"
-    Option         "suspend time" "0"
-    Option         "off time" "0"
-EndSection
-</code></pre>
+<p>After some experimentation I came up with some simple steps that cover all the scenarios for putting code blocks or formatted text into an ordered list while writing my blog posts.</p>
+
+<p>It is organized so that the two main scenarios include four different snippets of code.  The first snippet of code is put directly before the entire block you want to format.  The second snippet of code is put before each line of code.  The third snippet of code is put after each line of code.  The fourth snippet of code is put at the end of the entire block.</p>
+
+<ol>
+<li>No line numbers, no syntax highlighting.  I use this when including snippets of commands that I have run from the console.
+
+<ol>
+<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code&gt;</code></li>
+<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
+<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
+</ol>
+</li>
+</ol>
+
+
+<br/>
+
+
+<ol>
+<li>No line numbers, syntax highlighting.  I use this for regular code if I don&rsquo;t care about line numbers.  Replace <code>LANGUAGE</code> with the language you are using.  For example, <code>c</code> or <code>python</code> (see the <a href="http://pygments.org/docs/lexers/">supported language list</a> for more).
+
+<ol>
+<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code class="LANGUAGE"&gt;</code></li>
+<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
+<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
+</ol>
+</li>
+</ol>
+
+
+<p>If you want to do line numbers when syntax highlighting it gets messy.  You need to build a table to have the line number &ldquo;gutter&rdquo; in there.  You can do it but it is a bit more work.</p>
+
+<p>Line numbers and syntax highlighting:</p>
+
+<ol>
+<li><p>Start a table that holds everything.  This is the block you&rsquo;ll use:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&ldquo;gutter&rdquo;&gt;&lt;pre class=&ldquo;line-numbers&rdquo;&gt;</span>
+ </code></pre></div></p></li>
+<li><p>Determine how many lines are in your code snippet.  Now create a line number row for each of them.  Assuming you have five lines of code that would look like this:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;1&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;2&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;3&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;4&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;5&lt;/span&gt;</span>
+ </code></pre></div></p></li>
+<li><p>Close this column of the table and start the column for the code:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;/pre&gt;&lt;/td&gt;&lt;td class=&ldquo;code&rdquo;&gt;&lt;pre&gt;&lt;code class=&ldquo;LANGUAGE&rdquo;&gt;
+ </code></pre></div></p></li>
+<li><p>Before each line of code &ndash; <code>&lt;span class="line"&gt;</code></p></li>
+<li>After each line of code &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</code></li>
+</ol>
+
+
+<p>That should do it.  Good luck!</p>
 </div>
 
 
@@ -125,7 +182,7 @@ EndSection
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
 
       
 
@@ -139,21 +196,15 @@ EndSection
   
 
 
-<time datetime="2009-11-24T07:12:28-05:00" pubdate data-updated="true">Nov 24<span>th</span>, 2009</time>
+<time datetime="2014-07-17T06:54:17-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/categories/how-to/'>How-To</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2009/11/24/how-to-disable-screen-blanking-in-x-on-gentoo-and-other-distros/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2009/11/24/how-to-disable-screen-blanking-in-x-on-gentoo-and-other-distros/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -164,10 +215,8 @@ EndSection
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/" title="Previous Post: How-To: Fix "ERROR: function information_schema._pg_keypositions() does not exist" in PostgreSQL when using Hibernate">&laquo; How-To: Fix "ERROR: function information_schema._pg_keypositions() does not exist" in PostgreSQL when using Hibernate</a>
+        <a class="basic-alignment left" href="/archives/2014/07/16/common-android-wear-tasks-for-developers/" title="Previous Post: Common Android Wear tasks for developers">&laquo; Common Android Wear tasks for developers</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/" title="Next Post: How-To: Setup streaming MP4 video on your own Gentoo server (and other distros)">How-To: Setup streaming MP4 video on your own Gentoo server (and other distros) &raquo;</a>
       
     </p>
   </footer>
@@ -287,8 +336,8 @@ EndSection
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2009/11/24/how-to-disable-screen-blanking-in-x-on-gentoo-and-other-distros/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2009/11/24/how-to-disable-screen-blanking-in-x-on-gentoo-and-other-distros/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/';
         var disqus_script = 'embed.js';
       
     (function () {

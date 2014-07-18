@@ -650,7 +650,7 @@
         <loc>
             http://blog.timmattison.com/archives/2014/06/25/automating-cisco-switch-interactions/
         </loc>
-        <lastmod>2014-06-26T06:40:46-04:00</lastmod>
+        <lastmod>2014-07-17T07:07:37-04:00</lastmod>
     </url>
     <url>
         <loc>
@@ -662,15 +662,21 @@
         <loc>
             http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/
         </loc>
-        <lastmod>2014-07-17T06:52:39-04:00</lastmod>
+        <lastmod>2014-07-17T07:23:36-04:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/
+        </loc>
+        <lastmod>2014-07-18T18:40:05-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-07-17T06:52:39-04:00</lastmod>
+        <lastmod>2014-07-18T18:40:05-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-07-17T06:52:39-04:00</lastmod>
+        <lastmod>2014-07-18T18:40:05-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

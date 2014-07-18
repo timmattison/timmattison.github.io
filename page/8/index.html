@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I work with embedded Ethernet devices a lot and I need to monitor them to know exactly when they restart or if they go down during testing. I used to &hellip;">
+  <meta name="description" content="gdgt has released a VMware image for Chrome OS this week. It works on all versions of VMware (not sure about ESX though), Virtual Box, and Parallels &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,51 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/12/15/how-to-fix-chrome-os-networking-problems-in-vmware-fusion/">How-To: Fix Chrome OS Networking Problems in VMware Fusion</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-12-15T07:54:00-05:00" pubdate data-updated="true">Dec 15<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/12/15/how-to-fix-chrome-os-networking-problems-in-vmware-fusion/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/15/how-to-fix-chrome-os-networking-problems-in-vmware-fusion/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>gdgt has <a href="http://gdgt.com/google/chrome-os/download/">released a VMware image for Chrome OS</a> this week.  It works on all versions of VMware (not sure about ESX though), Virtual Box, and Parallels.  When I started it up in VMware Fusion I kept getting the message &ldquo;Network not connected and offline login fail&rdquo;.</p>
+
+<p>The instructions explicitly say to switch from NAT to bridged but some users have found that it actually does work just fine with NAT.  In my case it still didn&rsquo;t work with either.  <a href="http://discuss.gdgt.com/google/chrome-os/general/Download-Chrome-OS-VMWare-image/page/2/">Luckily someone on the forums let us in on the secret</a> that you actually don&rsquo;t need a Google account at all to use this build.</p>
+
+<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x63;&#x68;&#x72;&#x6f;&#x6e;&#111;&#115;&#64;&#103;&#109;&#97;&#105;&#x6c;&#46;&#99;&#111;&#x6d;">&#x63;&#104;&#114;&#111;&#110;&#111;&#115;&#x40;&#103;&#109;&#97;&#x69;&#x6c;&#46;&#99;&#x6f;&#x6d;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
+
+<p>Surprisingly, after doing that the networking system came to life and I could log into GMail and check other sites.  If you&rsquo;re hung up on getting past the initial login screen definitely try the &ldquo;chronos&rdquo; account and let me know if it works for you.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -668,70 +713,6 @@ rc-update add vmware default
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/">How-To: Fix &#8220;This Selection Is Not Within a Valid Module&#8221; Errors in Eclipse When Refactoring Web Projects</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-12T14:20:47-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>After rebuilding my Eclipse environment I had the need to refactor one of my web projects.  Once I refactored it using the usual Eclipse method (right-click on the project &ndash;> Refactor &ndash;> Rename) I wasn&rsquo;t able to start the project on my web server.  The error message I got was</p>
-
-<pre><code>This selection is not within a valid module
-</code></pre>
-
-<p>Here are the steps to resolve this issue:</p>
-
-<p>Step 1: Select the &ldquo;Servers&rdquo; tab in Eclipse</p>
-
-<p>Step 2: Right-click on your server and select &ldquo;Delete&rdquo;</p>
-
-<p>Step 3: If prompted, make sure all options are checked (&ldquo;Delete unused server configuration(s)&rdquo;, &ldquo;Delete running server(s)&rdquo;, and &ldquo;Stop server(s) before deleting&rdquo;) and click OK</p>
-
-<p>Step 4: Close Eclipse</p>
-
-<p>Step 5: Go into your project&rsquo;s .settings directory and edit the org.eclipse.wst.common.component file</p>
-
-<p>Step 6: Change the following values to the name of your refactored project:</p>
-
-<pre><code>wb-module deploy-name
-property name="context-root" value
-</code></pre>
-
-<p>Step 7: Restart Eclipse and re-run your project</p>
-
-<p>Now your project should deploy to your servlet container properly.  Any time you refactor a web project in Eclipse you may need to do this so keep these instructions around if you think you&rsquo;ll need to do it often.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -765,6 +746,10 @@ property name="context-root" value
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/">Common Android Wear Tasks for Developers</a>
       </li>
     
@@ -778,10 +763,6 @@ property name="context-root" value
     
       <li class="post">
         <a href="/archives/2014/06/20/advanced-port-forwarding-with-ssh/">Advanced Port Forwarding With SSH</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Forcing Java&#8217;s Logger to Work, Even When It Doesn&#8217;t Want To</a>
       </li>
     
   </ul>
