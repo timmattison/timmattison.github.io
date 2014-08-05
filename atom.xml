@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-07-18T18:59:59-04:00</updated>
+  <updated>2014-08-05T09:01:09-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,121 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Using Guice Dependency Injection With Quartz Schedulding]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/"/>
+    <updated>2014-08-05T08:39:34-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding</id>
+    <content type="html"><![CDATA[<p>I am a big <a href="https://github.com/google/guice">Guice</a> advocate.  I try to use it wherever it is possible and makes sense.  While working on a project yesterday I realized that in order to use Guice and <a href="http://quartz-scheduler.org/">Quartz</a> together you need to add in some glue code.</p>
+
+<p>I <a href="http://codesmell.wordpress.com/2009/01/11/quartz-fits/">found someone who had done the work already</a> but their blog post was from 2009 and the Quartz API had changed a bit.  Their implementation was very close so I made the necessary modifications, tested it out, and it works perfectly.  If you&rsquo;re wondering how to use Guice to get dependency injection into your Quartz scheduler code you can use the two snippets of code below to do it all for you.</p>
+
+<p>The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the <code>GuiceJobFactory</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import com.google.inject.Injector;
+</span><span class='line'>import org.quartz.Job;
+</span><span class='line'>import org.quartz.JobDetail;
+</span><span class='line'>import org.quartz.Scheduler;
+</span><span class='line'>import org.quartz.SchedulerException;
+</span><span class='line'>import org.quartz.spi.JobFactory;
+</span><span class='line'>import org.quartz.spi.TriggerFiredBundle;
+</span><span class='line'>
+</span><span class='line'>import javax.inject.Inject;
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * Created by timmattison on 8/4/14.
+</span><span class='line'> */
+</span><span class='line'>// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/
+</span><span class='line'>final class GuiceJobFactory implements JobFactory {
+</span><span class='line'>    private final Injector guice;
+</span><span class='line'>
+</span><span class='line'>    @Inject
+</span><span class='line'>    public GuiceJobFactory(final Injector guice) {
+</span><span class='line'>        this.guice = guice;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public Job newJob(TriggerFiredBundle triggerFiredBundle, Scheduler scheduler) throws SchedulerException {
+</span><span class='line'>        // Get the job detail so we can get the job class
+</span><span class='line'>        JobDetail jobDetail = triggerFiredBundle.getJobDetail();
+</span><span class='line'>        Class jobClass = jobDetail.getJobClass();
+</span><span class='line'>
+</span><span class='line'>        try {
+</span><span class='line'>            // Get a new instance of that class from Guice so we can do dependency injection
+</span><span class='line'>            return (Job) guice.getInstance(jobClass);
+</span><span class='line'>        } catch (Exception e) {
+</span><span class='line'>            // Something went wrong.  Print out the stack trace here so SLF4J doesn't hide it.
+</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>
+</span><span class='line'>            // Rethrow the exception as an UnsupportedOperationException
+</span><span class='line'>            throw new UnsupportedOperationException(e);
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>GuiceJobFactory</code> gets the Guice injector injected into it.  It then overrides the newJob method and creates each job using the injector it was given.</p>
+
+<p>The next thing you need to do is to use this <code>JobFactory</code> in your <code>Scheduler</code>.  Here&rsquo;s how I built my scheduler and used it to create my first job:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+</span><span class='line'>scheduler.setJobFactory(injector.getInstance(GuiceJobFactory.class));
+</span><span class='line'>
+</span><span class='line'>scheduler.start();
+</span><span class='line'>
+</span><span class='line'>JobDetail jobDetail = newJob(MyJob.class).build();</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Fenced Code Blocks in Ordered Lists in Octopress]]></title>
@@ -1542,85 +1657,6 @@
 <p><img src="http://blog.timmattison.com/images/sipml5-asterisk/registration-and-call-control.png" alt="Registration and call control" /></p>
 
 <p><img src="http://blog.timmattison.com/images/sipml5-asterisk/expert-settings.png" alt="Expert settings" /></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Installing Unison on a Synology NAS]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/01/02/installing-unison-on-a-synology-nas/"/>
-    <updated>2014-01-02T18:53:31-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/01/02/installing-unison-on-a-synology-nas</id>
-    <content type="html"><![CDATA[<p>This is all business.  I wrote this up a long time ago and never got a chance to put it online.  Enjoy!</p>
-
-<p>First, install SSH:</p>
-
-<ol>
-<li>Go to Synology web GUI</li>
-<li>Open Control Panel</li>
-<li>Click &ldquo;Terminal&rdquo;</li>
-<li>Check &ldquo;Enable SSH service&rdquo;</li>
-<li>Click &ldquo;Apply&rdquo;</li>
-</ol>
-
-
-<p>Set up your users so they have a home directory:</p>
-
-<ol>
-<li>Go to Synology web GUI</li>
-<li>Open Control Panel</li>
-<li>Click &ldquo;User&rdquo;</li>
-<li>Click &ldquo;User Home&rdquo; button at the top</li>
-<li>Check &ldquo;Enable user home service&rdquo;</li>
-<li>Select the volume on which the home directories should be stored</li>
-<li>Click &ldquo;OK&rdquo;</li>
-</ol>
-
-
-<p>Connect via SSH and make sure it works:</p>
-
-<ol>
-<li>ssh as admin to the Synology box.  Use the same password you use as admin on the web GUI.  <strong>If you leave it blank, even if your password is blank, it will always fail.  You must have a non-blank password!</strong> This is to protect against your device getting compromised from having no password.</li>
-<li>If you get the &ldquo;Diskstation>&rdquo; prompt then it is working</li>
-</ol>
-
-
-<p>Connect via SSH and make sure non-admin/non-root logins work:</p>
-
-<ol>
-<li>Connect as a regular user.  If you get permission denied SSH back in as root and change the desired user&rsquo;s shell from /sbin/nologin to /bin/ash in /etc/passwd.</li>
-<li>Try logging in again as that user</li>
-</ol>
-
-
-<p>Bootstrap for ipkg:</p>
-
-<ol>
-<li><a href="http://forum.synology.com/wiki/index.php/Overview_on_modifying_the_Synology_Server,_bootstrap,_ipkg_etc">http://forum.synology.com/wiki/index.php/Overview_on_modifying_the_Synology_Server,_bootstrap,_ipkg_etc</a></li>
-<li>Log in as root</li>
-<li>If you have DSM 4 or greater:</li>
-<li> Edit /root/.profile and comment out the lines that set and export the PATH variable</li>
-<li> Log out</li>
-<li> Log back in as root</li>
-<li>Run &ldquo;ipkg&rdquo;.  You should see the options come up and not an error message that ipkg can&rsquo;t be found.</li>
-</ol>
-
-
-<p>Compile and install Unison &ndash; <a href="http://www.multigesture.net/articles/how-to-compile-unison-for-a-synology-ds212/">http://www.multigesture.net/articles/how-to-compile-unison-for-a-synology-ds212/</a>
-This error is expected:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>if [ -f `which etags` ]; then \
-</span><span class='line'>    etags *.mli */*.mli *.ml */*.ml */*.m *.c */*.c *.txt \
-</span><span class='line'>          ; fi
-</span><span class='line'>/bin/sh: etags: not found
-</span><span class='line'>make[1]: [tags] Error 127 (ignored)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Good luck and post success stories and issues in the comments and I&rsquo;ll help if I can.</p>
 ]]></content>
   </entry>
   

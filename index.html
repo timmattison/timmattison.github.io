@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown. I searched around and came across a gist that &hellip;">
+  <meta name="description" content="I am a big Guice advocate. I try to use it wherever it is possible and makes sense. While working on a project yesterday I realized that in order to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,151 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-05T08:39:34-04:00" pubdate data-updated="true">Aug 5<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am a big <a href="https://github.com/google/guice">Guice</a> advocate.  I try to use it wherever it is possible and makes sense.  While working on a project yesterday I realized that in order to use Guice and <a href="http://quartz-scheduler.org/">Quartz</a> together you need to add in some glue code.</p>
+
+<p>I <a href="http://codesmell.wordpress.com/2009/01/11/quartz-fits/">found someone who had done the work already</a> but their blog post was from 2009 and the Quartz API had changed a bit.  Their implementation was very close so I made the necessary modifications, tested it out, and it works perfectly.  If you&rsquo;re wondering how to use Guice to get dependency injection into your Quartz scheduler code you can use the two snippets of code below to do it all for you.</p>
+
+<p>The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the <code>GuiceJobFactory</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import com.google.inject.Injector;
+</span><span class='line'>import org.quartz.Job;
+</span><span class='line'>import org.quartz.JobDetail;
+</span><span class='line'>import org.quartz.Scheduler;
+</span><span class='line'>import org.quartz.SchedulerException;
+</span><span class='line'>import org.quartz.spi.JobFactory;
+</span><span class='line'>import org.quartz.spi.TriggerFiredBundle;
+</span><span class='line'>
+</span><span class='line'>import javax.inject.Inject;
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * Created by timmattison on 8/4/14.
+</span><span class='line'> */
+</span><span class='line'>// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/
+</span><span class='line'>final class GuiceJobFactory implements JobFactory {
+</span><span class='line'>    private final Injector guice;
+</span><span class='line'>
+</span><span class='line'>    @Inject
+</span><span class='line'>    public GuiceJobFactory(final Injector guice) {
+</span><span class='line'>        this.guice = guice;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public Job newJob(TriggerFiredBundle triggerFiredBundle, Scheduler scheduler) throws SchedulerException {
+</span><span class='line'>        // Get the job detail so we can get the job class
+</span><span class='line'>        JobDetail jobDetail = triggerFiredBundle.getJobDetail();
+</span><span class='line'>        Class jobClass = jobDetail.getJobClass();
+</span><span class='line'>
+</span><span class='line'>        try {
+</span><span class='line'>            // Get a new instance of that class from Guice so we can do dependency injection
+</span><span class='line'>            return (Job) guice.getInstance(jobClass);
+</span><span class='line'>        } catch (Exception e) {
+</span><span class='line'>            // Something went wrong.  Print out the stack trace here so SLF4J doesn't hide it.
+</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>
+</span><span class='line'>            // Rethrow the exception as an UnsupportedOperationException
+</span><span class='line'>            throw new UnsupportedOperationException(e);
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>GuiceJobFactory</code> gets the Guice injector injected into it.  It then overrides the newJob method and creates each job using the injector it was given.</p>
+
+<p>The next thing you need to do is to use this <code>JobFactory</code> in your <code>Scheduler</code>.  Here&rsquo;s how I built my scheduler and used it to create my first job:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+</span><span class='line'>scheduler.setJobFactory(injector.getInstance(GuiceJobFactory.class));
+</span><span class='line'>
+</span><span class='line'>scheduler.start();
+</span><span class='line'>
+</span><span class='line'>JobDetail jobDetail = newJob(MyJob.class).build();</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1205,101 +1350,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/">My Problem With &#8216;the Problem With Altcoins&#8217;</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-18T00:00:00-04:00" pubdate data-updated="true"></time>
-        
-           | <a href="/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>TL;DR &ndash; The author&rsquo;s strongest argument is that some altcoins are junk.  This unfortunately then morphs into saying that all altcoins are junk and none of them can ever be good.  In my opinion that is going too far.</p>
-
-<p>On the Google Plus Bitcoin community someone posted a link to <a href="http://themisescircle.org/blog/2013/08/22/the-problem-with-altcoins/">The Problem with Altcoins</a>.  I think this article is complete link bait based on the fact that the first paragraph is titled &ldquo;Why no altcoin can succeed&rdquo; but nevertheless I&rsquo;d like to address a few of the things in it because they could be confusing to people new to the cryptocurrency space.</p>
-
-<p>I&rsquo;ll preface this post by saying that I hold a few Bitcoins, some Litecoins, and some Feathercoins.  I bought most of them to play around with and not as a serious investment so I&rsquo;m not here to tell you that any of these things are a solid investment.  If you are like me you want to get into cryptocurrencies because they&rsquo;re interesting and understanding them gives me new ways to approach problems that I see in software development.</p>
-
-<p>Issue #1:</p>
-
-<blockquote><p>Quite simply, a medium of exchange that is more widely accepted on the market is more useful than one which is not. This is known as the network effect. Thus, an initial imbalance between two nearly equal media of exchange will benefit whichever is more widely accepted until a single one overwhelms the rest.</p></blockquote>
-
-<p>This paragraph does quite a good job of shooting itself down unknowingly.  I agree with the statement &ldquo;a medium of exchange that is more widely accepted on the market is more useful than one that is not&rdquo;.  The leap that it then goes to make isn&rsquo;t very well thought out.  Just because something is better does not mean that eventually it will be the only thing.  If that was the case then why are there so many different brands of any product you can think of?</p>
-
-<p>The end of this paragraph is its complete downfall.  It states &ldquo;until a single one overwhelms the rest&rdquo;.  There is no example of this happening as far as I know.  Is there only one currency in the world?  You might think the world currency is the US Dollar but I can assure you it isn&rsquo;t.  Admittedly it does say it will &ldquo;overwhelm&rdquo; the rest and not &ldquo;extinguish&rdquo; the rest but I believe overwhelm here was meant to imply that the others would disappear.</p>
-
-<p>My stance: There is room for more than one physical currency.  There is room for more than one digital currency.</p>
-
-<p>Issue #2:</p>
-
-<blockquote><p>Furthermore, a truly great innovation would much better serve people by being incorporated into future versions of Bitcoin rather than by requiring them to switch to something else</p></blockquote>
-
-<p>This makes the assumption that just because a feature benefits someone that it will be incorporated.  Since the interests of each individual are different you could have features that benefit some (shorter confirmation times, lower transaction fees, anonymity, etc) that do not benefit others.  In fact, one of these features mentioned later is Zerocoin which provides anonymous transactions.  Some would argue that if this was incorporated into Bitcoin that it would set it back a few years as the media picked it up again as the anonymous currency used by drug dealers and terrorists.</p>
-
-<p>Other kinds of transactions like creating &ldquo;<a href="http://bitcoin.stackexchange.com/questions/10986/what-is-meant-by-bitcoin-dust">dust</a>&rdquo; to sign arbitrary bits of data to use the block chain as a kind of digital notary are probably best implemented in a different system altogether.</p>
-
-<p>My stance: Not all features should be incorporated into Bitcoin.  Blockchain bloat is already a bit of a problem and I think we need to minimize it.</p>
-
-<p>Issue #3:</p>
-
-<blockquote><p>Can anyone really expect to create something of value by rereleasing Bitcoin under a new name and with a few tiny changes to its source code?</p></blockquote>
-
-<p>Actually, I&rsquo;m in total agreement here.  There are altcoins that are just knockoffs that don&rsquo;t add any value.  Don&rsquo;t translate my issue with the statement &ldquo;Why no altcoin can succeed&rdquo; into &ldquo;All altcoins should succeed&rdquo;.  I think the market is the place to decide that.</p>
-
-<p>My stance: Some altcoins are useful and interesting.  Some altcoins are not.  I doubt <a href="https://en.wikipedia.org/wiki/Dogecoin">Dogecoin</a> will survive as long as Litecoin.</p>
-
-<p>Issue #4:</p>
-
-<blockquote><p>What is a cryptocurrency actually for? I say that its purpose is to become money. It is obvious that creating altcoins impedes that purpose. Altcoins can only be explained if we believe the purpose of cryptocurrencies is to make money rather than to become money.</p></blockquote>
-
-<p>(Premining)[<a href="https://bitcointalk.org/index.php?topic=194023.0">https://bitcointalk.org/index.php?topic=194023.0</a>] has rightly tainted people&rsquo;s views of altcoins.  If you premine your new cryptocurrency then you are probably just in it for the money.  Granted maybe not enough people knew about your coin when it started but with a public announcement and some planning you can avoid this.  Going back to my previous point I don&rsquo;t understand why Bitcoin gets a pass on this.  What if the original motivation was exactly the same as the altcoins that are guilty of premining?  We can&rsquo;t know if that was or was not the case until we know the true identity of Satoshi Nakamoto.</p>
-
-<p>A lot of the time when people tell me something is &ldquo;obvious&rdquo; it&rsquo;s because they&rsquo;re trying to glaze over the fact that their explanation and understanding of the concept is lacking.  I prefer proof rather than assertions.</p>
-
-<p>My stance: Same as issue #3.  Some altcoins are junk, some altcoins are not.  The market will decide which ones are the winners.  The author references the Wikipedia page for &ldquo;<a href="https://en.wikipedia.org/wiki/Motivated_reasoning">motivated reasoning</a>.  Indeed either side of the argument could say the other is doing this especially when they assert the obviousness of the fact that they are right.</p>
-
-<p>Issue #5:</p>
-
-<blockquote><p>If you try to compete with the best currency with another one that’s exactly the same, that makes yours the worse currency, so you really should not have bothered.</p></blockquote>
-
-<p>Another partial agreement here so this is a quick one.  If your currency is exactly the same as Bitcoin then you shouldn&rsquo;t have bothered.  There are people who are trying to differentiate and that&rsquo;s the kind of competition we should welcome.  Starting a new altcoin gives you the freedom to try out these new ideas and see if they stick.  Getting a feature into Bitcoin takes a lot of work and an altcoin can be a proving ground for that work.</p>
-
-<p>My stance: Altcoins that don&rsquo;t innovate are junk. If you&rsquo;re going to create an altcoin it better have a few differentiators to be taken seriously.</p>
-
-<p>Issue #6:</p>
-
-<blockquote><p>Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.</p></blockquote>
-
-<p>I have another post that touches this topic and explains <a href="http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">why all proof of work algorithms need to use memory bound functions</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1331,6 +1381,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a>
       </li>
     
@@ -1344,10 +1398,6 @@
     
       <li class="post">
         <a href="/archives/2014/06/25/automating-cisco-switch-interactions/">Automating Cisco Switch Interactions</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/20/advanced-port-forwarding-with-ssh/">Advanced Port Forwarding With SSH</a>
       </li>
     
   </ul>

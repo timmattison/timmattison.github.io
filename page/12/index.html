@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="UPDATE #1: The latest portage now has a 3.x version of these tools. If you update to the latest portage as of 2009-03-05 then you likely won&rsquo;t &hellip;">
+  <meta name="description" content="This may only be related to 64-bit Gentoo but if you&rsquo;re having build troubles try starting from scratch like this. Note: These are all commands &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,63 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/02/28/how-to-build-libwiimote-0-4-on-gentoo/">How-To: Build libwiimote-0.4 on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-02-28T13:04:44-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/02/28/how-to-build-libwiimote-0-4-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/02/28/how-to-build-libwiimote-0-4-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This may only be related to 64-bit Gentoo but if you&rsquo;re having build troubles try starting from scratch like this.  Note: These are all commands that you&rsquo;ll have to run directly.  There is narrative except in step 6.</p>
+
+<p>Step 1: wget <a href="http://downloads.sourceforge.net/libwiimote/libwiimote-0.4.tgz?use_mirror=internap">http://downloads.sourceforge.net/libwiimote/libwiimote-0.4.tgz?use_mirror=internap</a></p>
+
+<p>Step 2: tar xzvf libwiimote-0.4.tgz</p>
+
+<p>Step 3: cd libwiimote-0.4</p>
+
+<p>Step 4: autoconf</p>
+
+<p>Step 5: ./configure</p>
+
+<p>Step 6: Edit src/Makefile and add &ldquo;CFLAGS=-fPIC&rdquo; to it.  If CFLAGS already exists just append &ldquo; -fPIC&rdquo; to it.</p>
+
+<p>Step 7: make</p>
+
+<p>Step 8: make install</p>
+
+<p>Now you&rsquo;ll have libwiimote-0.4 built and installed.  All you need are a few applications to take advantage of it.  Stay tuned.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -274,6 +331,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a>
       </li>
     
@@ -287,10 +348,6 @@
     
       <li class="post">
         <a href="/archives/2014/06/25/automating-cisco-switch-interactions/">Automating Cisco Switch Interactions</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/06/20/advanced-port-forwarding-with-ssh/">Advanced Port Forwarding With SSH</a>
       </li>
     
   </ul>

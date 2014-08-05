@@ -5,12 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Octal and Hexadecimal IP Addresses With Ping - Tim Mattison</title>
+  <title>Using Guice Dependency Injection With Quartz Schedulding - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Have you ever seen a system print out an IP address like this? 1
-Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;ll &hellip;">
+  <meta name="description" content="I am a big Guice advocate. I try to use it wherever it is possible and makes sense. While working on a project yesterday I realized that in order to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +18,7 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -81,7 +80,7 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
   
   <header>
     
-      <h1 class="entry-title">Octal and Hexadecimal IP Addresses With Ping</h1>
+      <h1 class="entry-title">Using Guice Dependency Injection With Quartz Schedulding</h1>
     
     
       <p class="meta">
@@ -97,7 +96,7 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
   
 
 
-<time datetime="2014-06-18T07:12:14-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
+<time datetime="2014-08-05T08:39:34-04:00" pubdate data-updated="true">Aug 5<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -107,35 +106,113 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
   </header>
 
 
-<div class="entry-content"><p>Have you ever seen a system print out an IP address like this?</p>
+<div class="entry-content"><p>I am a big <a href="https://github.com/google/guice">Guice</a> advocate.  I try to use it wherever it is possible and makes sense.  While working on a project yesterday I realized that in order to use Guice and <a href="http://quartz-scheduler.org/">Quartz</a> together you need to add in some glue code.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Disconnected from 010.000.001.133</span></code></pre></td></tr></table></div></figure>
+<p>I <a href="http://codesmell.wordpress.com/2009/01/11/quartz-fits/">found someone who had done the work already</a> but their blog post was from 2009 and the Quartz API had changed a bit.  Their implementation was very close so I made the necessary modifications, tested it out, and it works perfectly.  If you&rsquo;re wondering how to use Guice to get dependency injection into your Quartz scheduler code you can use the two snippets of code below to do it all for you.</p>
 
-
-<p>If you try to ping this IP address you&rsquo;ll get quite interesting results.  What the IP address should be is 10.0.1.133 but what ping reports that it is if you run the command with those leading zeroes included looks very odd.</p>
+<p>The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the <code>GuiceJobFactory</code>:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 010.000.001.133
-</span><span class='line'>PING 010.000.001.133 (8.0.1.133): 56 data bytes
-</span><span class='line'>Request timeout for icmp_seq 0</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import com.google.inject.Injector;
+</span><span class='line'>import org.quartz.Job;
+</span><span class='line'>import org.quartz.JobDetail;
+</span><span class='line'>import org.quartz.Scheduler;
+</span><span class='line'>import org.quartz.SchedulerException;
+</span><span class='line'>import org.quartz.spi.JobFactory;
+</span><span class='line'>import org.quartz.spi.TriggerFiredBundle;
+</span><span class='line'>
+</span><span class='line'>import javax.inject.Inject;
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * Created by timmattison on 8/4/14.
+</span><span class='line'> */
+</span><span class='line'>// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/
+</span><span class='line'>final class GuiceJobFactory implements JobFactory {
+</span><span class='line'>    private final Injector guice;
+</span><span class='line'>
+</span><span class='line'>    @Inject
+</span><span class='line'>    public GuiceJobFactory(final Injector guice) {
+</span><span class='line'>        this.guice = guice;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public Job newJob(TriggerFiredBundle triggerFiredBundle, Scheduler scheduler) throws SchedulerException {
+</span><span class='line'>        // Get the job detail so we can get the job class
+</span><span class='line'>        JobDetail jobDetail = triggerFiredBundle.getJobDetail();
+</span><span class='line'>        Class jobClass = jobDetail.getJobClass();
+</span><span class='line'>
+</span><span class='line'>        try {
+</span><span class='line'>            // Get a new instance of that class from Guice so we can do dependency injection
+</span><span class='line'>            return (Job) guice.getInstance(jobClass);
+</span><span class='line'>        } catch (Exception e) {
+</span><span class='line'>            // Something went wrong.  Print out the stack trace here so SLF4J doesn't hide it.
+</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>
+</span><span class='line'>            // Rethrow the exception as an UnsupportedOperationException
+</span><span class='line'>            throw new UnsupportedOperationException(e);
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
-<p>See that <code>8.0.1.133</code> IP address that it is trying to reach?  It turns out that if you put leading zeroes into an IP address that you pass to <code>ping</code>, and possibly other network tools, it treats those numbers as <a href="https://en.wikipedia.org/wiki/Octal">octal</a>.  Octal isn&rsquo;t something most end-users deal with unless they&rsquo;re reminiscing about their old <a href="https://en.wikipedia.org/wiki/CompuServe">Compuserve</a> addresses.</p>
+<p>The <code>GuiceJobFactory</code> gets the Guice injector injected into it.  It then overrides the newJob method and creates each job using the injector it was given.</p>
 
-<p>In any case, if you find yourself trying to ping a machine with an IP address that has leading zeroes make sure you remove them!</p>
-
-<p>This got me wondering what other weird things ping might do with IP addresses so I played around a bit and saw that it actually allows you to enter them in hex as well.  This is useful for IPv6 but really strange for IPv4.  Try it out and try to ping the above address with the first octet in hex:</p>
+<p>The next thing you need to do is to use this <code>JobFactory</code> in your <code>Scheduler</code>.  Here&rsquo;s how I built my scheduler and used it to create my first job:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 0xa.0.1.133
-</span><span class='line'>PING 0xa.0.1.133 (10.0.1.133): 56 data bytes</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+</span><span class='line'>scheduler.setJobFactory(injector.getInstance(GuiceJobFactory.class));
+</span><span class='line'>
+</span><span class='line'>scheduler.start();
+</span><span class='line'>
+</span><span class='line'>JobDetail jobDetail = newJob(MyJob.class).build();</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Sure enough it converts <code>0xa</code> into <code>10</code>.  I&rsquo;m not sure I&rsquo;ll ever use that feature but its good to know what ping does to its input in the even that some other weird situation pops up.</p>
+<p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>
 </div>
 
 
@@ -158,7 +235,7 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
   
 
 
-<time datetime="2014-06-18T07:12:14-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
+<time datetime="2014-08-05T08:39:34-04:00" pubdate data-updated="true">Aug 5<span>th</span>, 2014</time>
       
 
 
@@ -166,7 +243,7 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -177,10 +254,8 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/" title="Previous Post: My problem with 'The Problem with Altcoins'">&laquo; My problem with 'The Problem with Altcoins'</a>
+        <a class="basic-alignment left" href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/" title="Previous Post: Fenced code blocks in ordered lists in Octopress">&laquo; Fenced code blocks in ordered lists in Octopress</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/" title="Next Post: Use git to figure out what you did yesterday">Use git to figure out what you did yesterday &raquo;</a>
       
     </p>
   </footer>
@@ -300,8 +375,8 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/';
         var disqus_script = 'embed.js';
       
     (function () {
