@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-08-05T09:01:09-04:00</updated>
+  <updated>2014-08-29T08:37:18-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,305 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Making Javascript Logging a Little Less Expensive]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/"/>
+    <updated>2014-08-29T07:54:45-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive</id>
+    <content type="html"><![CDATA[<p>Disclaimer: I am not a Javascript expert.  I don&rsquo;t even play one on TV.</p>
+
+<p>Everybody knows that <a href="http://blog.codinghorror.com/the-problem-with-logging/">logging isn&rsquo;t free</a>, don&rsquo;t they?  Well I don&rsquo;t think that they do and for a lot of beginner to intermediate level developers I can&rsquo;t really fault them for it.  While you&rsquo;re debugging it appears that log messages show up instantly so it is easy to forget that there is in fact a cost associated with producing them.</p>
+
+<p>What is less obvious is that even when you &ldquo;disable&rdquo; your logging it still incurs a cost and that cost may be significantly larger than you think.  The two main issues I&rsquo;ve seen that often cause this large expense are:</p>
+
+<ol>
+<li>Methods that generate log messages</li>
+<li>Inline generation of strings</li>
+</ol>
+
+
+<p>The first, methods that generate log messages, occurs when you need to do a bit of processing in order to make a meaningful log message.  For example, you might need to know how far you are through a loop so you write a function called <code>generateFormattedProgress</code> that takes the number of loops you&rsquo;re going to go through and the current loop counter as parameters.  <code>generateFormattedProgress</code> generates a tidy little string that might loop like this <code>[8% complete (currently on iteration 80,001 of 1,000,000)]</code>.</p>
+
+<p>The second, inline generation of strings, happens when you need to do something a bit simpler like displaying a loop counter.  You might build a string like this <code>"Loop: " + loop_counter</code> and then log it.</p>
+
+<p>In both of these cases you get bitten by the less obvious issue I mentioned above when you disable logging.  To be completely concrete about this imagine your logger is called like this:</p>
+
+<p>Case #1:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>console.log(generateFormattedProgress(loop_counter, total_loops));</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Case #2:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>console.log("Loop:" + loop_counter);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Even if you replace <code>console.log</code> with a function that just immediately returns you will, in most cases, still be forcing the machine to call <code>generateFormattedProgress</code> and perform the string concatenation only to throw the results away.  This is where the overhead comes in.</p>
+
+<p>Borrowing from some other languages I came up with an idea to reduce this burden.  Unfortunately it is a bit ugly but it does give you a decent performance boost.  The idea is that instead of always calling the logging code at runtime you wrap your logging statements in anonymous functions and pass those to the logger.  The logger can then decide if it needs to run them and if it doesn&rsquo;t then it never calls the code inside of the anonymous function.</p>
+
+<p>Your log statements go from looking like the statements above to statements like this:</p>
+
+<p>Case #1:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>console.log(function(){ return generateFormattedProgress(loop_counter, total_loops);});</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Case #2:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>console.log(function(){ return "Loop:" + loop_counter; });</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Some test code is below to illustrate the difference in performance.  On my machine running 100,000 iterations I get the following results in Chrome 37.0.2062.94:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Console.log enabled
+</span><span class='line'>Running: test_normal_console
+</span><span class='line'>Total milliseconds: 1921
+</span><span class='line'>Milliseconds per log: 0.01921
+</span><span class='line'>Running: test_anonymous_function_console
+</span><span class='line'>Total milliseconds: 1917
+</span><span class='line'>Milliseconds per log: 0.01917
+</span><span class='line'>Disabling console.log
+</span><span class='line'>Running: test_normal_console
+</span><span class='line'>Total milliseconds: 16
+</span><span class='line'>Milliseconds per log: 0.00016
+</span><span class='line'>Running: test_anonymous_function_console
+</span><span class='line'>Total milliseconds: 5
+</span><span class='line'>Milliseconds per log: 0.00005</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So here we see that we cut the runtime by at least two orders of magnitude going from a little over 1.9 seconds for each case to less than 20 milliseconds for each case.  Does logging affect your Javascript application enough to use this pattern?  Is this an anti-pattern?  Are you already doing this or something similar?  Post a message in the comments and lets discuss it!</p>
+
+<p>Sample test code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>var test_count = 100000;
+</span><span class='line'>
+</span><span class='line'>function get_timestamp() {
+</span><span class='line'>    return new Date().getTime();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>function write_newline() {
+</span><span class='line'>    document.write("&lt;br/&gt;\n");
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>function display_function_name(caller) {
+</span><span class='line'>    var myName = caller.callee.toString();
+</span><span class='line'>    myName = myName.substr('function '.length);
+</span><span class='line'>    myName = myName.substr(0, myName.indexOf('('));
+</span><span class='line'>
+</span><span class='line'>    document.write("Running: " + myName);
+</span><span class='line'>    write_newline();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>function show_results(start, stop, count) {
+</span><span class='line'>    var totalMilliseconds = stop - start;
+</span><span class='line'>    var millisecondsPerLog = totalMilliseconds / test_count;
+</span><span class='line'>
+</span><span class='line'>    document.write("Total milliseconds: " + totalMilliseconds);
+</span><span class='line'>    write_newline();
+</span><span class='line'>    document.write("Milliseconds per log: " + millisecondsPerLog);
+</span><span class='line'>    write_newline();
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>function test_normal_console() {
+</span><span class='line'>    display_function_name(arguments);
+</span><span class='line'>
+</span><span class='line'>    var start = get_timestamp();
+</span><span class='line'>
+</span><span class='line'>    for (var loop = 0; loop &lt; test_count; loop++) {
+</span><span class='line'>        console.log("test! " + loop + "test!");
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    var stop = get_timestamp();
+</span><span class='line'>
+</span><span class='line'>    show_results(start, stop, test_count);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>function test_anonymous_function_console() {
+</span><span class='line'>    display_function_name(arguments);
+</span><span class='line'>
+</span><span class='line'>    var start = get_timestamp();
+</span><span class='line'>
+</span><span class='line'>    for (var loop = 0; loop &lt; test_count; loop++) {
+</span><span class='line'>        console.log(function () {
+</span><span class='line'>            return "test! " + loop + "test!";
+</span><span class='line'>        });
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    var stop = get_timestamp();
+</span><span class='line'>
+</span><span class='line'>    show_results(start, stop, test_count);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>// Store the original console.log function
+</span><span class='line'>var original_console_log = console.log;
+</span><span class='line'>
+</span><span class='line'>// Call this to enable logging
+</span><span class='line'>function enable_console_logging() {
+</span><span class='line'>    console.log = function (input) {
+</span><span class='line'>        // Why the bind(console)(input)?
+</span><span class='line'>        //
+</span><span class='line'>        // console.log expects "this" to refer to the console object or it crashes with an invocation exception
+</span><span class='line'>        //   See: https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript
+</span><span class='line'>
+</span><span class='line'>        // Is this a function?
+</span><span class='line'>        if (typeof input == "function") {
+</span><span class='line'>            // Yes, call the function to get the data to log to the console
+</span><span class='line'>            original_console_log.bind(console)(input());
+</span><span class='line'>        }
+</span><span class='line'>        else {
+</span><span class='line'>            // No, just log it
+</span><span class='line'>            original_console_log.bind(console)(input);
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>// Call this to disable logging
+</span><span class='line'>function disable_console_logging() {
+</span><span class='line'>    console.log = function () {
+</span><span class='line'>    };
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>document.write("Console.log enabled");
+</span><span class='line'>write_newline();
+</span><span class='line'>
+</span><span class='line'>enable_console_logging();
+</span><span class='line'>
+</span><span class='line'>test_normal_console();
+</span><span class='line'>test_anonymous_function_console();
+</span><span class='line'>
+</span><span class='line'>document.write("Disabling console.log");
+</span><span class='line'>write_newline();
+</span><span class='line'>
+</span><span class='line'>disable_console_logging();
+</span><span class='line'>
+</span><span class='line'>test_normal_console();
+</span><span class='line'>test_anonymous_function_console();</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Using Guice Dependency Injection With Quartz Schedulding]]></title>
@@ -1576,87 +1875,6 @@
 <p>In this case res_srtp.so probably isn&rsquo;t built.  Check in make menuconfig, add libsrtp0-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_srtp is enabled.</p>
 
 <p>Good luck and post in the comments if it worked for you or if you need some help.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How to Get SIPML5 Working With Asterisk]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/"/>
-    <updated>2014-01-02T18:59:44-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk</id>
-    <content type="html"><![CDATA[<p>Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months.  Enjoy!</p>
-
-<p>Assume Asterisk is running on localhost and Apache is installed and running with /var/www at the htdocs directory</p>
-
-<p>http.conf changes:</p>
-
-<ul>
-<li>Set &ldquo;enabled=yes&rdquo; OR uncomment &ldquo;;enabled=yes&rdquo;</li>
-<li>Set &ldquo;bindport=8088&rdquo; OR uncomment &ldquo;;bindport=8088&rdquo;</li>
-</ul>
-
-
-<p>sip.conf changes:</p>
-
-<ul>
-<li>Get the SIP code listening via TCP &ndash; set &ldquo;tcpenable=yes&rdquo;</li>
-<li>Add web socket support for SIP &ndash; set &ldquo;transport=udp,ws&rdquo; OR add &ldquo;,ws&rdquo; to existing transport list</li>
-<li>Uncomment xlite1 account</li>
-<li>Add &ldquo;avpf=yes&rdquo; to xlite1 account</li>
-<li>Add &ldquo;icesupport=yes&rdquo; to xlite1 account</li>
-</ul>
-
-
-<p>Steps to perform test call:</p>
-
-<ul>
-<li>Restart Asterisk</li>
-<li>Get the source from Subversion</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>svn checkout http://sipml5.googlecode.com/svn/trunk/ sipml5-read-only</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Move the sipml5 source into /var/www</li>
-<li>Open Chrome and point it to the SIPML5 index.html in /var/www (or the subdirectory you put it in)</li>
-<li>Click &ldquo;Enjoy our live demo&rdquo;</li>
-<li>Set these values in the &ldquo;Registration&rdquo; panel
-
-<ul>
-<li>Display Name: xlite1</li>
-<li>Private Identity: xlite1</li>
-<li>Public Identity: sip:xlite1@localhost</li>
-<li>Realm: localhost</li>
-<li>Password is left blank</li>
-</ul>
-</li>
-<li>Click &ldquo;Expert Mode&rdquo;</li>
-<li>Set these values in &ldquo;Expert settings&rdquo;
-
-<ul>
-<li>Disable Video: Checked</li>
-<li>Enable RTCWeb Breaker: Unchecked</li>
-<li>WebSocket Server URL: ws://localhost:8088/ws</li>
-<li>SIP outbound Proxy URL: udp://localhost:5060</li>
-<li>Click &ldquo;Save&rdquo;</li>
-<li>Close &ldquo;Expert settings&rdquo; tab</li>
-</ul>
-</li>
-<li>Enter &ldquo;sip:2@localhost&rdquo; in the &ldquo;Call control&rdquo; field</li>
-<li>Click &ldquo;Call&rdquo;</li>
-</ul>
-
-
-<p>At this point you should hear audio coming from Asterisk in a few seconds and your first call is complete.  Now you can build out your server as you&rsquo;d want!</p>
-
-<p>Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.</p>
-
-<p><img src="http://blog.timmattison.com/images/sipml5-asterisk/registration-and-call-control.png" alt="Registration and call control" /></p>
-
-<p><img src="http://blog.timmattison.com/images/sipml5-asterisk/expert-settings.png" alt="Expert settings" /></p>
 ]]></content>
   </entry>
   
