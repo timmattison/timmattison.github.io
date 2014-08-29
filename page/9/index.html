@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Here&rsquo;s another thing I ran into today when adding support for KVM to my kernel&hellip; VMware Workstation&rsquo;s modules failed to load at &hellip;">
+  <meta name="description" content="Last week my fiancée&rsquo;s brand new HP laptop started turning off after being unplugged for less than 3 minutes. The battery was in such bad shape &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,67 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/19/how-to-get-a-warranty-id-for-a-flaky-battery-on-an-hp-laptop/">How-To: Get a Warranty ID for a Flaky Battery on an HP Laptop</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-19T13:34:14-05:00" pubdate data-updated="true">Nov 19<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/19/how-to-get-a-warranty-id-for-a-flaky-battery-on-an-hp-laptop/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/19/how-to-get-a-warranty-id-for-a-flaky-battery-on-an-hp-laptop/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last week my fiancée&rsquo;s brand new HP laptop started turning off after being unplugged for less than 3 minutes.  The battery was in such bad shape that Windows didn&#8217;t shut down properly, it just completely turned off.  I made sure the battery was fully charged and tested it again.  Sure enough after 3 minutes it would just forcibly shut off.</p>
+
+<p>We called tech support to get a replacement and we were put through over an hour worth of msconfig tweaks and all kinds of stuff.  In the end we were told to run the &#8221;HP Battery Check&#8221; utility.  This utility said the battery was fine so we were out of luck as far as the warranty was concerned.  However, after we got off of the phone we were able to get a battery &ldquo;warranty ID&rdquo; that we could use to get a replacement.  If you are having similar battery problems here&rsquo;s what you should do to save yourself some trouble.</p>
+
+<p>Step 1: Run the &ldquo;HP Battery Check&rdquo; utility.  If it gives you a warranty ID just <a href="callto:+1800-474-6836">call HP tech support</a> and give that to them.  They will take care of the rest.  Otherwise, continue to step 2.</p>
+
+<p>Step 2: Set your power plan to &ldquo;HP Recommended&rdquo; by clicking on the battery icon in the system tray and selecting it from the list.</p>
+
+<p>Step 3: Verify that your battery really only lasts a few minutes and then forcibly powers off.  If Windows shuts down properly then you probably have a battery that has a decreased capacity but that&rsquo;s not actually defective.  HP will not replace these kinds of batteries.  If it appears defective but the battery check says it&rsquo;s OK proceed to step 4.</p>
+
+<p>Step 4: Restart Windows</p>
+
+<p>Step 5: Charge the battery to 100%</p>
+
+<p>Step 6: Start the &ldquo;HP Battery Check&rdquo; utility and get a pen and paper.  You&rsquo;ll need to be fast to get this information down.</p>
+
+<p>Step 7: Unplug the power until you see the battery meter decrease by more than 2%.  This should happen in just a few seconds if the battery is defective.  Note that the battery status in the utility should read &ldquo;Invalid&rdquo;.</p>
+
+<p>Step 8: Plug the power back in.  After a few seconds you should see that the utility says &ldquo;Replace&rdquo;.  Write down the warranty ID (a 27-digit number) as fast as possibly.  If your battery is flaky in a few seconds the status will go back to &ldquo;Good&rdquo; and the ID will disappear.  If it says &ldquo;Good&rdquo; again you can try a few times.  It took two tries for me to get the number the first time but then it no longer showed the &ldquo;Replace&rdquo; message and warranty ID.</p>
+
+<p>Step 9: Call HP, give them the warranty ID, and wait for your new battery to arrive</p>
+
+<p>This won&rsquo;t work for all HP battery problems but it&rsquo;s worth a shot before you sink a lot of time into a tech support call that benefits neither you nor HP.  This is a good, quick way to see if your battery is defective in a way that a normal tech support call to HP wouldn&rsquo;t pick up.  If you&rsquo;ve already talked to HP and your battery is considered &ldquo;Good&rdquo; this is always worth a shot to get a free, legitimate replacement.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -792,64 +853,6 @@ EndSection
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/">Tip: Fix &#8220;NVIDIA(0): Failed to Initialize the GLX Module; Please Check in Your X Log File&#8221; on Gentoo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I have been rebuilding my Gentoo machine for a few days now.  Not that it really takes that long, but I only have limited time I can dedicate to it each day while still managing the time constraints of work.  After emerging xorg-x11 I restored my old configuration file that included my Nvidia Twinview display settings and I saw these errors popup</p>
-
-<pre><code>(EE) NVIDIA(0): Failed to initialize the GLX module; please check in your X
-(EE) NVIDIA(0):     log file that the GLX module has been loaded in your X
-(EE) NVIDIA(0):     server, and that the module is the NVIDIA GLX module.  If
-(EE) NVIDIA(0):     you continue to encounter problems, Please try
-(EE) NVIDIA(0):     reinstalling the NVIDIA driver.
-</code></pre>
-
-<p>What this means in a nutshell is that you haven&rsquo;t told Gentoo to use Nvidia&rsquo;s OpenGL support yet.  To fix that you can just run the following command</p>
-
-<pre><code>eselect opengl set nvidia
-</code></pre>
-
-<p>Gentoo should respond with this</p>
-
-<pre><code>Switching to nvidia OpenGL interface... done
-</code></pre>
-
-<p>You&rsquo;ll not only be rid of that error message but you&rsquo;ll have much better OpenGL performance than before.  Now I&rsquo;ve got to just get rid of those last few errors and fix my mouse and I&rsquo;ll be all set.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -883,6 +886,10 @@ EndSection
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Making Javascript Logging a Little Less Expensive</a>
       </li>
     
@@ -896,10 +903,6 @@ EndSection
     
       <li class="post">
         <a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/">Common Android Wear Tasks for Developers</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/">Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS</a>
       </li>
     
   </ul>

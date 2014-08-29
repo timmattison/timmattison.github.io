@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Common Android Wear Tasks for Developers - Tim Mattison</title>
+  <title>Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Getting started with development on the Android Wear platform can be challenging. Here are my notes on how to get started quickly. Before you do &hellip;">
+  <meta name="description" content="While running some relatively simple Java code on my Raspberry Pi I kept running into complete JVM crashes. These weren&rsquo;t simple application &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">Common Android Wear Tasks for Developers</h1>
+      <h1 class="entry-title">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</h1>
     
     
       <p class="meta">
@@ -96,7 +96,7 @@
   
 
 
-<time datetime="2014-07-16T06:59:56-04:00" pubdate data-updated="true">Jul 16<span>th</span>, 2014</time>
+<time datetime="2014-08-29T12:39:51-04:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,90 +106,85 @@
   </header>
 
 
-<div class="entry-content"><p>Getting started with development on the Android Wear platform can be challenging.  Here are my notes on how to get started quickly.</p>
+<div class="entry-content"><p>While running some relatively simple Java code on my Raspberry Pi I kept running into complete JVM crashes.  These weren&rsquo;t simple application crashes that I can quickly debug.  It really was the JVM that my code was running on that was crashing.</p>
 
-<p>Before you do anything!
-1. Back up your IntelliJ configuration if you use IntelliJ at all.
-2. Install Android Studio.  Do NOT try to use IntelliJ to do Android Wear development.</p>
+<p>The error message I received was similar to this:</p>
 
-<p>Once you&rsquo;ve got Android Studio installed you&rsquo;ll need to do some setup on your devices (watch and phone) to get them working.  Here I assume you&rsquo;re using physical devices for your phone and your watch, no emulators.</p>
-
-<p><strong>Enabling debugging on your Android Wear device</strong></p>
-
-<p>The first time you set up your watch for remote debugging do the following:</p>
-
-<ol>
-<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
-<li>Tap the screen again to get the list of options</li>
-<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
-<li>Scroll down to &ldquo;About&rdquo; and tap it.  If you see &ldquo;Developer options&rdquo; in this list already you do not need to do this procedure since it has already been done.</li>
-<li>Scroll down to &ldquo;Build number&rdquo; and tap it 7 times.  You should get a message that says &ldquo;You are now a developer!&rdquo;.</li>
-<li>Swipe to the right to get the previous menu</li>
-<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
-<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
-<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
-</ol>
-
-
-<p>After your Android Wear device has been set up once you&rsquo;ll only need to follow these steps to re-enable debugging if you ever disable it:</p>
-
-<ol>
-<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
-<li>Tap the screen again to get the list of options</li>
-<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
-<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
-<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
-<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
-</ol>
-
-
-<p><strong>Enabling debugging over Bluetooth from your Android phone to your Android Wear device</strong></p>
-
-<ol>
-<li>Open the &ldquo;Android Wear&rdquo; app</li>
-<li><p>Tap the settings icon at the top of the screen (the two gears that look like the icon below)</p>
-
-<p>  <img src="/images/android-wear-for-developers/settings-icon.png" alt="two small gears" /></p></li>
-<li>Make sure &ldquo;Debugging over Bluetooth&rdquo; is checked</li>
-<li>Once it is checked two fields will appear below it.  They are &ldquo;Host&rdquo; and &ldquo;Target&rdquo;.  &ldquo;Target&rdquo; will say &ldquo;connected&rdquo; when your watch is connected to your phone.  &ldquo;Host&rdquo; will say &ldquo;connected&rdquo; when ADB is connected to your watch.</li>
-</ol>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#
+</span><span class='line'># A fatal error has been detected by the Java Runtime Environment:
+</span><span class='line'>#
+</span><span class='line'>#  Internal Error (os_linux_zero.cpp:285), pid=10344, tid=3061261424
+</span><span class='line'>#  fatal error: caught unhandled signal 11
+</span><span class='line'>#
+</span><span class='line'># JRE version: OpenJDK Runtime Environment (7.0_65-b32) (build 1.7.0_65-b32)
+</span><span class='line'># Java VM: OpenJDK Zero VM (24.65-b04 mixed mode linux-arm )
+</span><span class='line'># Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+</span><span class='line'>#
+</span><span class='line'># An error report file with more information is saved as:
+</span><span class='line'># /home/pi/hs_err_pid10344.log
+</span><span class='line'>#
+</span><span class='line'># If you would like to submit a bug report, please include
+</span><span class='line'># instructions on how to reproduce the bug and visit:
+</span><span class='line'>#   http://icedtea.classpath.org/bugzilla
+</span><span class='line'>#
+</span><span class='line'>Aborted</span></code></pre></td></tr></table></div></figure>
 
 
-<p><strong>Setting up ADB for Android Wear debugging over Bluetooth</strong></p>
+<p>I dug and dug and dug and couldn&rsquo;t figure out what was going on.  The most common fix that I saw was to switch to the Oracle JVM.  For this project I didn&rsquo;t want to do that so I scoured the net and came up with the following two options.</p>
 
-<p>Make sure ADB sees your phone:</p>
+<p>For reference, my original command line was very simple.  It was just <code>java -jar test.jar</code>.</p>
 
-<ol>
-<li>Connect your phone via USB and make sure USB debugging is enabled</li>
-<li><p>Run <code>adb devices</code> from the command line.  You should get some output like this:</p>
+<p>NOTE: There may be performance issues with both of these options.  I have not profiled them to see the difference.  Then again, having your JVM crash can arguably be the lowest performance option possible.</p>
 
-<p> <div class="highlight"><pre><code>
- <span class="line">$ adb devices</span>
- <span class="line">List of devices attached</span>
- <span class="line">01234567890abcdef    device</span>
- </code></pre></div></p></li>
-<li><p>Check to see if there is a device in the list called &ldquo;localhost:4444&rdquo;.  If so, you are already paired and ready to go.  You do not need to do this procedure.</p></li>
-<li><p>To connect ADB to your watch run <code>adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</code> and you should see this:</p>
+<p>Option 1: Add the <code>-XX:+PrintCommandLineFlags</code> option to your command line.  This changed my command line to <code>java -XX:+PrintCommandLineFlags -jar test.jar</code>.  Immediately the problem went away.</p>
 
-<p> <div class="highlight"><pre><code>
- <span class="line">$ adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</span>
- <span class="line">connected to localhost:4444</span>
- </code></pre></div></p></li>
-<li><p>Run <code>adb devices</code> again and you should see this:</p>
+<p>Option 2: Add the <code>-jamvm</code> option to your command line.  This changed my command line to <code>java -jamvm -jar test.jar</code>.  Again, immediately the problem went away</p>
 
-<p> <div class="highlight"><pre><code>
- <span class="line">$ adb devices</span>
- <span class="line">List of devices attached</span>
- <span class="line">01234567890abcdef    device</span>
- <span class="line">localhost:4444       device</span>
- </code></pre></div></p></li>
-<li><p>If you do not see the <code>localhost:4444</code> entry then double check that ADB debugging and Bluetooth debugging are enabled on your watch.  Then check to make sure Bluetooth debugging is enabled in the Android Wear app on your phone.  Once those are verified you can run this command again and it will try to reconnect.</p></li>
-</ol>
+<p>What is really happening behind the scenes?  That gets complex quickly and I still don&rsquo;t know the full answer.  It turns out that this is a known but ignored bug in OpenJDK&rsquo;s Zero VM.  When you run <code>java -version</code> you can see if you&rsquo;re running Zero VM or not like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pi@raspberrypi ~ $ java -version
+</span><span class='line'>java version "1.7.0_65"
+</span><span class='line'>OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)
+</span><span class='line'>OpenJDK Zero VM (build 24.65-b04, mixed mode)</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now that you&rsquo;ve done all of that Android Studio should give you a dialog like this when you try to run or debug an application:</p>
+<p>I don&rsquo;t know why option 1 works.  My guess is that that option disables some kind of optimization.  Looking at <a href="http://cr.openjdk.java.net/~gbenson/zero-10/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp.html">what I think is the corresponding code in Hotspot</a> on line 283 I can see that <code>pthread_attr_getstack</code> is used.  The <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_attr_getstack.html">pthread_attr_getstack documentation</a> says that it can only fail with <code>EINVAL</code> for one reason.  It must be that <code>addr</code> &ldquo;does not refer to an initialized thread attribute object&rdquo;.  I don&rsquo;t have any clue how to fix this though.</p>
 
-<p><img src="/images/android-wear-for-developers/choose-device-dialog.png" alt="&quot;Choose Device&quot; dialog" /></p>
+<p>Option 2 works because it switches over to <a href="http://jamvm.sourceforge.net/">JamVM</a>.  You can check your JamVM version like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pi@raspberrypi ~ $ java -jamvm -version
+</span><span class='line'>java version "1.7.0_65"
+</span><span class='line'>OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)
+</span><span class='line'>JamVM (build 1.6.0-devel, inline-threaded interpreter with stack-caching)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So, if you&rsquo;re in a similar bind and don&rsquo;t want to install and switch to Oracle&rsquo;s JVM give these options a try.  Post your results in the comments below.</p>
 </div>
 
 
@@ -212,7 +207,7 @@
   
 
 
-<time datetime="2014-07-16T06:59:56-04:00" pubdate data-updated="true">Jul 16<span>th</span>, 2014</time>
+<time datetime="2014-08-29T12:39:51-04:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
       
 
 
@@ -220,7 +215,7 @@
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -231,10 +226,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/" title="Previous Post: Tip: Bringing your working directory (pwd) to another Terminal window in Mac OS">&laquo; Tip: Bringing your working directory (pwd) to another Terminal window in Mac OS</a>
+        <a class="basic-alignment left" href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/" title="Previous Post: Making Javascript logging a little less expensive">&laquo; Making Javascript logging a little less expensive</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/" title="Next Post: Fenced code blocks in ordered lists in Octopress">Fenced code blocks in ordered lists in Octopress &raquo;</a>
       
     </p>
   </footer>
@@ -354,8 +347,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/';
         var disqus_script = 'embed.js';
       
     (function () {

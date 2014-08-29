@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-08-29T08:37:18-04:00</updated>
+  <updated>2014-08-29T13:35:47-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,93 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/"/>
+    <updated>2014-08-29T12:39:51-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm</id>
+    <content type="html"><![CDATA[<p>While running some relatively simple Java code on my Raspberry Pi I kept running into complete JVM crashes.  These weren&rsquo;t simple application crashes that I can quickly debug.  It really was the JVM that my code was running on that was crashing.</p>
+
+<p>The error message I received was similar to this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#
+</span><span class='line'># A fatal error has been detected by the Java Runtime Environment:
+</span><span class='line'>#
+</span><span class='line'>#  Internal Error (os_linux_zero.cpp:285), pid=10344, tid=3061261424
+</span><span class='line'>#  fatal error: caught unhandled signal 11
+</span><span class='line'>#
+</span><span class='line'># JRE version: OpenJDK Runtime Environment (7.0_65-b32) (build 1.7.0_65-b32)
+</span><span class='line'># Java VM: OpenJDK Zero VM (24.65-b04 mixed mode linux-arm )
+</span><span class='line'># Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+</span><span class='line'>#
+</span><span class='line'># An error report file with more information is saved as:
+</span><span class='line'># /home/pi/hs_err_pid10344.log
+</span><span class='line'>#
+</span><span class='line'># If you would like to submit a bug report, please include
+</span><span class='line'># instructions on how to reproduce the bug and visit:
+</span><span class='line'>#   http://icedtea.classpath.org/bugzilla
+</span><span class='line'>#
+</span><span class='line'>Aborted</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I dug and dug and dug and couldn&rsquo;t figure out what was going on.  The most common fix that I saw was to switch to the Oracle JVM.  For this project I didn&rsquo;t want to do that so I scoured the net and came up with the following two options.</p>
+
+<p>For reference, my original command line was very simple.  It was just <code>java -jar test.jar</code>.</p>
+
+<p>NOTE: There may be performance issues with both of these options.  I have not profiled them to see the difference.  Then again, having your JVM crash can arguably be the lowest performance option possible.</p>
+
+<p>Option 1: Add the <code>-XX:+PrintCommandLineFlags</code> option to your command line.  This changed my command line to <code>java -XX:+PrintCommandLineFlags -jar test.jar</code>.  Immediately the problem went away.</p>
+
+<p>Option 2: Add the <code>-jamvm</code> option to your command line.  This changed my command line to <code>java -jamvm -jar test.jar</code>.  Again, immediately the problem went away</p>
+
+<p>What is really happening behind the scenes?  That gets complex quickly and I still don&rsquo;t know the full answer.  It turns out that this is a known but ignored bug in OpenJDK&rsquo;s Zero VM.  When you run <code>java -version</code> you can see if you&rsquo;re running Zero VM or not like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pi@raspberrypi ~ $ java -version
+</span><span class='line'>java version "1.7.0_65"
+</span><span class='line'>OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)
+</span><span class='line'>OpenJDK Zero VM (build 24.65-b04, mixed mode)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I don&rsquo;t know why option 1 works.  My guess is that that option disables some kind of optimization.  Looking at <a href="http://cr.openjdk.java.net/~gbenson/zero-10/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp.html">what I think is the corresponding code in Hotspot</a> on line 283 I can see that <code>pthread_attr_getstack</code> is used.  The <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_attr_getstack.html">pthread_attr_getstack documentation</a> says that it can only fail with <code>EINVAL</code> for one reason.  It must be that <code>addr</code> &ldquo;does not refer to an initialized thread attribute object&rdquo;.  I don&rsquo;t have any clue how to fix this though.</p>
+
+<p>Option 2 works because it switches over to <a href="http://jamvm.sourceforge.net/">JamVM</a>.  You can check your JamVM version like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pi@raspberrypi ~ $ java -jamvm -version
+</span><span class='line'>java version "1.7.0_65"
+</span><span class='line'>OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)
+</span><span class='line'>JamVM (build 1.6.0-devel, inline-threaded interpreter with stack-caching)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So, if you&rsquo;re in a similar bind and don&rsquo;t want to install and switch to Oracle&rsquo;s JVM give these options a try.  Post your results in the comments below.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Making Javascript Logging a Little Less Expensive]]></title>
@@ -1780,101 +1867,6 @@
 
 
 <p>After specifying the bs parameter it never happened to me again.  Let me know if you ran into the same thing and whether or not this fixed it on your system.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Building Asterisk With Support for SIPML5]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5/"/>
-    <updated>2014-01-02T19:06:58-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5</id>
-    <content type="html"><![CDATA[<p>If you are trying to use SIPML5 with Asterisk there are some gotchas that often come up.  If you&rsquo;re running it on Debian these tips below may help.</p>
-
-<p>If you haven&rsquo;t gotten that far with Asterisk and don&rsquo;t care about your current configuration you can try this procedure that I use to build Asterisk myself:</p>
-
-<ul>
-<li>Download latest Asterisk, extract it, and cd into the directory it was extracted into</li>
-<li>Install some necessary dependencies</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install build-essential libncurses5-dev libxml2-dev libsqlite3-dev libssl-dev libsrtp0-dev
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Run the configuration script</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>./configure
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Build Asterisk.  NOTE: I have only had problems running a multi-job make so I would suggest you do not include a -jX option to take advantage of all of your cores.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>make
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Install Asterisk</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make install
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Build the samples and <strong>overwrite your current configuration</strong>.  <strong>You lose everything here so skip this step if you want to keep your config</strong>.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make samples
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Start Asterisk with crazy verbosity so you can see what is going on</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo /usr/sbin/asterisk -vvvvvvvvvvvvvvg
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>There are two issues I ran into when trying to use SIPML5.</p>
-
-<h1>Error #1: no protocols out of &lsquo;sip&rsquo; supported &ndash; in Asterisk console</h1>
-
-<p>In this case chan_sip.so probably isn&rsquo;t built.  Check in make menuconfig, add libssl-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_crypto is enabled.</p>
-
-<h1>Error #2: SRTP issues</h1>
-
-<p>If you are having SRTP issues you probably get one or more of these messages:</p>
-
-<ul>
-<li>In the browser &ndash; Not acceptable here</li>
-<li>In the Asterisk console &ndash; Received SAVPF profile in audio offer but AVPF is not enabled</li>
-<li>In the Asterisk console &ndash; Insufficient information in SDP</li>
-<li>In the Asterisk console &ndash; No SRTP module loaded, can&rsquo;t setup SRTP session</li>
-<li>In the Asterisk console &ndash; Rejecting secure audio stream without encryption details</li>
-</ul>
-
-
-<p>In this case res_srtp.so probably isn&rsquo;t built.  Check in make menuconfig, add libsrtp0-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_srtp is enabled.</p>
-
-<p>Good luck and post in the comments if it worked for you or if you need some help.</p>
 ]]></content>
   </entry>
   
