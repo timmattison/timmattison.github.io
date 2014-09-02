@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>How to: Execute a Command on a Remote Server That Requires You to Su or Sudo - Tim Mattison</title>
+  <title>Using Amazon STS Credentials Inside of a Properties File - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Recently I ran into a situation where I had to reboot a ton of machines remotely. I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do &hellip;">
+  <meta name="description" content="Amazon provides several credentials providers in their Java API that let you use IAM user credentials various ways. The credentials can come from &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">How to: Execute a Command on a Remote Server That Requires You to Su or Sudo</h1>
+      <h1 class="entry-title">Using Amazon STS Credentials Inside of a Properties File</h1>
     
     
       <p class="meta">
@@ -96,7 +96,7 @@
   
 
 
-<time datetime="2014-02-13T14:28:49-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
+<time datetime="2014-09-02T13:02:53-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,25 +106,61 @@
   </header>
 
 
-<div class="entry-content"><p>Recently I ran into a situation where I had to reboot a ton of machines remotely.  I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do that anyway, so I thought I might be stuck trying to SSH in, &ldquo;sudo reboot&rdquo;, enter the password, and go on to the next machine.  One snag was that some machines supported sudo and some required me to su.</p>
+<div class="entry-content"><p>Amazon provides several credentials providers in their Java API that let you use IAM user credentials various ways.  The credentials can come from IMDS, environment variables, or a properties file, just to name a few.</p>
 
-<p>I didn&rsquo;t want to have to do this for all of the machines I was working on so I searched around and found <a href="https://github.com/paramiko/paramiko">Paramiko</a>.  Paramiko is an SSH library for Python that lets you tell Python the login password and also gives you direct access to the terminal stream from your SSH session.  This means that I can send su or sudo and then send the password without the user doing anything.</p>
+<p>If you&rsquo;re developing and debugging and you need to use STS credentials your options are a bit more limited.  To help deal with this I came up with a few bits of code that, for me at least, make it significantly easier.</p>
 
-<p>Security wise this is an obvious hole in many ways.  First of all if you do this for a machine and specify the password on the command-line it is going to end up in your history file.  So without going through the exhaustive list of reasons why this is generally a bad idea lets just say that you should use this sparingly.</p>
+<p>First, there&rsquo;s an <code>awscredentials.properties</code> file format you need to follow that looks like this:</p>
 
-<p>Set the variable <code>root_command</code> to the command that you want to execute as root, set <code>root_command_result</code> to the expected result of the command.  The command needs to have <code>\n</code> on the end of it because it simulates the user pressing enter.  Without it the system will never execute the command.  Pass these command-line parameters in this order:</p>
-
-<ul>
-<li>The IP of the system you want to connect to</li>
-<li>The username of the user that can su to root</li>
-<li>The password of the user that can su to root</li>
-<li>The password required to su to root</li>
-</ul>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aws.accessKeyId=XXXXXXXXXXXXXXXXXXX
+</span><span class='line'>aws.secretAccessKey=YYYYYYYYYYYYYYYYYYY
+</span><span class='line'>aws.sessionToken=ZZZZZZZZZZZZZZZZZZZ</span></code></pre></td></tr></table></div></figure>
 
 
-<p>This particular version of the script just performs the &ldquo;su&rdquo; command.  It can be modified to do a &ldquo;sudo&rdquo; with just a few tweaks.  If there&rsquo;s demand I&rsquo;ll post a version that lets you swap between both and does some additional error handling.</p>
+<p>Replace the X, Y, and Z strings with your credentials and put them in your resources directory where the classloader can find them.  <strong><em>DO NOT COMMIT THEM TO SOURCE CONTROL!</em></strong></p>
 
-<p>And here&rsquo;s the script&hellip; don&rsquo;t forget to install Paramiko!</p>
+<p>Next, there&rsquo;s a method that loads these credentials into the system properties:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>private static final String AWSCREDENTIALS_PROPERTIES = "awscredentials.properties";
+</span><span class='line'>
+</span><span class='line'>void loadAwsCredentialsProperties() throws IOException {
+</span><span class='line'>  InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(AWSCREDENTIALS_PROPERTIES);
+</span><span class='line'>  
+</span><span class='line'>  // Was there a properties file?
+</span><span class='line'>  if (inputStream == null) {
+</span><span class='line'>      // No, just return
+</span><span class='line'>      return;
+</span><span class='line'>  }
+</span><span class='line'>  
+</span><span class='line'>  Properties properties = new Properties(System.getProperties());
+</span><span class='line'>  properties.load(inputStream);
+</span><span class='line'>  
+</span><span class='line'>  // set the system properties
+</span><span class='line'>  System.setProperties(properties);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, there&rsquo;s the credentials provider:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -183,88 +219,66 @@
 <span class='line-number'>55</span>
 <span class='line-number'>56</span>
 <span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/env python
+</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.AmazonClientException;
+</span><span class='line'>import com.amazonaws.auth.AWSCredentials;
+</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
+</span><span class='line'>import com.amazonaws.auth.BasicSessionCredentials;
+</span><span class='line'>import com.amazonaws.services.securitytoken.model.Credentials;
+</span><span class='line'>import com.amazonaws.util.StringUtils;
 </span><span class='line'>
-</span><span class='line'>__author__ = 'timmattison'
+</span><span class='line'>/**
+</span><span class='line'> * Created by timmattison on 9/2/14.
+</span><span class='line'> */
+</span><span class='line'>public class SystemPropertiesStsCredentialsProvider implements AWSCredentialsProvider {
+</span><span class='line'>    private static final String ACCESS_KEY_ID_SYSTEM_PROPERTY = "aws.accessKeyId";
+</span><span class='line'>    private static final String SECRET_ACCESS_KEY_SYSTEM_PROPERTY = "aws.secretAccessKey";
+</span><span class='line'>    private static final String SESSION_TOKEN_SYSTEM_PROPERTY = "aws.sessionToken";
 </span><span class='line'>
-</span><span class='line'>import paramiko
-</span><span class='line'>import sys
-</span><span class='line'>import time
+</span><span class='line'>    public AWSCredentials getCredentials() {
+</span><span class='line'>        // Get the access key ID
+</span><span class='line'>        String accessKeyId = StringUtils.trim(System.getProperty(ACCESS_KEY_ID_SYSTEM_PROPERTY));
 </span><span class='line'>
-</span><span class='line'>root_command = "whoami\n"
-</span><span class='line'>root_command_result = "root"
+</span><span class='line'>        // Get the secret access key
+</span><span class='line'>        String secretAccessKey = StringUtils.trim(System.getProperty(SECRET_ACCESS_KEY_SYSTEM_PROPERTY));
 </span><span class='line'>
-</span><span class='line'>def send_string_and_wait(command, wait_time, should_print):
-</span><span class='line'>    # Send the su command
-</span><span class='line'>    shell.send(command)
+</span><span class='line'>        // Get the session token
+</span><span class='line'>        String sessionToken = StringUtils.trim(System.getProperty(SESSION_TOKEN_SYSTEM_PROPERTY));
 </span><span class='line'>
-</span><span class='line'>    # Wait a bit, if necessary
-</span><span class='line'>    time.sleep(wait_time)
+</span><span class='line'>        // Are we missing any of the necessary values?
+</span><span class='line'>        if (StringUtils.isNullOrEmpty(accessKeyId)
+</span><span class='line'>                || StringUtils.isNullOrEmpty(secretAccessKey)
+</span><span class='line'>                || StringUtils.isNullOrEmpty(sessionToken)) {
+</span><span class='line'>            // Yes, throw an exception like the Amazon code does
+</span><span class='line'>            throw new AmazonClientException(
+</span><span class='line'>                    "Unable to load AWS credentials from Java system "
+</span><span class='line'>                            + "properties (" + ACCESS_KEY_ID_SYSTEM_PROPERTY + ", "
+</span><span class='line'>                            + SECRET_ACCESS_KEY_SYSTEM_PROPERTY + ", and "
+</span><span class='line'>                            + SESSION_TOKEN_SYSTEM_PROPERTY + ")");
+</span><span class='line'>        }
 </span><span class='line'>
-</span><span class='line'>    # Flush the receive buffer
-</span><span class='line'>    receive_buffer = shell.recv(1024)
+</span><span class='line'>        // Create the credentials
+</span><span class='line'>        Credentials sessionCredentials = new Credentials();
+</span><span class='line'>        sessionCredentials.setAccessKeyId(accessKeyId);
+</span><span class='line'>        sessionCredentials.setSecretAccessKey(secretAccessKey);
+</span><span class='line'>        sessionCredentials.setSessionToken(sessionToken);
 </span><span class='line'>
-</span><span class='line'>    # Print the receive buffer, if necessary
-</span><span class='line'>    if should_print:
-</span><span class='line'>        print receive_buffer
+</span><span class='line'>        // Convert them to basic session credentials
+</span><span class='line'>        BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
+</span><span class='line'>                sessionCredentials.getAccessKeyId(),
+</span><span class='line'>                sessionCredentials.getSecretAccessKey(),
+</span><span class='line'>                sessionCredentials.getSessionToken());
 </span><span class='line'>
-</span><span class='line'>def send_string_and_wait_for_string(command, wait_string, should_print):
-</span><span class='line'>    # Send the su command
-</span><span class='line'>    shell.send(command)
+</span><span class='line'>        return basicSessionCredentials;
+</span><span class='line'>    }
 </span><span class='line'>
-</span><span class='line'>    # Create a new receive buffer
-</span><span class='line'>    receive_buffer = ""
-</span><span class='line'>
-</span><span class='line'>    while not wait_string in receive_buffer:
-</span><span class='line'>        # Flush the receive buffer
-</span><span class='line'>        receive_buffer += shell.recv(1024)
-</span><span class='line'>
-</span><span class='line'>    # Print the receive buffer, if necessary
-</span><span class='line'>    if should_print:
-</span><span class='line'>        print receive_buffer
-</span><span class='line'>
-</span><span class='line'># Get the command-line arguments
-</span><span class='line'>system_ip = sys.argv[1]
-</span><span class='line'>system_username = sys.argv[2]
-</span><span class='line'>system_ssh_password = sys.argv[3]
-</span><span class='line'>system_su_password = sys.argv[4]
-</span><span class='line'>
-</span><span class='line'># Create an SSH client
-</span><span class='line'>client = paramiko.SSHClient()
-</span><span class='line'>
-</span><span class='line'># Make sure that we add the remote server's SSH key automatically
-</span><span class='line'>client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-</span><span class='line'>
-</span><span class='line'># Connect to the client
-</span><span class='line'>client.connect(system_ip, username=system_username, password=system_ssh_password)
-</span><span class='line'>
-</span><span class='line'># Create a raw shell
-</span><span class='line'>shell = client.invoke_shell()
-</span><span class='line'>
-</span><span class='line'># Send the su command
-</span><span class='line'>send_string_and_wait("su\n", 1, True)
-</span><span class='line'>
-</span><span class='line'># Send the client's su password followed by a newline
-</span><span class='line'>send_string_and_wait(system_su_password + "\n", 1, True)
-</span><span class='line'>
-</span><span class='line'># Send the install command followed by a newline and wait for the done string
-</span><span class='line'>send_string_and_wait_for_string(root_command, root_command_result, True)
-</span><span class='line'>
-</span><span class='line'># Close the SSH connection
-</span><span class='line'>client.close()</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    @Override
+</span><span class='line'>    public void refresh() {
+</span><span class='line'>        // Do nothing
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
+
+<p>This should make things quite a bit easier if you don&rsquo;t have access to a real IAM user and must use STS for your application.</p>
 </div>
 
 
@@ -287,7 +301,7 @@
   
 
 
-<time datetime="2014-02-13T14:28:49-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
+<time datetime="2014-09-02T13:02:53-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
       
 
 
@@ -295,7 +309,7 @@
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -306,10 +320,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/" title="Previous Post: Port 32764 - A router backdoor that you need to take seriously">&laquo; Port 32764 - A router backdoor that you need to take seriously</a>
+        <a class="basic-alignment left" href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/" title="Previous Post: Simple snippets for using AWS credentials while debugging">&laquo; Simple snippets for using AWS credentials while debugging</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/" title="Next Post: True remote debugging with Chrome's remote debugging feature">True remote debugging with Chrome's remote debugging feature &raquo;</a>
       
     </p>
   </footer>
@@ -429,8 +441,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/';
         var disqus_script = 'embed.js';
       
     (function () {

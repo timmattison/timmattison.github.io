@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="NOTE: This has all been done on a Mac running OS 10.9. YMMV on other operating systems or versions. If you&rsquo;ve ever had to use an SSH server as &hellip;">
+  <meta name="description" content="Recently I needed to find a way to reboot an embedded device remotely. The trick was that we didn&rsquo;t have a handy Web Power Switch and the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,364 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/25/automating-cisco-switch-interactions/">Automating Cisco Switch Interactions</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-25T19:03:09-04:00" pubdate data-updated="true">Jun 25<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/25/automating-cisco-switch-interactions/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/25/automating-cisco-switch-interactions/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Recently I needed to find a way to reboot an embedded device remotely.  The trick was that we didn&rsquo;t have a handy <a href="http://www.digital-loggers.com/lpc.html">Web Power Switch</a> and the device was PoE.  I figured that I&rsquo;d just quickly slap together a script to telnet to the switch&rsquo;s management interface and simulate a few simple commands.  To make a long story short SSH was the only option which complicated things a bit.</p>
+
+<p>Fortunately for me <a href="http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">I had already written an article about this</a> but that turned out only to be a starting point as the script just wouldn&rsquo;t work out of the box with Cisco&rsquo;s SSH server.</p>
+
+<p>In the end I found a few very interesting things out about Paramiko and Cisco&rsquo;s SSH server.  Using Paramiko with a Cisco switch through out a bunch of errors like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Traceback (most recent call last):
+</span><span class='line'>  File "/Applications/PyCharm.app/helpers/pydev/pydevd.py", line 1733, in &lt;module&gt;
+</span><span class='line'>    debugger.run(setup['file'], None, None)
+</span><span class='line'>  File "/Applications/PyCharm.app/helpers/pydev/pydevd.py", line 1226, in run
+</span><span class='line'>    pydev_imports.execfile(file, globals, locals)  # execute the script
+</span><span class='line'>  File "poe-state.py", line 69, in &lt;module&gt;
+</span><span class='line'>    client.connect(switch_ip_address, username=username, password=password, look_for_keys=True)
+</span><span class='line'>  File "/usr/local/lib/python2.7/site-packages/paramiko/client.py", line 273, in connect
+</span><span class='line'>    self._auth(username, password, pkey, key_filenames, allow_agent, look_for_keys)
+</span><span class='line'>  File "/usr/local/lib/python2.7/site-packages/paramiko/client.py", line 456, in _auth
+</span><span class='line'>    raise saved_exception
+</span><span class='line'>paramiko.ssh_exception.AuthenticationException: Authentication failed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you are seeing <code>Authentication failed</code> messages while using Paramiko and you are certain your credentials are correct you may be running into the same problem I was.  The issue is that Paramiko tries to use your SSH keys to do public key authentication before it tries to use your password.  Normally, this doesn&rsquo;t cause an issue because if it fails one authentication method it just moves onto trying the next authentication method.  Due to a quirk in both Paramiko and Cisco&rsquo;s SSH server implementation Paramiko gets confused after the public key authentication failure and gives up.  I figured this out by turning on full debugging in Paramiko like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>paramiko.common.logging.basicConfig(level=paramiko.common.DEBUG)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is an incredibly handy flag if you ever need to debug Paramiko yourself so keep it around!</p>
+
+<p>Anyway, the solution is normally to add the <code>look_for_keys=False</code> option to your Paramiko connect call.  However, as I found out that works on some systems and not others.  To be certain that it only tried password authentication I needed to also add the <code>allow_agent=False</code> flag.</p>
+
+<p>The other quirk I hit was that my script initially waited forever for a response when I sent it commands that had a lot of output.  This was because the Cisco shell&rsquo;s pager was on.  Turning it off meant sending one additional command <code>terminal length 0\n</code>.</p>
+
+<p>In the end I ended up with a script that lets me check the PoE state of a port and enable/disable PoE on a per port basis.  If you need a script that does that it is included below.  Two important points to remember are that I only needed to use this on interfaces that start with <code>Gi1/0/</code> so that value is hardcoded and you&rsquo;ll need to change it if your switch is different.  You will also need to install my little Python library called <a href="https://pypi.python.org/pypi/pyuda/0.1dev">pyuda</a> because I use it to process the command-line arguments.  Rip that out if you want to simplify things.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;timmattison&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">pyuda</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">re</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">paramiko</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">time</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># For debugging only</span>
+</span><span class='line'><span class="c"># paramiko.common.logging.basicConfig(level=paramiko.common.DEBUG)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># This is part of the regex we use to look for the interfaces we care about</span>
+</span><span class='line'><span class="n">interface_regex</span> <span class="o">=</span> <span class="s">&quot;Gi1\/0\/&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># These are the operation we support</span>
+</span><span class='line'><span class="n">status_operation</span> <span class="o">=</span> <span class="s">&quot;status&quot;</span>
+</span><span class='line'><span class="n">on_operation</span> <span class="o">=</span> <span class="s">&quot;on&quot;</span>
+</span><span class='line'><span class="n">off_operation</span> <span class="o">=</span> <span class="s">&quot;off&quot;</span>
+</span><span class='line'><span class="n">valid_operations</span> <span class="o">=</span> <span class="p">[</span><span class="n">status_operation</span><span class="p">,</span> <span class="n">on_operation</span><span class="p">,</span> <span class="n">off_operation</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_string</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Send the su command</span>
+</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Create a new receive buffer</span>
+</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">while</span> <span class="ow">not</span> <span class="n">wait_string</span> <span class="ow">in</span> <span class="n">receive_buffer</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Flush the receive buffer</span>
+</span><span class='line'>        <span class="n">receive_buffer</span> <span class="o">+=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">receive_buffer</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">validate_operation</span><span class="p">(</span><span class="n">operation</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Is this an operation we support?</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">operation</span> <span class="ow">in</span> <span class="n">valid_operations</span><span class="p">):</span>
+</span><span class='line'>        <span class="c"># No, tell them and bail out</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">operation</span> <span class="o">+</span> <span class="s">&quot; is not a valid operation&quot;</span>
+</span><span class='line'>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the command-line arguments</span>
+</span><span class='line'><span class="n">switch_ip_address</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">port_number</span> <span class="o">=</span> <span class="n">pyuda</span><span class="o">.</span><span class="n">get_command_line_arguments</span><span class="p">([</span><span class="s">&quot;Switch IP address&quot;</span><span class="p">,</span> <span class="s">&quot;Admin username&quot;</span><span class="p">,</span> <span class="s">&quot;Admin password&quot;</span><span class="p">,</span> <span class="n">status_operation</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="n">on_operation</span> <span class="o">+</span> <span class="s">&quot;, or &quot;</span> <span class="o">+</span> <span class="n">off_operation</span><span class="p">,</span> <span class="s">&quot;Port number&quot;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the operation makes sense</span>
+</span><span class='line'><span class="n">validate_operation</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create an SSH client</span>
+</span><span class='line'><span class="n">client</span> <span class="o">=</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure that we add the remote server&#39;s SSH key automatically</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">set_missing_host_key_policy</span><span class="p">(</span><span class="n">paramiko</span><span class="o">.</span><span class="n">AutoAddPolicy</span><span class="p">())</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Connect to the client</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">switch_ip_address</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">allow_agent</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">look_for_keys</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a raw shell</span>
+</span><span class='line'><span class="n">shell</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke_shell</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for the prompt</span>
+</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Disable more</span>
+</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;terminal length 0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Which command are we trying to run?</span>
+</span><span class='line'><span class="k">if</span><span class="p">((</span><span class="n">operation</span> <span class="o">==</span> <span class="n">on_operation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">operation</span> <span class="o">==</span> <span class="n">off_operation</span><span class="p">)):</span>
+</span><span class='line'>    <span class="c"># Trying to do on or off</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Send the &quot;conf t&quot; command</span>
+</span><span class='line'>    <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;conf t</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;(config)#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Send the interface command</span>
+</span><span class='line'>    <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;interface Gi1/0/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">port_number</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;(config-if)#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Build the power command</span>
+</span><span class='line'>    <span class="n">power_command</span> <span class="o">=</span> <span class="s">&quot;power inline &quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># What kind of operation is this?</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">operation</span> <span class="o">==</span> <span class="n">off_operation</span><span class="p">):</span>
+</span><span class='line'>        <span class="c"># Power off, &quot;never&quot; means off</span>
+</span><span class='line'>        <span class="n">power_command</span> <span class="o">+=</span> <span class="s">&quot;never&quot;</span>
+</span><span class='line'>    <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Power on, &quot;auto&quot; means on (there are other options but this is the simplest)</span>
+</span><span class='line'>        <span class="n">power_command</span> <span class="o">+=</span> <span class="s">&quot;auto&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Add the carriage return</span>
+</span><span class='line'>    <span class="n">power_command</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Send the power command</span>
+</span><span class='line'>    <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">power_command</span><span class="p">,</span> <span class="s">&quot;(config-if)#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'><span class="k">elif</span><span class="p">(</span><span class="n">operation</span> <span class="o">==</span> <span class="n">status_operation</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Get the status of all of the PoE ports</span>
+</span><span class='line'>    <span class="n">power_data</span> <span class="o">=</span> <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;show power inline</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Split the data into lines</span>
+</span><span class='line'>    <span class="n">power_data_lines</span> <span class="o">=</span> <span class="n">power_data</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># We haven&#39;t found what we&#39;re looking for yet</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Loop through all of the lines</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">power_data_line</span> <span class="ow">in</span> <span class="n">power_data_lines</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Does this look like the interface we want?</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;^&quot;</span> <span class="o">+</span> <span class="n">interface_regex</span> <span class="o">+</span> <span class="n">port_number</span> <span class="o">+</span> <span class="s">&quot;\s&quot;</span><span class="p">,</span> <span class="n">power_data_line</span><span class="p">)):</span>
+</span><span class='line'>            <span class="c"># No, keep going</span>
+</span><span class='line'>            <span class="k">continue</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Found the interface we want, split up the fields</span>
+</span><span class='line'>        <span class="n">power_data_fields</span> <span class="o">=</span> <span class="n">power_data_line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Get the second field which is the power state field and print it</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">power_data_fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># We found what we needed</span>
+</span><span class='line'>        <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Get out of the for loop</span>
+</span><span class='line'>        <span class="k">break</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Did we find what we needed?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># No, let the user know</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Did not find port &quot;</span> <span class="o">+</span> <span class="n">port_number</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">else</span><span class="p">:</span>
+</span><span class='line'>    <span class="c"># This is an operation we didn&#39;t handle</span>
+</span><span class='line'>    <span class="k">print</span> <span class="n">operation</span> <span class="o">+</span> <span class="s">&quot; not handled&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Close the SSH connection</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -975,96 +1333,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-16T08:50:19-05:00" pubdate data-updated="true">Jan 16<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default.  If you have Internet access at home or at a client location you care about then you should be testing to see if they are vulnerable with <a href="https://www.grc.com/x/portprobe=32764">ShieldsUP</a>.</p>
-
-<p>I would recommend running this test ASAP.  The <a href="https://github.com/elvanderb/TCP-32764">list of affected routers</a> includes Netgear, Linksys, and even “real” Cisco hardware.  That list is not exhaustive.</p>
-
-<p>If you need to run this test via SSH I’ve whipped up a script that will spit out whether you’re vulnerable or not based on the ShieldsUP results.  It was designed to run on Mac OS (because their version of sed is busted) and tested on Mavericks and Debian Linux.  Here’s what you can run:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl -L http://bit.ly/port32764 2&gt;&amp;1 | <span class="se">\</span>
-</span><span class='line'>  tr <span class="s2">&quot;\n&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
-</span><span class='line'>  tr <span class="s2">&quot;\r&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
-</span><span class='line'>  sed <span class="s1">&#39;s/&lt;[^&gt;][^&gt;]*&gt;/ /g&#39;</span> | <span class="se">\</span>
-</span><span class='line'>  sed <span class="s1">&#39;s/^.*32764/32764/&#39;</span> | <span class="se">\</span>
-</span><span class='line'>  sed <span class="s1">&#39;s/Unknown.*$//&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The response should look like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Stealth
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Or this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Closed
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you get anything else then you are vulnerable.  Even if you run this test I recommend running it in a browser on the connection you’re testing just in case the script has an issue.</p>
-
-<p>If you are vulnerable then the following pieces of information about your connection may have already been compromised:</p>
-
-<ul>
-<li>Your wireless key (in the clear, not hashed)</li>
-<li>Your router admin username and password (in the clear, not hashed)</li>
-<li>Your router’s SSID and MAC address (this can be used to add your router to a database of access points with passwords)</li>
-<li>Any custom settings you have on your router (port mapping to interesting devices, tunnels you thought would be hidden on a high port number, etc)</li>
-</ul>
-
-
-<p>People have written plenty of applications that do scans of the entire Internet in days <a href="http://zmap.io/">or even hours</a>.  This is being scanned for constantly right now and you cannot hide in the four billion addresses out there.</p>
-
-<p>If you are not vulnerable but you have used the same wireless password on an older router it is probably a good idea to change your password.  Nobody knows how long this has been in the wild.  It has been in the firmware for a long time.</p>
-
-<p>If you need help post in the comments.  Good luck!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1098,6 +1366,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a>
       </li>
     
@@ -1111,10 +1383,6 @@
     
       <li class="post">
         <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Making Javascript Logging a Little Less Expensive</a>
       </li>
     
   </ul>

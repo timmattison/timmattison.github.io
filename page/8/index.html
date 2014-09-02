@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="In the same vein of my previous desktop app I put together an Android app that lets you listen to WSPN.  It also includes the schedule so you can see &hellip;">
+  <meta name="description" content="Another day, another free radio application for your desktop.  This time it&rsquo;s for WCDB on 90.9 FM in Albany, NY.  So go and install Adobe AIR &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,45 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/">Listen to WCDB Right on Your Desktop</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-10-18T22:23:02-04:00" pubdate data-updated="true">Oct 18<span>th</span>, 2010</time>
+        
+           | <a href="/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Another day, another free radio application for your desktop.  This time it&rsquo;s for <a href="http://www.wcdbfm.com/">WCDB on 90.9 FM in Albany, NY</a>.  So go and <a href="http://get.adobe.com/air/">install Adobe AIR if you haven&rsquo;t already</a>, <a href="/static/WCDBPlayer.air">download my WCDB player application</a>, and start listening!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -425,7 +464,7 @@ $body = $body . $line;
 
 <p>The instructions explicitly say to switch from NAT to bridged but some users have found that it actually does work just fine with NAT.  In my case it still didn&rsquo;t work with either.  <a href="http://discuss.gdgt.com/google/chrome-os/general/Download-Chrome-OS-VMWare-image/page/2/">Luckily someone on the forums let us in on the secret</a> that you actually don&rsquo;t need a Google account at all to use this build.</p>
 
-<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#x6d;&#97;&#105;&#x6c;&#116;&#x6f;&#58;&#x63;&#x68;&#114;&#x6f;&#x6e;&#111;&#x73;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#46;&#99;&#x6f;&#x6d;">&#99;&#104;&#x72;&#x6f;&#x6e;&#111;&#115;&#x40;&#x67;&#109;&#97;&#x69;&#x6c;&#46;&#x63;&#x6f;&#x6d;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
+<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#x6d;&#x61;&#x69;&#108;&#116;&#111;&#x3a;&#99;&#x68;&#114;&#111;&#x6e;&#x6f;&#115;&#x40;&#103;&#109;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#x6d;">&#x63;&#x68;&#x72;&#111;&#x6e;&#x6f;&#x73;&#x40;&#x67;&#109;&#x61;&#x69;&#x6c;&#x2e;&#99;&#111;&#x6d;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
 
 <p>Surprisingly, after doing that the networking system came to life and I could log into GMail and check other sites.  If you&rsquo;re hung up on getting past the initial login screen definitely try the &ldquo;chronos&rdquo; account and let me know if it works for you.</p>
 </div>
@@ -545,82 +584,6 @@ $body = $body . $line;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/12/01/how-to-fix-issues-with-vmware-server-tools-on-gentoo-and-other-distros/">How-To: Fix Issues With VMware Server Tools on Gentoo (and Other Distros)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-12-01T18:59:59-05:00" pubdate data-updated="true">Dec 1<span>st</span>, 2009</time>
-        
-           | <a href="/archives/2009/12/01/how-to-fix-issues-with-vmware-server-tools-on-gentoo-and-other-distros/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/01/how-to-fix-issues-with-vmware-server-tools-on-gentoo-and-other-distros/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>VMware Server is a complicated beast.  When it breaks, you&rsquo;re usually without support (although <a href="mailto:sales@vmware.com">paid support options do exist</a>), and out of commission.  One problem that tripped me up for a few weeks was that I had a running VM that refused to suspend.  Because of this I couldn&rsquo;t get clean backups of the VM in a suspended state and had to resort to just a plain backup of the filesystem via rsync.  It worked, but it was less than optimal.  Any time I ran the suspend command:</p>
-
-<pre><code>/opt/vmware/bin/vmrun suspend Gentoo.vmx
-</code></pre>
-
-<p>The error message I was presented with was:</p>
-
-<pre><code>Error: Command failed: Cannot connect to the virtual machine
-</code></pre>
-
-<p>I could hobble along like this for a while but today I needed to add another virtual disk which required a restart of the VM.  When I tried to start it via the command-line tools like this:</p>
-
-<pre><code>/opt/vmware/bin/vmrun start Gentoo.vmx
-</code></pre>
-
-<p>The system just hung indefinitely.  Eventually I had to CTRL-C out of it and get back to the command-line to figure out the issue.</p>
-
-<p>What was the underlying problem?  Almost every time I&rsquo;ve had a VMware Server issue it has been permissions.  When you&rsquo;re working with VMs you should always make sure that the following criteria is applied to the files in the VM&rsquo;s working directory:</p>
-
-<ul>
-<li><p>All files must be owned by the vmware user and/or the vmware group</p></li>
-<li><p>All of the files must be readable and writeable by the vmware user and/or group</p></li>
-<li><p>Disk files must be marked as executable by the vmware user and/or group</p></li>
-<li><p>Optional: All permissions should be removed from anyone other than the owning user and/or group</p></li>
-</ul>
-
-
-<p>What I do to get this done quickly on all of my VMs is run the following few commands in each VM&rsquo;s working directory:</p>
-
-<pre><code>chgrp vmware *
-chmod 660 *vmem
-chmod 660 *.vmsn
-chmod 750 *.vmdk
-chmod 750 *.vmsd
-chmod 750 nvram
-</code></pre>
-
-<p>After running those few commands VMware Server works like a charm again.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -654,6 +617,10 @@ chmod 750 nvram
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a>
       </li>
     
@@ -667,10 +634,6 @@ chmod 750 nvram
     
       <li class="post">
         <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Making Javascript Logging a Little Less Expensive</a>
       </li>
     
   </ul>

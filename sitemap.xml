@@ -707,12 +707,18 @@
         <lastmod>2014-09-02T11:35:15-04:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/
+        </loc>
+        <lastmod>2014-09-02T13:10:31-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-09-02T11:35:15-04:00</lastmod>
+        <lastmod>2014-09-02T13:10:31-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-09-02T11:35:15-04:00</lastmod>
+        <lastmod>2014-09-02T13:10:31-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

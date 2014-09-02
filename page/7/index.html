@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I just upgraded from a dual monitor to a triple monitor setup.  The strange thing was that when I went into my virtual machines, after rebooting them &hellip;">
+  <meta name="description" content="I am a big fan of the Avast! line of security products.  I just upgraded from Pro to Internet Security since I got a new laptop and getting the Pro &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,60 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/07/12/how-to-fix-vmware-connectivity-problems-after-installing-avast-internet-security/">How-To: Fix VMware Connectivity Problems After Installing Avast! Internet Security</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-07-12T08:59:23-04:00" pubdate data-updated="true">Jul 12<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/07/12/how-to-fix-vmware-connectivity-problems-after-installing-avast-internet-security/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/07/12/how-to-fix-vmware-connectivity-problems-after-installing-avast-internet-security/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am a big fan of the Avast! line of security products.  I just upgraded from Pro to Internet Security since I got a new laptop and getting the Pro version for that was the same price as the Internet Security version and I figured that an added firewall couldn&rsquo;t hurt.  Naturally, it&rsquo;s never that simple and I realized that after I rebooted the firewall was causing the web browsers in my virtual machines to lose access to the Internet.  I was still able to ping things via the command line but I couldn&rsquo;t do much else.</p>
+
+<p>In order to fix this I found out that you just need to do the following steps and you&rsquo;re back online:</p>
+
+<ol>
+<li><p> Open Avast!</p></li>
+<li><p> Click the Firewall tab</p></li>
+<li><p> Make sure the Firewall Settings sub-tab is selected</p></li>
+<li><p> Click &ldquo;Expert Settings&rdquo; next to the &ldquo;Stop&rdquo; button</p></li>
+<li><p> Check &ldquo;Internet Connection Sharing mode&rdquo;</p></li>
+<li><p> Click OK</p></li>
+<li><p> Close Avast!</p></li>
+</ol>
+
+
+<p>Now your VMs are back online.  Post in the comments if you found it useful.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -739,45 +793,6 @@ make install
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/">Listen to WCDB Right on Your Desktop</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-18T22:23:02-04:00" pubdate data-updated="true">Oct 18<span>th</span>, 2010</time>
-        
-           | <a href="/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Another day, another free radio application for your desktop.  This time it&rsquo;s for <a href="http://www.wcdbfm.com/">WCDB on 90.9 FM in Albany, NY</a>.  So go and <a href="http://get.adobe.com/air/">install Adobe AIR if you haven&rsquo;t already</a>, <a href="/static/WCDBPlayer.air">download my WCDB player application</a>, and start listening!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/8/">&larr; Older</a>
@@ -811,6 +826,10 @@ make install
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a>
       </li>
     
@@ -824,10 +843,6 @@ make install
     
       <li class="post">
         <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Making Javascript Logging a Little Less Expensive</a>
       </li>
     
   </ul>

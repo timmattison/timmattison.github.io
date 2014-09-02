@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-09-02T11:36:10-04:00</updated>
+  <updated>2014-09-02T13:11:06-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,187 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Using Amazon STS Credentials Inside of a Properties File]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/"/>
+    <updated>2014-09-02T13:02:53-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file</id>
+    <content type="html"><![CDATA[<p>Amazon provides several credentials providers in their Java API that let you use IAM user credentials various ways.  The credentials can come from IMDS, environment variables, or a properties file, just to name a few.</p>
+
+<p>If you&rsquo;re developing and debugging and you need to use STS credentials your options are a bit more limited.  To help deal with this I came up with a few bits of code that, for me at least, make it significantly easier.</p>
+
+<p>First, there&rsquo;s an <code>awscredentials.properties</code> file format you need to follow that looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aws.accessKeyId=XXXXXXXXXXXXXXXXXXX
+</span><span class='line'>aws.secretAccessKey=YYYYYYYYYYYYYYYYYYY
+</span><span class='line'>aws.sessionToken=ZZZZZZZZZZZZZZZZZZZ</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Replace the X, Y, and Z strings with your credentials and put them in your resources directory where the classloader can find them.  <strong><em>DO NOT COMMIT THEM TO SOURCE CONTROL!</em></strong></p>
+
+<p>Next, there&rsquo;s a method that loads these credentials into the system properties:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>private static final String AWSCREDENTIALS_PROPERTIES = "awscredentials.properties";
+</span><span class='line'>
+</span><span class='line'>void loadAwsCredentialsProperties() throws IOException {
+</span><span class='line'>  InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(AWSCREDENTIALS_PROPERTIES);
+</span><span class='line'>  
+</span><span class='line'>  // Was there a properties file?
+</span><span class='line'>  if (inputStream == null) {
+</span><span class='line'>      // No, just return
+</span><span class='line'>      return;
+</span><span class='line'>  }
+</span><span class='line'>  
+</span><span class='line'>  Properties properties = new Properties(System.getProperties());
+</span><span class='line'>  properties.load(inputStream);
+</span><span class='line'>  
+</span><span class='line'>  // set the system properties
+</span><span class='line'>  System.setProperties(properties);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, there&rsquo;s the credentials provider:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.AmazonClientException;
+</span><span class='line'>import com.amazonaws.auth.AWSCredentials;
+</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
+</span><span class='line'>import com.amazonaws.auth.BasicSessionCredentials;
+</span><span class='line'>import com.amazonaws.services.securitytoken.model.Credentials;
+</span><span class='line'>import com.amazonaws.util.StringUtils;
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * Created by timmattison on 9/2/14.
+</span><span class='line'> */
+</span><span class='line'>public class SystemPropertiesStsCredentialsProvider implements AWSCredentialsProvider {
+</span><span class='line'>    private static final String ACCESS_KEY_ID_SYSTEM_PROPERTY = "aws.accessKeyId";
+</span><span class='line'>    private static final String SECRET_ACCESS_KEY_SYSTEM_PROPERTY = "aws.secretAccessKey";
+</span><span class='line'>    private static final String SESSION_TOKEN_SYSTEM_PROPERTY = "aws.sessionToken";
+</span><span class='line'>
+</span><span class='line'>    public AWSCredentials getCredentials() {
+</span><span class='line'>        // Get the access key ID
+</span><span class='line'>        String accessKeyId = StringUtils.trim(System.getProperty(ACCESS_KEY_ID_SYSTEM_PROPERTY));
+</span><span class='line'>
+</span><span class='line'>        // Get the secret access key
+</span><span class='line'>        String secretAccessKey = StringUtils.trim(System.getProperty(SECRET_ACCESS_KEY_SYSTEM_PROPERTY));
+</span><span class='line'>
+</span><span class='line'>        // Get the session token
+</span><span class='line'>        String sessionToken = StringUtils.trim(System.getProperty(SESSION_TOKEN_SYSTEM_PROPERTY));
+</span><span class='line'>
+</span><span class='line'>        // Are we missing any of the necessary values?
+</span><span class='line'>        if (StringUtils.isNullOrEmpty(accessKeyId)
+</span><span class='line'>                || StringUtils.isNullOrEmpty(secretAccessKey)
+</span><span class='line'>                || StringUtils.isNullOrEmpty(sessionToken)) {
+</span><span class='line'>            // Yes, throw an exception like the Amazon code does
+</span><span class='line'>            throw new AmazonClientException(
+</span><span class='line'>                    "Unable to load AWS credentials from Java system "
+</span><span class='line'>                            + "properties (" + ACCESS_KEY_ID_SYSTEM_PROPERTY + ", "
+</span><span class='line'>                            + SECRET_ACCESS_KEY_SYSTEM_PROPERTY + ", and "
+</span><span class='line'>                            + SESSION_TOKEN_SYSTEM_PROPERTY + ")");
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        // Create the credentials
+</span><span class='line'>        Credentials sessionCredentials = new Credentials();
+</span><span class='line'>        sessionCredentials.setAccessKeyId(accessKeyId);
+</span><span class='line'>        sessionCredentials.setSecretAccessKey(secretAccessKey);
+</span><span class='line'>        sessionCredentials.setSessionToken(sessionToken);
+</span><span class='line'>
+</span><span class='line'>        // Convert them to basic session credentials
+</span><span class='line'>        BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
+</span><span class='line'>                sessionCredentials.getAccessKeyId(),
+</span><span class='line'>                sessionCredentials.getSecretAccessKey(),
+</span><span class='line'>                sessionCredentials.getSessionToken());
+</span><span class='line'>
+</span><span class='line'>        return basicSessionCredentials;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public void refresh() {
+</span><span class='line'>        // Do nothing
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This should make things quite a bit easier if you don&rsquo;t have access to a real IAM user and must use STS for your application.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Simple Snippets for Using AWS Credentials While Debugging]]></title>
@@ -2035,66 +2216,6 @@
 </span><span class='line'># Close the SSH connection
 </span><span class='line'>client.close()</span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Port 32764 - a Router Backdoor That You Need to Take Seriously]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/"/>
-    <updated>2014-01-16T08:50:19-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously</id>
-    <content type="html"><![CDATA[<p>TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default.  If you have Internet access at home or at a client location you care about then you should be testing to see if they are vulnerable with <a href="https://www.grc.com/x/portprobe=32764">ShieldsUP</a>.</p>
-
-<p>I would recommend running this test ASAP.  The <a href="https://github.com/elvanderb/TCP-32764">list of affected routers</a> includes Netgear, Linksys, and even “real” Cisco hardware.  That list is not exhaustive.</p>
-
-<p>If you need to run this test via SSH I’ve whipped up a script that will spit out whether you’re vulnerable or not based on the ShieldsUP results.  It was designed to run on Mac OS (because their version of sed is busted) and tested on Mavericks and Debian Linux.  Here’s what you can run:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl -L http://bit.ly/port32764 2&gt;&amp;1 | <span class="se">\</span>
-</span><span class='line'>  tr <span class="s2">&quot;\n&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
-</span><span class='line'>  tr <span class="s2">&quot;\r&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
-</span><span class='line'>  sed <span class="s1">&#39;s/&lt;[^&gt;][^&gt;]*&gt;/ /g&#39;</span> | <span class="se">\</span>
-</span><span class='line'>  sed <span class="s1">&#39;s/^.*32764/32764/&#39;</span> | <span class="se">\</span>
-</span><span class='line'>  sed <span class="s1">&#39;s/Unknown.*$//&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The response should look like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Stealth
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Or this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Closed
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you get anything else then you are vulnerable.  Even if you run this test I recommend running it in a browser on the connection you’re testing just in case the script has an issue.</p>
-
-<p>If you are vulnerable then the following pieces of information about your connection may have already been compromised:</p>
-
-<ul>
-<li>Your wireless key (in the clear, not hashed)</li>
-<li>Your router admin username and password (in the clear, not hashed)</li>
-<li>Your router’s SSID and MAC address (this can be used to add your router to a database of access points with passwords)</li>
-<li>Any custom settings you have on your router (port mapping to interesting devices, tunnels you thought would be hidden on a high port number, etc)</li>
-</ul>
-
-
-<p>People have written plenty of applications that do scans of the entire Internet in days <a href="http://zmap.io/">or even hours</a>.  This is being scanned for constantly right now and you cannot hide in the four billion addresses out there.</p>
-
-<p>If you are not vulnerable but you have used the same wireless password on an older router it is probably a good idea to change your password.  Nobody knows how long this has been in the wild.  It has been in the firmware for a long time.</p>
-
-<p>If you need help post in the comments.  Good luck!</p>
 ]]></content>
   </entry>
   
