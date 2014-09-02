@@ -13,37 +13,22 @@ categories:
 For over a week now I've been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database.  The code works but it doesn't follow the strict philosophy of service oriented architecture in the sense that there are several places that Spring and Hibernate weren't doing what they were expected to do and a few workarounds had to be implemented.  Since we were bringing more programmers on board I wanted to make sure that everything played by the rules and was easy to update so I had to learn a lot that I had glossed over in the past.
 
 With some creative Googling I found two invaluable resources that I need to give credit to:
-
-
-
-
 	
   * [Monitoring Declarative Transactions in Spring](http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1)
-
 	
   * [Starting new transactions in Spring bean](http://stackoverflow.com/questions/3037006/starting-new-transaction-in-spring-bean)
 
-
-
 Here's what I distilled out of everything I went through:
 
-
-	
   1. @Transactional annotations only work on public methods.  If you have a private or protected method with this annotation there's no (easy) way for Spring AOP to see the annotation.  It doesn't go crazy trying to find them so make sure all of your annotated methods are public.
 
-	
   2. Transaction boundaries are only created when properly annotated (see above) methods are called through a Spring proxy.  This means that you need to call your annotated method directly through an @Autowired bean or the transaction will never start.  If you call a method on an @Autowired bean that isn't annotated which itself calls a public method that is annotated **_YOUR ANNOTATION IS IGNORED_**.  This is because Spring AOP is only checking annotations when it first enters the @Autowired code.
 
-	
   3. Never blindly trust that your @Transactional annotations are actually creating transaction boundaries.  When in doubt test whether a transaction really is active (see below)
-
-
 
 My first problem was that the code was annotated improperly like this:
 
-
-    
-    
+``` java
     /**
      * This code example is BAD code, do not use it!
      */
@@ -67,16 +52,13 @@ My first problem was that the code was annotated improperly like this:
         myObject.setName("New Name");
       }
     }
-
-
+```
 
 In this case someone would call NonWorkingMyClass.calledFirst(), it would then call calledSecond() and try to update the name field.  This works if your XML configuration is set up properly but it will not be in a transaction.  This can cause concurrency issues that won't show up until it's really inconvenient.
 
 Here's the working version of that code:
 
-
-    
-    
+``` java 
     /**
      * This code example works
      */
@@ -100,8 +82,7 @@ Here's the working version of that code:
         myObject.setName("New Name");
       }
     }
-
-
+```
 
 Now when someone called WorkingMyClass.calledFirst() it would do what you expect in a transaction and the transaction boundaries are properly respected.
 
@@ -114,9 +95,7 @@ verboseTransactionDebugging - Indicates we should print debug messages with the 
 
 verboseTransactionDebugging has no effect if transactionDebugging is false.
 
-
-    
-    
+``` java
     class DebugUtils {
     	private static final transactionDebugging = true;
     	private static final verboseTransactionDebugging = true;
@@ -171,15 +150,11 @@ verboseTransactionDebugging has no effect if transactionDebugging is false.
     		}
     	}
     }
-    
-
-
+```    
 
 In our previous code example we could use these new methods like this:
 
-
-    
-    
+``` java
     /**
      * This code example works
      */
@@ -207,7 +182,6 @@ In our previous code example we could use these new methods like this:
         myObject.setName("New Name");
       }
     }
-
-
+```
 
 That's it.  Post in the comments if this helps you out or if you want to add to the code.

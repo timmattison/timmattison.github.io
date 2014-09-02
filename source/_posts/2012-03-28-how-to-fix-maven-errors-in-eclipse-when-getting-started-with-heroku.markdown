@@ -25,9 +25,7 @@ After adding the plugin and restarting my IDE I got two different error messages
 
 The second error had a quick fix so I tried that and it worked.  Now the Java example application that uses the Play framework and the one that uses Spring MVC and Hibernate both work.  However, the ones that used JAX-RS and embedded Jetty did not.  They still showed the maven-dependency-plugin error.  The fix is to add the following XML in the build section of your pom.xml:
 
-
-    
-    
+``` xml
     <pluginmanagement>
     	<plugins>
     		<plugin>
@@ -56,9 +54,7 @@ The second error had a quick fix so I tried that and it worked.  Now the Java ex
     			</plugin>
     		</plugins>
     	</pluginmanagement>
-    
-
-
+```
 
 After that you'll have to do the quick fix for the error "Project configuration is not up-to-date" again and then you'll be error free, at least in your pom.xml...
 
