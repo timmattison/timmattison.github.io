@@ -9,7 +9,7 @@ In [my last post](http://blog.timmattison.com/archives/2014/09/02/checking-postg
 
 Here's the code but keep in mind that it makes the assumption that everything is in the `public` schema.
 
-```
+``` plpgsql
 CREATE OR REPLACE FUNCTION create_index_if_not_exists (t_name text, i_name text, index_sql text) RETURNS void AS $$
 DECLARE
   full_index_name varchar;
@@ -36,7 +36,7 @@ LANGUAGE plpgsql VOLATILE;
 
 You can now use the function like this:
 
-```
+``` postgres
 SELECT create_index_if_not_exists('table', 'index_name', '(column)');
 ```
 

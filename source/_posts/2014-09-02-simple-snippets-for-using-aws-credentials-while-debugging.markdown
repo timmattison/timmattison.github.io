@@ -13,7 +13,7 @@ Also, make sure you never commit your credentials.  That can be an expensive mis
 
 Anyway, if you want to use static IAM user credentials you can use a credentials provider like this:
 
-```
+``` java
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.google.inject.Inject;
@@ -57,7 +57,7 @@ public class TempNonStsCredentialsProvider implements AWSCredentialsProvider {
 
 Pass in your credentials and you're good to go.  If you're using [STS](http://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html) it requires a little bit more work.  Use this instead:
 
-```
+``` java
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;

@@ -11,7 +11,7 @@ For some reason PostgreSQL, my favorite database, doesn't have this.  I looked a
 
 I didn't like the fact that the code asked for the table name and constraint name but then didn't use it in the SQL statement.  Leaving it like this means that someone could write this (note that foo becomes foo2 and bar becomes bar2 in the first two parameters):
 
-```
+``` postgres
 SELECT create_constraint_if_not_exists(
         'foo',
         'bar',
@@ -27,7 +27,7 @@ And they would get an exception rather than having the constraint creation be sk
 
 They also could do this (note that foo becomes foo2 and bar becomes bar2 in the constraint SQL):
 
-```
+``` postgres
 SELECT create_constraint_if_not_exists(
         'foo',
         'bar',
@@ -43,7 +43,7 @@ This could be even worse because a constraint wouldn't be created.
 
 My solution was to modify this script slightly:
 
-```
+``` plpgsql
 CREATE OR REPLACE FUNCTION create_constraint_if_not_exists (t_name text, c_name text, constraint_sql text)
   RETURNS void
 AS
@@ -62,7 +62,7 @@ LANGUAGE plpgsql VOLATILE;
 
 Now you call it like this:
 
-```
+``` postgres
 SELECT create_constraint_if_not_exists('foo', 'bar', 'CHECK (foobies < 100);');
 ```
 

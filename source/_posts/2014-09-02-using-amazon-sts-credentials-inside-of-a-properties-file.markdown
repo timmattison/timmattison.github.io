@@ -21,7 +21,7 @@ Replace the X, Y, and Z strings with your credentials and put them in your resou
 
 Next, there's a method that loads these credentials into the system properties:
 
-```
+``` java
 private static final String AWSCREDENTIALS_PROPERTIES = "awscredentials.properties";
 
 void loadAwsCredentialsProperties() throws IOException {
@@ -43,7 +43,7 @@ void loadAwsCredentialsProperties() throws IOException {
 
 Finally, there's the credentials provider:
 
-```
+``` java
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;

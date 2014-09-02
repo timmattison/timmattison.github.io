@@ -14,7 +14,7 @@ In order to get around this I have a few convenience methods that I've migrated 
 
 The first function makes sure that there is at least one console logger in your logging system.
 
-```
+``` java
     public static void forceConsoleLogging() {
         // Get the root logger instance
         LogManager logManager = LogManager.getLogManager();
@@ -46,7 +46,7 @@ The first function makes sure that there is at least one console logger in your 
 
 The second function is a bit more aggressive.  It iterates over your console loggers and makes sure all of them log everything.  You can use this in a pinch when you're having serious issues and you need to see everything.
 
-```
+``` java
    public static void logEverything() {
         // Get the logger instance
         LogManager logManager = LogManager.getLogManager();

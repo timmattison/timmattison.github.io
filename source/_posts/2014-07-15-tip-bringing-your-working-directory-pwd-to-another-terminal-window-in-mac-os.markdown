@@ -31,7 +31,7 @@ super-dooper-long-path/with/other-path/stuff/in/it $
 
 And there you have it.  Back into my beloved directory in no time.  Here's what I added to `.bash_profile`.
 
-```
+``` bash
 alias ccd="pwd | pbcopy"
 alias pcd="paste_cd"
 

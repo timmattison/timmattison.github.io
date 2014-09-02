@@ -22,7 +22,7 @@ This particular version of the script just performs the "su" command.  It can be
 
 And here's the script... don't forget to install Paramiko!
 
-```
+``` python
 #!/usr/bin/env python
 
 __author__ = 'timmattison'

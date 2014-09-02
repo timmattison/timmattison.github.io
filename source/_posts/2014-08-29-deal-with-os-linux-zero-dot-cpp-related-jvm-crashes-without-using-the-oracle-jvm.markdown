@@ -9,7 +9,7 @@ While running some relatively simple Java code on my Raspberry Pi I kept running
 
 The error message I received was similar to this:
 
-```
+``` console
 #
 # A fatal error has been detected by the Java Runtime Environment:
 #
@@ -42,7 +42,7 @@ Option 2: Add the `-jamvm` option to your command line.  This changed my command
 
 What is really happening behind the scenes?  That gets complex quickly and I still don't know the full answer.  It turns out that this is a known but ignored bug in OpenJDK's Zero VM.  When you run `java -version` you can see if you're running Zero VM or not like this:
 
-```
+``` console
 pi@raspberrypi ~ $ java -version
 java version "1.7.0_65"
 OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)
@@ -53,7 +53,7 @@ I don't know why option 1 works.  My guess is that that option disables some kin
 
 Option 2 works because it switches over to [JamVM](http://jamvm.sourceforge.net/).  You can check your JamVM version like this:
 
-```
+``` console
 pi@raspberrypi ~ $ java -jamvm -version
 java version "1.7.0_65"
 OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)

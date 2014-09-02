@@ -11,7 +11,7 @@ I [found someone who had done the work already](http://codesmell.wordpress.com/2
 
 The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the `GuiceJobFactory`:
 
-```
+``` java
 import com.google.inject.Injector;
 import org.quartz.Job;
 import org.quartz.JobDetail;
@@ -58,7 +58,7 @@ The `GuiceJobFactory` gets the Guice injector injected into it.  It then overrid
 
 The next thing you need to do is to use this `JobFactory` in your `Scheduler`.  Here's how I built my scheduler and used it to create my first job:
 
-```
+``` java
 Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 scheduler.setJobFactory(injector.getInstance(GuiceJobFactory.class));
 

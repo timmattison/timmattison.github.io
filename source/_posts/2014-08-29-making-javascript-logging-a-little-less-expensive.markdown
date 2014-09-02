@@ -22,13 +22,13 @@ In both of these cases you get bitten by the less obvious issue I mentioned abov
 
 Case #1:
 
-```
+``` javascript
 console.log(generateFormattedProgress(loop_counter, total_loops));
 ```
 
 Case #2:
 
-```
+``` javascript
 console.log("Loop:" + loop_counter);
 ```
 
@@ -40,19 +40,19 @@ Your log statements go from looking like the statements above to statements like
 
 Case #1:
 
-```
+``` javascript
 console.log(function(){ return generateFormattedProgress(loop_counter, total_loops);});
 ```
 
 Case #2:
 
-```
+``` javascript
 console.log(function(){ return "Loop:" + loop_counter; });
 ```
 
 Some test code is below to illustrate the difference in performance.  On my machine running 100,000 iterations I get the following results in Chrome 37.0.2062.94:
 
-```
+``` console
 Console.log enabled
 Running: test_normal_console
 Total milliseconds: 1921
@@ -73,7 +73,7 @@ So here we see that we cut the runtime by at least two orders of magnitude going
 
 Sample test code:
 
-```
+``` javascript
 var test_count = 100000;
 
 function get_timestamp() {
