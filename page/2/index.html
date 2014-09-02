@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Recently I needed to find a way to reboot an embedded device remotely. The trick was that we didn&rsquo;t have a handy Web Power Switch and the &hellip;">
+  <meta name="description" content="Mac OS, as far as I can remember, used to start tabbed Terminal sessions and put you into the working directory of your last tab. New Terminal &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,90 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/">Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-15T18:37:23-04:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Mac OS, as far as I can remember, used to start tabbed Terminal sessions and put you into the working directory of your last tab.  New Terminal windows didn&rsquo;t do this but recently new Terminal tabs stopped doing it too.</p>
+
+<p>I got tired of renavigating to the paths in the projects I was working on and I didn&rsquo;t want to launch a Terminal from within a Terminal so I came up with something else.  I added a few lines to my <code>.bash_profile</code> and now I have two new commands.  <code>ccd</code> copies your current directory to the clipboard, and <code>pcd</code> pastes your clipboard into the <code>cd</code> command.</p>
+
+<p>Now when I&rsquo;m in a deep directory tree like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I can do this in the existing Terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $ ccd</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And this in the new Terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ pcd
+</span><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And there you have it.  Back into my beloved directory in no time.  Here&rsquo;s what I added to <code>.bash_profile</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">alias </span><span class="nv">ccd</span><span class="o">=</span><span class="s2">&quot;pwd | pbcopy&quot;</span>
+</span><span class='line'><span class="nb">alias </span><span class="nv">pcd</span><span class="o">=</span><span class="s2">&quot;paste_cd&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function </span>paste_cd<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nb">cd</span> <span class="s2">&quot;`pbpaste`&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>ccd</code> alias just pipes <code>pwd</code> into <code>pbcopy</code>, which is one of the best tools ever, so that it ends up in the clipboard.</p>
+
+<p>The <code>pcd</code> alias is a little more complex.  If you try to do this without a bash function your alias will get evaluated as soon as your shell starts.  This means that when you open your shell whatever is in your clipboard will be what <code>pcd</code> tries to <code>cd</code> to.  Using a function we let it run <code>pbpaste</code> when it is called so it always uses the up-to-date info.</p>
+
+<p>Enjoy!  Let me know if you find it useful!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1138,204 +1222,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">How to: Execute a Command on a Remote Server That Requires You to Su or Sudo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-02-13T14:28:49-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Recently I ran into a situation where I had to reboot a ton of machines remotely.  I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do that anyway, so I thought I might be stuck trying to SSH in, &ldquo;sudo reboot&rdquo;, enter the password, and go on to the next machine.  One snag was that some machines supported sudo and some required me to su.</p>
-
-<p>I didn&rsquo;t want to have to do this for all of the machines I was working on so I searched around and found <a href="https://github.com/paramiko/paramiko">Paramiko</a>.  Paramiko is an SSH library for Python that lets you tell Python the login password and also gives you direct access to the terminal stream from your SSH session.  This means that I can send su or sudo and then send the password without the user doing anything.</p>
-
-<p>Security wise this is an obvious hole in many ways.  First of all if you do this for a machine and specify the password on the command-line it is going to end up in your history file.  So without going through the exhaustive list of reasons why this is generally a bad idea lets just say that you should use this sparingly.</p>
-
-<p>Set the variable <code>root_command</code> to the command that you want to execute as root, set <code>root_command_result</code> to the expected result of the command.  The command needs to have <code>\n</code> on the end of it because it simulates the user pressing enter.  Without it the system will never execute the command.  Pass these command-line parameters in this order:</p>
-
-<ul>
-<li>The IP of the system you want to connect to</li>
-<li>The username of the user that can su to root</li>
-<li>The password of the user that can su to root</li>
-<li>The password required to su to root</li>
-</ul>
-
-
-<p>This particular version of the script just performs the &ldquo;su&rdquo; command.  It can be modified to do a &ldquo;sudo&rdquo; with just a few tweaks.  If there&rsquo;s demand I&rsquo;ll post a version that lets you swap between both and does some additional error handling.</p>
-
-<p>And here&rsquo;s the script&hellip; don&rsquo;t forget to install Paramiko!</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;timmattison&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">paramiko</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">time</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">root_command</span> <span class="o">=</span> <span class="s">&quot;whoami</span><span class="se">\n</span><span class="s">&quot;</span>
-</span><span class='line'><span class="n">root_command_result</span> <span class="o">=</span> <span class="s">&quot;root&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_time</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
-</span><span class='line'>    <span class="c"># Send the su command</span>
-</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c"># Wait a bit, if necessary</span>
-</span><span class='line'>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c"># Flush the receive buffer</span>
-</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
-</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
-</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_string</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
-</span><span class='line'>    <span class="c"># Send the su command</span>
-</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c"># Create a new receive buffer</span>
-</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">while</span> <span class="ow">not</span> <span class="n">wait_string</span> <span class="ow">in</span> <span class="n">receive_buffer</span><span class="p">:</span>
-</span><span class='line'>        <span class="c"># Flush the receive buffer</span>
-</span><span class='line'>        <span class="n">receive_buffer</span> <span class="o">+=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
-</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
-</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Get the command-line arguments</span>
-</span><span class='line'><span class="n">system_ip</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</span><span class='line'><span class="n">system_username</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-</span><span class='line'><span class="n">system_ssh_password</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-</span><span class='line'><span class="n">system_su_password</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Create an SSH client</span>
-</span><span class='line'><span class="n">client</span> <span class="o">=</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="p">()</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Make sure that we add the remote server&#39;s SSH key automatically</span>
-</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">set_missing_host_key_policy</span><span class="p">(</span><span class="n">paramiko</span><span class="o">.</span><span class="n">AutoAddPolicy</span><span class="p">())</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Connect to the client</span>
-</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">system_ip</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">system_username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">system_ssh_password</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Create a raw shell</span>
-</span><span class='line'><span class="n">shell</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke_shell</span><span class="p">()</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Send the su command</span>
-</span><span class='line'><span class="n">send_string_and_wait</span><span class="p">(</span><span class="s">&quot;su</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Send the client&#39;s su password followed by a newline</span>
-</span><span class='line'><span class="n">send_string_and_wait</span><span class="p">(</span><span class="n">system_su_password</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Send the install command followed by a newline and wait for the done string</span>
-</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">root_command</span><span class="p">,</span> <span class="n">root_command_result</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Close the SSH connection</span>
-</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1369,6 +1255,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
       </li>
     
@@ -1382,10 +1272,6 @@
     
       <li class="post">
         <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a>
       </li>
     
   </ul>

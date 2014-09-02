@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="VMware Server is a complicated beast. When it breaks, you&rsquo;re usually without support (although paid support options do exist), and out of &hellip;">
+  <meta name="description" content="When developing Linux kernel modules, specifically ones that tie into procfs via the seq_file interfaces and have circular buffers, it&rsquo;s handy &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,63 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/12/07/how-to-fix-unresolved-moddi3-symbols-when-developing-linux-kernel-modules/">How-To: Fix Unresolved _moddi3 Symbols When Developing Linux Kernel Modules</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-12-07T18:59:59-05:00" pubdate data-updated="true">Dec 7<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/12/07/how-to-fix-unresolved-moddi3-symbols-when-developing-linux-kernel-modules/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/07/how-to-fix-unresolved-moddi3-symbols-when-developing-linux-kernel-modules/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When developing Linux kernel modules, specifically ones that tie into procfs via the seq_file interfaces and have circular buffers, it&rsquo;s handy to be able to take an offset into your buffer and use the modulo operator (%) to make it wrap around easily.  In the kernel you&rsquo;re restricted to a smaller set of available operators however and modulo only works on certain types.</p>
+
+<p>One type that it doesn&rsquo;t work on that happens to be used in the seq_file interface is loff_t.  If you try something like this:</p>
+
+<pre><code>static void *my_procfs_seq_start(struct seq_file *s, loff_t *pos)
+{
+  return global_pointer + ((*pos) % CIRCULAR_BUFFER_SIZE);
+}
+</code></pre>
+
+<p>You will probably get an error about the unresolved symbol &ldquo;_moddi3&rdquo;.  The quick fix for this is to do the following instead:</p>
+
+<pre><code>static void *my_procfs_seq_start(struct seq_file *s, loff_t *pos)
+{
+  return global_pointer + (((int) (*pos)) % CIRCULAR_BUFFER_SIZE);
+}
+</code></pre>
+
+<p>This simply converts your dereferenced loff_t pointer to an int.  <strong>Make sure your value will fit into your architecture&rsquo;s int size!</strong>.  If it doesn&rsquo;t, you&#8217;ll get strange results.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -705,64 +762,6 @@ property name="context-root" value
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/">How-To: Fix &#8220;Configure: Error: C Compiler Cannot Create Executables&#8221; on Gentoo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-09T18:59:59-05:00" pubdate data-updated="true">Nov 9<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I encountered this message today when trying to update glib-2.20.5-r1 on my 64-bit Gentoo box.  I&rsquo;ve seen this error message before but today, as luck would have it, I had just made some changes to my make.conf so I knew exactly where to look.  What I was doing was preparing my system for Xen and I was duped into adding the &ldquo;&mdash;mno-tls-direct-seg-refs&rdquo; option to my CFLAGS.  It turns out that 64-bit Gentoo doesn&rsquo;t need this option and actually it will cause your C compiler to fail.</p>
-
-<p>If you have this option and you&rsquo;re trying to get Xen running, remove it and try again.  That will most likely fix your problem.  If the problem persists you can dig a bit deeper and figure it out like this.</p>
-
-<ul>
-<li><p>Step 1: Scroll back through your emerge error.  If it&rsquo;s too far gone then retry the emerge and get it to report the error again.  If you&#8217;re using screen don&rsquo;t forget that you can use CTRL-A and then left bracket to enter copy mode and maneuver through the scrollback buffer.  Press escape to exit it when you&rsquo;re done.  You&rsquo;re looking for something that looks like this:</p>
-
-<p>configure: error: in <code>/var/tmp/portage/dev-libs/glib-2.20.5-r1/work/glib-2.20.5':
-configure: error: C compiler cannot create executables
-See</code>config.log&#8217; for more details.
-!!! Please attach the following file when seeking support:
-!!! /var/tmp/portage/dev-libs/glib-2.20.5-r1/work/glib-2.20.5/config.log</p></li>
-<li><p>Step 2: Open the file residing at the full path of the config.log file (in my case /var/tmp/portage/dev-libs/glib-2.20.5-r1/work/glib-2.20.5/config.log)</p></li>
-<li><p>Step 3: Search the file for the string &ldquo;failed program&rdquo;.  A few lines up from this message you&rsquo;ll see the true error.  In my case it was:</p>
-
-<p>configure:3385: x86_64-pc-linux-gnu-gcc -O2 -pipe -fomit-frame-pointer &mdash;mno-tls-direct-seg-refs   -Wl,-O1 conftest.c  >&amp;5
-cc1: error: unrecognized command line option &ldquo;-fmno-tls-direct-seg-refs&rdquo;</p></li>
-<li><p>Step 4: Remove the unrecognized command line option.  It is reported here as &ldquo;-fmno-tls-direct-seg-refs&rdquo; but in the make.conf file it is &#8221;&mdash;mno-tls-direct-seg-refs&#8221;.  You&rsquo;ll see that in the line above the error message.  I&rsquo;ve left it in there so you can see what that line should look like too.  Your error may be different entirely or just a different flag.  Either way, fixing the issue reported there should bring your compiler back to life and keep you emerging in the future.</p></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -796,6 +795,10 @@ cc1: error: unrecognized command line option &ldquo;-fmno-tls-direct-seg-refs&rd
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
       </li>
     
@@ -809,10 +812,6 @@ cc1: error: unrecognized command line option &ldquo;-fmno-tls-direct-seg-refs&rd
     
       <li class="post">
         <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a>
       </li>
     
   </ul>
