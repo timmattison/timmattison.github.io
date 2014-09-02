@@ -121,35 +121,64 @@
 
 <p>The second error had a quick fix so I tried that and it worked.  Now the Java example application that uses the Play framework and the one that uses Spring MVC and Hibernate both work.  However, the ones that used JAX-RS and embedded Jetty did not.  They still showed the maven-dependency-plugin error.  The fix is to add the following XML in the build section of your pom.xml:</p>
 
-<pre><code>&lt;pluginmanagement&gt;
-    &lt;plugins&gt;
-        &lt;plugin&gt;
-            &lt;groupid&gt;org.eclipse.m2e&lt;/groupid&gt;
-                &lt;artifactid&gt;lifecycle-mapping&lt;/artifactid&gt;
-                &lt;version&gt;1.0.0&lt;/version&gt;
-                &lt;configuration&gt;
-                    &lt;lifecyclemappingmetadata&gt;
-                        &lt;pluginexecutions&gt;
-                            &lt;pluginexecution&gt;
-                                &lt;pluginexecutionfilter&gt;
-                                    &lt;groupid&gt;org.apache.maven.plugins&lt;/groupid&gt;
-                                    &lt;artifactid&gt;maven-dependency-plugin&lt;/artifactid&gt;
-                                    &lt;versionrange&gt;[1.0.0,)&lt;/versionrange&gt;
-                                    &lt;goals&gt;
-                                        &lt;goal&gt;copy-dependencies&lt;/goal&gt;
-                                    &lt;/goals&gt;
-                                &lt;/pluginexecutionfilter&gt;
-                                &lt;action&gt;
-                                    &lt;ignore&gt;&lt;/ignore&gt;
-                                &lt;/action&gt;
-                            &lt;/pluginexecution&gt;
-                        &lt;/pluginexecutions&gt;
-                    &lt;/lifecyclemappingmetadata&gt;
-                &lt;/configuration&gt;
-            &lt;/plugin&gt;
-        &lt;/plugins&gt;
-    &lt;/pluginmanagement&gt;
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;pluginmanagement&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;plugins&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;plugin&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;groupid&gt;</span>org.eclipse.m2e<span class="nt">&lt;/groupid&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;artifactid&gt;</span>lifecycle-mapping<span class="nt">&lt;/artifactid&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;configuration&gt;</span>
+</span><span class='line'>                  <span class="nt">&lt;lifecyclemappingmetadata&gt;</span>
+</span><span class='line'>                      <span class="nt">&lt;pluginexecutions&gt;</span>
+</span><span class='line'>                          <span class="nt">&lt;pluginexecution&gt;</span>
+</span><span class='line'>                              <span class="nt">&lt;pluginexecutionfilter&gt;</span>
+</span><span class='line'>                                  <span class="nt">&lt;groupid&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupid&gt;</span>
+</span><span class='line'>                                  <span class="nt">&lt;artifactid&gt;</span>maven-dependency-plugin<span class="nt">&lt;/artifactid&gt;</span>
+</span><span class='line'>                                  <span class="nt">&lt;versionrange&gt;</span>[1.0.0,)<span class="nt">&lt;/versionrange&gt;</span>
+</span><span class='line'>                                  <span class="nt">&lt;goals&gt;</span>
+</span><span class='line'>                                      <span class="nt">&lt;goal&gt;</span>copy-dependencies<span class="nt">&lt;/goal&gt;</span>
+</span><span class='line'>                                  <span class="nt">&lt;/goals&gt;</span>
+</span><span class='line'>                              <span class="nt">&lt;/pluginexecutionfilter&gt;</span>
+</span><span class='line'>                              <span class="nt">&lt;action&gt;</span>
+</span><span class='line'>                                  <span class="nt">&lt;ignore&gt;&lt;/ignore&gt;</span>
+</span><span class='line'>                              <span class="nt">&lt;/action&gt;</span>
+</span><span class='line'>                          <span class="nt">&lt;/pluginexecution&gt;</span>
+</span><span class='line'>                      <span class="nt">&lt;/pluginexecutions&gt;</span>
+</span><span class='line'>                  <span class="nt">&lt;/lifecyclemappingmetadata&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;/configuration&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;/plugin&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/plugins&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/pluginmanagement&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>After that you&rsquo;ll have to do the quick fix for the error &ldquo;Project configuration is not up-to-date&rdquo; again and then you&rsquo;ll be error free, at least in your pom.xml&hellip;</p>
 

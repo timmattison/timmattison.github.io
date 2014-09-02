@@ -128,90 +128,157 @@
 
 <p>They first tell us that &ldquo;data needs to be ready before CIN, and DIN gets into the buffer on the rising edge of CIN&rdquo;.  What this really translates to for you when programming is that when you want to send a bit to the device you should set that bit on the DIN pin (either 1 or 0), then set the CIN pin to high, and then set the CIN pin back to low.  Now you&rsquo;ve sent one bit of data to the device.  Abstraction will make it so we can do this thinking once and then fall back on it later so let&rsquo;s write a function that sends one bit:</p>
 
-<pre><code>private void sendBit(bool bit)
-{
-    // Get DIN into the proper state
-    din.Write(bit);
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendBit</span><span class="p">(</span><span class="kt">bool</span> <span class="n">bit</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Get DIN into the proper state</span>
+</span><span class='line'>    <span class="n">din</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="n">bit</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Set the clock high</span>
+</span><span class='line'>    <span class="n">cin</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Set the clock low</span>
+</span><span class='line'>    <span class="n">cin</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="k">false</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-    // Set the clock high
-    cin.Write(true);
-
-    // Set the clock low
-    cin.Write(false);
-}
-</code></pre>
 
 <p>This function makes the assumption that you&rsquo;ve defined cin and din elsewhere.  The setup for them in my case (using pins D6 and D7 as I described above) would look like this:</p>
 
-<pre><code>// Use D6 for CIN and D7 for DIN (Grove Base Shield v1.2 header #6)
-OutputPort cin = new OutputPort(Pins.GPIO_PIN_D6, false);
-OutputPort din = new OutputPort(Pins.GPIO_PIN_D7, false);
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="c1">// Use D6 for CIN and D7 for DIN (Grove Base Shield v1.2 header #6)</span>
+</span><span class='line'><span class="n">OutputPort</span> <span class="n">cin</span> <span class="p">=</span> <span class="k">new</span> <span class="n">OutputPort</span><span class="p">(</span><span class="n">Pins</span><span class="p">.</span><span class="n">GPIO_PIN_D6</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'><span class="n">OutputPort</span> <span class="n">din</span> <span class="p">=</span> <span class="k">new</span> <span class="n">OutputPort</span><span class="p">(</span><span class="n">Pins</span><span class="p">.</span><span class="n">GPIO_PIN_D7</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Now they tell us that the first 32 bits are all zeroes and that this is called a start frame.  This makes me think it would be a good idea to expand our abstraction to let us send bytes and then write another function that would send this start frame.  That would look like this:</p>
 
-<pre><code>private void sendByte(byte data)
-{
-    // Send the bits MSB first
-    sendBit((data &amp; 0x80) == 0x80);
-    sendBit((data &amp; 0x40) == 0x40);
-    sendBit((data &amp; 0x20) == 0x20);
-    sendBit((data &amp; 0x10) == 0x10);
-    sendBit((data &amp; 0x08) == 0x08);
-    sendBit((data &amp; 0x04) == 0x04);
-    sendBit((data &amp; 0x02) == 0x02);
-    sendBit((data &amp; 0x01) == 0x01);
-}
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendByte</span><span class="p">(</span><span class="kt">byte</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Send the bits MSB first</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x80</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x80</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x40</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x40</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x20</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x20</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x10</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x10</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x08</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x08</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x04</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x04</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x02</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x02</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x01</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x01</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendStartFrame</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// The start frame is 32 bits of zeroes</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">(</span><span class="m">0</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">(</span><span class="m">0</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">(</span><span class="m">0</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">(</span><span class="m">0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-private void sendStartFrame()
-{
-    // The start frame is 32 bits of zeroes
-    sendByte(0);
-    sendByte(0);
-    sendByte(0);
-    sendByte(0);
-}
-</code></pre>
 
 <p>In the sendByte function I&rsquo;m taking a byte and using logical AND and equals to extract the bits one by one.  One of the next bullet points says the data is MSB first so we want to get the most significant (ie. largest value holding) bits first so that&rsquo;s how I went about sending the bits.  Now that we can send bytes sending the start frame is as easy as calling that function four times with the value 0.</p>
 
 <p>Next they talk about flag bits.  In the protocol it shows that after the start frame there are some flag bits.  This tells us the two flag bits are both ones.  Here&rsquo;s a simple function that can do that:</p>
 
-<pre><code>private void sendFlagBits()
-{
-    // The flag bits are two 1s
-    sendBit(true);
-    sendBit(true);
-}
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendFlagBits</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// The flag bits are two 1s</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Now this part gets a bit trickier but not too bad.  They tell us that we need to send the inverse of B7, B6, G7, G6, R7, R6, followed by the actual color data itself as bytes.  B7 and B6 are the two highest bits in the blue color component, G7 and G6 are the two highest bits in the green color component, and R7 and R6 are the two highest bits in the red color component.  Sending that data with the functions we built up now is really easy.</p>
 
-<pre><code>private void sendColorData(byte red, byte green, byte blue)
-{
-    // Send the inverse bits of the B7, B6, G7, G6, R7, R6
-    sendBit((blue &amp; 0x80) != 0x80);
-    sendBit((blue &amp; 0x40) != 0x40);
-    sendBit((green &amp; 0x80) != 0x80);
-    sendBit((green &amp; 0x40) != 0x40);
-    sendBit((red &amp; 0x80) != 0x80);
-    sendBit((red &amp; 0x40) != 0x40);
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendColorData</span><span class="p">(</span><span class="kt">byte</span> <span class="n">red</span><span class="p">,</span> <span class="kt">byte</span> <span class="n">green</span><span class="p">,</span> <span class="kt">byte</span> <span class="n">blue</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Send the inverse bits of the B7, B6, G7, G6, R7, R6</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">blue</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x80</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x80</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">blue</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x40</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x40</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">green</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x80</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x80</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">green</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x40</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x40</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">red</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x80</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x80</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">red</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x40</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x40</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Send the actual colors</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">((</span><span class="kt">byte</span><span class="p">)</span><span class="n">blue</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">((</span><span class="kt">byte</span><span class="p">)</span><span class="n">green</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">((</span><span class="kt">byte</span><span class="p">)</span><span class="n">red</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-    // Send the actual colors
-    sendByte((byte)blue);
-    sendByte((byte)green);
-    sendByte((byte)red);
-}
-</code></pre>
 
 <p>We&rsquo;re almost there, there&rsquo;s only one step left!  Now we need to send the end frame.  It turns out that the end frame is the same as the start frame but to keep the code readable I did this:</p>
 
-<pre><code>private void sendEndFrame()
-{
-    // The end frame is the same as the start frame
-    sendStartFrame();
-}
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendEndFrame</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// The end frame is the same as the start frame</span>
+</span><span class='line'>    <span class="n">sendStartFrame</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Now you have enough information to send a color to your device.  We should probably wrap it up so that we can make it even easier to use though.  Let&rsquo;s just think about how this is going to be used in practice.  A typical user will have a few of these LEDs chained together but for testing you might want to use just one.  We know that the protocol requires a start frame, then flag bits, then color data, and the end frame if we use a single LED but for two LEDs it looks like this:</p>
 
@@ -227,44 +294,79 @@ private void sendStartFrame()
 
 <p>So for our first LED we want to send the start frame, the flag bits and the color data.  For our last LED we want to send flag bits, the color data, and the end frame.  Here&rsquo;s a function that does that:</p>
 
-<pre><code>private void setColor(byte red, byte green, byte blue, bool first, bool last)
-{
-    // Is this the first color?
-    if (first)
-    {
-        // Yes, send the start frame
-        sendStartFrame();
-    }
-    else
-    {
-        // No, do nothing
-    }
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">setColor</span><span class="p">(</span><span class="kt">byte</span> <span class="n">red</span><span class="p">,</span> <span class="kt">byte</span> <span class="n">green</span><span class="p">,</span> <span class="kt">byte</span> <span class="n">blue</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">first</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">last</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Is this the first color?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">first</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Yes, send the start frame</span>
+</span><span class='line'>        <span class="n">sendStartFrame</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// No, do nothing</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Send the flag bits</span>
+</span><span class='line'>    <span class="n">sendFlagBits</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Send the colors</span>
+</span><span class='line'>    <span class="n">sendColorData</span><span class="p">(</span><span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Is this the last color?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">last</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Yes, send the end frame</span>
+</span><span class='line'>        <span class="n">sendEndFrame</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// No, do nothing</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-    // Send the flag bits
-    sendFlagBits();
-
-    // Send the colors
-    sendColorData(red, green, blue);
-
-    // Is this the last color?
-    if (last)
-    {
-        // Yes, send the end frame
-        sendEndFrame();
-    }
-    else
-    {
-        // No, do nothing
-    }
-}
-</code></pre>
 
 <p>The extra else blocks have no impact on the executable generated so they&rsquo;re just there for clarity.  You can remove them if you want.  Now if you want to send a bunch of colors to a string of three LEDs you can do this:</p>
 
-<pre><code>setColor(255, 0, 0, true, false);
-setColor(0, 255, 0, false, false);
-setColor(0, 0, 255, false, true);
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="n">setColor</span><span class="p">(</span><span class="m">255</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="k">true</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'><span class="n">setColor</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">255</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="k">false</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'><span class="n">setColor</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">255</span><span class="p">,</span> <span class="k">false</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>That would set a string of three LEDs to solid red, solid green, and solid blue.  That&rsquo;s it, your driver is written!</p>
 

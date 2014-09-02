@@ -127,59 +127,107 @@
 
 <p>My first problem was that the code was annotated improperly like this:</p>
 
-<pre><code>/**
- * This code example is BAD code, do not use it!
- */
-class NonWorkingMyClass {
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * This code example is BAD code, do not use it!</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">NonWorkingMyClass</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">protected</span> <span class="n">MyService</span> <span class="n">myService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">calledFirst</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Do some setup work...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Call our internal method</span>
+</span><span class='line'>    <span class="n">calledSecond</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Transactional</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">calledSecond</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">MyObject</span> <span class="n">myObject</span> <span class="o">=</span> <span class="n">myService</span><span class="o">.</span><span class="na">retrieveLatest</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Update some object fields</span>
+</span><span class='line'>    <span class="n">myObject</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&quot;New Name&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-  @Autowired
-  protected MyService myService;
-
-  public void calledFirst() {
-    // Do some setup work...
-
-    // Call our internal method
-    calledSecond();
-  }
-
-  @Transactional
-  private void calledSecond() {
-    MyObject myObject = myService.retrieveLatest();
-
-    // Update some object fields
-    myObject.setName("New Name");
-  }
-}
-</code></pre>
 
 <p>In this case someone would call NonWorkingMyClass.calledFirst(), it would then call calledSecond() and try to update the name field.  This works if your XML configuration is set up properly but it will not be in a transaction.  This can cause concurrency issues that won&rsquo;t show up until it&rsquo;s really inconvenient.</p>
 
 <p>Here&rsquo;s the working version of that code:</p>
 
-<pre><code>/**
- * This code example works
- */
-class WorkingMyClass {
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * This code example works</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">WorkingMyClass</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">protected</span> <span class="n">MyService</span> <span class="n">myService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Transactional</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">calledFirst</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Do some setup work...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Call our internal method</span>
+</span><span class='line'>    <span class="n">calledSecond</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">calledSecond</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">MyObject</span> <span class="n">myObject</span> <span class="o">=</span> <span class="n">myService</span><span class="o">.</span><span class="na">retrieveLatest</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Update some object fields</span>
+</span><span class='line'>    <span class="n">myObject</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&quot;New Name&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-  @Autowired
-  protected MyService myService;
-
-  @Transactional
-  public void calledFirst() {
-    // Do some setup work...
-
-    // Call our internal method
-    calledSecond();
-  }
-
-  private void calledSecond() {
-    MyObject myObject = myService.retrieveLatest();
-
-    // Update some object fields
-    myObject.setName("New Name");
-  }
-}
-</code></pre>
 
 <p>Now when someone called WorkingMyClass.calledFirst() it would do what you expect in a transaction and the transaction boundaries are properly respected.</p>
 
@@ -192,92 +240,177 @@ verboseTransactionDebugging &ndash; Indicates we should print debug messages wit
 
 <p>verboseTransactionDebugging has no effect if transactionDebugging is false.</p>
 
-<pre><code>class DebugUtils {
-    private static final transactionDebugging = true;
-    private static final verboseTransactionDebugging = true;
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">DebugUtils</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">transactionDebugging</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">verboseTransactionDebugging</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">showTransactionStatus</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">transactionActive</span><span class="o">())</span> <span class="o">?</span> <span class="s">&quot;[+] &quot;</span> <span class="o">:</span> <span class="s">&quot;[-] &quot;</span><span class="o">)</span> <span class="o">+</span> <span class="n">message</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Some guidance from: http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">transactionActive</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">ClassLoader</span> <span class="n">contextClassLoader</span> <span class="o">=</span> <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getContextClassLoader</span><span class="o">();</span>
+</span><span class='line'>          <span class="n">Class</span> <span class="n">tsmClass</span> <span class="o">=</span> <span class="n">contextClassLoader</span><span class="o">.</span><span class="na">loadClass</span><span class="o">(</span><span class="s">&quot;org.springframework.transaction.support.TransactionSynchronizationManager&quot;</span><span class="o">);</span>
+</span><span class='line'>          <span class="n">Boolean</span> <span class="n">isActive</span> <span class="o">=</span> <span class="o">(</span><span class="n">Boolean</span><span class="o">)</span> <span class="n">tsmClass</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">&quot;isActualTransactionActive&quot;</span><span class="o">,</span> <span class="kc">null</span><span class="o">).</span><span class="na">invoke</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">return</span> <span class="n">isActive</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ClassNotFoundException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalArgumentException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">SecurityException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalAccessException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvocationTargetException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchMethodException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// If we got here it means there was an exception</span>
+</span><span class='line'>      <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;ServerUtils.transactionActive was unable to complete properly&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">transactionRequired</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// Are we debugging transactions?</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">transactionDebugging</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="c1">// No, just return</span>
+</span><span class='line'>          <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Are we doing verbose transaction debugging?</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">verboseTransactionDebugging</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="c1">// Yes, show the status before we get to the possibility of throwing an exception</span>
+</span><span class='line'>          <span class="n">showTransactionStatus</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Is there a transaction active?</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">transactionActive</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>          <span class="c1">// No, throw an exception</span>
+</span><span class='line'>          <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;Transaction required but not active [&quot;</span> <span class="o">+</span> <span class="n">message</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-    public static void showTransactionStatus(String message) {
-        System.out.println(((transactionActive()) ? "[+] " : "[-] ") + message);
-    }
 
-    // Some guidance from: http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1
-    public static boolean transactionActive() {
-        try {
-            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            Class tsmClass = contextClassLoader.loadClass("org.springframework.transaction.support.TransactionSynchronizationManager");
-            Boolean isActive = (Boolean) tsmClass.getMethod("isActualTransactionActive", null).invoke(null, null);
-
-            return isActive;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-
-        // If we got here it means there was an exception
-        throw new IllegalStateException("ServerUtils.transactionActive was unable to complete properly");
-    }
-
-    public static void transactionRequired(String message) {
-        // Are we debugging transactions?
-        if (!transactionDebugging) {
-            // No, just return
-            return;
-        }
-
-        // Are we doing verbose transaction debugging?
-        if (verboseTransactionDebugging) {
-            // Yes, show the status before we get to the possibility of throwing an exception
-            showTransactionStatus(message);
-        }
-
-        // Is there a transaction active?
-        if (!transactionActive()) {
-            // No, throw an exception
-            throw new IllegalStateException("Transaction required but not active [" + message + "]");
-        }
-    }
-}
-</code></pre>
+<p></p>
 
 <p>In our previous code example we could use these new methods like this:</p>
 
-<pre><code>/**
- * This code example works
- */
-class WorkingMyClass {
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * This code example works</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">WorkingMyClass</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">protected</span> <span class="n">MyService</span> <span class="n">myService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Transactional</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">calledFirst</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Make sure we&#39;re using transactions.  Include the name of the class and method</span>
+</span><span class='line'>    <span class="c1">//   so it is easier to track down later if there are problems.</span>
+</span><span class='line'>    <span class="n">DebugUtils</span><span class="o">.</span><span class="na">transactionRequired</span><span class="o">(</span><span class="s">&quot;WorkingMyClass.calledFirst&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Do some setup work...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Call our internal method</span>
+</span><span class='line'>    <span class="n">calledSecond</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">calledSecond</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">MyObject</span> <span class="n">myObject</span> <span class="o">=</span> <span class="n">myService</span><span class="o">.</span><span class="na">retrieveLatest</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Update some object fields</span>
+</span><span class='line'>    <span class="n">myObject</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&quot;New Name&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-  @Autowired
-  protected MyService myService;
-
-  @Transactional
-  public void calledFirst() {
-    // Make sure we're using transactions.  Include the name of the class and method
-    //   so it is easier to track down later if there are problems.
-    DebugUtils.transactionRequired("WorkingMyClass.calledFirst");
-
-    // Do some setup work...
-
-    // Call our internal method
-    calledSecond();
-  }
-
-  private void calledSecond() {
-    MyObject myObject = myService.retrieveLatest();
-
-    // Update some object fields
-    myObject.setName("New Name");
-  }
-}
-</code></pre>
 
 <p>That&rsquo;s it.  Post in the comments if this helps you out or if you want to add to the code.</p>
 </div>

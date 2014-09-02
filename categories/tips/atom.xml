@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tips | Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/categories/tips/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-09-02T13:22:08-04:00</updated>
+  <updated>2014-09-02T13:36:16-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -39,6 +39,8 @@
 
 <p>My first problem was that the code was annotated improperly like this:</p>
 
+<p>``` java</p>
+
 <pre><code>/**
  * This code example is BAD code, do not use it!
  */
@@ -64,9 +66,13 @@ class NonWorkingMyClass {
 }
 </code></pre>
 
+<p>```</p>
+
 <p>In this case someone would call NonWorkingMyClass.calledFirst(), it would then call calledSecond() and try to update the name field.  This works if your XML configuration is set up properly but it will not be in a transaction.  This can cause concurrency issues that won&rsquo;t show up until it&rsquo;s really inconvenient.</p>
 
 <p>Here&rsquo;s the working version of that code:</p>
+
+<p>``` java</p>
 
 <pre><code>/**
  * This code example works
@@ -93,6 +99,8 @@ class WorkingMyClass {
 }
 </code></pre>
 
+<p>```</p>
+
 <p>Now when someone called WorkingMyClass.calledFirst() it would do what you expect in a transaction and the transaction boundaries are properly respected.</p>
 
 <p>This looks like a simple fix that should only take a few minutes but finding out that was the problem involved turning on lots of Spring DEBUG level logging, Googling, and actually testing to make sure the transactions were active.  Before I knew what I know now I used some code from the first site I listed to show if I was inside a transaction or not.  I was shocked and relieved when it showed that I wasn&rsquo;t because it meant the concurrency issues weren&rsquo;t due to bad programming, just bad configuration.  Here are the methods that I came up with that you can use to see if you are in a transaction and even force your code to throw an exception if it isn&rsquo;t.  This can be invaluable if someone messes up an annotation in the future or breaks your XML configuration.</p>
@@ -103,6 +111,8 @@ class WorkingMyClass {
 verboseTransactionDebugging &ndash; Indicates we should print debug messages with the transaction tests</p>
 
 <p>verboseTransactionDebugging has no effect if transactionDebugging is false.</p>
+
+<p>``` java</p>
 
 <pre><code>class DebugUtils {
     private static final transactionDebugging = true;
@@ -160,7 +170,11 @@ verboseTransactionDebugging &ndash; Indicates we should print debug messages wit
 }
 </code></pre>
 
+<p>```</p>
+
 <p>In our previous code example we could use these new methods like this:</p>
+
+<p>``` java</p>
 
 <pre><code>/**
  * This code example works
@@ -190,6 +204,8 @@ class WorkingMyClass {
   }
 }
 </code></pre>
+
+<p>```</p>
 
 <p>That&rsquo;s it.  Post in the comments if this helps you out or if you want to add to the code.</p>
 ]]></content>

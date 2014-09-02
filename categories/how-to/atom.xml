@@ -4,7 +4,7 @@
   <title><![CDATA[Category: How-To | Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/categories/how-to/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-09-02T13:22:08-04:00</updated>
+  <updated>2014-09-02T13:36:16-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -143,6 +143,8 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
 
 <p>They first tell us that &ldquo;data needs to be ready before CIN, and DIN gets into the buffer on the rising edge of CIN&rdquo;.  What this really translates to for you when programming is that when you want to send a bit to the device you should set that bit on the DIN pin (either 1 or 0), then set the CIN pin to high, and then set the CIN pin back to low.  Now you&rsquo;ve sent one bit of data to the device.  Abstraction will make it so we can do this thinking once and then fall back on it later so let&rsquo;s write a function that sends one bit:</p>
 
+<p>``` csharp</p>
+
 <pre><code>private void sendBit(bool bit)
 {
     // Get DIN into the proper state
@@ -156,14 +158,22 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
 }
 </code></pre>
 
+<p>```</p>
+
 <p>This function makes the assumption that you&rsquo;ve defined cin and din elsewhere.  The setup for them in my case (using pins D6 and D7 as I described above) would look like this:</p>
+
+<p>``` csharp</p>
 
 <pre><code>// Use D6 for CIN and D7 for DIN (Grove Base Shield v1.2 header #6)
 OutputPort cin = new OutputPort(Pins.GPIO_PIN_D6, false);
 OutputPort din = new OutputPort(Pins.GPIO_PIN_D7, false);
 </code></pre>
 
+<p>```</p>
+
 <p>Now they tell us that the first 32 bits are all zeroes and that this is called a start frame.  This makes me think it would be a good idea to expand our abstraction to let us send bytes and then write another function that would send this start frame.  That would look like this:</p>
+
+<p>``` csharp</p>
 
 <pre><code>private void sendByte(byte data)
 {
@@ -188,9 +198,13 @@ private void sendStartFrame()
 }
 </code></pre>
 
+<p>```</p>
+
 <p>In the sendByte function I&rsquo;m taking a byte and using logical AND and equals to extract the bits one by one.  One of the next bullet points says the data is MSB first so we want to get the most significant (ie. largest value holding) bits first so that&rsquo;s how I went about sending the bits.  Now that we can send bytes sending the start frame is as easy as calling that function four times with the value 0.</p>
 
 <p>Next they talk about flag bits.  In the protocol it shows that after the start frame there are some flag bits.  This tells us the two flag bits are both ones.  Here&rsquo;s a simple function that can do that:</p>
+
+<p>``` csharp</p>
 
 <pre><code>private void sendFlagBits()
 {
@@ -200,7 +214,11 @@ private void sendStartFrame()
 }
 </code></pre>
 
+<p>```</p>
+
 <p>Now this part gets a bit trickier but not too bad.  They tell us that we need to send the inverse of B7, B6, G7, G6, R7, R6, followed by the actual color data itself as bytes.  B7 and B6 are the two highest bits in the blue color component, G7 and G6 are the two highest bits in the green color component, and R7 and R6 are the two highest bits in the red color component.  Sending that data with the functions we built up now is really easy.</p>
+
+<p>``` csharp</p>
 
 <pre><code>private void sendColorData(byte red, byte green, byte blue)
 {
@@ -219,7 +237,11 @@ private void sendStartFrame()
 }
 </code></pre>
 
+<p>```</p>
+
 <p>We&rsquo;re almost there, there&rsquo;s only one step left!  Now we need to send the end frame.  It turns out that the end frame is the same as the start frame but to keep the code readable I did this:</p>
+
+<p>``` csharp</p>
 
 <pre><code>private void sendEndFrame()
 {
@@ -227,6 +249,8 @@ private void sendStartFrame()
     sendStartFrame();
 }
 </code></pre>
+
+<p>```</p>
 
 <p>Now you have enough information to send a color to your device.  We should probably wrap it up so that we can make it even easier to use though.  Let&rsquo;s just think about how this is going to be used in practice.  A typical user will have a few of these LEDs chained together but for testing you might want to use just one.  We know that the protocol requires a start frame, then flag bits, then color data, and the end frame if we use a single LED but for two LEDs it looks like this:</p>
 
@@ -241,6 +265,8 @@ private void sendStartFrame()
 
 
 <p>So for our first LED we want to send the start frame, the flag bits and the color data.  For our last LED we want to send flag bits, the color data, and the end frame.  Here&rsquo;s a function that does that:</p>
+
+<p>``` csharp</p>
 
 <pre><code>private void setColor(byte red, byte green, byte blue, bool first, bool last)
 {
@@ -274,12 +300,18 @@ private void sendStartFrame()
 }
 </code></pre>
 
+<p>```</p>
+
 <p>The extra else blocks have no impact on the executable generated so they&rsquo;re just there for clarity.  You can remove them if you want.  Now if you want to send a bunch of colors to a string of three LEDs you can do this:</p>
+
+<p>``` csharp</p>
 
 <pre><code>setColor(255, 0, 0, true, false);
 setColor(0, 255, 0, false, false);
 setColor(0, 0, 255, false, true);
 </code></pre>
+
+<p>```</p>
 
 <p>That would set a string of three LEDs to solid red, solid green, and solid blue.  That&rsquo;s it, your driver is written!</p>
 
@@ -315,6 +347,8 @@ setColor(0, 0, 255, false, true);
 
 <p>The second error had a quick fix so I tried that and it worked.  Now the Java example application that uses the Play framework and the one that uses Spring MVC and Hibernate both work.  However, the ones that used JAX-RS and embedded Jetty did not.  They still showed the maven-dependency-plugin error.  The fix is to add the following XML in the build section of your pom.xml:</p>
 
+<p>``` xml</p>
+
 <pre><code>&lt;pluginmanagement&gt;
     &lt;plugins&gt;
         &lt;plugin&gt;
@@ -344,6 +378,8 @@ setColor(0, 0, 255, false, true);
         &lt;/plugins&gt;
     &lt;/pluginmanagement&gt;
 </code></pre>
+
+<p>```</p>
 
 <p>After that you&rsquo;ll have to do the quick fix for the error &ldquo;Project configuration is not up-to-date&rdquo; again and then you&rsquo;ll be error free, at least in your pom.xml&hellip;</p>
 
