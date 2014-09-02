@@ -110,7 +110,7 @@
 
 <p>The error message I received was similar to this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -128,24 +128,25 @@
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#
-</span><span class='line'># A fatal error has been detected by the Java Runtime Environment:
-</span><span class='line'>#
-</span><span class='line'>#  Internal Error (os_linux_zero.cpp:285), pid=10344, tid=3061261424
-</span><span class='line'>#  fatal error: caught unhandled signal 11
-</span><span class='line'>#
-</span><span class='line'># JRE version: OpenJDK Runtime Environment (7.0_65-b32) (build 1.7.0_65-b32)
-</span><span class='line'># Java VM: OpenJDK Zero VM (24.65-b04 mixed mode linux-arm )
-</span><span class='line'># Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
-</span><span class='line'>#
-</span><span class='line'># An error report file with more information is saved as:
-</span><span class='line'># /home/pi/hs_err_pid10344.log
-</span><span class='line'>#
-</span><span class='line'># If you would like to submit a bug report, please include
-</span><span class='line'># instructions on how to reproduce the bug and visit:
-</span><span class='line'>#   http://icedtea.classpath.org/bugzilla
-</span><span class='line'>#
-</span><span class='line'>Aborted</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> A fatal error has been detected by the Java Runtime Environment:
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span>  Internal Error <span class="o">(</span>os_linux_zero.cpp:285<span class="o">)</span>, <span class="nv">pid</span><span class="o">=</span>10344, <span class="nv">tid</span><span class="o">=</span>3061261424
+</span><span class='line'><span class="gp">#</span>  fatal error: caught unhandled signal 11
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> JRE version: OpenJDK Runtime Environment <span class="o">(</span>7.0_65-b32<span class="o">)</span> <span class="o">(</span>build 1.7.0_65-b32<span class="o">)</span>
+</span><span class='line'><span class="gp">#</span> Java VM: OpenJDK Zero VM <span class="o">(</span>24.65-b04 mixed mode linux-arm <span class="o">)</span>
+</span><span class='line'><span class="gp">#</span> Failed to write core dump. Core dumps have been disabled. To <span class="nb">enable </span>core dumping, try <span class="s2">&quot;ulimit -c unlimited&quot;</span> before starting Java again
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> An error report file with more information is saved as:
+</span><span class='line'><span class="gp">#</span> /home/pi/hs_err_pid10344.log
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> If you would like to submit a bug report, please include
+</span><span class='line'><span class="gp">#</span> instructions on how to reproduce the bug and visit:
+</span><span class='line'><span class="gp">#</span>   http://icedtea.classpath.org/bugzilla
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="go">Aborted</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>I dug and dug and dug and couldn&rsquo;t figure out what was going on.  The most common fix that I saw was to switch to the Oracle JVM.  For this project I didn&rsquo;t want to do that so I scoured the net and came up with the following two options.</p>
@@ -160,28 +161,30 @@
 
 <p>What is really happening behind the scenes?  That gets complex quickly and I still don&rsquo;t know the full answer.  It turns out that this is a known but ignored bug in OpenJDK&rsquo;s Zero VM.  When you run <code>java -version</code> you can see if you&rsquo;re running Zero VM or not like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>pi@raspberrypi ~ $ java -version
-</span><span class='line'>java version "1.7.0_65"
-</span><span class='line'>OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)
-</span><span class='line'>OpenJDK Zero VM (build 24.65-b04, mixed mode)</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -version</span>
+</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
+</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
+</span><span class='line'><span class="go">OpenJDK Zero VM (build 24.65-b04, mixed mode)</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>I don&rsquo;t know why option 1 works.  My guess is that that option disables some kind of optimization.  Looking at <a href="http://cr.openjdk.java.net/~gbenson/zero-10/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp.html">what I think is the corresponding code in Hotspot</a> on line 283 I can see that <code>pthread_attr_getstack</code> is used.  The <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_attr_getstack.html">pthread_attr_getstack documentation</a> says that it can only fail with <code>EINVAL</code> for one reason.  It must be that <code>addr</code> &ldquo;does not refer to an initialized thread attribute object&rdquo;.  I don&rsquo;t have any clue how to fix this though.</p>
 
 <p>Option 2 works because it switches over to <a href="http://jamvm.sourceforge.net/">JamVM</a>.  You can check your JamVM version like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>pi@raspberrypi ~ $ java -jamvm -version
-</span><span class='line'>java version "1.7.0_65"
-</span><span class='line'>OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)
-</span><span class='line'>JamVM (build 1.6.0-devel, inline-threaded interpreter with stack-caching)</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -jamvm -version</span>
+</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
+</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
+</span><span class='line'><span class="go">JamVM (build 1.6.0-devel, inline-threaded interpreter with stack-caching)</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>So, if you&rsquo;re in a similar bind and don&rsquo;t want to install and switch to Oracle&rsquo;s JVM give these options a try.  Post your results in the comments below.</p>

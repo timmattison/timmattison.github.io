@@ -114,7 +114,7 @@
 
 <p>The first function makes sure that there is at least one console logger in your logging system.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -141,38 +141,39 @@
 <span class='line-number'>25</span>
 <span class='line-number'>26</span>
 <span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>public static void forceConsoleLogging() {
-</span><span class='line'>    // Get the root logger instance
-</span><span class='line'>    LogManager logManager = LogManager.getLogManager();
-</span><span class='line'>    Logger rootLogger = logManager.getLogger("");
-</span><span class='line'>    
-</span><span class='line'>    // Set the default logging level to all
-</span><span class='line'>    rootLogger.setLevel(Level.ALL);
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">forceConsoleLogging</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Get the root logger instance</span>
+</span><span class='line'>    <span class="n">LogManager</span> <span class="n">logManager</span> <span class="o">=</span> <span class="n">LogManager</span><span class="o">.</span><span class="na">getLogManager</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">Logger</span> <span class="n">rootLogger</span> <span class="o">=</span> <span class="n">logManager</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>    // Loop and see if a console handler is already installed
-</span><span class='line'>    boolean consoleHandlerInstalled = false;
+</span><span class='line'>    <span class="c1">// Set the default logging level to all</span>
+</span><span class='line'>    <span class="n">rootLogger</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>    for (Handler handler : rootLogger.getHandlers()) {
-</span><span class='line'>        if (handler instanceof ConsoleHandler) {
-</span><span class='line'>            consoleHandlerInstalled = true;
-</span><span class='line'>            break;
-</span><span class='line'>        }
-</span><span class='line'>    }
+</span><span class='line'>    <span class="c1">// Loop and see if a console handler is already installed</span>
+</span><span class='line'>    <span class="kt">boolean</span> <span class="n">consoleHandlerInstalled</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    // Is a console handler already installed?
-</span><span class='line'>    if (consoleHandlerInstalled) {
-</span><span class='line'>        // Yes, do nothing
-</span><span class='line'>        return;
-</span><span class='line'>    }
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">:</span> <span class="n">rootLogger</span><span class="o">.</span><span class="na">getHandlers</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">handler</span> <span class="k">instanceof</span> <span class="n">ConsoleHandler</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">consoleHandlerInstalled</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    // No console handler installed, install one
-</span><span class='line'>    rootLogger.addHandler(new ConsoleHandler());
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    <span class="c1">// Is a console handler already installed?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">consoleHandlerInstalled</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Yes, do nothing</span>
+</span><span class='line'>        <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// No console handler installed, install one</span>
+</span><span class='line'>    <span class="n">rootLogger</span><span class="o">.</span><span class="na">addHandler</span><span class="o">(</span><span class="k">new</span> <span class="n">ConsoleHandler</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The second function is a bit more aggressive.  It iterates over your console loggers and makes sure all of them log everything.  You can use this in a pinch when you&rsquo;re having serious issues and you need to see everything.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -202,36 +203,37 @@
 <span class='line-number'>28</span>
 <span class='line-number'>29</span>
 <span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>   public static void logEverything() {
-</span><span class='line'>        // Get the logger instance
-</span><span class='line'>        LogManager logManager = LogManager.getLogManager();
-</span><span class='line'>        Logger rootLogger = logManager.getLogger("");
+</pre></td><td class='code'><pre><code class='java'><span class='line'>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logEverything</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Get the logger instance</span>
+</span><span class='line'>        <span class="n">LogManager</span> <span class="n">logManager</span> <span class="o">=</span> <span class="n">LogManager</span><span class="o">.</span><span class="na">getLogManager</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Logger</span> <span class="n">rootLogger</span> <span class="o">=</span> <span class="n">logManager</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>        // Set the default logging level to all
-</span><span class='line'>        rootLogger.setLevel(Level.ALL);
+</span><span class='line'>        <span class="c1">// Set the default logging level to all</span>
+</span><span class='line'>        <span class="n">rootLogger</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>        // Loop and see if any console handlers are already installed
-</span><span class='line'>        List&lt;ConsoleHandler&gt; consoleHandlers = new ArrayList&lt;ConsoleHandler&gt;();
+</span><span class='line'>        <span class="c1">// Loop and see if any console handlers are already installed</span>
+</span><span class='line'>        <span class="n">List</span><span class="o">&lt;</span><span class="n">ConsoleHandler</span><span class="o">&gt;</span> <span class="n">consoleHandlers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">ConsoleHandler</span><span class="o">&gt;();</span>
 </span><span class='line'>
-</span><span class='line'>        for (Handler handler : rootLogger.getHandlers()) {
-</span><span class='line'>            if (handler instanceof ConsoleHandler) {
-</span><span class='line'>                consoleHandlers.add((ConsoleHandler) handler);
-</span><span class='line'>            }
-</span><span class='line'>        }
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">:</span> <span class="n">rootLogger</span><span class="o">.</span><span class="na">getHandlers</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">handler</span> <span class="k">instanceof</span> <span class="n">ConsoleHandler</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">consoleHandlers</span><span class="o">.</span><span class="na">add</span><span class="o">((</span><span class="n">ConsoleHandler</span><span class="o">)</span> <span class="n">handler</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>        // Is a console handler already installed?
-</span><span class='line'>        if (consoleHandlers.size() == 0) {
-</span><span class='line'>            // No, create one.  Add it to the list and to the root logger.
-</span><span class='line'>            Handler consoleHandler = new ConsoleHandler();
-</span><span class='line'>            consoleHandlers.add((ConsoleHandler) consoleHandler);
-</span><span class='line'>            rootLogger.addHandler(consoleHandler);
-</span><span class='line'>        }
+</span><span class='line'>        <span class="c1">// Is a console handler already installed?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">consoleHandlers</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// No, create one.  Add it to the list and to the root logger.</span>
+</span><span class='line'>            <span class="n">Handler</span> <span class="n">consoleHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConsoleHandler</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">consoleHandlers</span><span class="o">.</span><span class="na">add</span><span class="o">((</span><span class="n">ConsoleHandler</span><span class="o">)</span> <span class="n">consoleHandler</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">rootLogger</span><span class="o">.</span><span class="na">addHandler</span><span class="o">(</span><span class="n">consoleHandler</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>        // Loop through all console handlers and make them log everything
-</span><span class='line'>        for (ConsoleHandler consoleHandler : consoleHandlers) {
-</span><span class='line'>            consoleHandler.setLevel(Level.ALL);
-</span><span class='line'>        }
-</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>        <span class="c1">// Loop through all console handlers and make them log everything</span>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">ConsoleHandler</span> <span class="n">consoleHandler</span> <span class="o">:</span> <span class="n">consoleHandlers</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">consoleHandler</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>If you do this be prepared to see TONS of output including output from all of the libraries you use.  Most of the time this is overkill.  But sometimes when the logger just won&rsquo;t do what you want no matter how hard you try this will save your sanity.</p>

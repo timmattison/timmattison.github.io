@@ -596,7 +596,7 @@
         <loc>
             http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/
         </loc>
-        <lastmod>2014-06-18T06:42:40-04:00</lastmod>
+        <lastmod>2014-09-02T13:22:02-04:00</lastmod>
     </url>
     <url>
         <loc>
@@ -638,7 +638,7 @@
         <loc>
             http://blog.timmattison.com/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/
         </loc>
-        <lastmod>2014-06-19T19:14:50-04:00</lastmod>
+        <lastmod>2014-09-02T13:21:18-04:00</lastmod>
     </url>
     <url>
         <loc>
@@ -656,7 +656,7 @@
         <loc>
             http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/
         </loc>
-        <lastmod>2014-07-15T18:54:13-04:00</lastmod>
+        <lastmod>2014-09-02T13:20:26-04:00</lastmod>
     </url>
     <url>
         <loc>
@@ -674,51 +674,51 @@
         <loc>
             http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/
         </loc>
-        <lastmod>2014-08-05T09:00:12-04:00</lastmod>
+        <lastmod>2014-09-02T13:19:39-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/
         </loc>
-        <lastmod>2014-08-29T08:36:31-04:00</lastmod>
+        <lastmod>2014-09-02T13:18:49-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/
         </loc>
-        <lastmod>2014-08-29T13:12:58-04:00</lastmod>
+        <lastmod>2014-09-02T13:16:47-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/
         </loc>
-        <lastmod>2014-09-02T08:14:26-04:00</lastmod>
+        <lastmod>2014-09-02T13:15:38-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/
         </loc>
-        <lastmod>2014-09-02T08:39:37-04:00</lastmod>
+        <lastmod>2014-09-02T13:14:44-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.timmattison.com/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/
         </loc>
-        <lastmod>2014-09-02T11:35:15-04:00</lastmod>
+        <lastmod>2014-09-02T13:13:28-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/
         </loc>
-        <lastmod>2014-09-02T13:10:31-04:00</lastmod>
+        <lastmod>2014-09-02T13:12:31-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-09-02T13:10:31-04:00</lastmod>
+        <lastmod>2014-09-02T13:22:02-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-09-02T13:10:31-04:00</lastmod>
+        <lastmod>2014-09-02T13:22:02-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

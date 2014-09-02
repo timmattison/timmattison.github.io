@@ -112,7 +112,7 @@
 
 <p>The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the <code>GuiceJobFactory</code>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -152,64 +152,66 @@
 <span class='line-number'>38</span>
 <span class='line-number'>39</span>
 <span class='line-number'>40</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>import com.google.inject.Injector;
-</span><span class='line'>import org.quartz.Job;
-</span><span class='line'>import org.quartz.JobDetail;
-</span><span class='line'>import org.quartz.Scheduler;
-</span><span class='line'>import org.quartz.SchedulerException;
-</span><span class='line'>import org.quartz.spi.JobFactory;
-</span><span class='line'>import org.quartz.spi.TriggerFiredBundle;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Injector</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Job</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.JobDetail</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Scheduler</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.SchedulerException</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.JobFactory</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.TriggerFiredBundle</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>import javax.inject.Inject;
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>/**
-</span><span class='line'> * Created by timmattison on 8/4/14.
-</span><span class='line'> */
-</span><span class='line'>// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/
-</span><span class='line'>final class GuiceJobFactory implements JobFactory {
-</span><span class='line'>    private final Injector guice;
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 8/4/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="c1">// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/</span>
+</span><span class='line'><span class="kd">final</span> <span class="kd">class</span> <span class="nc">GuiceJobFactory</span> <span class="kd">implements</span> <span class="n">JobFactory</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    @Inject
-</span><span class='line'>    public GuiceJobFactory(final Injector guice) {
-</span><span class='line'>        this.guice = guice;
-</span><span class='line'>    }
+</span><span class='line'>    <span class="nd">@Inject</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">GuiceJobFactory</span><span class="o">(</span><span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">guice</span> <span class="o">=</span> <span class="n">guice</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public Job newJob(TriggerFiredBundle triggerFiredBundle, Scheduler scheduler) throws SchedulerException {
-</span><span class='line'>        // Get the job detail so we can get the job class
-</span><span class='line'>        JobDetail jobDetail = triggerFiredBundle.getJobDetail();
-</span><span class='line'>        Class jobClass = jobDetail.getJobClass();
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Job</span> <span class="nf">newJob</span><span class="o">(</span><span class="n">TriggerFiredBundle</span> <span class="n">triggerFiredBundle</span><span class="o">,</span> <span class="n">Scheduler</span> <span class="n">scheduler</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SchedulerException</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Get the job detail so we can get the job class</span>
+</span><span class='line'>        <span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">triggerFiredBundle</span><span class="o">.</span><span class="na">getJobDetail</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Class</span> <span class="n">jobClass</span> <span class="o">=</span> <span class="n">jobDetail</span><span class="o">.</span><span class="na">getJobClass</span><span class="o">();</span>
 </span><span class='line'>
-</span><span class='line'>        try {
-</span><span class='line'>            // Get a new instance of that class from Guice so we can do dependency injection
-</span><span class='line'>            return (Job) guice.getInstance(jobClass);
-</span><span class='line'>        } catch (Exception e) {
-</span><span class='line'>            // Something went wrong.  Print out the stack trace here so SLF4J doesn't hide it.
-</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Get a new instance of that class from Guice so we can do dependency injection</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">(</span><span class="n">Job</span><span class="o">)</span> <span class="n">guice</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">jobClass</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Something went wrong.  Print out the stack trace here so SLF4J doesn&#39;t hide it.</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
 </span><span class='line'>
-</span><span class='line'>            // Rethrow the exception as an UnsupportedOperationException
-</span><span class='line'>            throw new UnsupportedOperationException(e);
-</span><span class='line'>        }
-</span><span class='line'>    }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>            <span class="c1">// Rethrow the exception as an UnsupportedOperationException</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The <code>GuiceJobFactory</code> gets the Guice injector injected into it.  It then overrides the newJob method and creates each job using the injector it was given.</p>
 
 <p>The next thing you need to do is to use this <code>JobFactory</code> in your <code>Scheduler</code>.  Here&rsquo;s how I built my scheduler and used it to create my first job:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-</span><span class='line'>scheduler.setJobFactory(injector.getInstance(GuiceJobFactory.class));
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Scheduler</span> <span class="n">scheduler</span> <span class="o">=</span> <span class="n">StdSchedulerFactory</span><span class="o">.</span><span class="na">getDefaultScheduler</span><span class="o">();</span>
+</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">setJobFactory</span><span class="o">(</span><span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">GuiceJobFactory</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
 </span><span class='line'>
-</span><span class='line'>scheduler.start();
+</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
 </span><span class='line'>
-</span><span class='line'>JobDetail jobDetail = newJob(MyJob.class).build();</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">newJob</span><span class="o">(</span><span class="n">MyJob</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>

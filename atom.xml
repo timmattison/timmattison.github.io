@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-09-02T13:11:06-04:00</updated>
+  <updated>2014-09-02T13:22:08-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -36,7 +36,7 @@
 
 <p>Next, there&rsquo;s a method that loads these credentials into the system properties:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -53,28 +53,29 @@
 <span class='line-number'>15</span>
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>private static final String AWSCREDENTIALS_PROPERTIES = "awscredentials.properties";
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">AWSCREDENTIALS_PROPERTIES</span> <span class="o">=</span> <span class="s">&quot;awscredentials.properties&quot;</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>void loadAwsCredentialsProperties() throws IOException {
-</span><span class='line'>  InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(AWSCREDENTIALS_PROPERTIES);
+</span><span class='line'><span class="kt">void</span> <span class="nf">loadAwsCredentialsProperties</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">InputStream</span> <span class="n">inputStream</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getClassLoader</span><span class="o">().</span><span class="na">getResourceAsStream</span><span class="o">(</span><span class="n">AWSCREDENTIALS_PROPERTIES</span><span class="o">);</span>
 </span><span class='line'>  
-</span><span class='line'>  // Was there a properties file?
-</span><span class='line'>  if (inputStream == null) {
-</span><span class='line'>      // No, just return
-</span><span class='line'>      return;
-</span><span class='line'>  }
+</span><span class='line'>  <span class="c1">// Was there a properties file?</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">inputStream</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// No, just return</span>
+</span><span class='line'>      <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
 </span><span class='line'>  
-</span><span class='line'>  Properties properties = new Properties(System.getProperties());
-</span><span class='line'>  properties.load(inputStream);
+</span><span class='line'>  <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperties</span><span class="o">());</span>
+</span><span class='line'>  <span class="n">properties</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">inputStream</span><span class="o">);</span>
 </span><span class='line'>  
-</span><span class='line'>  // set the system properties
-</span><span class='line'>  System.setProperties(properties);
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>  <span class="c1">// set the system properties</span>
+</span><span class='line'>  <span class="n">System</span><span class="o">.</span><span class="na">setProperties</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Finally, there&rsquo;s the credentials provider:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -131,63 +132,64 @@
 <span class='line-number'>55</span>
 <span class='line-number'>56</span>
 <span class='line-number'>57</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.AmazonClientException;
-</span><span class='line'>import com.amazonaws.auth.AWSCredentials;
-</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
-</span><span class='line'>import com.amazonaws.auth.BasicSessionCredentials;
-</span><span class='line'>import com.amazonaws.services.securitytoken.model.Credentials;
-</span><span class='line'>import com.amazonaws.util.StringUtils;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.AmazonClientException</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.BasicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.services.securitytoken.model.Credentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.util.StringUtils</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>/**
-</span><span class='line'> * Created by timmattison on 9/2/14.
-</span><span class='line'> */
-</span><span class='line'>public class SystemPropertiesStsCredentialsProvider implements AWSCredentialsProvider {
-</span><span class='line'>    private static final String ACCESS_KEY_ID_SYSTEM_PROPERTY = "aws.accessKeyId";
-</span><span class='line'>    private static final String SECRET_ACCESS_KEY_SYSTEM_PROPERTY = "aws.secretAccessKey";
-</span><span class='line'>    private static final String SESSION_TOKEN_SYSTEM_PROPERTY = "aws.sessionToken";
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SystemPropertiesStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">ACCESS_KEY_ID_SYSTEM_PROPERTY</span> <span class="o">=</span> <span class="s">&quot;aws.accessKeyId&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SECRET_ACCESS_KEY_SYSTEM_PROPERTY</span> <span class="o">=</span> <span class="s">&quot;aws.secretAccessKey&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SESSION_TOKEN_SYSTEM_PROPERTY</span> <span class="o">=</span> <span class="s">&quot;aws.sessionToken&quot;</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    public AWSCredentials getCredentials() {
-</span><span class='line'>        // Get the access key ID
-</span><span class='line'>        String accessKeyId = StringUtils.trim(System.getProperty(ACCESS_KEY_ID_SYSTEM_PROPERTY));
+</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Get the access key ID</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">accessKeyId</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">trim</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">ACCESS_KEY_ID_SYSTEM_PROPERTY</span><span class="o">));</span>
 </span><span class='line'>
-</span><span class='line'>        // Get the secret access key
-</span><span class='line'>        String secretAccessKey = StringUtils.trim(System.getProperty(SECRET_ACCESS_KEY_SYSTEM_PROPERTY));
+</span><span class='line'>        <span class="c1">// Get the secret access key</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">secretAccessKey</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">trim</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">SECRET_ACCESS_KEY_SYSTEM_PROPERTY</span><span class="o">));</span>
 </span><span class='line'>
-</span><span class='line'>        // Get the session token
-</span><span class='line'>        String sessionToken = StringUtils.trim(System.getProperty(SESSION_TOKEN_SYSTEM_PROPERTY));
+</span><span class='line'>        <span class="c1">// Get the session token</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">sessionToken</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">trim</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">SESSION_TOKEN_SYSTEM_PROPERTY</span><span class="o">));</span>
 </span><span class='line'>
-</span><span class='line'>        // Are we missing any of the necessary values?
-</span><span class='line'>        if (StringUtils.isNullOrEmpty(accessKeyId)
-</span><span class='line'>                || StringUtils.isNullOrEmpty(secretAccessKey)
-</span><span class='line'>                || StringUtils.isNullOrEmpty(sessionToken)) {
-</span><span class='line'>            // Yes, throw an exception like the Amazon code does
-</span><span class='line'>            throw new AmazonClientException(
-</span><span class='line'>                    "Unable to load AWS credentials from Java system "
-</span><span class='line'>                            + "properties (" + ACCESS_KEY_ID_SYSTEM_PROPERTY + ", "
-</span><span class='line'>                            + SECRET_ACCESS_KEY_SYSTEM_PROPERTY + ", and "
-</span><span class='line'>                            + SESSION_TOKEN_SYSTEM_PROPERTY + ")");
-</span><span class='line'>        }
+</span><span class='line'>        <span class="c1">// Are we missing any of the necessary values?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">isNullOrEmpty</span><span class="o">(</span><span class="n">accessKeyId</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">||</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">isNullOrEmpty</span><span class="o">(</span><span class="n">secretAccessKey</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">||</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">isNullOrEmpty</span><span class="o">(</span><span class="n">sessionToken</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Yes, throw an exception like the Amazon code does</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">AmazonClientException</span><span class="o">(</span>
+</span><span class='line'>                    <span class="s">&quot;Unable to load AWS credentials from Java system &quot;</span>
+</span><span class='line'>                            <span class="o">+</span> <span class="s">&quot;properties (&quot;</span> <span class="o">+</span> <span class="n">ACCESS_KEY_ID_SYSTEM_PROPERTY</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span>
+</span><span class='line'>                            <span class="o">+</span> <span class="n">SECRET_ACCESS_KEY_SYSTEM_PROPERTY</span> <span class="o">+</span> <span class="s">&quot;, and &quot;</span>
+</span><span class='line'>                            <span class="o">+</span> <span class="n">SESSION_TOKEN_SYSTEM_PROPERTY</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>        // Create the credentials
-</span><span class='line'>        Credentials sessionCredentials = new Credentials();
-</span><span class='line'>        sessionCredentials.setAccessKeyId(accessKeyId);
-</span><span class='line'>        sessionCredentials.setSecretAccessKey(secretAccessKey);
-</span><span class='line'>        sessionCredentials.setSessionToken(sessionToken);
+</span><span class='line'>        <span class="c1">// Create the credentials</span>
+</span><span class='line'>        <span class="n">Credentials</span> <span class="n">sessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Credentials</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setAccessKeyId</span><span class="o">(</span><span class="n">accessKeyId</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSecretAccessKey</span><span class="o">(</span><span class="n">secretAccessKey</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSessionToken</span><span class="o">(</span><span class="n">sessionToken</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>        // Convert them to basic session credentials
-</span><span class='line'>        BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
-</span><span class='line'>                sessionCredentials.getAccessKeyId(),
-</span><span class='line'>                sessionCredentials.getSecretAccessKey(),
-</span><span class='line'>                sessionCredentials.getSessionToken());
+</span><span class='line'>        <span class="c1">// Convert them to basic session credentials</span>
+</span><span class='line'>        <span class="n">BasicSessionCredentials</span> <span class="n">basicSessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BasicSessionCredentials</span><span class="o">(</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getAccessKeyId</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSecretAccessKey</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSessionToken</span><span class="o">());</span>
 </span><span class='line'>
-</span><span class='line'>        return basicSessionCredentials;
-</span><span class='line'>    }
+</span><span class='line'>        <span class="k">return</span> <span class="n">basicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public void refresh() {
-</span><span class='line'>        // Do nothing
-</span><span class='line'>    }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Do nothing</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>This should make things quite a bit easier if you don&rsquo;t have access to a real IAM user and must use STS for your application.</p>
@@ -207,7 +209,7 @@
 
 <p>Anyway, if you want to use static IAM user credentials you can use a credentials provider like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -246,50 +248,51 @@
 <span class='line-number'>37</span>
 <span class='line-number'>38</span>
 <span class='line-number'>39</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.auth.AWSCredentials;
-</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
-</span><span class='line'>import com.google.inject.Inject;
-</span><span class='line'>import com.google.inject.assistedinject.Assisted;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Inject</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.assistedinject.Assisted</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>/**
-</span><span class='line'> * Created by timmattison on 9/2/14.
-</span><span class='line'> */
-</span><span class='line'>public class TempNonStsCredentialsProvider implements AWSCredentialsProvider {
-</span><span class='line'>    private final String awsAccessKeyId;
-</span><span class='line'>    private final String awsSecretKey;
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TempNonStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSecretKey</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    @Inject
-</span><span class='line'>    public TempNonStsCredentialsProvider(@Assisted("awsAccessKeyId") String awsAccessKeyId,
-</span><span class='line'>                                         @Assisted("awsSecretKey") String awsSecretKey) {
-</span><span class='line'>        this.awsAccessKeyId = awsAccessKeyId;
-</span><span class='line'>        this.awsSecretKey = awsSecretKey;
-</span><span class='line'>    }
+</span><span class='line'>    <span class="nd">@Inject</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">TempNonStsCredentialsProvider</span><span class="o">(</span><span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsAccessKeyId&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">,</span>
+</span><span class='line'>                                         <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSecretKey&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSecretKey</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsAccessKeyId</span> <span class="o">=</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSecretKey</span> <span class="o">=</span> <span class="n">awsSecretKey</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public AWSCredentials getCredentials() {
-</span><span class='line'>        return new AWSCredentials() {
-</span><span class='line'>            @Override
-</span><span class='line'>            public String getAWSAccessKeyId() {
-</span><span class='line'>                return awsAccessKeyId;
-</span><span class='line'>            }
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">new</span> <span class="nf">AWSCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="n">String</span> <span class="nf">getAWSAccessKeyId</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>            @Override
-</span><span class='line'>            public String getAWSSecretKey() {
-</span><span class='line'>                return awsSecretKey;
-</span><span class='line'>            }
-</span><span class='line'>        };
-</span><span class='line'>    }
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="n">String</span> <span class="nf">getAWSSecretKey</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">awsSecretKey</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">};</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public void refresh() {
-</span><span class='line'>        // Do nothing
-</span><span class='line'>    }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Do nothing</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Pass in your credentials and you&rsquo;re good to go.  If you&rsquo;re using <a href="http://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html">STS</a> it requires a little bit more work.  Use this instead:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -334,51 +337,52 @@
 <span class='line-number'>43</span>
 <span class='line-number'>44</span>
 <span class='line-number'>45</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.auth.AWSCredentials;
-</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
-</span><span class='line'>import com.amazonaws.auth.BasicSessionCredentials;
-</span><span class='line'>import com.amazonaws.services.securitytoken.model.Credentials;
-</span><span class='line'>import com.google.inject.assistedinject.Assisted;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.BasicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.services.securitytoken.model.Credentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.assistedinject.Assisted</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>import javax.inject.Inject;
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>/**
-</span><span class='line'> * Created by timmattison on 9/2/14.
-</span><span class='line'> */
-</span><span class='line'>public class TempStsCredentialsProvider implements AWSCredentialsProvider {
-</span><span class='line'>    private final String awsAccessKeyId;
-</span><span class='line'>    private final String awsSecretAccessKey;
-</span><span class='line'>    private final String awsSessionToken;
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TempStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSecretAccessKey</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSessionToken</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    @Inject
-</span><span class='line'>    public TempStsCredentialsProvider(@Assisted("awsAccessKeyId") String awsAccessKeyId,
-</span><span class='line'>                                      @Assisted("awsSecretAccessKey") String awsSecretAccessKey,
-</span><span class='line'>                                      @Assisted("awsSessionToken") String awsSessionToken) {
-</span><span class='line'>        this.awsAccessKeyId = awsAccessKeyId;
-</span><span class='line'>        this.awsSecretAccessKey = awsSecretAccessKey;
-</span><span class='line'>        this.awsSessionToken = awsSessionToken;
-</span><span class='line'>    }
+</span><span class='line'>    <span class="nd">@Inject</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">TempStsCredentialsProvider</span><span class="o">(</span><span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsAccessKeyId&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSecretAccessKey&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSecretAccessKey</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSessionToken&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSessionToken</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsAccessKeyId</span> <span class="o">=</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSecretAccessKey</span> <span class="o">=</span> <span class="n">awsSecretAccessKey</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSessionToken</span> <span class="o">=</span> <span class="n">awsSessionToken</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public AWSCredentials getCredentials() {
-</span><span class='line'>        Credentials sessionCredentials = new Credentials();
-</span><span class='line'>        sessionCredentials.setAccessKeyId(awsAccessKeyId);
-</span><span class='line'>        sessionCredentials.setSecretAccessKey(awsSecretAccessKey);
-</span><span class='line'>        sessionCredentials.setSessionToken(awsSessionToken);
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Credentials</span> <span class="n">sessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Credentials</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setAccessKeyId</span><span class="o">(</span><span class="n">awsAccessKeyId</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSecretAccessKey</span><span class="o">(</span><span class="n">awsSecretAccessKey</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSessionToken</span><span class="o">(</span><span class="n">awsSessionToken</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>        BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
-</span><span class='line'>                sessionCredentials.getAccessKeyId(),
-</span><span class='line'>                sessionCredentials.getSecretAccessKey(),
-</span><span class='line'>                sessionCredentials.getSessionToken());
+</span><span class='line'>        <span class="n">BasicSessionCredentials</span> <span class="n">basicSessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BasicSessionCredentials</span><span class="o">(</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getAccessKeyId</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSecretAccessKey</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSessionToken</span><span class="o">());</span>
 </span><span class='line'>
-</span><span class='line'>        return basicSessionCredentials;
-</span><span class='line'>    }
+</span><span class='line'>        <span class="k">return</span> <span class="n">basicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public void refresh() {
-</span><span class='line'>      // Do nothing
-</span><span class='line'>    }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// Do nothing</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now you just need to pass in the extra session token parameter and then you can use this to provide credentials to your AWS calls.</p>
@@ -394,7 +398,7 @@
 
 <p>Here&rsquo;s the code but keep in mind that it makes the assumption that everything is in the <code>public</code> schema.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -416,34 +420,36 @@
 <span class='line-number'>20</span>
 <span class='line-number'>21</span>
 <span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>CREATE OR REPLACE FUNCTION create_index_if_not_exists (t_name text, i_name text, index_sql text) RETURNS void AS $$
-</span><span class='line'>DECLARE
-</span><span class='line'>  full_index_name varchar;
-</span><span class='line'>  schema_name varchar;
-</span><span class='line'>BEGIN
+</pre></td><td class='code'><pre><code class='plpgsql'><span class='line'><span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">FUNCTION</span> <span class="n">create_index_if_not_exists</span> <span class="p">(</span><span class="n">t_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">i_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">index_sql</span> <span class="nb">text</span><span class="p">)</span> <span class="k">RETURNS</span> <span class="nb">void</span> <span class="k">AS</span> <span class="s">$$</span>
+</span><span class='line'><span class="k">DECLARE</span>
+</span><span class='line'>  <span class="n">full_index_name</span> <span class="nb">varchar</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">schema_name</span> <span class="nb">varchar</span><span class="p">;</span>
+</span><span class='line'><span class="k">BEGIN</span>
 </span><span class='line'>
-</span><span class='line'>full_index_name = t_name || '_' || i_name;
-</span><span class='line'>schema_name = 'public';
+</span><span class='line'><span class="n">full_index_name</span> <span class="o">=</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39;_&#39;</span> <span class="o">||</span> <span class="n">i_name</span><span class="p">;</span>
+</span><span class='line'><span class="n">schema_name</span> <span class="o">=</span> <span class="s1">&#39;public&#39;</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>IF NOT EXISTS (
-</span><span class='line'>    SELECT 1
-</span><span class='line'>    FROM   pg_class c
-</span><span class='line'>    JOIN   pg_namespace n ON n.oid = c.relnamespace
-</span><span class='line'>    WHERE  c.relname = full_index_name
-</span><span class='line'>    AND    n.nspname = schema_name
-</span><span class='line'>    ) THEN
+</span><span class='line'><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span>
+</span><span class='line'>    <span class="k">SELECT</span> <span class="mf">1</span>
+</span><span class='line'>    <span class="k">FROM</span>   <span class="n">pg_class</span> <span class="n">c</span>
+</span><span class='line'>    <span class="k">JOIN</span>   <span class="n">pg_namespace</span> <span class="n">n</span> <span class="k">ON</span> <span class="n">n</span><span class="mf">.</span><span class="n">oid</span> <span class="o">=</span> <span class="n">c</span><span class="mf">.</span><span class="n">relnamespace</span>
+</span><span class='line'>    <span class="k">WHERE</span>  <span class="n">c</span><span class="mf">.</span><span class="n">relname</span> <span class="o">=</span> <span class="n">full_index_name</span>
+</span><span class='line'>    <span class="k">AND</span>    <span class="n">n</span><span class="mf">.</span><span class="n">nspname</span> <span class="o">=</span> <span class="n">schema_name</span>
+</span><span class='line'>    <span class="p">)</span> <span class="k">THEN</span>
 </span><span class='line'>
-</span><span class='line'>    execute 'CREATE INDEX ' || full_index_name || ' ON ' || schema_name || '.' || t_name || ' ' || index_sql;
-</span><span class='line'>END IF;
-</span><span class='line'>END
-</span><span class='line'>$$
-</span><span class='line'>LANGUAGE plpgsql VOLATILE;</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    <span class="k">execute</span> <span class="s1">&#39;CREATE INDEX &#39;</span> <span class="o">||</span> <span class="n">full_index_name</span> <span class="o">||</span> <span class="s1">&#39; ON &#39;</span> <span class="o">||</span> <span class="n">schema_name</span> <span class="o">||</span> <span class="s1">&#39;.&#39;</span> <span class="o">||</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39; &#39;</span> <span class="o">||</span> <span class="n">index_sql</span><span class="p">;</span>
+</span><span class='line'><span class="k">END</span> <span class="k">IF</span><span class="p">;</span>
+</span><span class='line'><span class="k">END</span>
+</span><span class='line'><span class="s">$$</span>
+</span><span class='line'><span class="k">LANGUAGE</span> <span class="n">plpgsql</span> <span class="k">VOLATILE</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>You can now use the function like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_index_if_not_exists('table', 'index_name', '(column)');</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_index_if_not_exists</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">,</span> <span class="s1">&#39;index_name&#39;</span><span class="p">,</span> <span class="s1">&#39;(column)&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>No duplicated data, no exceptions.  Enjoy!</p>
@@ -461,7 +467,7 @@
 
 <p>I didn&rsquo;t like the fact that the code asked for the table name and constraint name but then didn&rsquo;t use it in the SQL statement.  Leaving it like this means that someone could write this (note that foo becomes foo2 and bar becomes bar2 in the first two parameters):</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -470,22 +476,23 @@
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_constraint_if_not_exists(
-</span><span class='line'>        'foo',
-</span><span class='line'>        'bar',
-</span><span class='line'>        'ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);');
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>SELECT create_constraint_if_not_exists(
-</span><span class='line'>        'foo2',
-</span><span class='line'>        'bar2',
-</span><span class='line'>        'ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);');</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo2&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar2&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>And they would get an exception rather than having the constraint creation be skipped which could break a lot of things that expect this function to be safe.</p>
 
 <p>They also could do this (note that foo becomes foo2 and bar becomes bar2 in the constraint SQL):</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -494,22 +501,23 @@
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_constraint_if_not_exists(
-</span><span class='line'>        'foo',
-</span><span class='line'>        'bar',
-</span><span class='line'>        'ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);');
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>SELECT create_constraint_if_not_exists(
-</span><span class='line'>        'foo',
-</span><span class='line'>        'bar',
-</span><span class='line'>        'ALTER TABLE foo2 ADD CONSTRAINT bar2 CHECK (foobies &lt; 100);');</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo2 ADD CONSTRAINT bar2 CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>This could be even worse because a constraint wouldn&rsquo;t be created.</p>
 
 <p>My solution was to modify this script slightly:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -523,26 +531,28 @@
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>CREATE OR REPLACE FUNCTION create_constraint_if_not_exists (t_name text, c_name text, constraint_sql text)
-</span><span class='line'>  RETURNS void
-</span><span class='line'>AS
-</span><span class='line'>$BODY$
-</span><span class='line'>  begin
-</span><span class='line'>    -- Look for our constraint
-</span><span class='line'>    if not exists (select constraint_name 
-</span><span class='line'>                   from information_schema.constraint_column_usage 
-</span><span class='line'>                   where table_name = t_name  and constraint_name = c_name) then
-</span><span class='line'>        execute 'ALTER TABLE ' || t_name || ' ADD CONSTRAINT ' || c_name || ' ' || constraint_sql;
-</span><span class='line'>    end if;
-</span><span class='line'>end;
-</span><span class='line'>$BODY$
-</span><span class='line'>LANGUAGE plpgsql VOLATILE;</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='plpgsql'><span class='line'><span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">FUNCTION</span> <span class="n">create_constraint_if_not_exists</span> <span class="p">(</span><span class="n">t_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">c_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">constraint_sql</span> <span class="nb">text</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">RETURNS</span> <span class="nb">void</span>
+</span><span class='line'><span class="k">AS</span>
+</span><span class='line'><span class="s">$BODY$</span>
+</span><span class='line'>  <span class="k">begin</span>
+</span><span class='line'>    <span class="c1">-- Look for our constraint</span>
+</span><span class='line'>    <span class="k">if</span> <span class="k">not</span> <span class="k">exists</span> <span class="p">(</span><span class="k">select</span> <span class="n">constraint_name</span>
+</span><span class='line'>                   <span class="k">from</span> <span class="n">information_schema</span><span class="mf">.</span><span class="n">constraint_column_usage</span>
+</span><span class='line'>                   <span class="k">where</span> <span class="n">table_name</span> <span class="o">=</span> <span class="n">t_name</span>  <span class="k">and</span> <span class="n">constraint_name</span> <span class="o">=</span> <span class="n">c_name</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">execute</span> <span class="s1">&#39;ALTER TABLE &#39;</span> <span class="o">||</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39; ADD CONSTRAINT &#39;</span> <span class="o">||</span> <span class="n">c_name</span> <span class="o">||</span> <span class="s1">&#39; &#39;</span> <span class="o">||</span> <span class="n">constraint_sql</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">end</span> <span class="k">if</span><span class="p">;</span>
+</span><span class='line'><span class="k">end</span><span class="p">;</span>
+</span><span class='line'><span class="s">$BODY$</span>
+</span><span class='line'><span class="k">LANGUAGE</span> <span class="n">plpgsql</span> <span class="k">VOLATILE</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now you call it like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_constraint_if_not_exists('foo', 'bar', 'CHECK (foobies &lt; 100);');</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>And it will check the constraint properly by name.  This doesn&rsquo;t stop you from creating multiple constraints with the same criteria and different names though.  That&rsquo;s something you&rsquo;ll need to check for manually (for now).</p>
@@ -558,7 +568,7 @@
 
 <p>The error message I received was similar to this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -576,24 +586,25 @@
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#
-</span><span class='line'># A fatal error has been detected by the Java Runtime Environment:
-</span><span class='line'>#
-</span><span class='line'>#  Internal Error (os_linux_zero.cpp:285), pid=10344, tid=3061261424
-</span><span class='line'>#  fatal error: caught unhandled signal 11
-</span><span class='line'>#
-</span><span class='line'># JRE version: OpenJDK Runtime Environment (7.0_65-b32) (build 1.7.0_65-b32)
-</span><span class='line'># Java VM: OpenJDK Zero VM (24.65-b04 mixed mode linux-arm )
-</span><span class='line'># Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
-</span><span class='line'>#
-</span><span class='line'># An error report file with more information is saved as:
-</span><span class='line'># /home/pi/hs_err_pid10344.log
-</span><span class='line'>#
-</span><span class='line'># If you would like to submit a bug report, please include
-</span><span class='line'># instructions on how to reproduce the bug and visit:
-</span><span class='line'>#   http://icedtea.classpath.org/bugzilla
-</span><span class='line'>#
-</span><span class='line'>Aborted</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> A fatal error has been detected by the Java Runtime Environment:
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span>  Internal Error <span class="o">(</span>os_linux_zero.cpp:285<span class="o">)</span>, <span class="nv">pid</span><span class="o">=</span>10344, <span class="nv">tid</span><span class="o">=</span>3061261424
+</span><span class='line'><span class="gp">#</span>  fatal error: caught unhandled signal 11
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> JRE version: OpenJDK Runtime Environment <span class="o">(</span>7.0_65-b32<span class="o">)</span> <span class="o">(</span>build 1.7.0_65-b32<span class="o">)</span>
+</span><span class='line'><span class="gp">#</span> Java VM: OpenJDK Zero VM <span class="o">(</span>24.65-b04 mixed mode linux-arm <span class="o">)</span>
+</span><span class='line'><span class="gp">#</span> Failed to write core dump. Core dumps have been disabled. To <span class="nb">enable </span>core dumping, try <span class="s2">&quot;ulimit -c unlimited&quot;</span> before starting Java again
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> An error report file with more information is saved as:
+</span><span class='line'><span class="gp">#</span> /home/pi/hs_err_pid10344.log
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> If you would like to submit a bug report, please include
+</span><span class='line'><span class="gp">#</span> instructions on how to reproduce the bug and visit:
+</span><span class='line'><span class="gp">#</span>   http://icedtea.classpath.org/bugzilla
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="go">Aborted</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>I dug and dug and dug and couldn&rsquo;t figure out what was going on.  The most common fix that I saw was to switch to the Oracle JVM.  For this project I didn&rsquo;t want to do that so I scoured the net and came up with the following two options.</p>
@@ -608,28 +619,30 @@
 
 <p>What is really happening behind the scenes?  That gets complex quickly and I still don&rsquo;t know the full answer.  It turns out that this is a known but ignored bug in OpenJDK&rsquo;s Zero VM.  When you run <code>java -version</code> you can see if you&rsquo;re running Zero VM or not like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>pi@raspberrypi ~ $ java -version
-</span><span class='line'>java version "1.7.0_65"
-</span><span class='line'>OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)
-</span><span class='line'>OpenJDK Zero VM (build 24.65-b04, mixed mode)</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -version</span>
+</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
+</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
+</span><span class='line'><span class="go">OpenJDK Zero VM (build 24.65-b04, mixed mode)</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>I don&rsquo;t know why option 1 works.  My guess is that that option disables some kind of optimization.  Looking at <a href="http://cr.openjdk.java.net/~gbenson/zero-10/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp.html">what I think is the corresponding code in Hotspot</a> on line 283 I can see that <code>pthread_attr_getstack</code> is used.  The <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_attr_getstack.html">pthread_attr_getstack documentation</a> says that it can only fail with <code>EINVAL</code> for one reason.  It must be that <code>addr</code> &ldquo;does not refer to an initialized thread attribute object&rdquo;.  I don&rsquo;t have any clue how to fix this though.</p>
 
 <p>Option 2 works because it switches over to <a href="http://jamvm.sourceforge.net/">JamVM</a>.  You can check your JamVM version like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>pi@raspberrypi ~ $ java -jamvm -version
-</span><span class='line'>java version "1.7.0_65"
-</span><span class='line'>OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)
-</span><span class='line'>JamVM (build 1.6.0-devel, inline-threaded interpreter with stack-caching)</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -jamvm -version</span>
+</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
+</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
+</span><span class='line'><span class="go">JamVM (build 1.6.0-devel, inline-threaded interpreter with stack-caching)</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>So, if you&rsquo;re in a similar bind and don&rsquo;t want to install and switch to Oracle&rsquo;s JVM give these options a try.  Post your results in the comments below.</p>
@@ -661,14 +674,16 @@
 
 <p>Case #1:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>console.log(generateFormattedProgress(loop_counter, total_loops));</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Case #2:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>console.log("Loop:" + loop_counter);</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Even if you replace <code>console.log</code> with a function that just immediately returns you will, in most cases, still be forcing the machine to call <code>generateFormattedProgress</code> and perform the string concatenation only to throw the results away.  This is where the overhead comes in.</p>
@@ -679,19 +694,21 @@
 
 <p>Case #1:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>console.log(function(){ return generateFormattedProgress(loop_counter, total_loops);});</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">);});</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Case #2:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>console.log(function(){ return "Loop:" + loop_counter; });</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">;</span> <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Some test code is below to illustrate the difference in performance.  On my machine running 100,000 iterations I get the following results in Chrome 37.0.2062.94:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -705,27 +722,28 @@
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Console.log enabled
-</span><span class='line'>Running: test_normal_console
-</span><span class='line'>Total milliseconds: 1921
-</span><span class='line'>Milliseconds per log: 0.01921
-</span><span class='line'>Running: test_anonymous_function_console
-</span><span class='line'>Total milliseconds: 1917
-</span><span class='line'>Milliseconds per log: 0.01917
-</span><span class='line'>Disabling console.log
-</span><span class='line'>Running: test_normal_console
-</span><span class='line'>Total milliseconds: 16
-</span><span class='line'>Milliseconds per log: 0.00016
-</span><span class='line'>Running: test_anonymous_function_console
-</span><span class='line'>Total milliseconds: 5
-</span><span class='line'>Milliseconds per log: 0.00005</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">Console.log enabled</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1921</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01921</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1917</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01917</span>
+</span><span class='line'><span class="go">Disabling console.log</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 16</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00016</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 5</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00005</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>So here we see that we cut the runtime by at least two orders of magnitude going from a little over 1.9 seconds for each case to less than 20 milliseconds for each case.  Does logging affect your Javascript application enough to use this pattern?  Is this an anti-pattern?  Are you already doing this or something similar?  Post a message in the comments and lets discuss it!</p>
 
 <p>Sample test code:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -828,109 +846,110 @@
 <span class='line-number'>101</span>
 <span class='line-number'>102</span>
 <span class='line-number'>103</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>var test_count = 100000;
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">test_count</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>function get_timestamp() {
-</span><span class='line'>    return new Date().getTime();
-</span><span class='line'>}
+</span><span class='line'><span class="kd">function</span> <span class="nx">get_timestamp</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function write_newline() {
-</span><span class='line'>    document.write("&lt;br/&gt;\n");
-</span><span class='line'>}
+</span><span class='line'><span class="kd">function</span> <span class="nx">write_newline</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&lt;br/&gt;\n&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function display_function_name(caller) {
-</span><span class='line'>    var myName = caller.callee.toString();
-</span><span class='line'>    myName = myName.substr('function '.length);
-</span><span class='line'>    myName = myName.substr(0, myName.indexOf('('));
+</span><span class='line'><span class="kd">function</span> <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">myName</span> <span class="o">=</span> <span class="nx">caller</span><span class="p">.</span><span class="nx">callee</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="s1">&#39;function &#39;</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">));</span>
 </span><span class='line'>
-</span><span class='line'>    document.write("Running: " + myName);
-</span><span class='line'>    write_newline();
-</span><span class='line'>}
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Running: &quot;</span> <span class="o">+</span> <span class="nx">myName</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function show_results(start, stop, count) {
-</span><span class='line'>    var totalMilliseconds = stop - start;
-</span><span class='line'>    var millisecondsPerLog = totalMilliseconds / test_count;
+</span><span class='line'><span class="kd">function</span> <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">totalMilliseconds</span> <span class="o">=</span> <span class="nx">stop</span> <span class="o">-</span> <span class="nx">start</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">millisecondsPerLog</span> <span class="o">=</span> <span class="nx">totalMilliseconds</span> <span class="o">/</span> <span class="nx">test_count</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>    document.write("Total milliseconds: " + totalMilliseconds);
-</span><span class='line'>    write_newline();
-</span><span class='line'>    document.write("Milliseconds per log: " + millisecondsPerLog);
-</span><span class='line'>    write_newline();
-</span><span class='line'>}
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Total milliseconds: &quot;</span> <span class="o">+</span> <span class="nx">totalMilliseconds</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Milliseconds per log: &quot;</span> <span class="o">+</span> <span class="nx">millisecondsPerLog</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function test_normal_console() {
-</span><span class='line'>    display_function_name(arguments);
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_normal_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>    var start = get_timestamp();
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>    for (var loop = 0; loop &lt; test_count; loop++) {
-</span><span class='line'>        console.log("test! " + loop + "test!");
-</span><span class='line'>    }
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>    var stop = get_timestamp();
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>    show_results(start, stop, test_count);
-</span><span class='line'>}
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function test_anonymous_function_console() {
-</span><span class='line'>    display_function_name(arguments);
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_anonymous_function_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>    var start = get_timestamp();
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>    for (var loop = 0; loop &lt; test_count; loop++) {
-</span><span class='line'>        console.log(function () {
-</span><span class='line'>            return "test! " + loop + "test!";
-</span><span class='line'>        });
-</span><span class='line'>    }
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>    var stop = get_timestamp();
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>    show_results(start, stop, test_count);
-</span><span class='line'>}
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>// Store the original console.log function
-</span><span class='line'>var original_console_log = console.log;
+</span><span class='line'><span class="c1">// Store the original console.log function</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">original_console_log</span> <span class="o">=</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>// Call this to enable logging
-</span><span class='line'>function enable_console_logging() {
-</span><span class='line'>    console.log = function (input) {
-</span><span class='line'>        // Why the bind(console)(input)?
-</span><span class='line'>        //
-</span><span class='line'>        // console.log expects "this" to refer to the console object or it crashes with an invocation exception
-</span><span class='line'>        //   See: https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript
+</span><span class='line'><span class="c1">// Call this to enable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">enable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Why the bind(console)(input)?</span>
+</span><span class='line'>        <span class="c1">//</span>
+</span><span class='line'>        <span class="c1">// console.log expects &quot;this&quot; to refer to the console object or it crashes with an invocation exception</span>
+</span><span class='line'>        <span class="c1">//   See: https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript</span>
 </span><span class='line'>
-</span><span class='line'>        // Is this a function?
-</span><span class='line'>        if (typeof input == "function") {
-</span><span class='line'>            // Yes, call the function to get the data to log to the console
-</span><span class='line'>            original_console_log.bind(console)(input());
-</span><span class='line'>        }
-</span><span class='line'>        else {
-</span><span class='line'>            // No, just log it
-</span><span class='line'>            original_console_log.bind(console)(input);
-</span><span class='line'>        }
-</span><span class='line'>    }
-</span><span class='line'>}
+</span><span class='line'>        <span class="c1">// Is this a function?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">input</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Yes, call the function to get the data to log to the console</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// No, just log it</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>// Call this to disable logging
-</span><span class='line'>function disable_console_logging() {
-</span><span class='line'>    console.log = function () {
-</span><span class='line'>    };
-</span><span class='line'>}
+</span><span class='line'><span class="c1">// Call this to disable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">disable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>document.write("Console.log enabled");
-</span><span class='line'>write_newline();
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Console.log enabled&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>enable_console_logging();
+</span><span class='line'><span class="nx">enable_console_logging</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>test_normal_console();
-</span><span class='line'>test_anonymous_function_console();
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>document.write("Disabling console.log");
-</span><span class='line'>write_newline();
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Disabling console.log&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>disable_console_logging();
+</span><span class='line'><span class="nx">disable_console_logging</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>test_normal_console();
-</span><span class='line'>test_anonymous_function_console();</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>
@@ -946,7 +965,7 @@
 
 <p>The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the <code>GuiceJobFactory</code>:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -986,64 +1005,66 @@
 <span class='line-number'>38</span>
 <span class='line-number'>39</span>
 <span class='line-number'>40</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>import com.google.inject.Injector;
-</span><span class='line'>import org.quartz.Job;
-</span><span class='line'>import org.quartz.JobDetail;
-</span><span class='line'>import org.quartz.Scheduler;
-</span><span class='line'>import org.quartz.SchedulerException;
-</span><span class='line'>import org.quartz.spi.JobFactory;
-</span><span class='line'>import org.quartz.spi.TriggerFiredBundle;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Injector</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Job</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.JobDetail</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Scheduler</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.SchedulerException</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.JobFactory</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.TriggerFiredBundle</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>import javax.inject.Inject;
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>/**
-</span><span class='line'> * Created by timmattison on 8/4/14.
-</span><span class='line'> */
-</span><span class='line'>// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/
-</span><span class='line'>final class GuiceJobFactory implements JobFactory {
-</span><span class='line'>    private final Injector guice;
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 8/4/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="c1">// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/</span>
+</span><span class='line'><span class="kd">final</span> <span class="kd">class</span> <span class="nc">GuiceJobFactory</span> <span class="kd">implements</span> <span class="n">JobFactory</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    @Inject
-</span><span class='line'>    public GuiceJobFactory(final Injector guice) {
-</span><span class='line'>        this.guice = guice;
-</span><span class='line'>    }
+</span><span class='line'>    <span class="nd">@Inject</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">GuiceJobFactory</span><span class="o">(</span><span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">guice</span> <span class="o">=</span> <span class="n">guice</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public Job newJob(TriggerFiredBundle triggerFiredBundle, Scheduler scheduler) throws SchedulerException {
-</span><span class='line'>        // Get the job detail so we can get the job class
-</span><span class='line'>        JobDetail jobDetail = triggerFiredBundle.getJobDetail();
-</span><span class='line'>        Class jobClass = jobDetail.getJobClass();
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Job</span> <span class="nf">newJob</span><span class="o">(</span><span class="n">TriggerFiredBundle</span> <span class="n">triggerFiredBundle</span><span class="o">,</span> <span class="n">Scheduler</span> <span class="n">scheduler</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SchedulerException</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Get the job detail so we can get the job class</span>
+</span><span class='line'>        <span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">triggerFiredBundle</span><span class="o">.</span><span class="na">getJobDetail</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Class</span> <span class="n">jobClass</span> <span class="o">=</span> <span class="n">jobDetail</span><span class="o">.</span><span class="na">getJobClass</span><span class="o">();</span>
 </span><span class='line'>
-</span><span class='line'>        try {
-</span><span class='line'>            // Get a new instance of that class from Guice so we can do dependency injection
-</span><span class='line'>            return (Job) guice.getInstance(jobClass);
-</span><span class='line'>        } catch (Exception e) {
-</span><span class='line'>            // Something went wrong.  Print out the stack trace here so SLF4J doesn't hide it.
-</span><span class='line'>            e.printStackTrace();
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Get a new instance of that class from Guice so we can do dependency injection</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">(</span><span class="n">Job</span><span class="o">)</span> <span class="n">guice</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">jobClass</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Something went wrong.  Print out the stack trace here so SLF4J doesn&#39;t hide it.</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
 </span><span class='line'>
-</span><span class='line'>            // Rethrow the exception as an UnsupportedOperationException
-</span><span class='line'>            throw new UnsupportedOperationException(e);
-</span><span class='line'>        }
-</span><span class='line'>    }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>            <span class="c1">// Rethrow the exception as an UnsupportedOperationException</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The <code>GuiceJobFactory</code> gets the Guice injector injected into it.  It then overrides the newJob method and creates each job using the injector it was given.</p>
 
 <p>The next thing you need to do is to use this <code>JobFactory</code> in your <code>Scheduler</code>.  Here&rsquo;s how I built my scheduler and used it to create my first job:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-</span><span class='line'>scheduler.setJobFactory(injector.getInstance(GuiceJobFactory.class));
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Scheduler</span> <span class="n">scheduler</span> <span class="o">=</span> <span class="n">StdSchedulerFactory</span><span class="o">.</span><span class="na">getDefaultScheduler</span><span class="o">();</span>
+</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">setJobFactory</span><span class="o">(</span><span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">GuiceJobFactory</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
 </span><span class='line'>
-</span><span class='line'>scheduler.start();
+</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
 </span><span class='line'>
-</span><span class='line'>JobDetail jobDetail = newJob(MyJob.class).build();</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">newJob</span><span class="o">(</span><span class="n">MyJob</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>
@@ -1242,18 +1263,19 @@
 
 <p>And there you have it.  Back into my beloved directory in no time.  Here&rsquo;s what I added to <code>.bash_profile</code>.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>alias ccd="pwd | pbcopy"
-</span><span class='line'>alias pcd="paste_cd"
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">alias </span><span class="nv">ccd</span><span class="o">=</span><span class="s2">&quot;pwd | pbcopy&quot;</span>
+</span><span class='line'><span class="nb">alias </span><span class="nv">pcd</span><span class="o">=</span><span class="s2">&quot;paste_cd&quot;</span>
 </span><span class='line'>
-</span><span class='line'>function paste_cd() {
-</span><span class='line'>        cd "`pbpaste`"
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="k">function </span>paste_cd<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nb">cd</span> <span class="s2">&quot;`pbpaste`&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The <code>ccd</code> alias just pipes <code>pwd</code> into <code>pbcopy</code>, which is one of the best tools ever, so that it ends up in the clipboard.</p>
@@ -1672,7 +1694,7 @@
 
 <p>The first function makes sure that there is at least one console logger in your logging system.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1699,38 +1721,39 @@
 <span class='line-number'>25</span>
 <span class='line-number'>26</span>
 <span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>public static void forceConsoleLogging() {
-</span><span class='line'>    // Get the root logger instance
-</span><span class='line'>    LogManager logManager = LogManager.getLogManager();
-</span><span class='line'>    Logger rootLogger = logManager.getLogger("");
-</span><span class='line'>    
-</span><span class='line'>    // Set the default logging level to all
-</span><span class='line'>    rootLogger.setLevel(Level.ALL);
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">forceConsoleLogging</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Get the root logger instance</span>
+</span><span class='line'>    <span class="n">LogManager</span> <span class="n">logManager</span> <span class="o">=</span> <span class="n">LogManager</span><span class="o">.</span><span class="na">getLogManager</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">Logger</span> <span class="n">rootLogger</span> <span class="o">=</span> <span class="n">logManager</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>    // Loop and see if a console handler is already installed
-</span><span class='line'>    boolean consoleHandlerInstalled = false;
+</span><span class='line'>    <span class="c1">// Set the default logging level to all</span>
+</span><span class='line'>    <span class="n">rootLogger</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>    for (Handler handler : rootLogger.getHandlers()) {
-</span><span class='line'>        if (handler instanceof ConsoleHandler) {
-</span><span class='line'>            consoleHandlerInstalled = true;
-</span><span class='line'>            break;
-</span><span class='line'>        }
-</span><span class='line'>    }
+</span><span class='line'>    <span class="c1">// Loop and see if a console handler is already installed</span>
+</span><span class='line'>    <span class="kt">boolean</span> <span class="n">consoleHandlerInstalled</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    // Is a console handler already installed?
-</span><span class='line'>    if (consoleHandlerInstalled) {
-</span><span class='line'>        // Yes, do nothing
-</span><span class='line'>        return;
-</span><span class='line'>    }
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">:</span> <span class="n">rootLogger</span><span class="o">.</span><span class="na">getHandlers</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">handler</span> <span class="k">instanceof</span> <span class="n">ConsoleHandler</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">consoleHandlerInstalled</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    // No console handler installed, install one
-</span><span class='line'>    rootLogger.addHandler(new ConsoleHandler());
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    <span class="c1">// Is a console handler already installed?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">consoleHandlerInstalled</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Yes, do nothing</span>
+</span><span class='line'>        <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// No console handler installed, install one</span>
+</span><span class='line'>    <span class="n">rootLogger</span><span class="o">.</span><span class="na">addHandler</span><span class="o">(</span><span class="k">new</span> <span class="n">ConsoleHandler</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The second function is a bit more aggressive.  It iterates over your console loggers and makes sure all of them log everything.  You can use this in a pinch when you&rsquo;re having serious issues and you need to see everything.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1760,36 +1783,37 @@
 <span class='line-number'>28</span>
 <span class='line-number'>29</span>
 <span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>   public static void logEverything() {
-</span><span class='line'>        // Get the logger instance
-</span><span class='line'>        LogManager logManager = LogManager.getLogManager();
-</span><span class='line'>        Logger rootLogger = logManager.getLogger("");
+</pre></td><td class='code'><pre><code class='java'><span class='line'>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logEverything</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Get the logger instance</span>
+</span><span class='line'>        <span class="n">LogManager</span> <span class="n">logManager</span> <span class="o">=</span> <span class="n">LogManager</span><span class="o">.</span><span class="na">getLogManager</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Logger</span> <span class="n">rootLogger</span> <span class="o">=</span> <span class="n">logManager</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>        // Set the default logging level to all
-</span><span class='line'>        rootLogger.setLevel(Level.ALL);
+</span><span class='line'>        <span class="c1">// Set the default logging level to all</span>
+</span><span class='line'>        <span class="n">rootLogger</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>        // Loop and see if any console handlers are already installed
-</span><span class='line'>        List&lt;ConsoleHandler&gt; consoleHandlers = new ArrayList&lt;ConsoleHandler&gt;();
+</span><span class='line'>        <span class="c1">// Loop and see if any console handlers are already installed</span>
+</span><span class='line'>        <span class="n">List</span><span class="o">&lt;</span><span class="n">ConsoleHandler</span><span class="o">&gt;</span> <span class="n">consoleHandlers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">ConsoleHandler</span><span class="o">&gt;();</span>
 </span><span class='line'>
-</span><span class='line'>        for (Handler handler : rootLogger.getHandlers()) {
-</span><span class='line'>            if (handler instanceof ConsoleHandler) {
-</span><span class='line'>                consoleHandlers.add((ConsoleHandler) handler);
-</span><span class='line'>            }
-</span><span class='line'>        }
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">:</span> <span class="n">rootLogger</span><span class="o">.</span><span class="na">getHandlers</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">handler</span> <span class="k">instanceof</span> <span class="n">ConsoleHandler</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">consoleHandlers</span><span class="o">.</span><span class="na">add</span><span class="o">((</span><span class="n">ConsoleHandler</span><span class="o">)</span> <span class="n">handler</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>        // Is a console handler already installed?
-</span><span class='line'>        if (consoleHandlers.size() == 0) {
-</span><span class='line'>            // No, create one.  Add it to the list and to the root logger.
-</span><span class='line'>            Handler consoleHandler = new ConsoleHandler();
-</span><span class='line'>            consoleHandlers.add((ConsoleHandler) consoleHandler);
-</span><span class='line'>            rootLogger.addHandler(consoleHandler);
-</span><span class='line'>        }
+</span><span class='line'>        <span class="c1">// Is a console handler already installed?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">consoleHandlers</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// No, create one.  Add it to the list and to the root logger.</span>
+</span><span class='line'>            <span class="n">Handler</span> <span class="n">consoleHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConsoleHandler</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">consoleHandlers</span><span class="o">.</span><span class="na">add</span><span class="o">((</span><span class="n">ConsoleHandler</span><span class="o">)</span> <span class="n">consoleHandler</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">rootLogger</span><span class="o">.</span><span class="na">addHandler</span><span class="o">(</span><span class="n">consoleHandler</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>        // Loop through all console handlers and make them log everything
-</span><span class='line'>        for (ConsoleHandler consoleHandler : consoleHandlers) {
-</span><span class='line'>            consoleHandler.setLevel(Level.ALL);
-</span><span class='line'>        }
-</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>        <span class="c1">// Loop through all console handlers and make them log everything</span>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">ConsoleHandler</span> <span class="n">consoleHandler</span> <span class="o">:</span> <span class="n">consoleHandlers</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">consoleHandler</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>If you do this be prepared to see TONS of output including output from all of the libraries you use.  Most of the time this is overkill.  But sometimes when the logger just won&rsquo;t do what you want no matter how hard you try this will save your sanity.</p>
@@ -2077,7 +2101,7 @@
 
 <p>And here&rsquo;s the script&hellip; don&rsquo;t forget to install Paramiko!</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -2146,75 +2170,76 @@
 <span class='line-number'>67</span>
 <span class='line-number'>68</span>
 <span class='line-number'>69</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/env python
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
 </span><span class='line'>
-</span><span class='line'>__author__ = 'timmattison'
+</span><span class='line'><span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;timmattison&#39;</span>
 </span><span class='line'>
-</span><span class='line'>import paramiko
-</span><span class='line'>import sys
-</span><span class='line'>import time
+</span><span class='line'><span class="kn">import</span> <span class="nn">paramiko</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">time</span>
 </span><span class='line'>
-</span><span class='line'>root_command = "whoami\n"
-</span><span class='line'>root_command_result = "root"
+</span><span class='line'><span class="n">root_command</span> <span class="o">=</span> <span class="s">&quot;whoami</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'><span class="n">root_command_result</span> <span class="o">=</span> <span class="s">&quot;root&quot;</span>
 </span><span class='line'>
-</span><span class='line'>def send_string_and_wait(command, wait_time, should_print):
-</span><span class='line'>    # Send the su command
-</span><span class='line'>    shell.send(command)
+</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_time</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Send the su command</span>
+</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Wait a bit, if necessary
-</span><span class='line'>    time.sleep(wait_time)
+</span><span class='line'>    <span class="c"># Wait a bit, if necessary</span>
+</span><span class='line'>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Flush the receive buffer
-</span><span class='line'>    receive_buffer = shell.recv(1024)
+</span><span class='line'>    <span class="c"># Flush the receive buffer</span>
+</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Print the receive buffer, if necessary
-</span><span class='line'>    if should_print:
-</span><span class='line'>        print receive_buffer
+</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
 </span><span class='line'>
-</span><span class='line'>def send_string_and_wait_for_string(command, wait_string, should_print):
-</span><span class='line'>    # Send the su command
-</span><span class='line'>    shell.send(command)
+</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_string</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Send the su command</span>
+</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Create a new receive buffer
-</span><span class='line'>    receive_buffer = ""
+</span><span class='line'>    <span class="c"># Create a new receive buffer</span>
+</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
 </span><span class='line'>
-</span><span class='line'>    while not wait_string in receive_buffer:
-</span><span class='line'>        # Flush the receive buffer
-</span><span class='line'>        receive_buffer += shell.recv(1024)
+</span><span class='line'>    <span class="k">while</span> <span class="ow">not</span> <span class="n">wait_string</span> <span class="ow">in</span> <span class="n">receive_buffer</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Flush the receive buffer</span>
+</span><span class='line'>        <span class="n">receive_buffer</span> <span class="o">+=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Print the receive buffer, if necessary
-</span><span class='line'>    if should_print:
-</span><span class='line'>        print receive_buffer
+</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
 </span><span class='line'>
-</span><span class='line'># Get the command-line arguments
-</span><span class='line'>system_ip = sys.argv[1]
-</span><span class='line'>system_username = sys.argv[2]
-</span><span class='line'>system_ssh_password = sys.argv[3]
-</span><span class='line'>system_su_password = sys.argv[4]
+</span><span class='line'><span class="c"># Get the command-line arguments</span>
+</span><span class='line'><span class="n">system_ip</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'><span class="n">system_username</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span><span class='line'><span class="n">system_ssh_password</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span><span class='line'><span class="n">system_su_password</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
 </span><span class='line'>
-</span><span class='line'># Create an SSH client
-</span><span class='line'>client = paramiko.SSHClient()
+</span><span class='line'><span class="c"># Create an SSH client</span>
+</span><span class='line'><span class="n">client</span> <span class="o">=</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="p">()</span>
 </span><span class='line'>
-</span><span class='line'># Make sure that we add the remote server's SSH key automatically
-</span><span class='line'>client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+</span><span class='line'><span class="c"># Make sure that we add the remote server&#39;s SSH key automatically</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">set_missing_host_key_policy</span><span class="p">(</span><span class="n">paramiko</span><span class="o">.</span><span class="n">AutoAddPolicy</span><span class="p">())</span>
 </span><span class='line'>
-</span><span class='line'># Connect to the client
-</span><span class='line'>client.connect(system_ip, username=system_username, password=system_ssh_password)
+</span><span class='line'><span class="c"># Connect to the client</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">system_ip</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">system_username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">system_ssh_password</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'># Create a raw shell
-</span><span class='line'>shell = client.invoke_shell()
+</span><span class='line'><span class="c"># Create a raw shell</span>
+</span><span class='line'><span class="n">shell</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke_shell</span><span class="p">()</span>
 </span><span class='line'>
-</span><span class='line'># Send the su command
-</span><span class='line'>send_string_and_wait("su\n", 1, True)
+</span><span class='line'><span class="c"># Send the su command</span>
+</span><span class='line'><span class="n">send_string_and_wait</span><span class="p">(</span><span class="s">&quot;su</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'># Send the client's su password followed by a newline
-</span><span class='line'>send_string_and_wait(system_su_password + "\n", 1, True)
+</span><span class='line'><span class="c"># Send the client&#39;s su password followed by a newline</span>
+</span><span class='line'><span class="n">send_string_and_wait</span><span class="p">(</span><span class="n">system_su_password</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'># Send the install command followed by a newline and wait for the done string
-</span><span class='line'>send_string_and_wait_for_string(root_command, root_command_result, True)
+</span><span class='line'><span class="c"># Send the install command followed by a newline and wait for the done string</span>
+</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">root_command</span><span class="p">,</span> <span class="n">root_command_result</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'># Close the SSH connection
-</span><span class='line'>client.close()</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="c"># Close the SSH connection</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>

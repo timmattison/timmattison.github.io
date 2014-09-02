@@ -112,7 +112,7 @@
 
 <p>I didn&rsquo;t like the fact that the code asked for the table name and constraint name but then didn&rsquo;t use it in the SQL statement.  Leaving it like this means that someone could write this (note that foo becomes foo2 and bar becomes bar2 in the first two parameters):</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -121,22 +121,23 @@
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_constraint_if_not_exists(
-</span><span class='line'>        'foo',
-</span><span class='line'>        'bar',
-</span><span class='line'>        'ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);');
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>SELECT create_constraint_if_not_exists(
-</span><span class='line'>        'foo2',
-</span><span class='line'>        'bar2',
-</span><span class='line'>        'ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);');</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo2&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar2&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>And they would get an exception rather than having the constraint creation be skipped which could break a lot of things that expect this function to be safe.</p>
 
 <p>They also could do this (note that foo becomes foo2 and bar becomes bar2 in the constraint SQL):</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -145,22 +146,23 @@
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_constraint_if_not_exists(
-</span><span class='line'>        'foo',
-</span><span class='line'>        'bar',
-</span><span class='line'>        'ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);');
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>SELECT create_constraint_if_not_exists(
-</span><span class='line'>        'foo',
-</span><span class='line'>        'bar',
-</span><span class='line'>        'ALTER TABLE foo2 ADD CONSTRAINT bar2 CHECK (foobies &lt; 100);');</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo2 ADD CONSTRAINT bar2 CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>This could be even worse because a constraint wouldn&rsquo;t be created.</p>
 
 <p>My solution was to modify this script slightly:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -174,26 +176,28 @@
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>CREATE OR REPLACE FUNCTION create_constraint_if_not_exists (t_name text, c_name text, constraint_sql text)
-</span><span class='line'>  RETURNS void
-</span><span class='line'>AS
-</span><span class='line'>$BODY$
-</span><span class='line'>  begin
-</span><span class='line'>    -- Look for our constraint
-</span><span class='line'>    if not exists (select constraint_name 
-</span><span class='line'>                   from information_schema.constraint_column_usage 
-</span><span class='line'>                   where table_name = t_name  and constraint_name = c_name) then
-</span><span class='line'>        execute 'ALTER TABLE ' || t_name || ' ADD CONSTRAINT ' || c_name || ' ' || constraint_sql;
-</span><span class='line'>    end if;
-</span><span class='line'>end;
-</span><span class='line'>$BODY$
-</span><span class='line'>LANGUAGE plpgsql VOLATILE;</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='plpgsql'><span class='line'><span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">FUNCTION</span> <span class="n">create_constraint_if_not_exists</span> <span class="p">(</span><span class="n">t_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">c_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">constraint_sql</span> <span class="nb">text</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">RETURNS</span> <span class="nb">void</span>
+</span><span class='line'><span class="k">AS</span>
+</span><span class='line'><span class="s">$BODY$</span>
+</span><span class='line'>  <span class="k">begin</span>
+</span><span class='line'>    <span class="c1">-- Look for our constraint</span>
+</span><span class='line'>    <span class="k">if</span> <span class="k">not</span> <span class="k">exists</span> <span class="p">(</span><span class="k">select</span> <span class="n">constraint_name</span>
+</span><span class='line'>                   <span class="k">from</span> <span class="n">information_schema</span><span class="mf">.</span><span class="n">constraint_column_usage</span>
+</span><span class='line'>                   <span class="k">where</span> <span class="n">table_name</span> <span class="o">=</span> <span class="n">t_name</span>  <span class="k">and</span> <span class="n">constraint_name</span> <span class="o">=</span> <span class="n">c_name</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">execute</span> <span class="s1">&#39;ALTER TABLE &#39;</span> <span class="o">||</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39; ADD CONSTRAINT &#39;</span> <span class="o">||</span> <span class="n">c_name</span> <span class="o">||</span> <span class="s1">&#39; &#39;</span> <span class="o">||</span> <span class="n">constraint_sql</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">end</span> <span class="k">if</span><span class="p">;</span>
+</span><span class='line'><span class="k">end</span><span class="p">;</span>
+</span><span class='line'><span class="s">$BODY$</span>
+</span><span class='line'><span class="k">LANGUAGE</span> <span class="n">plpgsql</span> <span class="k">VOLATILE</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now you call it like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_constraint_if_not_exists('foo', 'bar', 'CHECK (foobies &lt; 100);');</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>And it will check the constraint properly by name.  This doesn&rsquo;t stop you from creating multiple constraints with the same criteria and different names though.  That&rsquo;s something you&rsquo;ll need to check for manually (for now).</p>

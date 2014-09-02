@@ -126,14 +126,16 @@
 
 <p>Case #1:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>console.log(generateFormattedProgress(loop_counter, total_loops));</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Case #2:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>console.log("Loop:" + loop_counter);</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Even if you replace <code>console.log</code> with a function that just immediately returns you will, in most cases, still be forcing the machine to call <code>generateFormattedProgress</code> and perform the string concatenation only to throw the results away.  This is where the overhead comes in.</p>
@@ -144,19 +146,21 @@
 
 <p>Case #1:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>console.log(function(){ return generateFormattedProgress(loop_counter, total_loops);});</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">);});</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Case #2:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>console.log(function(){ return "Loop:" + loop_counter; });</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">;</span> <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Some test code is below to illustrate the difference in performance.  On my machine running 100,000 iterations I get the following results in Chrome 37.0.2062.94:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -170,27 +174,28 @@
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Console.log enabled
-</span><span class='line'>Running: test_normal_console
-</span><span class='line'>Total milliseconds: 1921
-</span><span class='line'>Milliseconds per log: 0.01921
-</span><span class='line'>Running: test_anonymous_function_console
-</span><span class='line'>Total milliseconds: 1917
-</span><span class='line'>Milliseconds per log: 0.01917
-</span><span class='line'>Disabling console.log
-</span><span class='line'>Running: test_normal_console
-</span><span class='line'>Total milliseconds: 16
-</span><span class='line'>Milliseconds per log: 0.00016
-</span><span class='line'>Running: test_anonymous_function_console
-</span><span class='line'>Total milliseconds: 5
-</span><span class='line'>Milliseconds per log: 0.00005</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">Console.log enabled</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1921</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01921</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1917</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01917</span>
+</span><span class='line'><span class="go">Disabling console.log</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 16</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00016</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 5</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00005</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>So here we see that we cut the runtime by at least two orders of magnitude going from a little over 1.9 seconds for each case to less than 20 milliseconds for each case.  Does logging affect your Javascript application enough to use this pattern?  Is this an anti-pattern?  Are you already doing this or something similar?  Post a message in the comments and lets discuss it!</p>
 
 <p>Sample test code:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -293,109 +298,110 @@
 <span class='line-number'>101</span>
 <span class='line-number'>102</span>
 <span class='line-number'>103</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>var test_count = 100000;
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">test_count</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>function get_timestamp() {
-</span><span class='line'>    return new Date().getTime();
-</span><span class='line'>}
+</span><span class='line'><span class="kd">function</span> <span class="nx">get_timestamp</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function write_newline() {
-</span><span class='line'>    document.write("&lt;br/&gt;\n");
-</span><span class='line'>}
+</span><span class='line'><span class="kd">function</span> <span class="nx">write_newline</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&lt;br/&gt;\n&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function display_function_name(caller) {
-</span><span class='line'>    var myName = caller.callee.toString();
-</span><span class='line'>    myName = myName.substr('function '.length);
-</span><span class='line'>    myName = myName.substr(0, myName.indexOf('('));
+</span><span class='line'><span class="kd">function</span> <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">myName</span> <span class="o">=</span> <span class="nx">caller</span><span class="p">.</span><span class="nx">callee</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="s1">&#39;function &#39;</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">));</span>
 </span><span class='line'>
-</span><span class='line'>    document.write("Running: " + myName);
-</span><span class='line'>    write_newline();
-</span><span class='line'>}
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Running: &quot;</span> <span class="o">+</span> <span class="nx">myName</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function show_results(start, stop, count) {
-</span><span class='line'>    var totalMilliseconds = stop - start;
-</span><span class='line'>    var millisecondsPerLog = totalMilliseconds / test_count;
+</span><span class='line'><span class="kd">function</span> <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">totalMilliseconds</span> <span class="o">=</span> <span class="nx">stop</span> <span class="o">-</span> <span class="nx">start</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">millisecondsPerLog</span> <span class="o">=</span> <span class="nx">totalMilliseconds</span> <span class="o">/</span> <span class="nx">test_count</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>    document.write("Total milliseconds: " + totalMilliseconds);
-</span><span class='line'>    write_newline();
-</span><span class='line'>    document.write("Milliseconds per log: " + millisecondsPerLog);
-</span><span class='line'>    write_newline();
-</span><span class='line'>}
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Total milliseconds: &quot;</span> <span class="o">+</span> <span class="nx">totalMilliseconds</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Milliseconds per log: &quot;</span> <span class="o">+</span> <span class="nx">millisecondsPerLog</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function test_normal_console() {
-</span><span class='line'>    display_function_name(arguments);
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_normal_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>    var start = get_timestamp();
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>    for (var loop = 0; loop &lt; test_count; loop++) {
-</span><span class='line'>        console.log("test! " + loop + "test!");
-</span><span class='line'>    }
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>    var stop = get_timestamp();
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>    show_results(start, stop, test_count);
-</span><span class='line'>}
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>function test_anonymous_function_console() {
-</span><span class='line'>    display_function_name(arguments);
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_anonymous_function_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>    var start = get_timestamp();
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>    for (var loop = 0; loop &lt; test_count; loop++) {
-</span><span class='line'>        console.log(function () {
-</span><span class='line'>            return "test! " + loop + "test!";
-</span><span class='line'>        });
-</span><span class='line'>    }
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>    var stop = get_timestamp();
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>    show_results(start, stop, test_count);
-</span><span class='line'>}
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>// Store the original console.log function
-</span><span class='line'>var original_console_log = console.log;
+</span><span class='line'><span class="c1">// Store the original console.log function</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">original_console_log</span> <span class="o">=</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>// Call this to enable logging
-</span><span class='line'>function enable_console_logging() {
-</span><span class='line'>    console.log = function (input) {
-</span><span class='line'>        // Why the bind(console)(input)?
-</span><span class='line'>        //
-</span><span class='line'>        // console.log expects "this" to refer to the console object or it crashes with an invocation exception
-</span><span class='line'>        //   See: https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript
+</span><span class='line'><span class="c1">// Call this to enable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">enable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Why the bind(console)(input)?</span>
+</span><span class='line'>        <span class="c1">//</span>
+</span><span class='line'>        <span class="c1">// console.log expects &quot;this&quot; to refer to the console object or it crashes with an invocation exception</span>
+</span><span class='line'>        <span class="c1">//   See: https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript</span>
 </span><span class='line'>
-</span><span class='line'>        // Is this a function?
-</span><span class='line'>        if (typeof input == "function") {
-</span><span class='line'>            // Yes, call the function to get the data to log to the console
-</span><span class='line'>            original_console_log.bind(console)(input());
-</span><span class='line'>        }
-</span><span class='line'>        else {
-</span><span class='line'>            // No, just log it
-</span><span class='line'>            original_console_log.bind(console)(input);
-</span><span class='line'>        }
-</span><span class='line'>    }
-</span><span class='line'>}
+</span><span class='line'>        <span class="c1">// Is this a function?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">input</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Yes, call the function to get the data to log to the console</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// No, just log it</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>// Call this to disable logging
-</span><span class='line'>function disable_console_logging() {
-</span><span class='line'>    console.log = function () {
-</span><span class='line'>    };
-</span><span class='line'>}
+</span><span class='line'><span class="c1">// Call this to disable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">disable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>document.write("Console.log enabled");
-</span><span class='line'>write_newline();
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Console.log enabled&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>enable_console_logging();
+</span><span class='line'><span class="nx">enable_console_logging</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>test_normal_console();
-</span><span class='line'>test_anonymous_function_console();
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>document.write("Disabling console.log");
-</span><span class='line'>write_newline();
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Disabling console.log&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>disable_console_logging();
+</span><span class='line'><span class="nx">disable_console_logging</span><span class="p">();</span>
 </span><span class='line'>
-</span><span class='line'>test_normal_console();
-</span><span class='line'>test_anonymous_function_console();</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
 
 </div>
 

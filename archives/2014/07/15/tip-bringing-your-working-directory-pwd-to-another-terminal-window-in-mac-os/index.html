@@ -132,18 +132,19 @@
 
 <p>And there you have it.  Back into my beloved directory in no time.  Here&rsquo;s what I added to <code>.bash_profile</code>.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>alias ccd="pwd | pbcopy"
-</span><span class='line'>alias pcd="paste_cd"
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">alias </span><span class="nv">ccd</span><span class="o">=</span><span class="s2">&quot;pwd | pbcopy&quot;</span>
+</span><span class='line'><span class="nb">alias </span><span class="nv">pcd</span><span class="o">=</span><span class="s2">&quot;paste_cd&quot;</span>
 </span><span class='line'>
-</span><span class='line'>function paste_cd() {
-</span><span class='line'>        cd "`pbpaste`"
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="k">function </span>paste_cd<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nb">cd</span> <span class="s2">&quot;`pbpaste`&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The <code>ccd</code> alias just pipes <code>pwd</code> into <code>pbcopy</code>, which is one of the best tools ever, so that it ends up in the clipboard.</p>

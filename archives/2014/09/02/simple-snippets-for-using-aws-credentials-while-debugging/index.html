@@ -114,7 +114,7 @@
 
 <p>Anyway, if you want to use static IAM user credentials you can use a credentials provider like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -153,50 +153,51 @@
 <span class='line-number'>37</span>
 <span class='line-number'>38</span>
 <span class='line-number'>39</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.auth.AWSCredentials;
-</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
-</span><span class='line'>import com.google.inject.Inject;
-</span><span class='line'>import com.google.inject.assistedinject.Assisted;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Inject</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.assistedinject.Assisted</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>/**
-</span><span class='line'> * Created by timmattison on 9/2/14.
-</span><span class='line'> */
-</span><span class='line'>public class TempNonStsCredentialsProvider implements AWSCredentialsProvider {
-</span><span class='line'>    private final String awsAccessKeyId;
-</span><span class='line'>    private final String awsSecretKey;
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TempNonStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSecretKey</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    @Inject
-</span><span class='line'>    public TempNonStsCredentialsProvider(@Assisted("awsAccessKeyId") String awsAccessKeyId,
-</span><span class='line'>                                         @Assisted("awsSecretKey") String awsSecretKey) {
-</span><span class='line'>        this.awsAccessKeyId = awsAccessKeyId;
-</span><span class='line'>        this.awsSecretKey = awsSecretKey;
-</span><span class='line'>    }
+</span><span class='line'>    <span class="nd">@Inject</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">TempNonStsCredentialsProvider</span><span class="o">(</span><span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsAccessKeyId&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">,</span>
+</span><span class='line'>                                         <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSecretKey&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSecretKey</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsAccessKeyId</span> <span class="o">=</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSecretKey</span> <span class="o">=</span> <span class="n">awsSecretKey</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public AWSCredentials getCredentials() {
-</span><span class='line'>        return new AWSCredentials() {
-</span><span class='line'>            @Override
-</span><span class='line'>            public String getAWSAccessKeyId() {
-</span><span class='line'>                return awsAccessKeyId;
-</span><span class='line'>            }
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">new</span> <span class="nf">AWSCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="n">String</span> <span class="nf">getAWSAccessKeyId</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>            @Override
-</span><span class='line'>            public String getAWSSecretKey() {
-</span><span class='line'>                return awsSecretKey;
-</span><span class='line'>            }
-</span><span class='line'>        };
-</span><span class='line'>    }
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="n">String</span> <span class="nf">getAWSSecretKey</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">awsSecretKey</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">};</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public void refresh() {
-</span><span class='line'>        // Do nothing
-</span><span class='line'>    }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Do nothing</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Pass in your credentials and you&rsquo;re good to go.  If you&rsquo;re using <a href="http://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html">STS</a> it requires a little bit more work.  Use this instead:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -241,51 +242,52 @@
 <span class='line-number'>43</span>
 <span class='line-number'>44</span>
 <span class='line-number'>45</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.auth.AWSCredentials;
-</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
-</span><span class='line'>import com.amazonaws.auth.BasicSessionCredentials;
-</span><span class='line'>import com.amazonaws.services.securitytoken.model.Credentials;
-</span><span class='line'>import com.google.inject.assistedinject.Assisted;
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.BasicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.services.securitytoken.model.Credentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.assistedinject.Assisted</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>import javax.inject.Inject;
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>/**
-</span><span class='line'> * Created by timmattison on 9/2/14.
-</span><span class='line'> */
-</span><span class='line'>public class TempStsCredentialsProvider implements AWSCredentialsProvider {
-</span><span class='line'>    private final String awsAccessKeyId;
-</span><span class='line'>    private final String awsSecretAccessKey;
-</span><span class='line'>    private final String awsSessionToken;
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TempStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSecretAccessKey</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSessionToken</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    @Inject
-</span><span class='line'>    public TempStsCredentialsProvider(@Assisted("awsAccessKeyId") String awsAccessKeyId,
-</span><span class='line'>                                      @Assisted("awsSecretAccessKey") String awsSecretAccessKey,
-</span><span class='line'>                                      @Assisted("awsSessionToken") String awsSessionToken) {
-</span><span class='line'>        this.awsAccessKeyId = awsAccessKeyId;
-</span><span class='line'>        this.awsSecretAccessKey = awsSecretAccessKey;
-</span><span class='line'>        this.awsSessionToken = awsSessionToken;
-</span><span class='line'>    }
+</span><span class='line'>    <span class="nd">@Inject</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">TempStsCredentialsProvider</span><span class="o">(</span><span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsAccessKeyId&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSecretAccessKey&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSecretAccessKey</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSessionToken&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSessionToken</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsAccessKeyId</span> <span class="o">=</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSecretAccessKey</span> <span class="o">=</span> <span class="n">awsSecretAccessKey</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSessionToken</span> <span class="o">=</span> <span class="n">awsSessionToken</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public AWSCredentials getCredentials() {
-</span><span class='line'>        Credentials sessionCredentials = new Credentials();
-</span><span class='line'>        sessionCredentials.setAccessKeyId(awsAccessKeyId);
-</span><span class='line'>        sessionCredentials.setSecretAccessKey(awsSecretAccessKey);
-</span><span class='line'>        sessionCredentials.setSessionToken(awsSessionToken);
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Credentials</span> <span class="n">sessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Credentials</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setAccessKeyId</span><span class="o">(</span><span class="n">awsAccessKeyId</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSecretAccessKey</span><span class="o">(</span><span class="n">awsSecretAccessKey</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSessionToken</span><span class="o">(</span><span class="n">awsSessionToken</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>        BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
-</span><span class='line'>                sessionCredentials.getAccessKeyId(),
-</span><span class='line'>                sessionCredentials.getSecretAccessKey(),
-</span><span class='line'>                sessionCredentials.getSessionToken());
+</span><span class='line'>        <span class="n">BasicSessionCredentials</span> <span class="n">basicSessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BasicSessionCredentials</span><span class="o">(</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getAccessKeyId</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSecretAccessKey</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSessionToken</span><span class="o">());</span>
 </span><span class='line'>
-</span><span class='line'>        return basicSessionCredentials;
-</span><span class='line'>    }
+</span><span class='line'>        <span class="k">return</span> <span class="n">basicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    @Override
-</span><span class='line'>    public void refresh() {
-</span><span class='line'>      // Do nothing
-</span><span class='line'>    }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// Do nothing</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now you just need to pass in the extra session token parameter and then you can use this to provide credentials to your AWS calls.</p>

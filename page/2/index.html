@@ -572,7 +572,7 @@
 
 <p>The first function makes sure that there is at least one console logger in your logging system.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -599,38 +599,39 @@
 <span class='line-number'>25</span>
 <span class='line-number'>26</span>
 <span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>public static void forceConsoleLogging() {
-</span><span class='line'>    // Get the root logger instance
-</span><span class='line'>    LogManager logManager = LogManager.getLogManager();
-</span><span class='line'>    Logger rootLogger = logManager.getLogger("");
-</span><span class='line'>    
-</span><span class='line'>    // Set the default logging level to all
-</span><span class='line'>    rootLogger.setLevel(Level.ALL);
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">forceConsoleLogging</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Get the root logger instance</span>
+</span><span class='line'>    <span class="n">LogManager</span> <span class="n">logManager</span> <span class="o">=</span> <span class="n">LogManager</span><span class="o">.</span><span class="na">getLogManager</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">Logger</span> <span class="n">rootLogger</span> <span class="o">=</span> <span class="n">logManager</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>    // Loop and see if a console handler is already installed
-</span><span class='line'>    boolean consoleHandlerInstalled = false;
+</span><span class='line'>    <span class="c1">// Set the default logging level to all</span>
+</span><span class='line'>    <span class="n">rootLogger</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>    for (Handler handler : rootLogger.getHandlers()) {
-</span><span class='line'>        if (handler instanceof ConsoleHandler) {
-</span><span class='line'>            consoleHandlerInstalled = true;
-</span><span class='line'>            break;
-</span><span class='line'>        }
-</span><span class='line'>    }
+</span><span class='line'>    <span class="c1">// Loop and see if a console handler is already installed</span>
+</span><span class='line'>    <span class="kt">boolean</span> <span class="n">consoleHandlerInstalled</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
 </span><span class='line'>
-</span><span class='line'>    // Is a console handler already installed?
-</span><span class='line'>    if (consoleHandlerInstalled) {
-</span><span class='line'>        // Yes, do nothing
-</span><span class='line'>        return;
-</span><span class='line'>    }
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">:</span> <span class="n">rootLogger</span><span class="o">.</span><span class="na">getHandlers</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">handler</span> <span class="k">instanceof</span> <span class="n">ConsoleHandler</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">consoleHandlerInstalled</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>    // No console handler installed, install one
-</span><span class='line'>    rootLogger.addHandler(new ConsoleHandler());
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    <span class="c1">// Is a console handler already installed?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">consoleHandlerInstalled</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Yes, do nothing</span>
+</span><span class='line'>        <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// No console handler installed, install one</span>
+</span><span class='line'>    <span class="n">rootLogger</span><span class="o">.</span><span class="na">addHandler</span><span class="o">(</span><span class="k">new</span> <span class="n">ConsoleHandler</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The second function is a bit more aggressive.  It iterates over your console loggers and makes sure all of them log everything.  You can use this in a pinch when you&rsquo;re having serious issues and you need to see everything.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -660,36 +661,37 @@
 <span class='line-number'>28</span>
 <span class='line-number'>29</span>
 <span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>   public static void logEverything() {
-</span><span class='line'>        // Get the logger instance
-</span><span class='line'>        LogManager logManager = LogManager.getLogManager();
-</span><span class='line'>        Logger rootLogger = logManager.getLogger("");
+</pre></td><td class='code'><pre><code class='java'><span class='line'>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logEverything</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Get the logger instance</span>
+</span><span class='line'>        <span class="n">LogManager</span> <span class="n">logManager</span> <span class="o">=</span> <span class="n">LogManager</span><span class="o">.</span><span class="na">getLogManager</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Logger</span> <span class="n">rootLogger</span> <span class="o">=</span> <span class="n">logManager</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>        // Set the default logging level to all
-</span><span class='line'>        rootLogger.setLevel(Level.ALL);
+</span><span class='line'>        <span class="c1">// Set the default logging level to all</span>
+</span><span class='line'>        <span class="n">rootLogger</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'>        // Loop and see if any console handlers are already installed
-</span><span class='line'>        List&lt;ConsoleHandler&gt; consoleHandlers = new ArrayList&lt;ConsoleHandler&gt;();
+</span><span class='line'>        <span class="c1">// Loop and see if any console handlers are already installed</span>
+</span><span class='line'>        <span class="n">List</span><span class="o">&lt;</span><span class="n">ConsoleHandler</span><span class="o">&gt;</span> <span class="n">consoleHandlers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">ConsoleHandler</span><span class="o">&gt;();</span>
 </span><span class='line'>
-</span><span class='line'>        for (Handler handler : rootLogger.getHandlers()) {
-</span><span class='line'>            if (handler instanceof ConsoleHandler) {
-</span><span class='line'>                consoleHandlers.add((ConsoleHandler) handler);
-</span><span class='line'>            }
-</span><span class='line'>        }
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">:</span> <span class="n">rootLogger</span><span class="o">.</span><span class="na">getHandlers</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">handler</span> <span class="k">instanceof</span> <span class="n">ConsoleHandler</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">consoleHandlers</span><span class="o">.</span><span class="na">add</span><span class="o">((</span><span class="n">ConsoleHandler</span><span class="o">)</span> <span class="n">handler</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>        // Is a console handler already installed?
-</span><span class='line'>        if (consoleHandlers.size() == 0) {
-</span><span class='line'>            // No, create one.  Add it to the list and to the root logger.
-</span><span class='line'>            Handler consoleHandler = new ConsoleHandler();
-</span><span class='line'>            consoleHandlers.add((ConsoleHandler) consoleHandler);
-</span><span class='line'>            rootLogger.addHandler(consoleHandler);
-</span><span class='line'>        }
+</span><span class='line'>        <span class="c1">// Is a console handler already installed?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">consoleHandlers</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// No, create one.  Add it to the list and to the root logger.</span>
+</span><span class='line'>            <span class="n">Handler</span> <span class="n">consoleHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConsoleHandler</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">consoleHandlers</span><span class="o">.</span><span class="na">add</span><span class="o">((</span><span class="n">ConsoleHandler</span><span class="o">)</span> <span class="n">consoleHandler</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">rootLogger</span><span class="o">.</span><span class="na">addHandler</span><span class="o">(</span><span class="n">consoleHandler</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>        // Loop through all console handlers and make them log everything
-</span><span class='line'>        for (ConsoleHandler consoleHandler : consoleHandlers) {
-</span><span class='line'>            consoleHandler.setLevel(Level.ALL);
-</span><span class='line'>        }
-</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>        <span class="c1">// Loop through all console handlers and make them log everything</span>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">ConsoleHandler</span> <span class="n">consoleHandler</span> <span class="o">:</span> <span class="n">consoleHandlers</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">consoleHandler</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>If you do this be prepared to see TONS of output including output from all of the libraries you use.  Most of the time this is overkill.  But sometimes when the logger just won&rsquo;t do what you want no matter how hard you try this will save your sanity.</p>
@@ -1187,7 +1189,7 @@
 
 <p>And here&rsquo;s the script&hellip; don&rsquo;t forget to install Paramiko!</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -1256,75 +1258,76 @@
 <span class='line-number'>67</span>
 <span class='line-number'>68</span>
 <span class='line-number'>69</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/env python
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
 </span><span class='line'>
-</span><span class='line'>__author__ = 'timmattison'
+</span><span class='line'><span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;timmattison&#39;</span>
 </span><span class='line'>
-</span><span class='line'>import paramiko
-</span><span class='line'>import sys
-</span><span class='line'>import time
+</span><span class='line'><span class="kn">import</span> <span class="nn">paramiko</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">time</span>
 </span><span class='line'>
-</span><span class='line'>root_command = "whoami\n"
-</span><span class='line'>root_command_result = "root"
+</span><span class='line'><span class="n">root_command</span> <span class="o">=</span> <span class="s">&quot;whoami</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'><span class="n">root_command_result</span> <span class="o">=</span> <span class="s">&quot;root&quot;</span>
 </span><span class='line'>
-</span><span class='line'>def send_string_and_wait(command, wait_time, should_print):
-</span><span class='line'>    # Send the su command
-</span><span class='line'>    shell.send(command)
+</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_time</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Send the su command</span>
+</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Wait a bit, if necessary
-</span><span class='line'>    time.sleep(wait_time)
+</span><span class='line'>    <span class="c"># Wait a bit, if necessary</span>
+</span><span class='line'>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Flush the receive buffer
-</span><span class='line'>    receive_buffer = shell.recv(1024)
+</span><span class='line'>    <span class="c"># Flush the receive buffer</span>
+</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Print the receive buffer, if necessary
-</span><span class='line'>    if should_print:
-</span><span class='line'>        print receive_buffer
+</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
 </span><span class='line'>
-</span><span class='line'>def send_string_and_wait_for_string(command, wait_string, should_print):
-</span><span class='line'>    # Send the su command
-</span><span class='line'>    shell.send(command)
+</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_string</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Send the su command</span>
+</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Create a new receive buffer
-</span><span class='line'>    receive_buffer = ""
+</span><span class='line'>    <span class="c"># Create a new receive buffer</span>
+</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
 </span><span class='line'>
-</span><span class='line'>    while not wait_string in receive_buffer:
-</span><span class='line'>        # Flush the receive buffer
-</span><span class='line'>        receive_buffer += shell.recv(1024)
+</span><span class='line'>    <span class="k">while</span> <span class="ow">not</span> <span class="n">wait_string</span> <span class="ow">in</span> <span class="n">receive_buffer</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Flush the receive buffer</span>
+</span><span class='line'>        <span class="n">receive_buffer</span> <span class="o">+=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>    # Print the receive buffer, if necessary
-</span><span class='line'>    if should_print:
-</span><span class='line'>        print receive_buffer
+</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
 </span><span class='line'>
-</span><span class='line'># Get the command-line arguments
-</span><span class='line'>system_ip = sys.argv[1]
-</span><span class='line'>system_username = sys.argv[2]
-</span><span class='line'>system_ssh_password = sys.argv[3]
-</span><span class='line'>system_su_password = sys.argv[4]
+</span><span class='line'><span class="c"># Get the command-line arguments</span>
+</span><span class='line'><span class="n">system_ip</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'><span class="n">system_username</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span><span class='line'><span class="n">system_ssh_password</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span><span class='line'><span class="n">system_su_password</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
 </span><span class='line'>
-</span><span class='line'># Create an SSH client
-</span><span class='line'>client = paramiko.SSHClient()
+</span><span class='line'><span class="c"># Create an SSH client</span>
+</span><span class='line'><span class="n">client</span> <span class="o">=</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="p">()</span>
 </span><span class='line'>
-</span><span class='line'># Make sure that we add the remote server's SSH key automatically
-</span><span class='line'>client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+</span><span class='line'><span class="c"># Make sure that we add the remote server&#39;s SSH key automatically</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">set_missing_host_key_policy</span><span class="p">(</span><span class="n">paramiko</span><span class="o">.</span><span class="n">AutoAddPolicy</span><span class="p">())</span>
 </span><span class='line'>
-</span><span class='line'># Connect to the client
-</span><span class='line'>client.connect(system_ip, username=system_username, password=system_ssh_password)
+</span><span class='line'><span class="c"># Connect to the client</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">system_ip</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">system_username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">system_ssh_password</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'># Create a raw shell
-</span><span class='line'>shell = client.invoke_shell()
+</span><span class='line'><span class="c"># Create a raw shell</span>
+</span><span class='line'><span class="n">shell</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke_shell</span><span class="p">()</span>
 </span><span class='line'>
-</span><span class='line'># Send the su command
-</span><span class='line'>send_string_and_wait("su\n", 1, True)
+</span><span class='line'><span class="c"># Send the su command</span>
+</span><span class='line'><span class="n">send_string_and_wait</span><span class="p">(</span><span class="s">&quot;su</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'># Send the client's su password followed by a newline
-</span><span class='line'>send_string_and_wait(system_su_password + "\n", 1, True)
+</span><span class='line'><span class="c"># Send the client&#39;s su password followed by a newline</span>
+</span><span class='line'><span class="n">send_string_and_wait</span><span class="p">(</span><span class="n">system_su_password</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'># Send the install command followed by a newline and wait for the done string
-</span><span class='line'>send_string_and_wait_for_string(root_command, root_command_result, True)
+</span><span class='line'><span class="c"># Send the install command followed by a newline and wait for the done string</span>
+</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">root_command</span><span class="p">,</span> <span class="n">root_command_result</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'># Close the SSH connection
-</span><span class='line'>client.close()</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="c"># Close the SSH connection</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
 
 </div>
   
