@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I often get asked about what recommendations I would make to people to make them better developers. After working on a very large project last year I &hellip;">
+  <meta name="description" content="If you do any Java development I&rsquo;m sure you&rsquo;ve run into a situation where the logger just does not do what you want it to do. Sometimes &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,177 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Forcing Java&#8217;s Logger to Work, Even When It Doesn&#8217;t Want To</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-19T18:31:42-04:00" pubdate data-updated="true">Jun 19<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you do any Java development I&rsquo;m sure you&rsquo;ve run into a situation where the logger just does not do what you want it to do.  Sometimes you can&rsquo;t get it to print messages other than <code>INFO</code> level messages, sometimes you can&rsquo;t get it to print anything to the console at all.</p>
+
+<p>In order to get around this I have a few convenience methods that I&rsquo;ve migrated from project to project that I wanted to share.  Soon I&rsquo;ll put them in <a href="https://github.com/timmattison/jayuda">Jayuda</a> when I revamp it.  For now, you can just copy them from the blocks below.</p>
+
+<p><strong><em>NOTE:</em></strong> All of this info is for plain <code>java.util.logging</code>.  If you are using another logging system this probably won&rsquo;t work for you.</p>
+
+<p>The first function makes sure that there is at least one console logger in your logging system.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public static void forceConsoleLogging() {
+</span><span class='line'>    // Get the root logger instance
+</span><span class='line'>    LogManager logManager = LogManager.getLogManager();
+</span><span class='line'>    Logger rootLogger = logManager.getLogger("");
+</span><span class='line'>    
+</span><span class='line'>    // Set the default logging level to all
+</span><span class='line'>    rootLogger.setLevel(Level.ALL);
+</span><span class='line'>
+</span><span class='line'>    // Loop and see if a console handler is already installed
+</span><span class='line'>    boolean consoleHandlerInstalled = false;
+</span><span class='line'>
+</span><span class='line'>    for (Handler handler : rootLogger.getHandlers()) {
+</span><span class='line'>        if (handler instanceof ConsoleHandler) {
+</span><span class='line'>            consoleHandlerInstalled = true;
+</span><span class='line'>            break;
+</span><span class='line'>        }
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    // Is a console handler already installed?
+</span><span class='line'>    if (consoleHandlerInstalled) {
+</span><span class='line'>        // Yes, do nothing
+</span><span class='line'>        return;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    // No console handler installed, install one
+</span><span class='line'>    rootLogger.addHandler(new ConsoleHandler());
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The second function is a bit more aggressive.  It iterates over your console loggers and makes sure all of them log everything.  You can use this in a pinch when you&rsquo;re having serious issues and you need to see everything.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>   public static void logEverything() {
+</span><span class='line'>        // Get the logger instance
+</span><span class='line'>        LogManager logManager = LogManager.getLogManager();
+</span><span class='line'>        Logger rootLogger = logManager.getLogger("");
+</span><span class='line'>
+</span><span class='line'>        // Set the default logging level to all
+</span><span class='line'>        rootLogger.setLevel(Level.ALL);
+</span><span class='line'>
+</span><span class='line'>        // Loop and see if any console handlers are already installed
+</span><span class='line'>        List&lt;ConsoleHandler&gt; consoleHandlers = new ArrayList&lt;ConsoleHandler&gt;();
+</span><span class='line'>
+</span><span class='line'>        for (Handler handler : rootLogger.getHandlers()) {
+</span><span class='line'>            if (handler instanceof ConsoleHandler) {
+</span><span class='line'>                consoleHandlers.add((ConsoleHandler) handler);
+</span><span class='line'>            }
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        // Is a console handler already installed?
+</span><span class='line'>        if (consoleHandlers.size() == 0) {
+</span><span class='line'>            // No, create one.  Add it to the list and to the root logger.
+</span><span class='line'>            Handler consoleHandler = new ConsoleHandler();
+</span><span class='line'>            consoleHandlers.add((ConsoleHandler) consoleHandler);
+</span><span class='line'>            rootLogger.addHandler(consoleHandler);
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        // Loop through all console handlers and make them log everything
+</span><span class='line'>        for (ConsoleHandler consoleHandler : consoleHandlers) {
+</span><span class='line'>            consoleHandler.setLevel(Level.ALL);
+</span><span class='line'>        }
+</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you do this be prepared to see TONS of output including output from all of the libraries you use.  Most of the time this is overkill.  But sometimes when the logger just won&rsquo;t do what you want no matter how hard you try this will save your sanity.</p>
+
+<p>Have better ways to do this?  Did this get you out of a jam?  Please post in the comments below.</p>
+
+<p>UPDATE: <a href="https://github.com/timmattison/jayuda/commit/1484b47d72c6f5943340eebc8d78fafaa9604485">Added to Jayuda</a>!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -912,55 +1083,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-04T13:54:46-05:00" pubdate data-updated="true">Jan 4<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/01/04/testing-a-video-plugin/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Just testing an Octopress plugin from github called <a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Octopress responsive video embed</a>.</p>
-
-<p>A Vimeo video:</p>
-
-<div class="embed-video-container"><iframe src="http://player.vimeo.com/video/82648212 "></iframe></div>
-
-
-<p>A YouTube video:</p>
-
-<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/T3gacnHb9TI "></iframe></div>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -994,6 +1116,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a>
       </li>
     
@@ -1007,10 +1133,6 @@
     
       <li class="post">
         <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Last week I read LinuxJournal magazine and it talked about all of the cool things you could do with two Linux machines and the open source iSCSI code &hellip;">
+  <meta name="description" content="This article is very brief since it requires some Linux expertise, if you haven&rsquo;t done this before you should ask your neighborhood __Linux &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,82 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/10/24/how-to-fix-the-dreaded-setup-was-unable-to-create-a-new-system-partition-error-in-windows-7-advanced/">How-To: Fix the Dreaded &#8220;Setup Was Unable to Create a New System Partition&#8221; Error in Windows 7 (Advanced)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-24T01:15:08-04:00" pubdate data-updated="true">Oct 24<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/10/24/how-to-fix-the-dreaded-setup-was-unable-to-create-a-new-system-partition-error-in-windows-7-advanced/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/24/how-to-fix-the-dreaded-setup-was-unable-to-create-a-new-system-partition-error-in-windows-7-advanced/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><em>This article is very brief since it requires some Linux expertise, if you haven&rsquo;t done this before you should ask your neighborhood __Linux geek for help</em></p>
+
+<p>When I first tried to install Windows 7 I ran into the problem that my LSI MegaRAID 150-4 was not supported out of the box.  I fixed that by downloading the driver from <a href="http://www.lsi.com/storage_home/products_home/internal_raid/megaraid_sata/megaraid_sata_300_4xlp/index.html?locale=EN&amp;remote=1">the LSI Logic driver download page for MegaRAID SATA controllers</a>.  I chose the &ldquo;Windows Server 2003 (64-bit)&#8221; version since I&rsquo;m installing 64-bit Windows 7. I put those files onto a flash drive, told Windows to load the driver, and it immediately it saw my disks.  The problem I was now left with was that after I partitioned and formatted them Windows would tell me that it was &#8220;unable to create a new system partition&rdquo; and refused to install.</p>
+
+<p>I didn&rsquo;t find much on the Internet that was too helpful since most people&rsquo;s problems surround the fact that their drives aren&rsquo;t recognized. After poking around on the drive with Linux I found out what the problem was&hellip;</p>
+
+<p><strong>The Windows 7 installer doesn&rsquo;t always set the bootable flag on partitions after they&rsquo;re formatted</strong></p>
+
+<p>The fix?  Here&rsquo;s what I did (some Linux knowledge required)&hellip;</p>
+
+<p>Step 1: Boot off of a bootable Linux CD</p>
+
+<p>Step 2: Start a root shell</p>
+
+<p>Step 3: Find out which drive you should be modifying by running</p>
+
+<pre><code>dmesg | grep sd
+</code></pre>
+
+<p>One of the lines in there will say something like</p>
+
+<pre><code>[sdb] ... 1.00 TB
+</code></pre>
+
+<p>Where &ldquo;sdb&rdquo; is your disk name and &ldquo;1.00 TB&rdquo; reflects about how big your RAID array is.  I just used my actual values as an example.</p>
+
+<p>Step 4: Run fdisk on the drive</p>
+
+<pre><code>fdisk /dev/sdb
+</code></pre>
+
+<p>Step 5: Press &ldquo;a&rdquo; and then enter to toggle the bootable flag</p>
+
+<p>Step 6: Enter the number of the corresponding partition (usually partition 1) and then enter</p>
+
+<p>Step 7: Press &ldquo;w&rdquo; and then enter to write the partition table to disk</p>
+
+<p>Step 8: Reboot and rerun the Windows installation.  You&rsquo;ll see that on the right side of the partition list your parition should now be marked as &ldquo;System&rdquo;.  This means that it worked.  Select the partition, click next, and let the installer churn away&hellip;</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -680,53 +756,6 @@ multi(0)disk(0)rdisk(0)partition(2)\WINDOWS="Microsoft Windows XP" /fastdetect
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/03/21/pictures-of-an-electronics-project/">Pictures of an Electronics Project</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-03-21T15:33:04-04:00" pubdate data-updated="true">Mar 21<span>st</span>, 2009</time>
-        
-           | <a href="/archives/2009/03/21/pictures-of-an-electronics-project/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/03/21/pictures-of-an-electronics-project/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I don&rsquo;t have anything exciting to write here, just a few pictures to share of an electronics project I&rsquo;m debugging.  A few people asked about it via e-mail so here&rsquo;s what I spent the morning getting set up:</p>
-
-<p><img src="/pictures/full-scope-view-small.jpg" alt="" /></p>
-
-<p><img src="/pictures/just-scope-view-small.jpg" alt="" /></p>
-
-<p><img src="/pictures/just-scope-zoomed-view-small.jpg" alt="" /></p>
-
-<p>Once the project is finished I&rsquo;ll post some more details.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/12/">&larr; Older</a>
@@ -760,6 +789,10 @@ multi(0)disk(0)rdisk(0)partition(2)\WINDOWS="Microsoft Windows XP" /fastdetect
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a>
       </li>
     
@@ -773,10 +806,6 @@ multi(0)disk(0)rdisk(0)partition(2)\WINDOWS="Microsoft Windows XP" /fastdetect
     
       <li class="post">
         <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a>
       </li>
     
   </ul>

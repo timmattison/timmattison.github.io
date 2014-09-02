@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Normally the head and tail applications on Linux are good for what their names imply. head gives you the first few lines of a file, tail gives you &hellip;">
+  <meta name="description" content="WARNING! Do not do this on production clusters unless you are willing to take responsibility for any issues that may occur. This wipes out all of &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,81 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/">How-To: Fix &#8220;Chown: Cannot Dereference&#8221; Errors in Cloudera CDH on Debian/Ubuntu Linux When Upgrading</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-26T12:10:47-05:00" pubdate data-updated="true">Feb 26<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><strong><em>WARNING!</em></strong> Do not do this on production clusters unless you are willing to take responsibility for any issues that may occur.  This wipes out all of your logs and potentially other files.  Always have a backup before trying anything like this.  I take no responsibility for issues that may arise from running any or all of these instructions.</p>
+
+<p>When I tried to upgrade my CDH installation today I received many errors from dpkg that caused the upgrade to fail.  The errors looked like this:</p>
+
+<pre><code>chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000015_0': No such file or directory
+chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000003_0': No such file or directory
+chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000009_0': No such file or directory
+chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000018_0': No such file or directory
+
+...
+
+dpkg: error processing hadoop-0.20 (--configure):
+ subprocess installed post-installation script returned error exit status 123
+dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
+ hadoop-0.20-tasktracker depends on hadoop-0.20 (= 0.20.2+923.195-1~squeeze-cdh3); however:
+  Package hadoop-0.20 is not configured yet.
+</code></pre>
+
+<p>My simple fix, not for production clusters, is to do the following:</p>
+
+<ul>
+<li><p>Step 1: Become the HDFS user and stop Hadoop by running</p>
+
+<p>~/bin/stop-all.sh</p></li>
+<li><p>Step 2: Become root and remove all of your Hadoop related logs by running</p>
+
+<p>rm -rf /var/log/hadoop-0.20/*</p></li>
+<li><p>Step 3: Become root and run your upgrade by running</p>
+
+<p>apt-get upgrade</p></li>
+<li><p>Step 4: Become the HDFS user and restart Hadoop by running</p>
+
+<p>~/bin/start-all.sh</p></li>
+</ul>
+
+
+<p>After that your installation should be working and up to date again.  Post in the comments if it works for your or if you need any assistance.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1086,56 +1161,6 @@ EndSection
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/01/10/how-to-find-and-fix-duplicate-java-object-serial-numbers/">How-To: Find and Fix Duplicate Java Object Serial Numbers</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-01-10T09:43:03-05:00" pubdate data-updated="true">Jan 10<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/01/10/how-to-find-and-fix-duplicate-java-object-serial-numbers/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/10/how-to-find-and-fix-duplicate-java-object-serial-numbers/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In Java making your objects serializable is often required to work with certain libraries (<a href="http://en.wikipedia.org/wiki/Object-relational_mapping">ORM</a>, <a href="http://code.google.com/webtoolkit/doc/latest/tutorial/RPC.html">GWT-RPC</a>, etc).  It&rsquo;s tempting when Eclipse tells us that our object is missing a unique identifier to have it generate one on the fly.  However, in practice what happens sometimes in the field is that you&rsquo;ll create a serializable class and then copy it to make a new class.  When you do this you&rsquo;re inadvertently copying the objects &ldquo;serialVersionUID&rdquo; field.</p>
-
-<p>Why is this an issue?  Well, the serialVersionUID is supposed to be a universal identifier.  If it&rsquo;s not universal then you&rsquo;re asking for trouble.  When you deserialize a new version of this object or try to deserialize an object to the wrong object type you can end up with strange results or have your application crash altogether.</p>
-
-<p>How do we fix it?  I&rsquo;ve written a command-line one liner (even though it looks like three lines on the site) that will print out a list of the files that have duplicated serialVersionUID values.  Here it is:</p>
-
-<pre><code>grep -r serialVersionUID * | grep -o "private.*" | sort | uniq -d | sed 's/^.*=//' | sed 's/;//' | sed 's/^ //' | sed 's/^-/\\\\-/' | xargs -I PATTERNS grep -r PATTERNS . | cut -f1 -d ':'
-</code></pre>
-
-<p>Go into each of these files, remove their serialVersionUID field, and regenerate them.  Don&rsquo;t concern yourself with which ones overlap unless you already have serialized versions of these objects lying around.  If you do have serialized versions you should remove the field and reserialize your objects into your data store without it.  Then you can try to generate new values and again reserialize them into the data store.  DO NOT do this in production, always do it in a test environment to make sure that nothing breaks.  You do have unit tests that&rsquo;ll test these things, right?  :)</p>
-
-<p>Post in the comments if you find this useful and keep hacking!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/6/">&larr; Older</a>
@@ -1169,6 +1194,10 @@ EndSection
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a>
       </li>
     
@@ -1182,10 +1211,6 @@ EndSection
     
       <li class="post">
         <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a>
       </li>
     
   </ul>
