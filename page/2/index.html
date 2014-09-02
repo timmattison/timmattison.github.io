@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Are you a developer? Do you have trouble remembering what you did yesterday when it is time for your daily standup? Do you use git? Do you commit &hellip;">
+  <meta name="description" content="I often get asked about what recommendations I would make to people to make them better developers. After working on a very large project last year I &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,85 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-19T07:06:23-04:00" pubdate data-updated="true">Jun 19<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I often get asked about what recommendations I would make to people to make them better developers.  After working on a very large project last year I have consistently told people that no matter what platform they use they should work on and think about two things: software testing and dependency injection.</p>
+
+<p>Software testing includes unit tests, integration tests, regression tests, human testing, and a lot more.  It is a broad set of topics that is hard to distill into just a few bits that will always be applicable.</p>
+
+<p>But how about getting people to write code that is testable?  Testability is an easy concept to gloss over.  While there is a stigma associated with writing code that has no test coverage there is nowhere near as much of a stigma for having to jump through endless hoops to get your software to be tested.  In fact, these hoops combined with time pressure are probably why a lot of developers don&rsquo;t do proper testing.</p>
+
+<p>There are three things that you can do immediately to start writing more testable code.  First, <a href="https://en.wikipedia.org/wiki/SOLID_(object-oriented_design">learn the SOLID principle</a> and if you need tighter focus then just start with S (single responsibility principle) and D (dependency inversion principle).  Second, use a <a href="https://en.wikipedia.org/wiki/Dependency_injection">dependency injection</a> framework (AKA &ldquo;DI framework&rdquo;).  Third, try to follow the <a href="https://en.wikipedia.org/wiki/Law_of_Demeter">Law of Demeter</a> as much as possible.</p>
+
+<p>Here are some dependency injection framework recommendations:</p>
+
+<ul>
+<li>For Java developers I recommend <a href="https://code.google.com/p/google-guice/">Guice</a>.</li>
+<li>For Android developers I recommend <a href="https://square.github.io/dagger/">Dagger</a>.</li>
+<li>For .NET developers I recommend <a href="http://www.ninject.org/">Ninject</a>.</li>
+</ul>
+
+
+<p>Those Wikipedia links are only meant for basic information on the topics.  Once you&rsquo;re ready to learn about these principles you can get a serious head start by watching a few videos.  The videos by Misko Hevery are some of my favorites and they&rsquo;re 30 minutes versus 60 minutes which is a little easier to carve out of your day.  I suggest watching those first.</p>
+
+<p>These videos are all part of the <a href="https://www.youtube.com/channel/UCtXKDgv1AVoG88PLl8nGXmw">Google Tech Talk</a> series.</p>
+
+<p>30 minute sessions with Misko:</p>
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=RlfLCWKxHJ0">Don’t look for things</a> &ndash; Discusses how the object model of a system may be broken if you’re not directly handed what your object needs to get its job done.  In the best case this is handled automatically by dependency injection which makes it so you’re never shuffling in and out constructor argument lists as you swap implementations.</li>
+<li><a href="http://www.youtube.com/watch?v=-FRm3VPhseI">Global State and Singletons</a> &ndash; Discusses how global state can silently break tests and how to try to avoid it</li>
+<li><a href="http://www.youtube.com/watch?v=wEhu57pih5w">Unit Testing</a> &ndash; Discusses how unit tests should be structured and that the goal should be to have unit tests that run so fast that you’re running them all the time.  Integration tests and user simulations will still take longer but you should always try to write unit tests that run in milliseconds when possible.  An interesting fact that he drops in this talk, I think, is that Google’s set of tests for a project are often as large as or even larger than the actual project itself.</li>
+<li><a href="http://www.youtube.com/watch?v=4F72VULWFvc">Inheritance, Polymorphism, &amp; Testing</a> &ndash; Discusses how dense code can be unraveled with polymorphism and how that can make it easier to test and get complete testing coverage</li>
+</ul>
+
+
+<p>60 minute sessions:</p>
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=hBVJbzAagfs">Big Modular Java with Guice</a> &ndash; Discusses how to use Guice to write maintainable, large Java projects</li>
+<li><a href="http://www.youtube.com/watch?v=0iSB0L9avmg">Java on Guice: Dependency Injection, the Java Way</a> &ndash; One of the earlier Guice talks that compares and contrasts using Guice with the non-DI way</li>
+<li><a href="https://www.youtube.com/watch?v=XcT4yYu_TTs">How to Write Clean, Testable Code</a> &ndash; Discusses the Law of Demeter, and getting buried in setup code</li>
+</ul>
+
+
+<p>Have any other recommendations?  Please post them in the comments below!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -882,59 +961,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-02T19:18:24-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>If you&rsquo;re using dd on the command-line to write SD card images in Mac OS then you may have run into a weird issue where the image is starting to write and then dd comes back and says:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>dd: /dev/diskX: Resource busy
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I ran into this multiple times when building Raspberry Pi and BeagleBone Black images.  What it turned out to be was that Mac OS needed me to set the block size for some reason.  I arbitrarily chose 1 MiB so my command looks like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo dd <span class="k">if</span><span class="o">=</span>image-file.img <span class="nv">of</span><span class="o">=</span>/dev/disk3 <span class="nv">bs</span><span class="o">=</span>1048576
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After specifying the bs parameter it never happened to me again.  Let me know if you ran into the same thing and whether or not this fixed it on your system.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -968,6 +994,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a>
       </li>
     
@@ -981,10 +1011,6 @@
     
       <li class="post">
         <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/">Common Android Wear Tasks for Developers</a>
       </li>
     
   </ul>

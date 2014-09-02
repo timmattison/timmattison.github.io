@@ -689,12 +689,18 @@
         <lastmod>2014-08-29T13:12:58-04:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/
+        </loc>
+        <lastmod>2014-09-02T08:14:26-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-08-29T13:12:58-04:00</lastmod>
+        <lastmod>2014-09-02T08:14:26-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-08-29T13:12:58-04:00</lastmod>
+        <lastmod>2014-09-02T08:14:26-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

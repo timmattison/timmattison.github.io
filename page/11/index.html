@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I was updating a web application last night and after uploading the WAR file to my server, moving it into the servlet container&rsquo;s (Tomcat&rsquo &hellip;">
+  <meta name="description" content="Last week I read LinuxJournal magazine and it talked about all of the cool things you could do with two Linux machines and the open source iSCSI code &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,96 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/">How-To: Set Up iSCSI Between Linux and Mac OS (Tested on 10.6.1)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-20T09:12:51-04:00" pubdate data-updated="true">Oct 20<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last week I read LinuxJournal magazine and it talked about all of the cool things you could do with two Linux machines and the open source iSCSI code that&rsquo;s floating around out there.  I do have two Linux machines but I really wanted to see if I could get iSCSI working on my MacBook Pro and iMac so I could easily offload some files from their main drives to my larger file server.  I did it and here&rsquo;s how you can do it too.</p>
+
+<p>The terminology that you&rsquo;ll need to know here is target (the server that has the disk where you&rsquo;re putting the data) and initiator (the machine that wants access to the target).  In my scenario my Dell Linux machine is the target and my Mac is the initiator.  You should also know that the iSCSI volumes I created were not raw drives.  I created a file filled with zeroes that the iSCSI software treats as a raw disk.</p>
+
+<p>There are other ways to do this but this way is really cool because the underlying system can be any mix of systems you want (ext2/&frac34;, ZFS, LVM RAID, etc.).  Using LVM gives you redundancy without your client having to worry about it.</p>
+
+<p><strong>Disclaimer:</strong> I use Gentoo so your steps may be different.</p>
+
+<p>Step 1: Install iSCSI target software on Linux.  I used the <a href="http://iscsitarget.sourceforge.net/">iSCSI Enterprise target</a> package.</p>
+
+<pre><code>emerge -av iscsitarget
+</code></pre>
+
+<p>Step 2: Create a directory on your Linux machine where you want to store your iSCSI disk images.  I used &ldquo;/srv&rdquo;</p>
+
+<pre><code>sudo mkdir /srv
+</code></pre>
+
+<p>Step 3: Create a file that will contain your first iSCSI volume with dd.  Don&rsquo;t go crazy here yet.  Let&rsquo;s create two 1GB disks for testing and you can recreate larger ones later.</p>
+
+<pre><code>sudo dd if=/dev/zero of=/srv/iscsi.disk.0 bs=1 seek=1024M count=1
+sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
+</code></pre>
+
+<p>Step 4: Edit the iSCSI configuration files.  My system was a bit different than the one in LinuxJournal.  I had to edit only the /etc/ietd.conf file.  Here is my entire configuration file:</p>
+
+<pre><code>Target iqn.2009-09.org.mattison:iscsi-target
+        IncomingUser test secretpasswd
+        OutgoingUser test secretpasswd
+        Lun 0 Path=/srv/iscsi.disk.0,Type=fileio
+        Lun 1 Path=/srv/iscsi.disk.1,Type=fileio
+        Alias Test
+</code></pre>
+
+<p>Keep in mind that to comply with the standards your password must be twelve characters.  Also, don&rsquo;t forget to change the target name from iqn.2009-09.org.mattison:iscsi-target to something that makes more sense to you.  Typically the 2009-09 is the year and month in which the filesystem went live, org.mattison is just your domain name in reverse, and iscsi-target is what you want to call this target.</p>
+
+<p>Step 5: Start the iSCSI target.</p>
+
+<pre><code>/etc/init.d/ietd restart
+</code></pre>
+
+<p>Step 6: Install an iSCSI initiator on your Mac and reboot (it is required by the installer).  I used <a href="http://www.studionetworksolutions.com/products/product_detail.php?t=more&amp;pi=11">GlobalSAN&rsquo;s iSCSI Initiator for Mac OS X</a></p>
+
+<p>Step 7: After the reboot open the GlobalSAN system preferences panel.  Then click on &ldquo;Portals&rdquo;, click the plus sign, and then enter in the DNS name or IP address of your Linux server.  The default port should be fine unless you changed it on the Linux machine.</p>
+
+<p>Click &ldquo;OK&rdquo;.</p>
+
+<p>Step 8: Click the &ldquo;Targets&rdquo; tab and you should see your &ldquo;iscsi-target&rdquo; item listed there.  Click the &ldquo;Connected&rdquo; checkbox.  Then, check the &ldquo;Use CHAP Login Information&rdquo; box, fill in the user name, target secret, and initiator secret fields. In my example the username was &ldquo;test&rdquo; and the passwords were both &ldquo;secretpasswd&rdquo;.  If you changed them then use your values here. The &ldquo;IncomingUser&rdquo; password is what GlobalSAN refers to as the &ldquo;Target Secret&rdquo;, the &ldquo;OutgoingUser&rdquo; password is what GlobalSAN refers to as the &ldquo;Initiator Secret&rdquo;.</p>
+
+<p>Step 9: Now partition and use the disks just like any other disk.  They&rsquo;ll show up as iSCSI &ldquo;IET VIRTUAL-DISK Media&rdquo; in Apple&rsquo;s Disk Utility.</p>
+
+<p>From here you can do all kinds of crazy things.  You can even set up a RAID, run iDefrag on them, use them for Time Machine, etc.  Of course a RAID over iSCSI in this setup will yield very low performance so it&rsquo;s not recommended for production, just for fun.  Defragging an iSCSI volume is also not worth it especially since the file that contains the whole filesystem on the Linux machine is most likely where the fragmentation is occurring.  Again, these two examples are just to show you that Mac OS really does treat these devices as a low-level block device.  Time Machine may not be such a bad idea actually&hellip;</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -637,86 +727,6 @@ multi(0)disk(0)rdisk(0)partition(2)\WINDOWS="Microsoft Windows XP" /fastdetect
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/03/12/how-to-add-google-analytics-to-nanoblogger/">How-To: Add Google Analytics to Nanoblogger</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-03-12T09:06:40-04:00" pubdate data-updated="true">Mar 12<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/03/12/how-to-add-google-analytics-to-nanoblogger/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/03/12/how-to-add-google-analytics-to-nanoblogger/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Here&rsquo;s a quick step-by-step guide to get Google Analytics into your nanoblogger installation.</p>
-
-<p>Step 1: Get your Google Analytics JavaScript code.  If you missed or skipped this step when you signed up you can replicate it if you log into your Analytics account, go to the overview page, and search for &ldquo;UA&rdquo;.  Take the unique ID that looks like UA-0123456-7 and put it into this code (it&rsquo;s the bold, italicized part):</p>
-
-<pre><code>&lt;script type="text/javascript"&gt;
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-&lt;/script&gt;
-
-
-
-
-&lt;script type="text/javascript"&gt;
-try {
-var pageTracker = _gat._getTracker("&lt;strong&gt;&lt;em&gt;UA-0123456-7&lt;/em&gt;&lt;/strong&gt;");
-pageTracker._trackPageview();
-} catch(err) {}&lt;/script&gt;
-</code></pre>
-
-<p>If you don&rsquo;t put your unique ID then you will not get any stats!  Don&rsquo;t use UA-0123456-7!</p>
-
-<p>Step 2: Back up your site and templates.  If you make a mistake in the next few steps you&rsquo;ll thank yourself.</p>
-
-<p>Step 3: Add the code in the following templates just before the </body> tag:</p>
-
-<ul>
-<li><p>templates/category_archive.htm</p></li>
-<li><p>templates/day_archive.htm</p></li>
-<li><p>templates/main_index.htm</p></li>
-<li><p>templates/makepage.htm</p></li>
-<li><p>templates/month_archive.htm</p></li>
-<li><p>templates/permalink.htm</p></li>
-<li><p>templates/year_archive.htm</p></li>
-</ul>
-
-
-<p>Step 4: Regenerate your site with the update all command.  Replace &ldquo;blog&rdquo; with the relative directory of your blog:</p>
-
-<pre><code>nb --blog-dir blog --force update all
-</code></pre>
-
-<p>Step 5: Check the results and push your update to your server.  You should see analytics start updating as soon as people start hitting your site.  Ifyou don&rsquo;t be sure to give it a few hours before reporting it to Google.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/12/">&larr; Older</a>
@@ -750,6 +760,10 @@ pageTracker._trackPageview();
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a>
       </li>
     
@@ -763,10 +777,6 @@ pageTracker._trackPageview();
     
       <li class="post">
         <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/">Common Android Wear Tasks for Developers</a>
       </li>
     
   </ul>

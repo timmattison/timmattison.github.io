@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="If you are trying to use SIPML5 with Asterisk there are some gotchas that often come up. If you&rsquo;re running it on Debian these tips below may &hellip;">
+  <meta name="description" content="If you&rsquo;re using dd on the command-line to write SD card images in Mac OS then you may have run into a weird issue where the image is starting &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,59 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T19:18:24-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;re using dd on the command-line to write SD card images in Mac OS then you may have run into a weird issue where the image is starting to write and then dd comes back and says:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>dd: /dev/diskX: Resource busy
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I ran into this multiple times when building Raspberry Pi and BeagleBone Black images.  What it turned out to be was that Mac OS needed me to set the block size for some reason.  I arbitrarily chose 1 MiB so my command looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo dd <span class="k">if</span><span class="o">=</span>image-file.img <span class="nv">of</span><span class="o">=</span>/dev/disk3 <span class="nv">bs</span><span class="o">=</span>1048576
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After specifying the bs parameter it never happened to me again.  Let me know if you ran into the same thing and whether or not this fixed it on your system.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -987,218 +1040,6 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/">Tips for Debugging Spring&#8217;s @Transactional Annotation</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-04-19T10:31:14-04:00" pubdate data-updated="true">Apr 19<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>For over a week now I&rsquo;ve been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database.  The code works but it doesn&rsquo;t follow the strict philosophy of service oriented architecture in the sense that there are several places that Spring and Hibernate weren&rsquo;t doing what they were expected to do and a few workarounds had to be implemented.  Since we were bringing more programmers on board I wanted to make sure that everything played by the rules and was easy to update so I had to learn a lot that I had glossed over in the past.</p>
-
-<p>With some creative Googling I found two invaluable resources that I need to give credit to:</p>
-
-<ul>
-<li><p><a href="http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1">Monitoring Declarative Transactions in Spring</a></p></li>
-<li><p><a href="http://stackoverflow.com/questions/3037006/starting-new-transaction-in-spring-bean">Starting new transactions in Spring bean</a></p></li>
-</ul>
-
-
-<p>Here&rsquo;s what I distilled out of everything I went through:</p>
-
-<ol>
-<li><p> @Transactional annotations only work on public methods.  If you have a private or protected method with this annotation there&rsquo;s no (easy) way for Spring AOP to see the annotation.  It doesn&rsquo;t go crazy trying to find them so make sure all of your annotated methods are public.</p></li>
-<li><p> Transaction boundaries are only created when properly annotated (see above) methods are called through a Spring proxy.  This means that you need to call your annotated method directly through an @Autowired bean or the transaction will never start.  If you call a method on an @Autowired bean that isn&rsquo;t annotated which itself calls a public method that is annotated <strong><em>YOUR ANNOTATION IS IGNORED</em></strong>.  This is because Spring AOP is only checking annotations when it first enters the @Autowired code.</p></li>
-<li><p> Never blindly trust that your @Transactional annotations are actually creating transaction boundaries.  When in doubt test whether a transaction really is active (see below)</p></li>
-</ol>
-
-
-<p>My first problem was that the code was annotated improperly like this:</p>
-
-<pre><code>/**
- * This code example is BAD code, do not use it!
- */
-class NonWorkingMyClass {
-
-  @Autowired
-  protected MyService myService;
-
-  public void calledFirst() {
-    // Do some setup work...
-
-    // Call our internal method
-    calledSecond();
-  }
-
-  @Transactional
-  private void calledSecond() {
-    MyObject myObject = myService.retrieveLatest();
-
-    // Update some object fields
-    myObject.setName("New Name");
-  }
-}
-</code></pre>
-
-<p>In this case someone would call NonWorkingMyClass.calledFirst(), it would then call calledSecond() and try to update the name field.  This works if your XML configuration is set up properly but it will not be in a transaction.  This can cause concurrency issues that won&rsquo;t show up until it&rsquo;s really inconvenient.</p>
-
-<p>Here&rsquo;s the working version of that code:</p>
-
-<pre><code>/**
- * This code example works
- */
-class WorkingMyClass {
-
-  @Autowired
-  protected MyService myService;
-
-  @Transactional
-  public void calledFirst() {
-    // Do some setup work...
-
-    // Call our internal method
-    calledSecond();
-  }
-
-  private void calledSecond() {
-    MyObject myObject = myService.retrieveLatest();
-
-    // Update some object fields
-    myObject.setName("New Name");
-  }
-}
-</code></pre>
-
-<p>Now when someone called WorkingMyClass.calledFirst() it would do what you expect in a transaction and the transaction boundaries are properly respected.</p>
-
-<p>This looks like a simple fix that should only take a few minutes but finding out that was the problem involved turning on lots of Spring DEBUG level logging, Googling, and actually testing to make sure the transactions were active.  Before I knew what I know now I used some code from the first site I listed to show if I was inside a transaction or not.  I was shocked and relieved when it showed that I wasn&rsquo;t because it meant the concurrency issues weren&rsquo;t due to bad programming, just bad configuration.  Here are the methods that I came up with that you can use to see if you are in a transaction and even force your code to throw an exception if it isn&rsquo;t.  This can be invaluable if someone messes up an annotation in the future or breaks your XML configuration.</p>
-
-<p>This code belongs in a utility class that is accessible from anywhere.  There are two flags you will need to put somewhere:</p>
-
-<p>transactionDebugging &ndash; Indicates we should do the transaction tests
-verboseTransactionDebugging &ndash; Indicates we should print debug messages with the transaction tests</p>
-
-<p>verboseTransactionDebugging has no effect if transactionDebugging is false.</p>
-
-<pre><code>class DebugUtils {
-    private static final transactionDebugging = true;
-    private static final verboseTransactionDebugging = true;
-
-    public static void showTransactionStatus(String message) {
-        System.out.println(((transactionActive()) ? "[+] " : "[-] ") + message);
-    }
-
-    // Some guidance from: http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1
-    public static boolean transactionActive() {
-        try {
-            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            Class tsmClass = contextClassLoader.loadClass("org.springframework.transaction.support.TransactionSynchronizationManager");
-            Boolean isActive = (Boolean) tsmClass.getMethod("isActualTransactionActive", null).invoke(null, null);
-
-            return isActive;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-
-        // If we got here it means there was an exception
-        throw new IllegalStateException("ServerUtils.transactionActive was unable to complete properly");
-    }
-
-    public static void transactionRequired(String message) {
-        // Are we debugging transactions?
-        if (!transactionDebugging) {
-            // No, just return
-            return;
-        }
-
-        // Are we doing verbose transaction debugging?
-        if (verboseTransactionDebugging) {
-            // Yes, show the status before we get to the possibility of throwing an exception
-            showTransactionStatus(message);
-        }
-
-        // Is there a transaction active?
-        if (!transactionActive()) {
-            // No, throw an exception
-            throw new IllegalStateException("Transaction required but not active [" + message + "]");
-        }
-    }
-}
-</code></pre>
-
-<p>In our previous code example we could use these new methods like this:</p>
-
-<pre><code>/**
- * This code example works
- */
-class WorkingMyClass {
-
-  @Autowired
-  protected MyService myService;
-
-  @Transactional
-  public void calledFirst() {
-    // Make sure we're using transactions.  Include the name of the class and method
-    //   so it is easier to track down later if there are problems.
-    DebugUtils.transactionRequired("WorkingMyClass.calledFirst");
-
-    // Do some setup work...
-
-    // Call our internal method
-    calledSecond();
-  }
-
-  private void calledSecond() {
-    MyObject myObject = myService.retrieveLatest();
-
-    // Update some object fields
-    myObject.setName("New Name");
-  }
-}
-</code></pre>
-
-<p>That&rsquo;s it.  Post in the comments if this helps you out or if you want to add to the code.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/4/">&larr; Older</a>
@@ -1232,6 +1073,10 @@ class WorkingMyClass {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a>
       </li>
     
@@ -1245,10 +1090,6 @@ class WorkingMyClass {
     
       <li class="post">
         <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/">Common Android Wear Tasks for Developers</a>
       </li>
     
   </ul>

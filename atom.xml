@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-08-29T13:35:47-04:00</updated>
+  <updated>2014-09-02T08:14:49-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,105 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Checking PostgreSQL to See if a Constraint Already Exists]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/"/>
+    <updated>2014-09-02T08:01:00-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists</id>
+    <content type="html"><![CDATA[<p>Checking to see if a constraint already exists should be easy.  H2 and many other database have syntax for it.</p>
+
+<p>For some reason PostgreSQL, my favorite database, doesn&rsquo;t have this.  I looked around and found <a href="https://stackoverflow.com/questions/6801919/postgres-add-constraint-if-it-doesnt-already-exist?answertab=votes#tab-top">a decent solution on Stack Overflow</a> that I can add to my default template but something about it bothered me.</p>
+
+<p>I didn&rsquo;t like the fact that the code asked for the table name and constraint name but then didn&rsquo;t use it in the SQL statement.  Leaving it like this means that someone could write this (note that foo becomes foo2 and bar becomes bar2 in the first two parameters):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_constraint_if_not_exists(
+</span><span class='line'>        'foo',
+</span><span class='line'>        'bar',
+</span><span class='line'>        'ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);');
+</span><span class='line'>
+</span><span class='line'>SELECT create_constraint_if_not_exists(
+</span><span class='line'>        'foo2',
+</span><span class='line'>        'bar2',
+</span><span class='line'>        'ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);');</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And they would get an exception rather than having the constraint creation be skipped which could break a lot of things that expect this function to be safe.</p>
+
+<p>They also could do this (note that foo becomes foo2 and bar becomes bar2 in the constraint SQL):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_constraint_if_not_exists(
+</span><span class='line'>        'foo',
+</span><span class='line'>        'bar',
+</span><span class='line'>        'ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);');
+</span><span class='line'>
+</span><span class='line'>SELECT create_constraint_if_not_exists(
+</span><span class='line'>        'foo',
+</span><span class='line'>        'bar',
+</span><span class='line'>        'ALTER TABLE foo2 ADD CONSTRAINT bar2 CHECK (foobies &lt; 100);');</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This could be even worse because a constraint wouldn&rsquo;t be created.</p>
+
+<p>My solution was to modify this script slightly:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>CREATE OR REPLACE FUNCTION create_constraint_if_not_exists (t_name text, c_name text, constraint_sql text)
+</span><span class='line'>  RETURNS void
+</span><span class='line'>AS
+</span><span class='line'>$BODY$
+</span><span class='line'>  begin
+</span><span class='line'>    -- Look for our constraint
+</span><span class='line'>    if not exists (select constraint_name 
+</span><span class='line'>                   from information_schema.constraint_column_usage 
+</span><span class='line'>                   where table_name = t_name  and constraint_name = c_name) then
+</span><span class='line'>        execute 'ALTER TABLE ' || t_name || ' ADD CONSTRAINT ' || c_name || ' ' || constraint_sql;
+</span><span class='line'>    end if;
+</span><span class='line'>end;
+</span><span class='line'>$BODY$
+</span><span class='line'>LANGUAGE plpgsql VOLATILE;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you call it like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SELECT create_constraint_if_not_exists('foo', 'bar', 'CHECK (foobies &lt; 100);');</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And it will check the constraint properly by name.  This doesn&rsquo;t stop you from creating multiple constraints with the same criteria and different names though.  That&rsquo;s something you&rsquo;ll need to check for manually (for now).</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM]]></title>
@@ -1844,29 +1943,6 @@
 
 <div class="embed-video-container"><iframe src="http://www.youtube.com/embed/T3gacnHb9TI "></iframe></div>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/"/>
-    <updated>2014-01-02T19:18:24-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os</id>
-    <content type="html"><![CDATA[<p>If you&rsquo;re using dd on the command-line to write SD card images in Mac OS then you may have run into a weird issue where the image is starting to write and then dd comes back and says:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>dd: /dev/diskX: Resource busy
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I ran into this multiple times when building Raspberry Pi and BeagleBone Black images.  What it turned out to be was that Mac OS needed me to set the block size for some reason.  I arbitrarily chose 1 MiB so my command looks like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo dd <span class="k">if</span><span class="o">=</span>image-file.img <span class="nv">of</span><span class="o">=</span>/dev/disk3 <span class="nv">bs</span><span class="o">=</span>1048576
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After specifying the bs parameter it never happened to me again.  Let me know if you ran into the same thing and whether or not this fixed it on your system.</p>
 ]]></content>
   </entry>
   
