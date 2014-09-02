@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="In my last post I showed you a simple way to check to see if a constraint already existed in PostgreSQL. Now I want to show you how to do the same &hellip;">
+  <meta name="description" content="While debugging and developing using the AWS SDK you&rsquo;ll find that sometimes you just need to use real credentials on a box that lives outside &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,227 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-02T11:28:42-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>While debugging and developing using the AWS SDK you&rsquo;ll find that sometimes you just need to use real credentials on a box that lives outside of EC2.  You should always be using <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AESDG-chapter-instancedata.html">Instance Metadata</a> for your credentials inside of EC2 though.  Never use this pattern inside EC2!</p>
+
+<p>Also, make sure you never commit your credentials.  That can be an expensive mistake when they show up on Github and people snag them to use them for Bitcoin mining.</p>
+
+<p><strong>NOTE:</strong> These snippets include <code>@Inject</code> and <code>@Assisted</code> annotations used by <a href="https://github.com/google/guice">Guice</a>.  If you&rsquo;re not using Guice remove those and the related imports.</p>
+
+<p>Anyway, if you want to use static IAM user credentials you can use a credentials provider like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.auth.AWSCredentials;
+</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
+</span><span class='line'>import com.google.inject.Inject;
+</span><span class='line'>import com.google.inject.assistedinject.Assisted;
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * Created by timmattison on 9/2/14.
+</span><span class='line'> */
+</span><span class='line'>public class TempNonStsCredentialsProvider implements AWSCredentialsProvider {
+</span><span class='line'>    private final String awsAccessKeyId;
+</span><span class='line'>    private final String awsSecretKey;
+</span><span class='line'>
+</span><span class='line'>    @Inject
+</span><span class='line'>    public TempNonStsCredentialsProvider(@Assisted("awsAccessKeyId") String awsAccessKeyId,
+</span><span class='line'>                                         @Assisted("awsSecretKey") String awsSecretKey) {
+</span><span class='line'>        this.awsAccessKeyId = awsAccessKeyId;
+</span><span class='line'>        this.awsSecretKey = awsSecretKey;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public AWSCredentials getCredentials() {
+</span><span class='line'>        return new AWSCredentials() {
+</span><span class='line'>            @Override
+</span><span class='line'>            public String getAWSAccessKeyId() {
+</span><span class='line'>                return awsAccessKeyId;
+</span><span class='line'>            }
+</span><span class='line'>
+</span><span class='line'>            @Override
+</span><span class='line'>            public String getAWSSecretKey() {
+</span><span class='line'>                return awsSecretKey;
+</span><span class='line'>            }
+</span><span class='line'>        };
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public void refresh() {
+</span><span class='line'>        // Do nothing
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pass in your credentials and you&rsquo;re good to go.  If you&rsquo;re using <a href="http://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html">STS</a> it requires a little bit more work.  Use this instead:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.auth.AWSCredentials;
+</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
+</span><span class='line'>import com.amazonaws.auth.BasicSessionCredentials;
+</span><span class='line'>import com.amazonaws.services.securitytoken.model.Credentials;
+</span><span class='line'>import com.google.inject.assistedinject.Assisted;
+</span><span class='line'>
+</span><span class='line'>import javax.inject.Inject;
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * Created by timmattison on 9/2/14.
+</span><span class='line'> */
+</span><span class='line'>public class TempStsCredentialsProvider implements AWSCredentialsProvider {
+</span><span class='line'>    private final String awsAccessKeyId;
+</span><span class='line'>    private final String awsSecretAccessKey;
+</span><span class='line'>    private final String awsSessionToken;
+</span><span class='line'>
+</span><span class='line'>    @Inject
+</span><span class='line'>    public TempStsCredentialsProvider(@Assisted("awsAccessKeyId") String awsAccessKeyId,
+</span><span class='line'>                                      @Assisted("awsSecretAccessKey") String awsSecretAccessKey,
+</span><span class='line'>                                      @Assisted("awsSessionToken") String awsSessionToken) {
+</span><span class='line'>        this.awsAccessKeyId = awsAccessKeyId;
+</span><span class='line'>        this.awsSecretAccessKey = awsSecretAccessKey;
+</span><span class='line'>        this.awsSessionToken = awsSessionToken;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public AWSCredentials getCredentials() {
+</span><span class='line'>        Credentials sessionCredentials = new Credentials();
+</span><span class='line'>        sessionCredentials.setAccessKeyId(awsAccessKeyId);
+</span><span class='line'>        sessionCredentials.setSecretAccessKey(awsSecretAccessKey);
+</span><span class='line'>        sessionCredentials.setSessionToken(awsSessionToken);
+</span><span class='line'>
+</span><span class='line'>        BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
+</span><span class='line'>                sessionCredentials.getAccessKeyId(),
+</span><span class='line'>                sessionCredentials.getSecretAccessKey(),
+</span><span class='line'>                sessionCredentials.getSessionToken());
+</span><span class='line'>
+</span><span class='line'>        return basicSessionCredentials;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public void refresh() {
+</span><span class='line'>      // Do nothing
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you just need to pass in the extra session token parameter and then you can use this to provide credentials to your AWS calls.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1555,103 +1776,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/06/20/advanced-port-forwarding-with-ssh/">Advanced Port Forwarding With SSH</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-20T06:38:14-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/06/20/advanced-port-forwarding-with-ssh/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/20/advanced-port-forwarding-with-ssh/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><strong><em>NOTE</em></strong>: This has all been done on a Mac running OS 10.9.  YMMV on other operating systems or versions.</p>
-
-<p>If you&rsquo;ve ever had to use an SSH server as a jump off point, possibly to get to machines that don&rsquo;t have a public IP address, then you know that it can be complicated to set up, manage, and annoying if you need to access a lot of machines and/or a lot of different services.  Typically, using local port forwarding you can do something like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ssh -L8080:REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That will let you connect to localhost on port 8080 to get to <code>REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service.  What if you needed to get to two services?  You start stacking them up:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ssh -L8080:REMOTE_PRIVATE_SERVER:80 -L8181:ANOTHER_REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you can get to <code>REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service and <code>ANOTHER_REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service.  You just have to configure your applications to use ports 8080 and 8181 on localhost instead of port 80 on the two remote hosts.</p>
-
-<p>Wouldn&rsquo;t it be nice if you could not worry about re-mapping ports and could just connect to <code>REMOTE_PRIVATE_SERVER</code> and <code>ANOTHER_REMOTE_PRIVATE_SERVER</code> as if they were hosts on your network?  SSH does offer you a way to do this but I have never seen it documented anywhere.  There is <a href="http://www.securitybulletins.com/mediawiki/index.php/SSH_Tunnelling#Using_SSH_to_build_a_Virtual_Private_Network_.28VPN.29">a way to create a VPN using pppd</a> and <a href="http://www.securitybulletins.com/mediawiki/index.php/SSH_Tunnelling#Using_SSH_to_emulate_a_SOCKS_proxy">a way to use SOCKS</a> but those are no fun.  I don&rsquo;t want to use pppd and I have applications that don&rsquo;t support SOCKS.</p>
-
-<p>rsync and other applications that depend on SSH can be particularly tricky.  On top of the command-line options you need to pass to your main application you need to pass options to SSH directly (not so bad), use each applications special syntax to pass those options to SSH (really bad), or convince the application to shell out to the OS with a specific command-line you&rsquo;ve concocted for SSH (also really bad).</p>
-
-<p>Instead, what I do is I make use of the 127.0.0.0/8 address space that is available to everyone but rarely used.  You can always use 127.0.0.1 to access your local machine but you may not realize that you can bind to all of the rest of the addresses in that space.</p>
-
-<p>I need to set up some terminology so this will be easier to discuss.  The machine that you&rsquo;re SSHing will be the &ldquo;source machine&rdquo;.  The machine that is publicly accessible on the remote network that you SSH into will be called the &ldquo;gateway machine&rdquo;.  The machine that provides the remote service that only has a private IP address will be called the &ldquo;destination machine&rdquo;.</p>
-
-<p>My first use case is that the source machine wants to connect to a web server on the destination machine but I want to do it on port 80.  We can do this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo ifconfig lo0 alias 127.0.0.2
-</span><span class='line'>sudo ssh -L127.0.0.2:80:DESTINATION_MACHINE:80 user@GATEWAY_MACHINE</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That first line creates an alias IP address of <code>127.0.0.2</code> on your <code>lo0</code> interface.  Then we ssh to the gateway machine and port forward the destination machine&rsquo;s port 80 to <code>127.0.0.1</code>.  Since 80 is a privileged port you need to sudo your ssh session.</p>
-
-<p>Now instead of having to point our browser to something like <code>localhost:9000</code> we can point our browser directly to <code>127.0.0.2</code>.  What can we do this to make it even better?  Create a host entry for <code>127.0.0.2</code> that gives it a descriptive name like <code>remote_application_server</code>.</p>
-
-<p>Is that not enough?  How about this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo ifconfig lo0 alias 127.0.0.2
-</span><span class='line'>sudo ssh -L127.0.0.2:22:DESTINATION_MACHINE:22 user@GATEWAY_MACHINE</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All that changed here is the port number.  It was 80 and now it is 22 which is the ssh port.  Now you can ssh to this machine in one step like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ssh user@127.0.0.2</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This also means that you can sftp, scp, and rsync directly to that IP address.  Without this trick to rsync you&rsquo;d need to do something like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rsync -rvz -e 'ssh -p 2222' ./dir user@host:/dir</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It may not seem like much but if you have to do it a lot it can get ugly.  Especially since it is one of those options you always forget since you don&rsquo;t use it that often.</p>
-
-<p>I&rsquo;m thinking about scripting the IP aliasing and port forwarding so that it can be specified in a simple configuration file.  If you&rsquo;re interested in that post in the comments below and let me know!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1683,6 +1807,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a>
       </li>
     
@@ -1696,10 +1824,6 @@
     
       <li class="post">
         <a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Making Javascript Logging a Little Less Expensive</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a>
       </li>
     
   </ul>

@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-09-02T09:03:54-04:00</updated>
+  <updated>2014-09-02T11:36:10-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,197 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Snippets for Using AWS Credentials While Debugging]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/"/>
+    <updated>2014-09-02T11:28:42-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging</id>
+    <content type="html"><![CDATA[<p>While debugging and developing using the AWS SDK you&rsquo;ll find that sometimes you just need to use real credentials on a box that lives outside of EC2.  You should always be using <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AESDG-chapter-instancedata.html">Instance Metadata</a> for your credentials inside of EC2 though.  Never use this pattern inside EC2!</p>
+
+<p>Also, make sure you never commit your credentials.  That can be an expensive mistake when they show up on Github and people snag them to use them for Bitcoin mining.</p>
+
+<p><strong>NOTE:</strong> These snippets include <code>@Inject</code> and <code>@Assisted</code> annotations used by <a href="https://github.com/google/guice">Guice</a>.  If you&rsquo;re not using Guice remove those and the related imports.</p>
+
+<p>Anyway, if you want to use static IAM user credentials you can use a credentials provider like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.auth.AWSCredentials;
+</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
+</span><span class='line'>import com.google.inject.Inject;
+</span><span class='line'>import com.google.inject.assistedinject.Assisted;
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * Created by timmattison on 9/2/14.
+</span><span class='line'> */
+</span><span class='line'>public class TempNonStsCredentialsProvider implements AWSCredentialsProvider {
+</span><span class='line'>    private final String awsAccessKeyId;
+</span><span class='line'>    private final String awsSecretKey;
+</span><span class='line'>
+</span><span class='line'>    @Inject
+</span><span class='line'>    public TempNonStsCredentialsProvider(@Assisted("awsAccessKeyId") String awsAccessKeyId,
+</span><span class='line'>                                         @Assisted("awsSecretKey") String awsSecretKey) {
+</span><span class='line'>        this.awsAccessKeyId = awsAccessKeyId;
+</span><span class='line'>        this.awsSecretKey = awsSecretKey;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public AWSCredentials getCredentials() {
+</span><span class='line'>        return new AWSCredentials() {
+</span><span class='line'>            @Override
+</span><span class='line'>            public String getAWSAccessKeyId() {
+</span><span class='line'>                return awsAccessKeyId;
+</span><span class='line'>            }
+</span><span class='line'>
+</span><span class='line'>            @Override
+</span><span class='line'>            public String getAWSSecretKey() {
+</span><span class='line'>                return awsSecretKey;
+</span><span class='line'>            }
+</span><span class='line'>        };
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public void refresh() {
+</span><span class='line'>        // Do nothing
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pass in your credentials and you&rsquo;re good to go.  If you&rsquo;re using <a href="http://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html">STS</a> it requires a little bit more work.  Use this instead:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import com.amazonaws.auth.AWSCredentials;
+</span><span class='line'>import com.amazonaws.auth.AWSCredentialsProvider;
+</span><span class='line'>import com.amazonaws.auth.BasicSessionCredentials;
+</span><span class='line'>import com.amazonaws.services.securitytoken.model.Credentials;
+</span><span class='line'>import com.google.inject.assistedinject.Assisted;
+</span><span class='line'>
+</span><span class='line'>import javax.inject.Inject;
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * Created by timmattison on 9/2/14.
+</span><span class='line'> */
+</span><span class='line'>public class TempStsCredentialsProvider implements AWSCredentialsProvider {
+</span><span class='line'>    private final String awsAccessKeyId;
+</span><span class='line'>    private final String awsSecretAccessKey;
+</span><span class='line'>    private final String awsSessionToken;
+</span><span class='line'>
+</span><span class='line'>    @Inject
+</span><span class='line'>    public TempStsCredentialsProvider(@Assisted("awsAccessKeyId") String awsAccessKeyId,
+</span><span class='line'>                                      @Assisted("awsSecretAccessKey") String awsSecretAccessKey,
+</span><span class='line'>                                      @Assisted("awsSessionToken") String awsSessionToken) {
+</span><span class='line'>        this.awsAccessKeyId = awsAccessKeyId;
+</span><span class='line'>        this.awsSecretAccessKey = awsSecretAccessKey;
+</span><span class='line'>        this.awsSessionToken = awsSessionToken;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public AWSCredentials getCredentials() {
+</span><span class='line'>        Credentials sessionCredentials = new Credentials();
+</span><span class='line'>        sessionCredentials.setAccessKeyId(awsAccessKeyId);
+</span><span class='line'>        sessionCredentials.setSecretAccessKey(awsSecretAccessKey);
+</span><span class='line'>        sessionCredentials.setSessionToken(awsSessionToken);
+</span><span class='line'>
+</span><span class='line'>        BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(
+</span><span class='line'>                sessionCredentials.getAccessKeyId(),
+</span><span class='line'>                sessionCredentials.getSecretAccessKey(),
+</span><span class='line'>                sessionCredentials.getSessionToken());
+</span><span class='line'>
+</span><span class='line'>        return basicSessionCredentials;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public void refresh() {
+</span><span class='line'>      // Do nothing
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you just need to pass in the extra session token parameter and then you can use this to provide credentials to your AWS calls.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Checking PostgreSQL to See if an Index Already Exists]]></title>
@@ -1904,91 +2095,6 @@
 <p>If you are not vulnerable but you have used the same wireless password on an older router it is probably a good idea to change your password.  Nobody knows how long this has been in the wild.  It has been in the firmware for a long time.</p>
 
 <p>If you need help post in the comments.  Good luck!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fixing In-Page Analytics With Google Analytics]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/"/>
-    <updated>2014-01-10T08:40:24-05:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics</id>
-    <content type="html"><![CDATA[<p>After migrating to Octopress I started getting interested in my site&rsquo;s analytics again.  A co-worker told me about in-page analytics with Google Analytics and how it would show you what people were doing on your site so you could tune your layout.  We tried loading it and ran into some problems.</p>
-
-<p>First, we got the &ldquo;Loading&hellip;&rdquo; spinner for a long time:</p>
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/loading.png" alt="Loading..." /></p>
-
-<p>Then we got the &ldquo;Still loading&hellip;&rdquo; message that didn&rsquo;t inspire much confidence:</p>
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/still-loading.png" alt="Still loading..." /></p>
-
-<p>Finally, we got a popup that said &ldquo;Problem loading In-Page Analytics&rdquo;:</p>
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/problem-loading-in-page-analytics.png" alt="Problem loading In-Page Analytics" /></p>
-
-<p>What the problem was in my case was that I told Google Analytics that I wanted to track timmattison.com but my site redirects to blog.timmattison.com.  My two options were to make my site actually be served from timmattison.com or to change my tracking code.  I opted to change my tracking code.  I&rsquo;ll walk you through how I did it.</p>
-
-<p>NOTE: <em>You will lose your existing tracking data if you do this!</em>  If you want to keep your tracking data you&rsquo;ll need to find another way.  For me it wasn&rsquo;t a big deal because I just moved my site anyway and my analytics were reset a week or two ago already.</p>
-
-<p>Here are the steps:</p>
-
-<ul>
-<li>Log into your analytics account</li>
-</ul>
-
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/log-into-your-analytics-account.png" alt="Log into your analytics account" /></p>
-
-<ul>
-<li>Click the admin button</li>
-</ul>
-
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-the-admin-button.png" alt="Click the admin button" /></p>
-
-<ul>
-<li>Click &ldquo;View Settings&rdquo;</li>
-</ul>
-
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-view-settings.png" alt="Click &quot;View Settings&quot;" /></p>
-
-<ul>
-<li><p>Scroll all the way to the bottom of the page</p></li>
-<li><p>Click &ldquo;Delete View&rdquo;</p></li>
-</ul>
-
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-delete-view.png" alt="Click &quot;Delete View&quot;" /></p>
-
-<ul>
-<li>Click &ldquo;Delete View&rdquo; again.  <em>At this point you&rsquo;ll lose all of your analytics history!</em></li>
-</ul>
-
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-delete-view-again.png" alt="Click &quot;Delete View&quot; again" /></p>
-
-<ul>
-<li>Click the admin button</li>
-</ul>
-
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-the-admin-button.png" alt="Click the admin button" /></p>
-
-<ul>
-<li>Click the property drop down and then click &ldquo;Create new property&rdquo;</li>
-</ul>
-
-
-<p><img src="http://blog.timmattison.com/images/in-page-analytics/click-property-drop-down-and-click-create-new-property.png" alt="Click the property drop down and then click &quot;Create new property&quot;" /></p>
-
-<ul>
-<li><p>Re-create your property and make sure you use the site you redirect to.  In my case &ldquo;blog.timmattison.com&rdquo;, not &ldquo;timmattison.com&rdquo;.</p></li>
-<li><p>Put your new tracking code into your site.  <em>Don&rsquo;t forget to do this or tracking won&rsquo;t work at all!</em></p></li>
-</ul>
-
-
-<p>And that should do it.  Let me know if it works for you or if you need some help.</p>
 ]]></content>
   </entry>
   

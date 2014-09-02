@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Even though I have a nice dual monitor setup in my office I tend to use my laptop for almost everything. The dual monitor system ends up holding a &hellip;">
+  <meta name="description" content="With so many free streaming services available today (Vimeo being the best and YouTube being the most widely recognized) you might wonder why someone &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,101 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/">How-To: Setup Streaming MP4 Video on Your Own Gentoo Server (and Other Distros)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-29T22:52:59-05:00" pubdate data-updated="true">Nov 29<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>With so many free streaming services available today (<a href="http://www.vimeo.com">Vimeo</a> being the best and <a href="http://www.youtube.com">YouTube</a> being the most widely recognized) you might wonder why someone would want to host their own videos.  My main reason is so that I can more easily see who watches my content.  Other reasons include better access control if your videos are personal in nature, or a more integrated, branded user experience if you&rsquo;re producing content that is subscription, pay-per-view or ad supported.  You might also want to get around the restrictions that come with the free accounts these sites offer without paying for their premium services.  If you&rsquo;re already invested in the hardware to host your site and you can support the bandwidth requirements for your expected traffic volume then it might make sense to host things yourself.</p>
+
+<p>So, what&rsquo;s the big deal?  If you&rsquo;re looking to get started right away you can render an MP4 file, install a free player like <a href="http://flowplayer.org/">FlowPlayer</a>, and start hosting video in 5 minutes.  The problem that you&rsquo;ll notice straight away is that your videos have to buffer completely (ie. the user&rsquo;s browser downloads the whole video) before they start playing.  For short videos or video files that are small this isn&rsquo;t a big deal.  But for HD videos and videos that are long in duration the delay can cause even the most patient viewers navigate away from your site.  Since all of the other services have gotten users accustomed to video playing immediately it&rsquo;s hard to justify this kind of behavior on any site today.</p>
+
+<p>I&rsquo;ve figured out the secret sauce to get this working.  Now you can do it too with just these few simple steps:</p>
+
+<ul>
+<li><p>Step 1: Render your MP4 files and place them on your server</p></li>
+<li><p>Step 2: Create a webpage with <a href="http://flowplayer.org/">FlowPlayer</a> embedded.  A template to get you started looks like this:</p>
+
+<p><head>
+<script type="text/javascript" src="http://your-site.com/flowplayer-3.2.4.min.js"></script>
+</head></p>
+
+<p><a href="http://your-site.com/your-video.mp4" style="display:block;width:800px;height:475px" id="player"> </a></p>
+
+<p><script>flowplayer(&ldquo;player&rdquo;, &ldquo;flowplayer-3.2.5.swf&rdquo;,</p>
+
+<p>{ clip:
+  { url: &ldquo;<a href="http://your-site.com/your-video.mp4">http://your-site.com/your-video.mp4</a>&rdquo;,
+    duration: 120,
+    metadata: false,
+    autoPlay: true,
+    autoBuffer: true,
+    bufferLength: 3,
+    linkUrl: &ldquo;<a href="http://your-site.com/your-video-description.html">http://your-site.com/your-video-description.html</a>&rdquo;
+  }
+});</script></p></li>
+</ul>
+
+
+<p>Just replace your-site.com/your-video.mp4 with the real URL of your MP4 video and your-site.com/your-video-description.html with the site you want to link the user to if they click on the video while it&rsquo;s playing.  Also, replace &ldquo;120&rdquo; after the duration variable with the actual duration of your video in seconds.  If you don&rsquo;t know this value, or you&rsquo;re feeling lazy, you can set it to zero and FlowPlayer will figure it out for you.  Don&rsquo;t set it too short or your video will end prematurely and make sure that flowplayer-3.1.4.min.js is on your server in the appropriate location.  This example assumes it is in the root directory.</p>
+
+<ul>
+<li><p>Step 3: Download and install mod_h264 for Apache.  There are instructions for <a href="http://h264.code-shop.com/trac/wiki/Mod-H264-Streaming-Apache-Version2">distros other than Gentoo</a> or youcan run these commands on Gentoo to do it all:</p>
+
+<p>cd /tmp
+wget <a href="http://h264.code-shop.com/download/apache_mod_h264_streaming-2.2.5.tar.gz">http://h264.code-shop.com/download/apache_mod_h264_streaming-2.2.5.tar.gz</a>
+tar xzvf apache_mod_h264_streaming-2.2.5.tar.gz
+rm apache_mod_h264_streaming-2.2.5.tar.gz
+cd mod_h264_streaming-2.2.5
+./configure
+sudo make install</p></li>
+<li><p>Step 4: Add mod_h264 for your Apache configuration.  Append these lines to the bottom of your /etc/apache/httpd.conf:</p>
+
+<p>LoadModule h264_streaming_module /usr/lib/apache2/modules/mod_h264_streaming.so
+AddHandler h264-streaming.extensions .mp4</p></li>
+<li><p>Step 5: Restart apache with</p>
+
+<p>/etc/init.d/apache restart</p></li>
+<li><p>Step 6: Test out your streaming video.  If all went well then you&rsquo;ll see the bar behind the playhead fill in as the video buffers.</p></li>
+</ul>
+
+
+<p>That&rsquo;s all there is to it.  Thanks to the mod_h264 developers (and these instructions) you&rsquo;re now able to stream MP4 video like the big guys.  Here&rsquo;s an example of what it should look like (the source material in this video is from <a href="http://freestockphotos.com/">FreeStockPhotos.com</a> but the controls in the player cut off their watermark):</p>
+
+<p><a href="http://blog.timmattison.com/static/howto-test.mp4"> </a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -674,70 +769,6 @@ java.lang.NoSuchMethodError: org.eclipse.jdt.internal.compiler.lookup.ProblemRef
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/">How-To: Restart OpenSSH (Sshd) When It Doesn&#8217;t Want To</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-06T18:59:59-05:00" pubdate data-updated="true">Nov 6<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>If you&rsquo;re doing a remote system upgrade from time to time you&rsquo;ll have to deal with changes in OpenSSH (sshd).  I just did an update on a Gentoo machine and afterwards I couldn&rsquo;t get OpenSSH to stop, much less restart.  When you&rsquo;re in these kinds of situations you risk losing remote access to the machine if it&rsquo;s not a VPS (like <a href="http://linode.com">Linode</a>, my favorite VPS hosting company so far) or doesn&rsquo;t have a KVM.  You can&rsquo;t just killall sshd since that&rsquo;ll disconnect you, and in my case running /etc/init.d/sshd restart failed to stop sshd.  If you don&rsquo;t restart sshd then all of those security patches are going to waste since your system is relying on the original copy of sshd in RAM.</p>
-
-<p>So what do you do?  <strong>NOT THIS UNLESS YOU ARE CONNECTED VIA A SERIAL PORT!</strong> I have remote console access do I can just fire up Linode&#8217; AJAX console and do the following:</p>
-
-<pre><code>killall sshd
-
-/etc/init.d/sshd restart
-</code></pre>
-
-<p>That got me running and I was all set. But you can do something similar remotely.  The trick is that you&rsquo;ll need to run it in <a href="http://www.gnu.org/software/screen/">GNU&rsquo;s screen</a> utility to make sure that all of the commands are run.  Here&rsquo;s what you should do:</p>
-
-<pre><code>screen
-
-killall sshd ; sleep 5 ; /etc/init.d/sshd restart
-</code></pre>
-
-<p>It&rsquo;s a bit risky because there&rsquo;s no guarantee that sshd will come up after that but this is a last ditch effort only.  Make sure all of your ducks are in a row, double check the upgrade process, run revdep-rebuild on Gentoo if you have to to make sure all of your libraries are correct.  I take no responsibility if you lose your connection and need to drive to the colo or sheepishly call for a reboot or remote hands.</p>
-
-<p>I can tell you that in my case, a Gentoo upgrade, it did work fine.  You lose your connection but you can reconnect in 10 or so seconds, and then run</p>
-
-<pre><code>screen -r
-</code></pre>
-
-<p>to see that all of the commands executed successfully.</p>
-
-<p>Make sure you separate the commands by semi-colons though.  It&rsquo;s required, not just stylistic here.  You can&rsquo;t killall sshd and then keep issuing the commands interactively.  You have to let the shell do it for you inside screen, or else.  :)</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -771,6 +802,10 @@ killall sshd ; sleep 5 ; /etc/init.d/sshd restart
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a>
       </li>
     
@@ -784,10 +819,6 @@ killall sshd ; sleep 5 ; /etc/init.d/sshd restart
     
       <li class="post">
         <a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Making Javascript Logging a Little Less Expensive</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a>
       </li>
     
   </ul>
