@@ -719,12 +719,18 @@
         <lastmod>2014-09-02T14:49:42-04:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/
+        </loc>
+        <lastmod>2014-09-04T08:17:40-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-09-02T14:49:42-04:00</lastmod>
+        <lastmod>2014-09-04T08:17:40-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-09-02T14:49:42-04:00</lastmod>
+        <lastmod>2014-09-04T08:17:40-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

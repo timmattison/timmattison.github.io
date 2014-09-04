@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-09-02T14:50:15-04:00</updated>
+  <updated>2014-09-04T08:18:08-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,75 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Using SSH Agent to Simplify Connecting to EC2]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/"/>
+    <updated>2014-09-04T08:00:41-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2</id>
+    <content type="html"><![CDATA[<p>TL;DR &ndash; Jump to the bottom and look for the <code>eval $(ssh-agent)</code> snippet!</p>
+
+<p>Once you start using EC2 you&rsquo;ll probably need to do a lot of things that involve SSH.  A common frustration is having to specify your identity file when connecting to your EC2 instance.  Instead of doing this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh ubuntu@my-ec2-instance</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You end up doing this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh -i ~/.ssh/identity-file.pem ubuntu@my-ec2-instance</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This gets even more complex when tools based on SSH are brought into the mix.  Some of these tools don&rsquo;t have a mechanism to even specify the identity file.  If they do sometimes it makes the command-line really ugly and it almost always makes the script custom to a specific user.  For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">rsync -avz -e &quot;ssh -p1234  -i /home/username/.ssh/identity-file.pem&quot; ...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Is only going to work for the user <code>username</code>.</p>
+
+<p>How do we make this a lot easier?  It turns out there is a very simple way to make all of that pain go away.  Whether you use <a href="http://rsync.samba.org/">rsync</a>, <a href="http://www.cis.upenn.edu/~bcpierce/unison/">unison</a>, <a href="https://mosh.mit.edu/">mosh</a>, scp, or any of a number of other tools that make use of SSH under the hood there is a standard mechanism for SSH to manage your identity.  That mechanism is called <a href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/ssh-agent.1?query=ssh-agent&amp;sec=1">ssh-agent</a>.</p>
+
+<p>If I try to rsync directly to my EC2 instance I get this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> rsync -avzP ubuntu@my-ec2-instance:file-on-ec2.txt <span class="nb">local</span>-file.txt
+</span><span class='line'><span class="go">Permission denied (publickey).</span>
+</span><span class='line'><span class="go">rsync: connection unexpectedly closed (0 bytes received so far) [Receiver]</span>
+</span><span class='line'><span class="go">rsync error: unexplained error (code 255) at io.c(226) [Receiver=3.1.1]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Instead what I want to do is start the ssh-agent, tell it about my identity file, and have the agent worry about providing my identity file when necessary.  To do that I do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">eval $(ssh-agent) &amp;&amp; ssh-add ~/.ssh/identity-file.pem</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once you do that SSH will use that identity file to connect to EC2 automatically.  You just need to run that in each shell you are using to connect to EC2 and you are set.</p>
+
+<p>Do you have more than one identity file?  You can keep running ssh-add with additional identity files and it will manage them all.</p>
+
+<p>Do you want to be really lazy and load all of your identities at once?  Try this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">eval $(ssh-agent) &amp;&amp; ssh-add ~/.ssh/*.pem</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Enjoy!</p>
+
+<p>NOTE: Your pem files need to have the permission set to 400 so they can only be read by your user and not written to.  Otherwise ssh-agent and ssh may refuse to use them.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Full Example Code Showing How to Use Guice and Jetty]]></title>
@@ -2202,49 +2271,6 @@
 <p>Is there a solution to level the playing field?  Considering the bot net angle what does that even mean?  I believe that there is a solution that would allow people to participate with CPUs, not require GPU and ASIC investments, and would prevent bot net operators from profiting on mining.  I&rsquo;ve been thinking about this for over a year and I&rsquo;m getting very close to having what I think is a workable solution.  There still is one hole in it but I think that it may be better than what is out there.  Stay tuned and when I&rsquo;m ready I&rsquo;ll post it on my blog.</p>
 
 <p>BTW, I started this blog post on 2014-01-10 and just finished it on 2014-06-17 so it may be a while before I release something.  Be patient!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[True Remote Debugging With Chrome's Remote Debugging Feature]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/"/>
-    <updated>2014-06-17T09:19:34-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature</id>
-    <content type="html"><![CDATA[<p>Have you used <a href="http://blog.chromium.org/2011/05/remote-debugging-with-chrome-developer.html">Chrome&rsquo;s remote debugging feature</a>?  It is a handy tool for debugging JavaScript in another tab/window.</p>
-
-<p>That&rsquo;s nice, but have you ever wanted to debug JavaScript that was running on another machine running Chrome?  If so, and you&rsquo;re running on Mac OS, you&rsquo;ve come to the right place.</p>
-
-<p>The first step in this process is to disable <a href="http://joshuamcginnis.com/2011/02/28/how-to-disable-same-origin-policy-in-chrome/">Chrome&rsquo;s same origin policy</a>.  This may not be necessary in your application but I&rsquo;ve always found I needed to do it in mine.</p>
-
-<p>Now you&rsquo;ll need to make sure you have <a href="http://www.dest-unreach.org/socat/">socat</a> installed.  The easiest way to do this is with <a href="http://brew.sh/">Homebrew</a>.  Install Homebrew, and then run this command:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>brew install socat</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That will install socat if it isn&rsquo;t installed already.</p>
-
-<p>Now start Chrome remote debugging on the system that you want to connect to.</p>
-
-<p>Next, get socat to relay traffic from port 9223 to port 9222 using this command:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>socat tcp-listen:9223,fork tcp:localhost:9222</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Finally, try to connect to the remote computer using <em>its IP address, not localhost</em> with a URL like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>http://IP_ADDRESS:9223</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You should be connected to the remote system&rsquo;s debugger using port 9223.</p>
-
-<p>When you are done be sure to do this to stop socat:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>killall socat</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   
