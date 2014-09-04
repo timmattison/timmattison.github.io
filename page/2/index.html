@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Getting started with development on the Android Wear platform can be challenging. Here are my notes on how to get started quickly. Before you do &hellip;">
+  <meta name="description" content="While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown. I searched around and came across a gist that &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,105 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-17T06:54:17-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown.  I searched around and came across <a href="https://gist.github.com/clintel/1155906">a gist that showed how to do it</a> but I still couldn&rsquo;t get it to work.</p>
+
+<p>It turns out that the parser used in Octopress is slightly different than some of the other parsers out there and treats this markdown differently.  There is <a href="https://github.com/imathis/octopress/issues/488">an issue filed for this</a> but the issue resolution is to use a workaround.</p>
+
+<p>After some experimentation I came up with some simple steps that cover all the scenarios for putting code blocks or formatted text into an ordered list while writing my blog posts.</p>
+
+<p>It is organized so that the two main scenarios include four different snippets of code.  The first snippet of code is put directly before the entire block you want to format.  The second snippet of code is put before each line of code.  The third snippet of code is put after each line of code.  The fourth snippet of code is put at the end of the entire block.</p>
+
+<ol>
+<li><p>No line numbers, no syntax highlighting.  I use this when including snippets of commands that I have run from the console.</p>
+
+<ol>
+<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code&gt;</code></li>
+<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
+<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
+</ol>
+</li>
+<li><p>No line numbers, syntax highlighting.  I use this for regular code if I don&rsquo;t care about line numbers.  Replace <code>LANGUAGE</code> with the language you are using.  For example, <code>c</code> or <code>python</code> (see the <a href="http://pygments.org/docs/lexers/">supported language list</a> for more).</p>
+
+<ol>
+<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code class="LANGUAGE"&gt;</code></li>
+<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
+<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
+</ol>
+</li>
+</ol>
+
+
+<p>If you want to do line numbers when syntax highlighting it gets messy.  You need to build a table to have the line number &ldquo;gutter&rdquo; in there.  You can do it but it is a bit more work.</p>
+
+<p>Line numbers and syntax highlighting:</p>
+
+<ol>
+<li><p>Start a table that holds everything.  This is the block you&rsquo;ll use:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&ldquo;gutter&rdquo;&gt;&lt;pre class=&ldquo;line-numbers&rdquo;&gt;</span>
+ </code></pre></div></p></li>
+<li><p>Determine how many lines are in your code snippet.  Now create a line number row for each of them.  Assuming you have five lines of code that would look like this:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;1&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;2&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;3&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;4&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;5&lt;/span&gt;</span>
+ </code></pre></div></p></li>
+<li><p>Close this column of the table and start the column for the code:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;/pre&gt;&lt;/td&gt;&lt;td class=&ldquo;code&rdquo;&gt;&lt;pre&gt;&lt;code class=&ldquo;LANGUAGE&rdquo;&gt;
+ </code></pre></div></p></li>
+<li><p>Before each line of code &ndash; <code>&lt;span class="line"&gt;</code></p></li>
+<li>After each line of code &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</code></li>
+</ol>
+
+
+<p>That should do it.  Good luck!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1204,73 +1303,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-17T20:09:15-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Recently I read an article called <a href="http://en.wikipedia.org/wiki/Memory_bound_function">&ldquo;The Problem with Altcoins&rdquo;</a> and the author states this about Litecoin:</p>
-
-<blockquote><p>Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.</p></blockquote>
-
-<p>This is something that I hear a lot and it needs to be cleared up.  There are some things <a href="http://en.wikipedia.org/wiki/Application-specific_integrated_circuit">ASICs</a> are not good at.  Where ASICs really shine are problems where you can design a pipeline that the data goes through in a mostly fixed order.  <a href="http://en.wikipedia.org/wiki/SHA-2">SHA256</a> is perfect for ASICs.  Each step of the algorithm requires very little storage.  If I&rsquo;m counting correctly you need 64 32-bit words, 16 16-bit words, and somewhere around 22 32-bit registers.</p>
-
-<p>We&rsquo;re talking about a really small amount of storage here.  ((64 * 4) + (16 * 2) + (22 * 4)) == 376 bytes</p>
-
-<p>Even if we bump it up to 512 bytes it is still a miniscule amount of storage in the grand scheme of all of the kinds of storage that we use today (registers, L1 cache, L2 cache, L3 cache, RAM, and hard drive space).  Because of this it is cheap to make it very, very fast to read and write this data.  Physically it occupies little space so you can put the components for this storage exactly where it needs to go on the chip.</p>
-
-<p>Litecoin, and several other cryptocurrencies, use <a href="http://en.wikipedia.org/wiki/scrypt">scrypt</a> instead of SHA256.  This algorithm was supposed to make mining only feasibly on CPUs.  Modern GPUs though were found to have a bit of an edge over CPUs and the memory requirements weren&rsquo;t high enough to really take GPUs out of the running.</p>
-
-<p>Now there is <a href="http://cpucoinlist.com/cryptocurrency-algorithms/x11/">X11</a>, and <a href="http://cpucoinlist.com/cryptocurrency-algorithms/cryptonight/">CryptoNight</a> which are even harder to implement on ASICs&hellip;</p>
-
-<p>But anyway what I really want to address is this particular section of the statement:</p>
-
-<blockquote><p>an ASIC machine could be produced with a shared memory</p></blockquote>
-
-<p>This is a fundamental misunderstanding of computer architecture.  An ASIC is super fast because it doesn&rsquo;t have a pool of shared memory.  The memory is exactly where it needs to be for each stage.</p>
-
-<p>Do you know what the technical term for &ldquo;ASICs with shared memory&rdquo; is?  A general purpose CPU.  :)  Yes, an ASIC with a pool of memory like this would still have some advantage but not the orders of magnitude we see now.  This is because it would be bound to the same limits a CPU is bound to which is the relatively slow access time of RAM versus the CPU&rsquo;s clock speed.</p>
-
-<p>What can we do to make sure mining stays CPU bound?  We should be using <a href="https://en.wikipedia.org/wiki/Memory_bound_function">memory bound functions</a> which are sometimes also called memory hard problems.  These memory bound functions should require enormous amounts of memory.  More than a Raspberry Pi has, more than a BeagleBone Black, more than a GPU.  I mean ridiculous gobs of memory.  Why not?  If the proof of work function can be adjusted, and it has to be to keep up with Moore&rsquo;s law, we can adjust the work to be easy in the sense that it requires few iterations but tons of memory.  As CPUs and memory get faster and people join the network we just adjust it as we always have.</p>
-
-<p>X11 and CryptoNight seem like a good start but there are still problems with them.  It turns out there is one big benefit from algorithms that are not profitable on CPUs and that is that bot net operators are much less likely to waste their bot net time on mining those currencies.  I have a feeling that X11 and CryptoNight are very profitable to mine on bot nets right now.</p>
-
-<p>Is there a solution to level the playing field?  Considering the bot net angle what does that even mean?  I believe that there is a solution that would allow people to participate with CPUs, not require GPU and ASIC investments, and would prevent bot net operators from profiting on mining.  I&rsquo;ve been thinking about this for over a year and I&rsquo;m getting very close to having what I think is a workable solution.  There still is one hole in it but I think that it may be better than what is out there.  Stay tuned and when I&rsquo;m ready I&rsquo;ll post it on my blog.</p>
-
-<p>BTW, I started this blog post on 2014-01-10 and just finished it on 2014-06-17 so it may be a while before I release something.  Be patient!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1304,6 +1336,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
       </li>
     
@@ -1317,10 +1353,6 @@
     
       <li class="post">
         <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a>
       </li>
     
   </ul>

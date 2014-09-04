@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="TL;DR &ndash; Jump to the bottom and look for the eval $(ssh-agent) snippet! Once you start using EC2 you&rsquo;ll probably need to do a lot of &hellip;">
+  <meta name="description" content="Have you ever pasted working a bash script or piece of code into a text editor and had it fail to work when you copied it back out later? You&rsquo; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,67 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-04T08:45:12-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Have you ever pasted working a bash script or piece of code into a text editor and had it fail to work when you copied it back out later?  You&rsquo;ve probably fallen victim to smart quotes, smart dashes, or automatic spelling correction.</p>
+
+<p>For example, during development I write scripts in Evernote and two very common things happen:</p>
+
+<ul>
+<li><code>aws</code> is persistently and annoyingly replaced by the word &ldquo;was&rdquo;</li>
+<li>Commands that include double or single quotes have those quotes replaced with scripting hostile quotes that shells don&rsquo;t understand</li>
+</ul>
+
+
+<p>In Mac OS we can fix this in a few steps:</p>
+
+<ol>
+<li>Open System Preferences and click on Keyboard <img src="images/smart-quotes-mac-os/step-1.png" alt="Keyboard" /></li>
+<li>Click &ldquo;Text&rdquo; <img src="images/smart-quotes-mac-os/step-2.png" alt="Keyboard" /></li>
+<li>Uncheck &ldquo;Use smart quotes and dashes&rdquo; <img src="images/smart-quotes-mac-os/step-3.png" alt="Keyboard" /></li>
+<li>Uncheck &ldquo;Correct spelling automatically&rdquo; <img src="images/smart-quotes-mac-os/step-4.png" alt="Keyboard" /></li>
+</ol>
+
+
+<p>You&rsquo;re done!  Now your settings should look like this and these &ldquo;smart&rdquo; features will never bother you again:</p>
+
+<p><img src="images/smart-quotes-mac-os/step-5.png" alt="Keyboard" /></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1647,105 +1708,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-17T06:54:17-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown.  I searched around and came across <a href="https://gist.github.com/clintel/1155906">a gist that showed how to do it</a> but I still couldn&rsquo;t get it to work.</p>
-
-<p>It turns out that the parser used in Octopress is slightly different than some of the other parsers out there and treats this markdown differently.  There is <a href="https://github.com/imathis/octopress/issues/488">an issue filed for this</a> but the issue resolution is to use a workaround.</p>
-
-<p>After some experimentation I came up with some simple steps that cover all the scenarios for putting code blocks or formatted text into an ordered list while writing my blog posts.</p>
-
-<p>It is organized so that the two main scenarios include four different snippets of code.  The first snippet of code is put directly before the entire block you want to format.  The second snippet of code is put before each line of code.  The third snippet of code is put after each line of code.  The fourth snippet of code is put at the end of the entire block.</p>
-
-<ol>
-<li><p>No line numbers, no syntax highlighting.  I use this when including snippets of commands that I have run from the console.</p>
-
-<ol>
-<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code&gt;</code></li>
-<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
-<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
-<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
-</ol>
-</li>
-<li><p>No line numbers, syntax highlighting.  I use this for regular code if I don&rsquo;t care about line numbers.  Replace <code>LANGUAGE</code> with the language you are using.  For example, <code>c</code> or <code>python</code> (see the <a href="http://pygments.org/docs/lexers/">supported language list</a> for more).</p>
-
-<ol>
-<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code class="LANGUAGE"&gt;</code></li>
-<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
-<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
-<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
-</ol>
-</li>
-</ol>
-
-
-<p>If you want to do line numbers when syntax highlighting it gets messy.  You need to build a table to have the line number &ldquo;gutter&rdquo; in there.  You can do it but it is a bit more work.</p>
-
-<p>Line numbers and syntax highlighting:</p>
-
-<ol>
-<li><p>Start a table that holds everything.  This is the block you&rsquo;ll use:</p>
-
-<p> <div class="highlight"><pre><code class="html">
- <span class="line">&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&ldquo;gutter&rdquo;&gt;&lt;pre class=&ldquo;line-numbers&rdquo;&gt;</span>
- </code></pre></div></p></li>
-<li><p>Determine how many lines are in your code snippet.  Now create a line number row for each of them.  Assuming you have five lines of code that would look like this:</p>
-
-<p> <div class="highlight"><pre><code class="html">
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;1&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;2&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;3&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;4&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;5&lt;/span&gt;</span>
- </code></pre></div></p></li>
-<li><p>Close this column of the table and start the column for the code:</p>
-
-<p> <div class="highlight"><pre><code class="html">
- <span class="line">&lt;/pre&gt;&lt;/td&gt;&lt;td class=&ldquo;code&rdquo;&gt;&lt;pre&gt;&lt;code class=&ldquo;LANGUAGE&rdquo;&gt;
- </code></pre></div></p></li>
-<li><p>Before each line of code &ndash; <code>&lt;span class="line"&gt;</code></p></li>
-<li>After each line of code &ndash; <code>&lt;/span&gt;</code></li>
-<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</code></li>
-</ol>
-
-
-<p>That should do it.  Good luck!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1777,6 +1739,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
       </li>
     
@@ -1790,10 +1756,6 @@
     
       <li class="post">
         <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a>
       </li>
     
   </ul>

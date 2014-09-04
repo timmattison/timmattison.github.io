@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Just last night I had a few large files I wanted to bring to a friends house. They were HD videos that I took a long time ago and were about 7 GB in &hellip;">
+  <meta name="description" content="Over the years I have accumulated many, many disks full of data. Ordinarily I migrate them to my latest disk and just keep a backup or two and get &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,73 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/">Why I Wrote dirhash.pl (a Whole Directory Filename and Contents Hashing System)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-29T17:17:15-05:00" pubdate data-updated="true">Jan 29<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Over the years I have accumulated many, many disks full of data.  Ordinarily I migrate them to my latest disk and just keep a backup or two and get rid of the old disks.  However, every once in a while I come across an old disk that has a directory structure that I really want to keep but don&rsquo;t have the time to go through.  Recently this happened with a large directory of old projects and to make matters worse there were multiple copies of this directory in different places.</p>
+
+<p>I looked around and found some interesting stuff so I certainly didn&rsquo;t want to lose this time capsule of code but I now had an interesting problem.  How do I take multiple copies of what appear like identical directories and compare them so I can nuke them if they are duplicates?</p>
+
+<p>I could rsync one to the other but that would involve modifying one or both copies and I wasn&rsquo;t excited about that since there&rsquo;s the chance that one is newer than the other and I could mix them up.  There are flags to check that but I didn&rsquo;t want to go the potentially destructive route.</p>
+
+<p>I could hash each file and determine which are dupes but with over 20,000 files it becomes tedious work.  Dupe removers are OK but it still felt clunky.  I just wanted a quick yea or nay as to whether I could give these files the good old &ldquo;rm -rf&rdquo;.</p>
+
+<p>Hashing the files, dumping it to a list, and then hashing the list sounds good but there are a few problems:</p>
+
+<ul>
+<li><p>If the files are in different order the results will be different but I can resolve this with &ldquo;sort&rdquo;</p></li>
+<li><p>If the hashing program reports the relative path names then the file list will definitely be different and therefore the final hash will be different.  I could resolve this with some vi-fu or sed-fu but that leaves me with some work that is just lost when I need to do it again.</p></li>
+</ul>
+
+
+<p>My solution was to write a Perl script that rolled all of that logic into one package.  It does the following:</p>
+
+<ul>
+<li><p>Gets a list of files in the specified directory</p></li>
+<li><p>Sorts that list</p></li>
+<li><p>Hashes each entry in the list.  If it is a file it is hashed and its filename is appended to the hash, if it is a directory it is opened up and those files are run through this process recursively.</p></li>
+<li><p>The final list of hashes and filenames itself is hashed to make sure we get one hash for the entire directory</p></li>
+</ul>
+
+
+<p>This solves the order problem and the script removes the relative path elements from each filename automatically so that&rsquo;s no longer an issue as well.</p>
+
+<p>If you&rsquo;re looking to see if two directory structures are equal (filenames all equal, no files added or removed between the two of them, and file contents equal) give it a shot and let me know how it works for you.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1073,56 +1140,6 @@ grep localhost /tmp/etc-dir.txt | wc -l
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2011/11/01/how-to-run-teamviewer-6-as-root-in-linux-debian-ubuntu/">How-To: Run TeamViewer 6 as Root in Linux (Debian, Ubuntu)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-11-01T15:40:16-04:00" pubdate data-updated="true">Nov 1<span>st</span>, 2011</time>
-        
-           | <a href="/archives/2011/11/01/how-to-run-teamviewer-6-as-root-in-linux-debian-ubuntu/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2011/11/01/how-to-run-teamviewer-6-as-root-in-linux-debian-ubuntu/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>If you are reading this article I, unlike the rest of the Internet, will assume you have a good reason to run Teamviewer as root.  I won&rsquo;t spend my time trying to talk you out of it.  :)</p>
-
-<p>You can accomplish this in just a few quick steps:</p>
-
-<p>1) Install Teamviewer 6
-2) Try to run it as root, if you get the message &ldquo;TeamViewer must not be executed as root!&rdquo; go on to step 3.  Otherwise, you are already set up.
-3) Open /opt/teamviewer/teamviewer/6/bin/wrapper in your favorite text editor
-4) Look for a line similar to this: &ldquo;validate_user                  # die if root&rdquo;
-5) Put a single hash/octothorpe in front of the line and save it so it looks like &ldquo;#validate_user              # die if root&rdquo;.
-6) Restart Teamviewer as root and you&rsquo;re good to go</p>
-
-<p>Post in the comments if you used this tip and let me know if you run into any trouble.  This should work on other versions of Linux but the files may be in different places.  If you want to find your operating system&rsquo;s copy of &ldquo;wrapper&rdquo; try running &ldquo;locate wrapper | grep -i teamviewer&rdquo; and it should come up in the list.  If you don&rsquo;t have locate installed you can try the much slower: &ldquo;find / -name &#8220;wrapper&rdquo; | grep -i teamviewer&#8221; to do the same thing.  Good luck!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/7/">&larr; Older</a>
@@ -1156,6 +1173,10 @@ grep localhost /tmp/etc-dir.txt | wc -l
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
       </li>
     
@@ -1169,10 +1190,6 @@ grep localhost /tmp/etc-dir.txt | wc -l
     
       <li class="post">
         <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a>
       </li>
     
   </ul>
