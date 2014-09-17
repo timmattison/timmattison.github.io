@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-09-17T08:51:29-04:00</updated>
+  <updated>2014-09-17T09:34:58-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -1924,14 +1924,16 @@
 
 <p>If you&rsquo;ve ever had to use an SSH server as a jump off point, possibly to get to machines that don&rsquo;t have a public IP address, then you know that it can be complicated to set up, manage, and annoying if you need to access a lot of machines and/or a lot of different services.  Typically, using local port forwarding you can do something like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ssh -L8080:REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh -L8080:REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>That will let you connect to localhost on port 8080 to get to <code>REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service.  What if you needed to get to two services?  You start stacking them up:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ssh -L8080:REMOTE_PRIVATE_SERVER:80 -L8181:ANOTHER_REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh -L8080:REMOTE_PRIVATE_SERVER:80 -L8181:ANOTHER_REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now you can get to <code>REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service and <code>ANOTHER_REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service.  You just have to configure your applications to use ports 8080 and 8181 on localhost instead of port 80 on the two remote hosts.</p>
@@ -1946,10 +1948,11 @@
 
 <p>My first use case is that the source machine wants to connect to a web server on the destination machine but I want to do it on port 80.  We can do this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo ifconfig lo0 alias 127.0.0.2
-</span><span class='line'>sudo ssh -L127.0.0.2:80:DESTINATION_MACHINE:80 user@GATEWAY_MACHINE</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">sudo ifconfig lo0 alias 127.0.0.2</span>
+</span><span class='line'><span class="go">sudo ssh -L127.0.0.2:80:DESTINATION_MACHINE:80 user@GATEWAY_MACHINE</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>That first line creates an alias IP address of <code>127.0.0.2</code> on your <code>lo0</code> interface.  Then we ssh to the gateway machine and port forward the destination machine&rsquo;s port 80 to <code>127.0.0.1</code>.  Since 80 is a privileged port you need to sudo your ssh session.</p>
@@ -1958,22 +1961,25 @@
 
 <p>Is that not enough?  How about this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo ifconfig lo0 alias 127.0.0.2
-</span><span class='line'>sudo ssh -L127.0.0.2:22:DESTINATION_MACHINE:22 user@GATEWAY_MACHINE</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">sudo ifconfig lo0 alias 127.0.0.2</span>
+</span><span class='line'><span class="go">sudo ssh -L127.0.0.2:22:DESTINATION_MACHINE:22 user@GATEWAY_MACHINE</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>All that changed here is the port number.  It was 80 and now it is 22 which is the ssh port.  Now you can ssh to this machine in one step like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ssh user@127.0.0.2</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh user@127.0.0.2</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>This also means that you can sftp, scp, and rsync directly to that IP address.  Without this trick to rsync you&rsquo;d need to do something like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rsync -rvz -e 'ssh -p 2222' ./dir user@host:/dir</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">rsync -rvz -e &#39;ssh -p 2222&#39; ./dir user@host:/dir</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>It may not seem like much but if you have to do it a lot it can get ugly.  Especially since it is one of those options you always forget since you don&rsquo;t use it that often.</p>
