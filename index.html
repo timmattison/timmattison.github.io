@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Have you ever pasted working a bash script or piece of code into a text editor and had it fail to work when you copied it back out later? You&rsquo; &hellip;">
+  <meta name="description" content="A few months ago I wanted to get some data out of WeatherGoose II Climate Monitor so I could convert it into JSON and consume it in another &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,65 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-17T08:08:38-04:00" pubdate data-updated="true">Sep 17<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>A few months ago I wanted to get some data out of <a href="http://www.itwatchdogs.com/climate-monitor-weathergoose-ii-p1.html">WeatherGoose II Climate Monitor</a> so I could convert it into JSON and consume it in another application.  I hacked something together and converted their format to JSON in a few hours as a proof-of-concept and the code sat for a few months.</p>
+
+<p>A co-worker recently asked me if they could hook up to my script with a browser to try to do some visualization.  I didn&rsquo;t want to install Apache or nginx as a front end and I didn&rsquo;t want to modify the script to run its own webserver so I came up with a one-liner that uses netcat to get the output of my script into their browser.</p>
+
+<p>But wait!  netcat has an option for this.  However, on the Raspberry Pi it is not available and I didn&rsquo;t want to start downloading new versions.</p>
+
+<p>Here it is:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SCRIPT="./weathergoose.py 192.168.1.99" && PORT="8080" && while true; do $SCRIPT | nc -l -p $PORT; done</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You&rsquo;ll need to set <code>SCRIPT</code> to the script you want to run (including any parameters it needs) and <code>PORT</code> to the port you want to listen on.</p>
+
+<p>Be careful!  This is not a real webserver.  This just spits your scripts output back to the browser.  Anything the browser sends to the script is ignored.</p>
+
+<p>Also, the script runs first and pipes its output to netcat.  This happens before netcat accepts a connection and can cause some confusion.  Here&rsquo;s a concrete example.</p>
+
+<p>Assume I wrote a script that just returns the time.  If I use the above snippet and start it at 5:00 PM but I hit it with my web browser at 5:15 PM the time that I get back will be 5:00 PM.  The next time I hit it it will be 5:15 PM.  The easiest way to think about it is that you get the data from when the script started or at the time of the <em>previous</em> request, whichever is later.</p>
+
+<p>I hope to come up with a fix for this issue but I haven&rsquo;t had the time yet.  Do you have a fix?  Does this work for you?  Post in the comments below.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1561,153 +1620,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-08-05T08:39:34-04:00" pubdate data-updated="true">Aug 5<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I am a big <a href="https://github.com/google/guice">Guice</a> advocate.  I try to use it wherever it is possible and makes sense.  While working on a project yesterday I realized that in order to use Guice and <a href="http://quartz-scheduler.org/">Quartz</a> together you need to add in some glue code.</p>
-
-<p>I <a href="http://codesmell.wordpress.com/2009/01/11/quartz-fits/">found someone who had done the work already</a> but their blog post was from 2009 and the Quartz API had changed a bit.  Their implementation was very close so I made the necessary modifications, tested it out, and it works perfectly.  If you&rsquo;re wondering how to use Guice to get dependency injection into your Quartz scheduler code you can use the two snippets of code below to do it all for you.</p>
-
-<p>The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the <code>GuiceJobFactory</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Injector</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Job</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.JobDetail</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Scheduler</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.SchedulerException</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.JobFactory</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.TriggerFiredBundle</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 8/4/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="c1">// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/</span>
-</span><span class='line'><span class="kd">final</span> <span class="kd">class</span> <span class="nc">GuiceJobFactory</span> <span class="kd">implements</span> <span class="n">JobFactory</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Inject</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">GuiceJobFactory</span><span class="o">(</span><span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">guice</span> <span class="o">=</span> <span class="n">guice</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">Job</span> <span class="nf">newJob</span><span class="o">(</span><span class="n">TriggerFiredBundle</span> <span class="n">triggerFiredBundle</span><span class="o">,</span> <span class="n">Scheduler</span> <span class="n">scheduler</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SchedulerException</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// Get the job detail so we can get the job class</span>
-</span><span class='line'>        <span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">triggerFiredBundle</span><span class="o">.</span><span class="na">getJobDetail</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">Class</span> <span class="n">jobClass</span> <span class="o">=</span> <span class="n">jobDetail</span><span class="o">.</span><span class="na">getJobClass</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// Get a new instance of that class from Guice so we can do dependency injection</span>
-</span><span class='line'>            <span class="k">return</span> <span class="o">(</span><span class="n">Job</span><span class="o">)</span> <span class="n">guice</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">jobClass</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// Something went wrong.  Print out the stack trace here so SLF4J doesn&#39;t hide it.</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Rethrow the exception as an UnsupportedOperationException</span>
-</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>GuiceJobFactory</code> gets the Guice injector injected into it.  It then overrides the newJob method and creates each job using the injector it was given.</p>
-
-<p>The next thing you need to do is to use this <code>JobFactory</code> in your <code>Scheduler</code>.  Here&rsquo;s how I built my scheduler and used it to create my first job:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Scheduler</span> <span class="n">scheduler</span> <span class="o">=</span> <span class="n">StdSchedulerFactory</span><span class="o">.</span><span class="na">getDefaultScheduler</span><span class="o">();</span>
-</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">setJobFactory</span><span class="o">(</span><span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">GuiceJobFactory</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">newJob</span><span class="o">(</span><span class="n">MyJob</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1739,6 +1651,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a>
       </li>
     
@@ -1752,10 +1668,6 @@
     
       <li class="post">
         <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a>
       </li>
     
   </ul>

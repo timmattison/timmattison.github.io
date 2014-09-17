@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-09-04T10:53:08-04:00</updated>
+  <updated>2014-09-17T08:51:29-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,35 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/"/>
+    <updated>2014-09-17T08:08:38-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi</id>
+    <content type="html"><![CDATA[<p>A few months ago I wanted to get some data out of <a href="http://www.itwatchdogs.com/climate-monitor-weathergoose-ii-p1.html">WeatherGoose II Climate Monitor</a> so I could convert it into JSON and consume it in another application.  I hacked something together and converted their format to JSON in a few hours as a proof-of-concept and the code sat for a few months.</p>
+
+<p>A co-worker recently asked me if they could hook up to my script with a browser to try to do some visualization.  I didn&rsquo;t want to install Apache or nginx as a front end and I didn&rsquo;t want to modify the script to run its own webserver so I came up with a one-liner that uses netcat to get the output of my script into their browser.</p>
+
+<p>But wait!  netcat has an option for this.  However, on the Raspberry Pi it is not available and I didn&rsquo;t want to start downloading new versions.</p>
+
+<p>Here it is:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>SCRIPT="./weathergoose.py 192.168.1.99" && PORT="8080" && while true; do $SCRIPT | nc -l -p $PORT; done</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You&rsquo;ll need to set <code>SCRIPT</code> to the script you want to run (including any parameters it needs) and <code>PORT</code> to the port you want to listen on.</p>
+
+<p>Be careful!  This is not a real webserver.  This just spits your scripts output back to the browser.  Anything the browser sends to the script is ignored.</p>
+
+<p>Also, the script runs first and pipes its output to netcat.  This happens before netcat accepts a connection and can cause some confusion.  Here&rsquo;s a concrete example.</p>
+
+<p>Assume I wrote a script that just returns the time.  If I use the above snippet and start it at 5:00 PM but I hit it with my web browser at 5:15 PM the time that I get back will be 5:00 PM.  The next time I hit it it will be 5:15 PM.  The easiest way to think about it is that you get the data from when the script started or at the time of the <em>previous</em> request, whichever is later.</p>
+
+<p>I hope to come up with a fix for this issue but I haven&rsquo;t had the time yet.  Do you have a fix?  Does this work for you?  Post in the comments below.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS]]></title>
@@ -2200,71 +2229,6 @@
 
 
 <p>Sure enough it converts <code>0xa</code> into <code>10</code>.  I&rsquo;m not sure I&rsquo;ll ever use that feature but its good to know what ping does to its input in the even that some other weird situation pops up.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[My Problem With 'the Problem With Altcoins']]></title>
-    <link href="http://blog.timmattison.com/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/"/>
-    <updated>2014-06-18T00:00:00-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/06/18/my-problem-with-the-problem-with-altcoins</id>
-    <content type="html"><![CDATA[<p>TL;DR &ndash; The author&rsquo;s strongest argument is that some altcoins are junk.  This unfortunately then morphs into saying that all altcoins are junk and none of them can ever be good.  In my opinion that is going too far.</p>
-
-<p>On the Google Plus Bitcoin community someone posted a link to <a href="http://themisescircle.org/blog/2013/08/22/the-problem-with-altcoins/">The Problem with Altcoins</a>.  I think this article is complete link bait based on the fact that the first paragraph is titled &ldquo;Why no altcoin can succeed&rdquo; but nevertheless I&rsquo;d like to address a few of the things in it because they could be confusing to people new to the cryptocurrency space.</p>
-
-<p>I&rsquo;ll preface this post by saying that I hold a few Bitcoins, some Litecoins, and some Feathercoins.  I bought most of them to play around with and not as a serious investment so I&rsquo;m not here to tell you that any of these things are a solid investment.  If you are like me you want to get into cryptocurrencies because they&rsquo;re interesting and understanding them gives me new ways to approach problems that I see in software development.</p>
-
-<p>Issue #1:</p>
-
-<blockquote><p>Quite simply, a medium of exchange that is more widely accepted on the market is more useful than one which is not. This is known as the network effect. Thus, an initial imbalance between two nearly equal media of exchange will benefit whichever is more widely accepted until a single one overwhelms the rest.</p></blockquote>
-
-<p>This paragraph does quite a good job of shooting itself down unknowingly.  I agree with the statement &ldquo;a medium of exchange that is more widely accepted on the market is more useful than one that is not&rdquo;.  The leap that it then goes to make isn&rsquo;t very well thought out.  Just because something is better does not mean that eventually it will be the only thing.  If that was the case then why are there so many different brands of any product you can think of?</p>
-
-<p>The end of this paragraph is its complete downfall.  It states &ldquo;until a single one overwhelms the rest&rdquo;.  There is no example of this happening as far as I know.  Is there only one currency in the world?  You might think the world currency is the US Dollar but I can assure you it isn&rsquo;t.  Admittedly it does say it will &ldquo;overwhelm&rdquo; the rest and not &ldquo;extinguish&rdquo; the rest but I believe overwhelm here was meant to imply that the others would disappear.</p>
-
-<p>My stance: There is room for more than one physical currency.  There is room for more than one digital currency.</p>
-
-<p>Issue #2:</p>
-
-<blockquote><p>Furthermore, a truly great innovation would much better serve people by being incorporated into future versions of Bitcoin rather than by requiring them to switch to something else</p></blockquote>
-
-<p>This makes the assumption that just because a feature benefits someone that it will be incorporated.  Since the interests of each individual are different you could have features that benefit some (shorter confirmation times, lower transaction fees, anonymity, etc) that do not benefit others.  In fact, one of these features mentioned later is Zerocoin which provides anonymous transactions.  Some would argue that if this was incorporated into Bitcoin that it would set it back a few years as the media picked it up again as the anonymous currency used by drug dealers and terrorists.</p>
-
-<p>Other kinds of transactions like creating &ldquo;<a href="http://bitcoin.stackexchange.com/questions/10986/what-is-meant-by-bitcoin-dust">dust</a>&rdquo; to sign arbitrary bits of data to use the block chain as a kind of digital notary are probably best implemented in a different system altogether.</p>
-
-<p>My stance: Not all features should be incorporated into Bitcoin.  Blockchain bloat is already a bit of a problem and I think we need to minimize it.</p>
-
-<p>Issue #3:</p>
-
-<blockquote><p>Can anyone really expect to create something of value by rereleasing Bitcoin under a new name and with a few tiny changes to its source code?</p></blockquote>
-
-<p>Actually, I&rsquo;m in total agreement here.  There are altcoins that are just knockoffs that don&rsquo;t add any value.  Don&rsquo;t translate my issue with the statement &ldquo;Why no altcoin can succeed&rdquo; into &ldquo;All altcoins should succeed&rdquo;.  I think the market is the place to decide that.</p>
-
-<p>My stance: Some altcoins are useful and interesting.  Some altcoins are not.  I doubt <a href="https://en.wikipedia.org/wiki/Dogecoin">Dogecoin</a> will survive as long as Litecoin.</p>
-
-<p>Issue #4:</p>
-
-<blockquote><p>What is a cryptocurrency actually for? I say that its purpose is to become money. It is obvious that creating altcoins impedes that purpose. Altcoins can only be explained if we believe the purpose of cryptocurrencies is to make money rather than to become money.</p></blockquote>
-
-<p>(Premining)[<a href="https://bitcointalk.org/index.php?topic=194023.0">https://bitcointalk.org/index.php?topic=194023.0</a>] has rightly tainted people&rsquo;s views of altcoins.  If you premine your new cryptocurrency then you are probably just in it for the money.  Granted maybe not enough people knew about your coin when it started but with a public announcement and some planning you can avoid this.  Going back to my previous point I don&rsquo;t understand why Bitcoin gets a pass on this.  What if the original motivation was exactly the same as the altcoins that are guilty of premining?  We can&rsquo;t know if that was or was not the case until we know the true identity of Satoshi Nakamoto.</p>
-
-<p>A lot of the time when people tell me something is &ldquo;obvious&rdquo; it&rsquo;s because they&rsquo;re trying to glaze over the fact that their explanation and understanding of the concept is lacking.  I prefer proof rather than assertions.</p>
-
-<p>My stance: Same as issue #3.  Some altcoins are junk, some altcoins are not.  The market will decide which ones are the winners.  The author references the Wikipedia page for &ldquo;<a href="https://en.wikipedia.org/wiki/Motivated_reasoning">motivated reasoning</a>.  Indeed either side of the argument could say the other is doing this especially when they assert the obviousness of the fact that they are right.</p>
-
-<p>Issue #5:</p>
-
-<blockquote><p>If you try to compete with the best currency with another one that’s exactly the same, that makes yours the worse currency, so you really should not have bothered.</p></blockquote>
-
-<p>Another partial agreement here so this is a quick one.  If your currency is exactly the same as Bitcoin then you shouldn&rsquo;t have bothered.  There are people who are trying to differentiate and that&rsquo;s the kind of competition we should welcome.  Starting a new altcoin gives you the freedom to try out these new ideas and see if they stick.  Getting a feature into Bitcoin takes a lot of work and an altcoin can be a proving ground for that work.</p>
-
-<p>My stance: Altcoins that don&rsquo;t innovate are junk. If you&rsquo;re going to create an altcoin it better have a few differentiators to be taken seriously.</p>
-
-<p>Issue #6:</p>
-
-<blockquote><p>Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.</p></blockquote>
-
-<p>I have another post that touches this topic and explains <a href="http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">why all proof of work algorithms need to use memory bound functions</a>.</p>
 ]]></content>
   </entry>
   
