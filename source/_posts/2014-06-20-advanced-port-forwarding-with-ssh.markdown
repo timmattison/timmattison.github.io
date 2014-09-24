@@ -10,13 +10,13 @@ categories:
 
 If you've ever had to use an SSH server as a jump off point, possibly to get to machines that don't have a public IP address, then you know that it can be complicated to set up, manage, and annoying if you need to access a lot of machines and/or a lot of different services.  Typically, using local port forwarding you can do something like this:
 
-```
+``` console
 ssh -L8080:REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER
 ```
 
 That will let you connect to localhost on port 8080 to get to `REMOTE_PRIVATE_SERVER`'s port 80 service.  What if you needed to get to two services?  You start stacking them up:
 
-```
+``` console
 ssh -L8080:REMOTE_PRIVATE_SERVER:80 -L8181:ANOTHER_REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER
 ```
 
@@ -32,7 +32,7 @@ I need to set up some terminology so this will be easier to discuss.  The machin
 
 My first use case is that the source machine wants to connect to a web server on the destination machine but I want to do it on port 80.  We can do this:
 
-```
+``` console
 sudo ifconfig lo0 alias 127.0.0.2
 sudo ssh -L127.0.0.2:80:DESTINATION_MACHINE:80 user@GATEWAY_MACHINE
 ```
@@ -43,20 +43,20 @@ Now instead of having to point our browser to something like `localhost:9000` we
 
 Is that not enough?  How about this:
 
-```
+``` console
 sudo ifconfig lo0 alias 127.0.0.2
 sudo ssh -L127.0.0.2:22:DESTINATION_MACHINE:22 user@GATEWAY_MACHINE
 ```
 
 All that changed here is the port number.  It was 80 and now it is 22 which is the ssh port.  Now you can ssh to this machine in one step like this:
 
-```
+``` console
 ssh user@127.0.0.2
 ```
 
 This also means that you can sftp, scp, and rsync directly to that IP address.  Without this trick to rsync you'd need to do something like this:
 
-```
+``` console
 rsync -rvz -e 'ssh -p 2222' ./dir user@host:/dir
 ```
 

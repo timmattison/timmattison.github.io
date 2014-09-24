@@ -13,7 +13,7 @@ But wait!  netcat has an option for this.  However, on the Raspberry Pi it is no
 
 Here it is:
 
-```
+``` console
 SCRIPT="./weathergoose.py 192.168.1.99" && PORT="8080" && while true; do $SCRIPT | nc -l -p $PORT; done
 ```
 
