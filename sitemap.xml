@@ -644,7 +644,7 @@
         <loc>
             http://blog.timmattison.com/archives/2014/06/20/advanced-port-forwarding-with-ssh/
         </loc>
-        <lastmod>2014-09-17T09:34:45-04:00</lastmod>
+        <lastmod>2014-09-24T08:19:07-04:00</lastmod>
     </url>
     <url>
         <loc>
@@ -731,18 +731,26 @@
         <lastmod>2014-09-04T19:45:50-04:00</lastmod>
     </url>
     <url>
+        <loc>http://blog.timmattison.com/archives/2014/09/12/the-first-bitcoin-transaction/</loc>
+        <lastmod>2014-09-26T07:10:46-04:00</lastmod>
+    </url>
+    <url>
         <loc>
             http://blog.timmattison.com/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/
         </loc>
-        <lastmod>2014-09-17T09:35:37-04:00</lastmod>
+        <lastmod>2014-09-24T08:19:07-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://blog.timmattison.com/archives/2014/09/24/testing-hexpile/</loc>
+        <lastmod>2014-09-25T18:38:17-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-09-17T09:35:37-04:00</lastmod>
+        <lastmod>2014-09-26T07:10:46-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-09-17T09:35:37-04:00</lastmod>
+        <lastmod>2014-09-26T07:10:46-04:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

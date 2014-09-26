@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I am a big Guice advocate. I try to use it wherever it is possible and makes sense. While working on a project yesterday I realized that in order to &hellip;">
+  <meta name="description" content="While running some relatively simple Java code on my Raspberry Pi I kept running into complete JVM crashes. These weren&rsquo;t simple application &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,461 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-29T12:39:51-04:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>While running some relatively simple Java code on my Raspberry Pi I kept running into complete JVM crashes.  These weren&rsquo;t simple application crashes that I can quickly debug.  It really was the JVM that my code was running on that was crashing.</p>
+
+<p>The error message I received was similar to this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> A fatal error has been detected by the Java Runtime Environment:
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span>  Internal Error <span class="o">(</span>os_linux_zero.cpp:285<span class="o">)</span>, <span class="nv">pid</span><span class="o">=</span>10344, <span class="nv">tid</span><span class="o">=</span>3061261424
+</span><span class='line'><span class="gp">#</span>  fatal error: caught unhandled signal 11
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> JRE version: OpenJDK Runtime Environment <span class="o">(</span>7.0_65-b32<span class="o">)</span> <span class="o">(</span>build 1.7.0_65-b32<span class="o">)</span>
+</span><span class='line'><span class="gp">#</span> Java VM: OpenJDK Zero VM <span class="o">(</span>24.65-b04 mixed mode linux-arm <span class="o">)</span>
+</span><span class='line'><span class="gp">#</span> Failed to write core dump. Core dumps have been disabled. To <span class="nb">enable </span>core dumping, try <span class="s2">&quot;ulimit -c unlimited&quot;</span> before starting Java again
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> An error report file with more information is saved as:
+</span><span class='line'><span class="gp">#</span> /home/pi/hs_err_pid10344.log
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> If you would like to submit a bug report, please include
+</span><span class='line'><span class="gp">#</span> instructions on how to reproduce the bug and visit:
+</span><span class='line'><span class="gp">#</span>   http://icedtea.classpath.org/bugzilla
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="go">Aborted</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I dug and dug and dug and couldn&rsquo;t figure out what was going on.  The most common fix that I saw was to switch to the Oracle JVM.  For this project I didn&rsquo;t want to do that so I scoured the net and came up with the following two options.</p>
+
+<p>For reference, my original command line was very simple.  It was just <code>java -jar test.jar</code>.</p>
+
+<p>NOTE: There may be performance issues with both of these options.  I have not profiled them to see the difference.  Then again, having your JVM crash can arguably be the lowest performance option possible.</p>
+
+<p>Option 1: Add the <code>-XX:+PrintCommandLineFlags</code> option to your command line.  This changed my command line to <code>java -XX:+PrintCommandLineFlags -jar test.jar</code>.  Immediately the problem went away.</p>
+
+<p>Option 2: Add the <code>-jamvm</code> option to your command line.  This changed my command line to <code>java -jamvm -jar test.jar</code>.  Again, immediately the problem went away</p>
+
+<p>What is really happening behind the scenes?  That gets complex quickly and I still don&rsquo;t know the full answer.  It turns out that this is a known but ignored bug in OpenJDK&rsquo;s Zero VM.  When you run <code>java -version</code> you can see if you&rsquo;re running Zero VM or not like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -version</span>
+</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
+</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
+</span><span class='line'><span class="go">OpenJDK Zero VM (build 24.65-b04, mixed mode)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I don&rsquo;t know why option 1 works.  My guess is that that option disables some kind of optimization.  Looking at <a href="http://cr.openjdk.java.net/~gbenson/zero-10/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp.html">what I think is the corresponding code in Hotspot</a> on line 283 I can see that <code>pthread_attr_getstack</code> is used.  The <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_attr_getstack.html">pthread_attr_getstack documentation</a> says that it can only fail with <code>EINVAL</code> for one reason.  It must be that <code>addr</code> &ldquo;does not refer to an initialized thread attribute object&rdquo;.  I don&rsquo;t have any clue how to fix this though.</p>
+
+<p>Option 2 works because it switches over to <a href="http://jamvm.sourceforge.net/">JamVM</a>.  You can check your JamVM version like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -jamvm -version</span>
+</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
+</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
+</span><span class='line'><span class="go">JamVM (build 1.6.0-devel, inline-threaded interpreter with stack-caching)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So, if you&rsquo;re in a similar bind and don&rsquo;t want to install and switch to Oracle&rsquo;s JVM give these options a try.  Post your results in the comments below.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Making Javascript Logging a Little Less Expensive</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-29T07:54:45-04:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Disclaimer: I am not a Javascript expert.  I don&rsquo;t even play one on TV.</p>
+
+<p>Everybody knows that <a href="http://blog.codinghorror.com/the-problem-with-logging/">logging isn&rsquo;t free</a>, don&rsquo;t they?  Well I don&rsquo;t think that they do and for a lot of beginner to intermediate level developers I can&rsquo;t really fault them for it.  While you&rsquo;re debugging it appears that log messages show up instantly so it is easy to forget that there is in fact a cost associated with producing them.</p>
+
+<p>What is less obvious is that even when you &ldquo;disable&rdquo; your logging it still incurs a cost and that cost may be significantly larger than you think.  The two main issues I&rsquo;ve seen that often cause this large expense are:</p>
+
+<ol>
+<li>Methods that generate log messages</li>
+<li>Inline generation of strings</li>
+</ol>
+
+
+<p>The first, methods that generate log messages, occurs when you need to do a bit of processing in order to make a meaningful log message.  For example, you might need to know how far you are through a loop so you write a function called <code>generateFormattedProgress</code> that takes the number of loops you&rsquo;re going to go through and the current loop counter as parameters.  <code>generateFormattedProgress</code> generates a tidy little string that might loop like this <code>[8% complete (currently on iteration 80,001 of 1,000,000)]</code>.</p>
+
+<p>The second, inline generation of strings, happens when you need to do something a bit simpler like displaying a loop counter.  You might build a string like this <code>"Loop: " + loop_counter</code> and then log it.</p>
+
+<p>In both of these cases you get bitten by the less obvious issue I mentioned above when you disable logging.  To be completely concrete about this imagine your logger is called like this:</p>
+
+<p>Case #1:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Case #2:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Even if you replace <code>console.log</code> with a function that just immediately returns you will, in most cases, still be forcing the machine to call <code>generateFormattedProgress</code> and perform the string concatenation only to throw the results away.  This is where the overhead comes in.</p>
+
+<p>Borrowing from some other languages I came up with an idea to reduce this burden.  Unfortunately it is a bit ugly but it does give you a decent performance boost.  The idea is that instead of always calling the logging code at runtime you wrap your logging statements in anonymous functions and pass those to the logger.  The logger can then decide if it needs to run them and if it doesn&rsquo;t then it never calls the code inside of the anonymous function.</p>
+
+<p>Your log statements go from looking like the statements above to statements like this:</p>
+
+<p>Case #1:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">);});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Case #2:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">;</span> <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Some test code is below to illustrate the difference in performance.  On my machine running 100,000 iterations I get the following results in Chrome 37.0.2062.94:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">Console.log enabled</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1921</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01921</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1917</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01917</span>
+</span><span class='line'><span class="go">Disabling console.log</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 16</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00016</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 5</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00005</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So here we see that we cut the runtime by at least two orders of magnitude going from a little over 1.9 seconds for each case to less than 20 milliseconds for each case.  Does logging affect your Javascript application enough to use this pattern?  Is this an anti-pattern?  Are you already doing this or something similar?  Post a message in the comments and lets discuss it!</p>
+
+<p>Sample test code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">test_count</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">get_timestamp</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">write_newline</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&lt;br/&gt;\n&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">myName</span> <span class="o">=</span> <span class="nx">caller</span><span class="p">.</span><span class="nx">callee</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="s1">&#39;function &#39;</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Running: &quot;</span> <span class="o">+</span> <span class="nx">myName</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">totalMilliseconds</span> <span class="o">=</span> <span class="nx">stop</span> <span class="o">-</span> <span class="nx">start</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">millisecondsPerLog</span> <span class="o">=</span> <span class="nx">totalMilliseconds</span> <span class="o">/</span> <span class="nx">test_count</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Total milliseconds: &quot;</span> <span class="o">+</span> <span class="nx">totalMilliseconds</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Milliseconds per log: &quot;</span> <span class="o">+</span> <span class="nx">millisecondsPerLog</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_normal_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_anonymous_function_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Store the original console.log function</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">original_console_log</span> <span class="o">=</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Call this to enable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">enable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Why the bind(console)(input)?</span>
+</span><span class='line'>        <span class="c1">//</span>
+</span><span class='line'>        <span class="c1">// console.log expects &quot;this&quot; to refer to the console object or it crashes with an invocation exception</span>
+</span><span class='line'>        <span class="c1">//   See: https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Is this a function?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">input</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Yes, call the function to get the data to log to the console</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// No, just log it</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Call this to disable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">disable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Console.log enabled&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">enable_console_logging</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Disabling console.log&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">disable_console_logging</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1243,124 +1698,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-18T09:10:21-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Are you a developer?  Do you have trouble remembering what you did yesterday when it is time for your daily standup?  Do you use git?  Do you commit regularly?  If you answered yes to those questions you can now quickly figure out what you did yesterday with the help of <a href="https://github.com/timmattison/gitrdun">gitrdun</a>.</p>
-
-<p>gitrdun simply looks for git repos in your home directory, lists all of the commits in those repos from yesterday, and then prints that on the screen.  The current iteration is the &ldquo;5 minute version&rdquo;.  It literally took 5 minutes to write.  The &ldquo;5 hour version&rdquo; may make the formatting a bit nicer and add some features but don&rsquo;t hold your breath for that to come out.</p>
-
-<p>Don&rsquo;t want to fork the repo?  No problem, it&rsquo;s just a one liner anyway.  Use this alias&hellip;</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>alias gitrdun="clear ; PAGER=\"cat\" find ~ -name \".git\" -type d -exec sh -c \"cd '{}' ; echo '{}'; git log --all --since='yesterday'\" \; | less"</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This clears the screen, uses &ldquo;cat&rdquo; as the pager so that the pager doesn&rsquo;t clear the screen between repo checks, finds all git repos, goes into their directory that is under version control, and then lists all commits on all branches from yesterday.</p>
-
-<p>Enjoy!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Octal and Hexadecimal IP Addresses With Ping</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-18T07:12:14-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Have you ever seen a system print out an IP address like this?</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Disconnected from 010.000.001.133</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you try to ping this IP address you&rsquo;ll get quite interesting results.  What the IP address should be is 10.0.1.133 but what ping reports that it is if you run the command with those leading zeroes included looks very odd.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 010.000.001.133
-</span><span class='line'>PING 010.000.001.133 (8.0.1.133): 56 data bytes
-</span><span class='line'>Request timeout for icmp_seq 0</span></code></pre></td></tr></table></div></figure>
-
-
-<p>See that <code>8.0.1.133</code> IP address that it is trying to reach?  It turns out that if you put leading zeroes into an IP address that you pass to <code>ping</code>, and possibly other network tools, it treats those numbers as <a href="https://en.wikipedia.org/wiki/Octal">octal</a>.  Octal isn&rsquo;t something most end-users deal with unless they&rsquo;re reminiscing about their old <a href="https://en.wikipedia.org/wiki/CompuServe">Compuserve</a> addresses.</p>
-
-<p>In any case, if you find yourself trying to ping a machine with an IP address that has leading zeroes make sure you remove them!</p>
-
-<p>This got me wondering what other weird things ping might do with IP addresses so I played around a bit and saw that it actually allows you to enter them in hex as well.  This is useful for IPv6 but really strange for IPv4.  Try it out and try to ping the above address with the first octet in hex:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 0xa.0.1.133
-</span><span class='line'>PING 0xa.0.1.133 (10.0.1.133): 56 data bytes</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Sure enough it converts <code>0xa</code> into <code>10</code>.  I&rsquo;m not sure I&rsquo;ll ever use that feature but its good to know what ping does to its input in the even that some other weird situation pops up.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1394,7 +1731,15 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/24/testing-hexpile/">Testing Hexpile</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
       <li class="post">
@@ -1403,14 +1748,6 @@
     
       <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
       </li>
     
   </ul>

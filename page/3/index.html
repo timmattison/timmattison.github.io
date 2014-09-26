@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="TL;DR &ndash; The author&rsquo;s strongest argument is that some altcoins are junk. This unfortunately then morphs into saying that all altcoins are &hellip;">
+  <meta name="description" content="Are you a developer? Do you have trouble remembering what you did yesterday when it is time for your daily standup? Do you use git? Do you commit &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,124 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-18T09:10:21-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Are you a developer?  Do you have trouble remembering what you did yesterday when it is time for your daily standup?  Do you use git?  Do you commit regularly?  If you answered yes to those questions you can now quickly figure out what you did yesterday with the help of <a href="https://github.com/timmattison/gitrdun">gitrdun</a>.</p>
+
+<p>gitrdun simply looks for git repos in your home directory, lists all of the commits in those repos from yesterday, and then prints that on the screen.  The current iteration is the &ldquo;5 minute version&rdquo;.  It literally took 5 minutes to write.  The &ldquo;5 hour version&rdquo; may make the formatting a bit nicer and add some features but don&rsquo;t hold your breath for that to come out.</p>
+
+<p>Don&rsquo;t want to fork the repo?  No problem, it&rsquo;s just a one liner anyway.  Use this alias&hellip;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>alias gitrdun="clear ; PAGER=\"cat\" find ~ -name \".git\" -type d -exec sh -c \"cd '{}' ; echo '{}'; git log --all --since='yesterday'\" \; | less"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This clears the screen, uses &ldquo;cat&rdquo; as the pager so that the pager doesn&rsquo;t clear the screen between repo checks, finds all git repos, goes into their directory that is under version control, and then lists all commits on all branches from yesterday.</p>
+
+<p>Enjoy!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Octal and Hexadecimal IP Addresses With Ping</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-18T07:12:14-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Have you ever seen a system print out an IP address like this?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Disconnected from 010.000.001.133</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you try to ping this IP address you&rsquo;ll get quite interesting results.  What the IP address should be is 10.0.1.133 but what ping reports that it is if you run the command with those leading zeroes included looks very odd.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 010.000.001.133
+</span><span class='line'>PING 010.000.001.133 (8.0.1.133): 56 data bytes
+</span><span class='line'>Request timeout for icmp_seq 0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>See that <code>8.0.1.133</code> IP address that it is trying to reach?  It turns out that if you put leading zeroes into an IP address that you pass to <code>ping</code>, and possibly other network tools, it treats those numbers as <a href="https://en.wikipedia.org/wiki/Octal">octal</a>.  Octal isn&rsquo;t something most end-users deal with unless they&rsquo;re reminiscing about their old <a href="https://en.wikipedia.org/wiki/CompuServe">Compuserve</a> addresses.</p>
+
+<p>In any case, if you find yourself trying to ping a machine with an IP address that has leading zeroes make sure you remove them!</p>
+
+<p>This got me wondering what other weird things ping might do with IP addresses so I played around a bit and saw that it actually allows you to enter them in hex as well.  This is useful for IPv6 but really strange for IPv4.  Try it out and try to ping the above address with the first octet in hex:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 0xa.0.1.133
+</span><span class='line'>PING 0xa.0.1.133 (10.0.1.133): 56 data bytes</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sure enough it converts <code>0xa</code> into <code>10</code>.  I&rsquo;m not sure I&rsquo;ll ever use that feature but its good to know what ping does to its input in the even that some other weird situation pops up.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -818,242 +936,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Building Asterisk With Support for SIPML5</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-02T19:06:58-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>If you are trying to use SIPML5 with Asterisk there are some gotchas that often come up.  If you&rsquo;re running it on Debian these tips below may help.</p>
-
-<p>If you haven&rsquo;t gotten that far with Asterisk and don&rsquo;t care about your current configuration you can try this procedure that I use to build Asterisk myself:</p>
-
-<ul>
-<li>Download latest Asterisk, extract it, and cd into the directory it was extracted into</li>
-<li>Install some necessary dependencies</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install build-essential libncurses5-dev libxml2-dev libsqlite3-dev libssl-dev libsrtp0-dev
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Run the configuration script</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>./configure
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Build Asterisk.  NOTE: I have only had problems running a multi-job make so I would suggest you do not include a -jX option to take advantage of all of your cores.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>make
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Install Asterisk</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make install
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Build the samples and <strong>overwrite your current configuration</strong>.  <strong>You lose everything here so skip this step if you want to keep your config</strong>.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make samples
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Start Asterisk with crazy verbosity so you can see what is going on</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo /usr/sbin/asterisk -vvvvvvvvvvvvvvg
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>There are two issues I ran into when trying to use SIPML5.</p>
-
-<h1>Error #1: no protocols out of &lsquo;sip&rsquo; supported &ndash; in Asterisk console</h1>
-
-<p>In this case chan_sip.so probably isn&rsquo;t built.  Check in make menuconfig, add libssl-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_crypto is enabled.</p>
-
-<h1>Error #2: SRTP issues</h1>
-
-<p>If you are having SRTP issues you probably get one or more of these messages:</p>
-
-<ul>
-<li>In the browser &ndash; Not acceptable here</li>
-<li>In the Asterisk console &ndash; Received SAVPF profile in audio offer but AVPF is not enabled</li>
-<li>In the Asterisk console &ndash; Insufficient information in SDP</li>
-<li>In the Asterisk console &ndash; No SRTP module loaded, can&rsquo;t setup SRTP session</li>
-<li>In the Asterisk console &ndash; Rejecting secure audio stream without encryption details</li>
-</ul>
-
-
-<p>In this case res_srtp.so probably isn&rsquo;t built.  Check in make menuconfig, add libsrtp0-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_srtp is enabled.</p>
-
-<p>Good luck and post in the comments if it worked for you or if you need some help.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">How to Get SIPML5 Working With Asterisk</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-02T18:59:44-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months.  Enjoy!</p>
-
-<p>Assume Asterisk is running on localhost and Apache is installed and running with /var/www at the htdocs directory</p>
-
-<p>http.conf changes:</p>
-
-<ul>
-<li>Set &ldquo;enabled=yes&rdquo; OR uncomment &ldquo;;enabled=yes&rdquo;</li>
-<li>Set &ldquo;bindport=8088&rdquo; OR uncomment &ldquo;;bindport=8088&rdquo;</li>
-</ul>
-
-
-<p>sip.conf changes:</p>
-
-<ul>
-<li>Get the SIP code listening via TCP &ndash; set &ldquo;tcpenable=yes&rdquo;</li>
-<li>Add web socket support for SIP &ndash; set &ldquo;transport=udp,ws&rdquo; OR add &ldquo;,ws&rdquo; to existing transport list</li>
-<li>Uncomment xlite1 account</li>
-<li>Add &ldquo;avpf=yes&rdquo; to xlite1 account</li>
-<li>Add &ldquo;icesupport=yes&rdquo; to xlite1 account</li>
-</ul>
-
-
-<p>Steps to perform test call:</p>
-
-<ul>
-<li>Restart Asterisk</li>
-<li>Get the source from Subversion</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>svn checkout http://sipml5.googlecode.com/svn/trunk/ sipml5-read-only</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Move the sipml5 source into /var/www</li>
-<li>Open Chrome and point it to the SIPML5 index.html in /var/www (or the subdirectory you put it in)</li>
-<li>Click &ldquo;Enjoy our live demo&rdquo;</li>
-<li>Set these values in the &ldquo;Registration&rdquo; panel
-
-<ul>
-<li>Display Name: xlite1</li>
-<li>Private Identity: xlite1</li>
-<li>Public Identity: sip:xlite1@localhost</li>
-<li>Realm: localhost</li>
-<li>Password is left blank</li>
-</ul>
-</li>
-<li>Click &ldquo;Expert Mode&rdquo;</li>
-<li>Set these values in &ldquo;Expert settings&rdquo;
-
-<ul>
-<li>Disable Video: Checked</li>
-<li>Enable RTCWeb Breaker: Unchecked</li>
-<li>WebSocket Server URL: ws://localhost:8088/ws</li>
-<li>SIP outbound Proxy URL: udp://localhost:5060</li>
-<li>Click &ldquo;Save&rdquo;</li>
-<li>Close &ldquo;Expert settings&rdquo; tab</li>
-</ul>
-</li>
-<li>Enter &ldquo;sip:2@localhost&rdquo; in the &ldquo;Call control&rdquo; field</li>
-<li>Click &ldquo;Call&rdquo;</li>
-</ul>
-
-
-<p>At this point you should hear audio coming from Asterisk in a few seconds and your first call is complete.  Now you can build out your server as you&rsquo;d want!</p>
-
-<p>Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.</p>
-
-<p><img src="/images/sipml5-asterisk/registration-and-call-control.png" alt="Registration and call control" /></p>
-
-<p><img src="/images/sipml5-asterisk/expert-settings.png" alt="Expert settings" /></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/4/">&larr; Older</a>
@@ -1087,7 +969,15 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/24/testing-hexpile/">Testing Hexpile</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
       <li class="post">
@@ -1096,14 +986,6 @@
     
       <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
       </li>
     
   </ul>

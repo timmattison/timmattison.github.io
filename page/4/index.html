@@ -9,8 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="This is all business. I wrote this up a long time ago and never got a chance to put it online. Enjoy! First, install SSH: Go to Synology web GUI
-Open &hellip;">
+  <meta name="description" content="If you are trying to use SIPML5 with Asterisk there are some gotchas that often come up. If you&rsquo;re running it on Debian these tips below may &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +77,242 @@ Open &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Building Asterisk With Support for SIPML5</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T19:06:58-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you are trying to use SIPML5 with Asterisk there are some gotchas that often come up.  If you&rsquo;re running it on Debian these tips below may help.</p>
+
+<p>If you haven&rsquo;t gotten that far with Asterisk and don&rsquo;t care about your current configuration you can try this procedure that I use to build Asterisk myself:</p>
+
+<ul>
+<li>Download latest Asterisk, extract it, and cd into the directory it was extracted into</li>
+<li>Install some necessary dependencies</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install build-essential libncurses5-dev libxml2-dev libsqlite3-dev libssl-dev libsrtp0-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Run the configuration script</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>./configure
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Build Asterisk.  NOTE: I have only had problems running a multi-job make so I would suggest you do not include a -jX option to take advantage of all of your cores.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>make
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Install Asterisk</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make install
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Build the samples and <strong>overwrite your current configuration</strong>.  <strong>You lose everything here so skip this step if you want to keep your config</strong>.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make samples
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Start Asterisk with crazy verbosity so you can see what is going on</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo /usr/sbin/asterisk -vvvvvvvvvvvvvvg
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are two issues I ran into when trying to use SIPML5.</p>
+
+<h1>Error #1: no protocols out of &lsquo;sip&rsquo; supported &ndash; in Asterisk console</h1>
+
+<p>In this case chan_sip.so probably isn&rsquo;t built.  Check in make menuconfig, add libssl-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_crypto is enabled.</p>
+
+<h1>Error #2: SRTP issues</h1>
+
+<p>If you are having SRTP issues you probably get one or more of these messages:</p>
+
+<ul>
+<li>In the browser &ndash; Not acceptable here</li>
+<li>In the Asterisk console &ndash; Received SAVPF profile in audio offer but AVPF is not enabled</li>
+<li>In the Asterisk console &ndash; Insufficient information in SDP</li>
+<li>In the Asterisk console &ndash; No SRTP module loaded, can&rsquo;t setup SRTP session</li>
+<li>In the Asterisk console &ndash; Rejecting secure audio stream without encryption details</li>
+</ul>
+
+
+<p>In this case res_srtp.so probably isn&rsquo;t built.  Check in make menuconfig, add libsrtp0-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_srtp is enabled.</p>
+
+<p>Good luck and post in the comments if it worked for you or if you need some help.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">How to Get SIPML5 Working With Asterisk</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T18:59:44-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months.  Enjoy!</p>
+
+<p>Assume Asterisk is running on localhost and Apache is installed and running with /var/www at the htdocs directory</p>
+
+<p>http.conf changes:</p>
+
+<ul>
+<li>Set &ldquo;enabled=yes&rdquo; OR uncomment &ldquo;;enabled=yes&rdquo;</li>
+<li>Set &ldquo;bindport=8088&rdquo; OR uncomment &ldquo;;bindport=8088&rdquo;</li>
+</ul>
+
+
+<p>sip.conf changes:</p>
+
+<ul>
+<li>Get the SIP code listening via TCP &ndash; set &ldquo;tcpenable=yes&rdquo;</li>
+<li>Add web socket support for SIP &ndash; set &ldquo;transport=udp,ws&rdquo; OR add &ldquo;,ws&rdquo; to existing transport list</li>
+<li>Uncomment xlite1 account</li>
+<li>Add &ldquo;avpf=yes&rdquo; to xlite1 account</li>
+<li>Add &ldquo;icesupport=yes&rdquo; to xlite1 account</li>
+</ul>
+
+
+<p>Steps to perform test call:</p>
+
+<ul>
+<li>Restart Asterisk</li>
+<li>Get the source from Subversion</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>svn checkout http://sipml5.googlecode.com/svn/trunk/ sipml5-read-only</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Move the sipml5 source into /var/www</li>
+<li>Open Chrome and point it to the SIPML5 index.html in /var/www (or the subdirectory you put it in)</li>
+<li>Click &ldquo;Enjoy our live demo&rdquo;</li>
+<li>Set these values in the &ldquo;Registration&rdquo; panel
+
+<ul>
+<li>Display Name: xlite1</li>
+<li>Private Identity: xlite1</li>
+<li>Public Identity: sip:xlite1@localhost</li>
+<li>Realm: localhost</li>
+<li>Password is left blank</li>
+</ul>
+</li>
+<li>Click &ldquo;Expert Mode&rdquo;</li>
+<li>Set these values in &ldquo;Expert settings&rdquo;
+
+<ul>
+<li>Disable Video: Checked</li>
+<li>Enable RTCWeb Breaker: Unchecked</li>
+<li>WebSocket Server URL: ws://localhost:8088/ws</li>
+<li>SIP outbound Proxy URL: udp://localhost:5060</li>
+<li>Click &ldquo;Save&rdquo;</li>
+<li>Close &ldquo;Expert settings&rdquo; tab</li>
+</ul>
+</li>
+<li>Enter &ldquo;sip:2@localhost&rdquo; in the &ldquo;Call control&rdquo; field</li>
+<li>Click &ldquo;Call&rdquo;</li>
+</ul>
+
+
+<p>At this point you should hear audio coming from Asterisk in a few seconds and your first call is complete.  Now you can build out your server as you&rsquo;d want!</p>
+
+<p>Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.</p>
+
+<p><img src="/images/sipml5-asterisk/registration-and-call-control.png" alt="Registration and call control" /></p>
+
+<p><img src="/images/sipml5-asterisk/expert-settings.png" alt="Expert settings" /></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1097,118 +1332,6 @@ verboseTransactionDebugging &ndash; Indicates we should print debug messages wit
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">How-To: Get Verizon&#8217;s Media Manager to Read Content From a Network Location</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-04-17T15:45:12-04:00" pubdate data-updated="true">Apr 17<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I ran into this problem today too when I first got FiOS installed.  Mapping a network drive won&rsquo;t work but using &ldquo;subst&rdquo; will.  I now have Media Manager reading my pictures over a network connection.  Here&rsquo;s how to do it:</p>
-
-<ol>
-<li><p> Open the start menu</p></li>
-<li><p> Type &ldquo;cmd&rdquo;</p></li>
-<li><p> Right click on &ldquo;cmd&rdquo; and select &ldquo;Run as administrator&rdquo;</p></li>
-<li><p> Run subst like this:</p>
-
-<p>subst DRIVE: LOCATION</p></li>
-</ol>
-
-
-<p>  DRIVE: will need to be a free drive letter like &ldquo;F:&rdquo;, &ldquo;G:&rdquo;, etc
-  LOCATION will need to be the <a href="http://en.wikipedia.org/wiki/Path_(computing">UNC path</a>#Uniform_Naming_Convention) to your network share like this &ldquo;\myothercomputer\pictures\&rdquo;
-  Don&rsquo;t forget to include the quotes if your LOCATION has spaces in it!</p>
-
-<ol>
-<li> Restart Media Manager and try to add the new virtual drive to it, it should start working right away</li>
-</ol>
-
-
-<p>You may need to do this on each reboot.  I never reboot this computer so I haven&rsquo;t tested it yet.  You can put these commands in a batch file to make your life easier but you&rsquo;ll need to make sure the batch file runs as an administrator.</p>
-
-<p>Let me know in the comments if it works for you or not.  If not I can probably help work out any kinks with you.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/">Tip: Fix &#8220;&#8216;Xterm&#8217;: Unknown Terminal Type&#8221; Messages in Debian</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-04-12T10:32:57-04:00" pubdate data-updated="true">Apr 12<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This one has been a bit of a nuisance on newly spooled up Debian instances for me lately.  When I try to run &ldquo;top&rdquo; or &ldquo;clear&rdquo; or really anything that does something with the terminal I get the following message:</p>
-
-<pre><code>'xterm': unknown terminal type.
-</code></pre>
-
-<p>This is because either you haven&rsquo;t installed ncurses-term (unlikely) or a symlink from /lib/terminfo/x/xterm to /usr/share/terminfo/x/xterm is missing.  To cover all possibilities do this:</p>
-
-<pre><code>sudo apt-get install ncurses-term
-sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
-</code></pre>
-
-<p>Poof, your terminal works again!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/5/">&larr; Older</a>
@@ -1242,7 +1365,15 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/24/testing-hexpile/">Testing Hexpile</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
       <li class="post">
@@ -1251,14 +1382,6 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
     
       <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
       </li>
     
   </ul>

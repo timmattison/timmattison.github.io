@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="This may only be related to 64-bit Gentoo but if you&rsquo;re having build troubles try starting from scratch like this. Note: These are all commands &hellip;">
+  <meta name="description" content="This has been a nuisance for me since I started using a Mac but only today did I finally spend the time to figure it out. I found a post that has &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,162 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/03/07/how-to-get-vim-syntax-highlighting-working-on-a-mac/">How-To: Get Vim Syntax Highlighting Working on a Mac</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-07T18:59:59-05:00" pubdate data-updated="true">Mar 7<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/03/07/how-to-get-vim-syntax-highlighting-working-on-a-mac/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/03/07/how-to-get-vim-syntax-highlighting-working-on-a-mac/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This has been a nuisance for me since I started using a Mac but only today did I finally spend the time to figure it out.  I found <a href="http://www.alangalloway.com/vim.html">a post that has almost everything you need</a> but leaves out some key details and the direct download link is dead.  I&rsquo;ve <a href="/static/vimrc-2009-03-07">recreated the file</a> and you can install it automagically like this in a</p>
+
+<p>Terminal window:</p>
+
+<p>wget <a href="http://blog.timmattison.com/static/vimrc-2009-03-07">http://blog.timmattison.com/static/vimrc-2009-03-07</a> -O ~/.vimrc</p>
+
+<p>This will nuke your existing .vimrc if you have one so save it first!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/">How-To: Get a Twitter Timeline on a Cisco 7960 [Updated 2009-03-10]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-07T17:59:59-05:00" pubdate data-updated="true">Mar 7<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/03/07/how-to-get-a-twitter-timeline-on-a-cisco-7960-updated-2009-03-10/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>UPDATE #1: I just noticed that if someone uses an ampersand in their tweet then the CISCO XML parser freaks out.  Unfortunately the &amp; code doesn&#8217;t work either so I have updated the code to replace all of the ampersands with plus characters.</p>
+
+<p>Now that my Cisco phone is set up I&rsquo;ve started on a quest to find fun, yet marginally useful, things that I can do with it.  Without going too crazy I wanted to start with some basics and then move into the really fancy stuff.  A Twitter timeline is just about as basic as can be while still being novel enough to keep my interest.</p>
+
+<p>You&rsquo;ll need a few things to make this work&hellip;</p>
+
+<p>1: A Cisco 7960 that you can edit the configuration for and is provisioned properly.  Articles on this coming soon&hellip;</p>
+
+<p>2: A Linux box with cron, Perl, Apache, and PHP installed and running.  There are tutorials on that everywhere so I&rsquo;ll leave that up to you.</p>
+
+<p>3: A Twitter account.</p>
+
+<p>If you have all of those things you can just follow these steps:</p>
+
+<p>Step 1: Log into your Linux box and install the Perl Twitter package (you may need to do this as root): perl -MCPAN -e &ldquo;install Net::Twitter&rdquo;</p>
+
+<p>Step 2: Modify this code by changing the username and password to your Twitter credentials.  Save this script on your Linux server as get-twitter-timeline.pl.</p>
+
+<h1>!/usr/bin/perl -w</h1>
+
+<pre><code>use Net::Twitter;
+$username = "twitterusername";
+$password = "twitterpassword";
+my $twit = Net::Twitter-&gt;new({username=&gt;$username, password=&gt;$password});
+$timeline = $twit-&gt;friends_timeline();
+
+
+
+
+foreach my $tweet (@{$timeline}) {
+   my $speaker = $tweet-&gt;{user}-&gt;{screen_name};
+   my $text = $tweet-&gt;{text};
+   print fix_cisco_issues("$speaker: $text\n");
+}
+
+sub fix_cisco_issues {
+  $input = $_[0];
+  $input =~ s/&amp;/+/g;
+  return $input;
+}
+</code></pre>
+
+<p>Step 3: Make the script executable (chmod +x get-twitter-timeline.pl) and add it to your crontab.  Your crontab may be different depending on your cron version, desired location on the webserver, frequency of updates, etc.  I&rsquo;m checking for updates once every 2 minutes (henec &ldquo;*/2&rdquo;).  BTW, my webserver is private so security is not my focus.</p>
+
+<p>*/2 * * * * get-twitter-timeline.pl > /var/www/localhost/htdocs/twitter-timeline.txt</p>
+
+<p>Step 4: Now you need to create a PHP script that will serve this up to your phone.  It&rsquo;s not quite as easy as pointing the phone to raw text since it needs a sprinkling of Cisco magic to get it to work.  My script is here:</p>
+
+<p>&lt;?php</p>
+
+<p>header (&ldquo;Refresh: 30&rdquo;);</p>
+
+<pre><code>?&gt;
+
+&lt;CiscoIPPhoneText&gt;
+  &lt;Title&gt;timmattison's timeline&lt;/Title&gt;
+  &lt;Text&gt;&lt;?php print file_get_contents("/var/www/localhost/htdocs/twitter-timeline.txt"); ?&gt;&lt;/Text&gt;
+&lt;/CiscoIPPhoneText&gt;
+</code></pre>
+
+<p>The tags just put my name on the top line and the content in a scrolling text area below it.  Refresh 30 means that the phone will fetch this every 30 seconds while it&rsquo;s on the services screen.  Now all some clever person needs to do is put some Cisco exploit in my Twitter timeline&hellip; as with all good security we&rsquo;ll worry about that later.  :)</p>
+
+<p>Step 5: Now you&rsquo;ll need to edit your Cisco configuration to point to this PHP script.  You can modify your SIPDefault.cnf or SIPMACADDR.cnf depending on whether you want all of your Cisco phones to have this code on them or not.  The line you&rsquo;ll need to update or add is:</p>
+
+<p>services_url: &ldquo;<a href="http://10.0.1.251/cisco/services.php">http://10.0.1.251/cisco/services.php</a>&rdquo;   ; URL for external Phone Services</p>
+
+<p>Again, that&rsquo;ll need to be updated to meet your specs.</p>
+
+<p>Step 6: If you did all of that correctly you can restart your phone (*, 6, settings simultaneously) and then press the services button. It should come right up.</p>
+
+<p>Here&rsquo;s a glimpse of the final product, enjoy!</p>
+
+<p><img src="/pictures/cisco-twitter-small.jpg" alt="" /></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -331,7 +487,15 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/09/24/testing-hexpile/">Testing Hexpile</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
       <li class="post">
@@ -340,14 +504,6 @@
     
       <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a>
       </li>
     
   </ul>
