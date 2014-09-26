@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="While running some relatively simple Java code on my Raspberry Pi I kept running into complete JVM crashes. These weren&rsquo;t simple application &hellip;">
+  <meta name="description" content="Disclaimer: I am not a Javascript expert. I don&rsquo;t even play one on TV. Everybody knows that logging isn&rsquo;t free, don&rsquo;t they? Well I &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,126 +77,6 @@
     <div id="content">
       <div class="blog-index">
   
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-08-29T12:39:51-04:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>While running some relatively simple Java code on my Raspberry Pi I kept running into complete JVM crashes.  These weren&rsquo;t simple application crashes that I can quickly debug.  It really was the JVM that my code was running on that was crashing.</p>
-
-<p>The error message I received was similar to this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">#</span>
-</span><span class='line'><span class="gp">#</span> A fatal error has been detected by the Java Runtime Environment:
-</span><span class='line'><span class="gp">#</span>
-</span><span class='line'><span class="gp">#</span>  Internal Error <span class="o">(</span>os_linux_zero.cpp:285<span class="o">)</span>, <span class="nv">pid</span><span class="o">=</span>10344, <span class="nv">tid</span><span class="o">=</span>3061261424
-</span><span class='line'><span class="gp">#</span>  fatal error: caught unhandled signal 11
-</span><span class='line'><span class="gp">#</span>
-</span><span class='line'><span class="gp">#</span> JRE version: OpenJDK Runtime Environment <span class="o">(</span>7.0_65-b32<span class="o">)</span> <span class="o">(</span>build 1.7.0_65-b32<span class="o">)</span>
-</span><span class='line'><span class="gp">#</span> Java VM: OpenJDK Zero VM <span class="o">(</span>24.65-b04 mixed mode linux-arm <span class="o">)</span>
-</span><span class='line'><span class="gp">#</span> Failed to write core dump. Core dumps have been disabled. To <span class="nb">enable </span>core dumping, try <span class="s2">&quot;ulimit -c unlimited&quot;</span> before starting Java again
-</span><span class='line'><span class="gp">#</span>
-</span><span class='line'><span class="gp">#</span> An error report file with more information is saved as:
-</span><span class='line'><span class="gp">#</span> /home/pi/hs_err_pid10344.log
-</span><span class='line'><span class="gp">#</span>
-</span><span class='line'><span class="gp">#</span> If you would like to submit a bug report, please include
-</span><span class='line'><span class="gp">#</span> instructions on how to reproduce the bug and visit:
-</span><span class='line'><span class="gp">#</span>   http://icedtea.classpath.org/bugzilla
-</span><span class='line'><span class="gp">#</span>
-</span><span class='line'><span class="go">Aborted</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I dug and dug and dug and couldn&rsquo;t figure out what was going on.  The most common fix that I saw was to switch to the Oracle JVM.  For this project I didn&rsquo;t want to do that so I scoured the net and came up with the following two options.</p>
-
-<p>For reference, my original command line was very simple.  It was just <code>java -jar test.jar</code>.</p>
-
-<p>NOTE: There may be performance issues with both of these options.  I have not profiled them to see the difference.  Then again, having your JVM crash can arguably be the lowest performance option possible.</p>
-
-<p>Option 1: Add the <code>-XX:+PrintCommandLineFlags</code> option to your command line.  This changed my command line to <code>java -XX:+PrintCommandLineFlags -jar test.jar</code>.  Immediately the problem went away.</p>
-
-<p>Option 2: Add the <code>-jamvm</code> option to your command line.  This changed my command line to <code>java -jamvm -jar test.jar</code>.  Again, immediately the problem went away</p>
-
-<p>What is really happening behind the scenes?  That gets complex quickly and I still don&rsquo;t know the full answer.  It turns out that this is a known but ignored bug in OpenJDK&rsquo;s Zero VM.  When you run <code>java -version</code> you can see if you&rsquo;re running Zero VM or not like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -version</span>
-</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
-</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
-</span><span class='line'><span class="go">OpenJDK Zero VM (build 24.65-b04, mixed mode)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I don&rsquo;t know why option 1 works.  My guess is that that option disables some kind of optimization.  Looking at <a href="http://cr.openjdk.java.net/~gbenson/zero-10/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp.html">what I think is the corresponding code in Hotspot</a> on line 283 I can see that <code>pthread_attr_getstack</code> is used.  The <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_attr_getstack.html">pthread_attr_getstack documentation</a> says that it can only fail with <code>EINVAL</code> for one reason.  It must be that <code>addr</code> &ldquo;does not refer to an initialized thread attribute object&rdquo;.  I don&rsquo;t have any clue how to fix this though.</p>
-
-<p>Option 2 works because it switches over to <a href="http://jamvm.sourceforge.net/">JamVM</a>.  You can check your JamVM version like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -jamvm -version</span>
-</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
-</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
-</span><span class='line'><span class="go">JamVM (build 1.6.0-devel, inline-threaded interpreter with stack-caching)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So, if you&rsquo;re in a similar bind and don&rsquo;t want to install and switch to Oracle&rsquo;s JVM give these options a try.  Post your results in the comments below.</p>
-</div>
-  
-  
-
-
-    </article>
   
   
     <article>
@@ -1698,6 +1578,57 @@
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-18T09:10:21-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Are you a developer?  Do you have trouble remembering what you did yesterday when it is time for your daily standup?  Do you use git?  Do you commit regularly?  If you answered yes to those questions you can now quickly figure out what you did yesterday with the help of <a href="https://github.com/timmattison/gitrdun">gitrdun</a>.</p>
+
+<p>gitrdun simply looks for git repos in your home directory, lists all of the commits in those repos from yesterday, and then prints that on the screen.  The current iteration is the &ldquo;5 minute version&rdquo;.  It literally took 5 minutes to write.  The &ldquo;5 hour version&rdquo; may make the formatting a bit nicer and add some features but don&rsquo;t hold your breath for that to come out.</p>
+
+<p>Don&rsquo;t want to fork the repo?  No problem, it&rsquo;s just a one liner anyway.  Use this alias&hellip;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>alias gitrdun="clear ; PAGER=\"cat\" find ~ -name \".git\" -type d -exec sh -c \"cd '{}' ; echo '{}'; git log --all --since='yesterday'\" \; | less"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This clears the screen, uses &ldquo;cat&rdquo; as the pager so that the pager doesn&rsquo;t clear the screen between repo checks, finds all git repos, goes into their directory that is under version control, and then lists all commits on all branches from yesterday.</p>
+
+<p>Enjoy!</p>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1731,10 +1662,6 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/archives/2014/09/24/testing-hexpile/">Testing Hexpile</a>
-      </li>
-    
-      <li class="post">
         <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
       </li>
     
@@ -1748,6 +1675,10 @@
     
       <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
       </li>
     
   </ul>

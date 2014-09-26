@@ -9,8 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="When trying to build Hadoop with Maven today I got this ugly error message: [INFO] Scanning for projects...
-[INFO &hellip;">
+  <meta name="description" content="If you&rsquo;re writing code that accesses HDFS and you get an exception that looks like this: Exception in thread "main" java.lang. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,113 +77,6 @@
     <div id="content">
       <div class="blog-index">
   
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/">Tip: Fix Basic Build Issues When Using Maven</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-02-07T13:33:46-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>When trying to build Hadoop with Maven today I got this ugly error message:</p>
-
-<pre><code>[INFO] Scanning for projects...
-[INFO] ------------------------------------------------------------------------
-[ERROR] FATAL ERROR
-[INFO] ------------------------------------------------------------------------
-[INFO] Error building POM (may not be this project's POM).
-
-
-Project ID: org.apache.hadoop:hadoop-project
-POM Location: /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
-Validation Messages:
-
-    [0]  For dependency Dependency {groupId=jdk.tools, artifactId=jdk.tools, version=1.6, type=jar}: system-scoped dependency must specify an absolute path systemPath.
-
-
-Reason: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
-
-
-[INFO] ------------------------------------------------------------------------
-[INFO] Trace
-org.apache.maven.reactor.MavenExecutionException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
-    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:404)
-    at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:272)
-    at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:138)
-    at org.apache.maven.cli.MavenCli.main(MavenCli.java:362)
-    at org.apache.maven.cli.compat.CompatibleMain.main(CompatibleMain.java:60)
-    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
-    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-    at java.lang.reflect.Method.invoke(Method.java:616)
-    at org.codehaus.classworlds.Launcher.launchEnhanced(Launcher.java:315)
-    at org.codehaus.classworlds.Launcher.launch(Launcher.java:255)
-    at org.codehaus.classworlds.Launcher.mainWithExitCode(Launcher.java:430)
-    at org.codehaus.classworlds.Launcher.main(Launcher.java:375)
-Caused by: org.apache.maven.project.InvalidProjectModelException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
-    at org.apache.maven.project.DefaultMavenProjectBuilder.processProjectLogic(DefaultMavenProjectBuilder.java:1077)
-    at org.apache.maven.project.DefaultMavenProjectBuilder.buildInternal(DefaultMavenProjectBuilder.java:880)
-    at org.apache.maven.project.DefaultMavenProjectBuilder.buildFromSourceFileInternal(DefaultMavenProjectBuilder.java:508)
-    at org.apache.maven.project.DefaultMavenProjectBuilder.build(DefaultMavenProjectBuilder.java:200)
-    at org.apache.maven.DefaultMaven.getProject(DefaultMaven.java:604)
-    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:487)
-    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:560)
-    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:391)
-    ... 12 more
-[INFO] ------------------------------------------------------------------------
-[INFO] Total time: &lt; 1 second
-[INFO] Finished at: Tue Feb 07 13:30:39 EST 2012
-[INFO] Final Memory: 3M/361M
-[INFO] ------------------------------------------------------------------------
-</code></pre>
-
-<p>Tsk, tsk on me.  All I had to do was set my JAVA_HOME variable.  Not sure how to set yours?  Just do this:</p>
-
-<pre><code>export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
-</code></pre>
-
-<p>I&rsquo;m actually running 64-bit Debian Wheezy so I had to do some other things to get my system prepped.  I needed to get off of Maven 2 and onto Maven 3, add the JDK, install the protocol buffers compiler, install zlib and its development files, and use a slightly different path.  Here&rsquo;s what I did:</p>
-
-<pre><code>sudo apt-get install maven openjdk-6-jdk libprotoc-dev protobuf-compiler zlib1g-dev
-export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
-</code></pre>
-
-<p>After that Maven started humming away when I ran:</p>
-
-<pre><code>mvn compile -Pnative
-</code></pre>
-
-<p>Good luck!  Post in the comments if you run into trouble.</p>
-</div>
-  
-  
-
-
-    </article>
   
   
     <article>
@@ -1107,6 +999,63 @@ EndSection
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/">How-To: Disable HDFS Permissions for Hadoop Development</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-26T11:47:35-05:00" pubdate data-updated="true">Dec 26<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;ve <a href="http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/">set up Hadoop for development</a> you may be wondering why you can&rsquo;t read or write files or create MapReduce jobs then you&rsquo;re probably missing a tiny bit of configuration.  For most development systems in pseudo-distributed mode it&rsquo;s easiest to disable permissions altogether.  This means that any user, not just the &ldquo;hdfs&rdquo; user, can do anything they want to HDFS so do not do this in production unless you have a very good reason.</p>
+
+<p>The error message you&rsquo;re most likely seeing if permissions are the problem is similar to this:</p>
+
+<p><code>
+put: org.apache.hadoop.security.AccessControlException: Permission denied: user=tim, access=WRITE, inode="/user":hdfs:supergroup:drwxr-xr-x
+</code></p>
+
+<p>If that&rsquo;s the case and you really want to disable permissions just add this snippet into your hdfs-site.xml file (located in /etc/hadoop-0.20/conf.empty/hdfs-site.xml on Debian Squeeze) in the configuration section:</p>
+
+<pre><code>  &lt;property&gt;
+    &lt;name&gt;dfs.permissions&lt;/name&gt;
+    &lt;value&gt;false&lt;/value&gt;
+  &lt;/property&gt;
+</code></pre>
+
+<p>Then restart Hadoop (su to the &ldquo;hdfs&rdquo; user and run bin/stop-all.sh then bin/start-all.sh) and try putting a file again.  You should now be able to read/write with no restrictions.</p>
+
+<p>Good luck!  Post in the comments if it doesn&rsquo;t work for you.</p>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
       <a class="prev" href="/page/7/">&larr; Older</a>
@@ -1140,10 +1089,6 @@ EndSection
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/archives/2014/09/24/testing-hexpile/">Testing Hexpile</a>
-      </li>
-    
-      <li class="post">
         <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
       </li>
     
@@ -1157,6 +1102,10 @@ EndSection
     
       <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
       </li>
     
   </ul>

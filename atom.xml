@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-09-26T07:10:49-04:00</updated>
+  <updated>2014-09-26T07:13:45-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,37 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Testing Hexpile]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/09/24/testing-hexpile/"/>
-    <updated>2014-09-24T17:45:09-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/09/24/testing-hexpile</id>
-    <content type="html"><![CDATA[<p><link rel="stylesheet" type="text/css" href="http://blog.timmattison.com/javascripts/libs/hexpile/Hexpile.css" /></p>
-
-<script type="text/javascript" language="javascript" src="http://blog.timmattison.com/javascripts/libs/hexpile/Hexpile.nocache.js"></script>
-
-
-
-
-<div id="hexpile_test">
-<pre>
-Version number: 01000000
-Input counter: 01
-Previous transaction hash: 0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9
-Previous output index: 00000000
-Input script length: 0x48
-VIRTUAL_OP_PUSH: 0x47
-Value to push: 304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901
-Sequence number: ffffffff
-</pre>
-</div>
-
-
-<div id="hexpile_test_output"></div>
-
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi]]></title>
@@ -339,6 +308,8 @@ Hash type: 01000000
 
 
 <p>If the signature from block 170 is a valid signature for this blob of binary data we just created, using the public key from block 9, then the transaction is valid.</p>
+
+<p>Questions?  Comments?  Post below!</p>
 ]]></content>
   </entry>
   
@@ -2477,6 +2448,27 @@ Hash type: 01000000
 
 
 <p>Have any other recommendations?  Please post them in the comments below!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Use Git to Figure Out What You Did Yesterday]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/"/>
+    <updated>2014-06-18T09:10:21-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday</id>
+    <content type="html"><![CDATA[<p>Are you a developer?  Do you have trouble remembering what you did yesterday when it is time for your daily standup?  Do you use git?  Do you commit regularly?  If you answered yes to those questions you can now quickly figure out what you did yesterday with the help of <a href="https://github.com/timmattison/gitrdun">gitrdun</a>.</p>
+
+<p>gitrdun simply looks for git repos in your home directory, lists all of the commits in those repos from yesterday, and then prints that on the screen.  The current iteration is the &ldquo;5 minute version&rdquo;.  It literally took 5 minutes to write.  The &ldquo;5 hour version&rdquo; may make the formatting a bit nicer and add some features but don&rsquo;t hold your breath for that to come out.</p>
+
+<p>Don&rsquo;t want to fork the repo?  No problem, it&rsquo;s just a one liner anyway.  Use this alias&hellip;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>alias gitrdun="clear ; PAGER=\"cat\" find ~ -name \".git\" -type d -exec sh -c \"cd '{}' ; echo '{}'; git log --all --since='yesterday'\" \; | less"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This clears the screen, uses &ldquo;cat&rdquo; as the pager so that the pager doesn&rsquo;t clear the screen between repo checks, finds all git repos, goes into their directory that is under version control, and then lists all commits on all branches from yesterday.</p>
+
+<p>Enjoy!</p>
 ]]></content>
   </entry>
   

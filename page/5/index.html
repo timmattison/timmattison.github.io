@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I ran into this problem today too when I first got FiOS installed. Mapping a network drive won&rsquo;t work but using &ldquo;subst&rdquo; will. I now &hellip;">
+  <meta name="description" content="This one has been a bit of a nuisance on newly spooled up Debian instances for me lately. When I try to run &ldquo;top&rdquo; or &ldquo;clear&rdquo; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,68 +77,6 @@
     <div id="content">
       <div class="blog-index">
   
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">How-To: Get Verizon&#8217;s Media Manager to Read Content From a Network Location</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-04-17T15:45:12-04:00" pubdate data-updated="true">Apr 17<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I ran into this problem today too when I first got FiOS installed.  Mapping a network drive won&rsquo;t work but using &ldquo;subst&rdquo; will.  I now have Media Manager reading my pictures over a network connection.  Here&rsquo;s how to do it:</p>
-
-<ol>
-<li><p> Open the start menu</p></li>
-<li><p> Type &ldquo;cmd&rdquo;</p></li>
-<li><p> Right click on &ldquo;cmd&rdquo; and select &ldquo;Run as administrator&rdquo;</p></li>
-<li><p> Run subst like this:</p>
-
-<p>subst DRIVE: LOCATION</p></li>
-</ol>
-
-
-<p>  DRIVE: will need to be a free drive letter like &ldquo;F:&rdquo;, &ldquo;G:&rdquo;, etc
-  LOCATION will need to be the <a href="http://en.wikipedia.org/wiki/Path_(computing">UNC path</a>#Uniform_Naming_Convention) to your network share like this &ldquo;\myothercomputer\pictures\&rdquo;
-  Don&rsquo;t forget to include the quotes if your LOCATION has spaces in it!</p>
-
-<ol>
-<li> Restart Media Manager and try to add the new virtual drive to it, it should start working right away</li>
-</ol>
-
-
-<p>You may need to do this on each reboot.  I never reboot this computer so I haven&rsquo;t tested it yet.  You can put these commands in a batch file to make your life easier but you&rsquo;ll need to make sure the batch file runs as an administrator.</p>
-
-<p>Let me know in the comments if it works for you or not.  If not I can probably help work out any kinks with you.</p>
-</div>
-  
-  
-
-
-    </article>
   
   
     <article>
@@ -1109,6 +1047,113 @@ dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/">Tip: Fix Basic Build Issues When Using Maven</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-07T13:33:46-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When trying to build Hadoop with Maven today I got this ugly error message:</p>
+
+<pre><code>[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[ERROR] FATAL ERROR
+[INFO] ------------------------------------------------------------------------
+[INFO] Error building POM (may not be this project's POM).
+
+
+Project ID: org.apache.hadoop:hadoop-project
+POM Location: /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+Validation Messages:
+
+    [0]  For dependency Dependency {groupId=jdk.tools, artifactId=jdk.tools, version=1.6, type=jar}: system-scoped dependency must specify an absolute path systemPath.
+
+
+Reason: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+
+
+[INFO] ------------------------------------------------------------------------
+[INFO] Trace
+org.apache.maven.reactor.MavenExecutionException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:404)
+    at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:272)
+    at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:138)
+    at org.apache.maven.cli.MavenCli.main(MavenCli.java:362)
+    at org.apache.maven.cli.compat.CompatibleMain.main(CompatibleMain.java:60)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:616)
+    at org.codehaus.classworlds.Launcher.launchEnhanced(Launcher.java:315)
+    at org.codehaus.classworlds.Launcher.launch(Launcher.java:255)
+    at org.codehaus.classworlds.Launcher.mainWithExitCode(Launcher.java:430)
+    at org.codehaus.classworlds.Launcher.main(Launcher.java:375)
+Caused by: org.apache.maven.project.InvalidProjectModelException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+    at org.apache.maven.project.DefaultMavenProjectBuilder.processProjectLogic(DefaultMavenProjectBuilder.java:1077)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.buildInternal(DefaultMavenProjectBuilder.java:880)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.buildFromSourceFileInternal(DefaultMavenProjectBuilder.java:508)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.build(DefaultMavenProjectBuilder.java:200)
+    at org.apache.maven.DefaultMaven.getProject(DefaultMaven.java:604)
+    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:487)
+    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:560)
+    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:391)
+    ... 12 more
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: &lt; 1 second
+[INFO] Finished at: Tue Feb 07 13:30:39 EST 2012
+[INFO] Final Memory: 3M/361M
+[INFO] ------------------------------------------------------------------------
+</code></pre>
+
+<p>Tsk, tsk on me.  All I had to do was set my JAVA_HOME variable.  Not sure how to set yours?  Just do this:</p>
+
+<pre><code>export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+</code></pre>
+
+<p>I&rsquo;m actually running 64-bit Debian Wheezy so I had to do some other things to get my system prepped.  I needed to get off of Maven 2 and onto Maven 3, add the JDK, install the protocol buffers compiler, install zlib and its development files, and use a slightly different path.  Here&rsquo;s what I did:</p>
+
+<pre><code>sudo apt-get install maven openjdk-6-jdk libprotoc-dev protobuf-compiler zlib1g-dev
+export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
+</code></pre>
+
+<p>After that Maven started humming away when I ran:</p>
+
+<pre><code>mvn compile -Pnative
+</code></pre>
+
+<p>Good luck!  Post in the comments if you run into trouble.</p>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
       <a class="prev" href="/page/6/">&larr; Older</a>
@@ -1142,10 +1187,6 @@ dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/archives/2014/09/24/testing-hexpile/">Testing Hexpile</a>
-      </li>
-    
-      <li class="post">
         <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
       </li>
     
@@ -1159,6 +1200,10 @@ dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
     
       <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
       </li>
     
   </ul>
