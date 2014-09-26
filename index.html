@@ -236,6 +236,8 @@ Sequence number: ffffffff
 
 <p>Now we&rsquo;re at the actual input script.  This input script consists of a single operation (<code>VIRTUAL_OP_PUSH</code>) which pushes a 71 byte value onto the stack.  That 71 byte value is a signature that signs the previous output and the new output so that we make sure know that the person unlocking the coins is the same person spending the coins.</p>
 
+<p>Bitcoin uses the ECC curve <a href="https://en.bitcoin.it/wiki/Secp256k1">secp256k1</a> which is part of the <a href="http://perso.univ-rennes1.fr/sylvain.duquesne/master/standards/sec2_final.pdf">SEC 2: Recommended Elliptic Curve Domain Parameters</a>.  Therefore all signing and validation operations are performed with the parameters from this curve.</p>
+
 <p>The really interesting part is how we do the transaction validation.  That requires a lot of explanation&hellip; as if this wasn&rsquo;t long and complicated enough already.</p>
 
 <p>Let&rsquo;s look at the output script from block 9:</p>
