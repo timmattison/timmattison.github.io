@@ -148,8 +148,6 @@ Output script #1: 00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e
 
 <p>Output scripts #0 and #1 contain all the bytes in the two output scripts in this transaction.  These outputs show where the Bitcoins are going.  In this case they&rsquo;re being sent to two different addresses.</p>
 
-<p>The two output scripts split the input coins so that 40 BTC goes to one wallet and 10 BTC goes to another wallet but I&rsquo;ll explain that later.</p>
-
 <p>Let&rsquo;s look at the input first.</p>
 
 <div id="hexpile_tx_f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_input_0">
@@ -351,6 +349,8 @@ Lock time: 00000000
 
 <div id="hexpile_step_5_detail_output"></div>
 
+
+<p>The value bytes represent the number of Satoshi (1 / 100,000,000th of a Bitcoin) are being transferred.  The input was a mined block that created 50 BTC and the two output blocks are getting 10 and 40 BTC, respectively.  Like all other value types in Bitcoin these values are little-endian.</p>
 
 <p>Step 6 &ndash; Add the 32-bit little endian representation of the hash type onto the end of the signing data.  The hash type is the last byte of the signature which is <code>0x01</code> in this case.  Expanded into a 32-bit little endian value makes it <code>0x01000000</code>.  So our final data that needs to be signed is:</p>
 
