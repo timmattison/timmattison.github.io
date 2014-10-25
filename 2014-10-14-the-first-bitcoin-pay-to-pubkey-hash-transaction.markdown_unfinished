@@ -1,0 +1,45 @@
+---
+layout: post
+title: "The first Bitcoin 'pay-to-pubkey-hash' transaction"
+date: 2014-10-14 19:09:17 -0400
+comments: true
+categories: 
+---
+<link rel="stylesheet" type="text/css" href="/javascripts/libs/hexpile/Hexpile.css" />
+<script type="text/javascript" language="javascript" src="/javascripts/libs/hexpile/Hexpile.nocache.js"></script>
+
+In a post last month we saw how the very first Bitcoin transaction worked.  That transaction was called a [pay-to-pubkey transaction](https://en.bitcoin.it/wiki/Script#Obsolete_pay-to-pubkey_transaction) and, as I mentioned, it is now considered obsolete.
+
+What replaced this kind of transaction is called the [pay-to-pubkey-hash transaction](https://en.bitcoin.it/wiki/Script#Standard_Transaction_to_Bitcoin_address_.28pay-to-pubkey-hash.29).
+
+It is important to note that this transaction type wasn't created to be more secure than the old transaction type.  It was created so that addresses could all be represented in 20 bytes (160-bits) no matter how complex the transaction is.  The benefit of this is that even transactions that require multiple signatures can be put on QR codes.
+
+[The first transaction of this new type](https://blockchain.info/tx/74c1a6dd6e88f73035143f8fc7420b5c395d28300a70bb35b943f7f2eddc656d) is from [block 2812](https://blockchain.info/block-index/17661).
+
+The output is:
+	
+<div id="hexpile_tx_74c1a6dd6e88f73035143f8fc7420b5c395d28300a70bb35b943f7f2eddc656d_output_0">
+<pre>
+OP_DUP: 0x76
+OP_HASH160: 0xa9
+VIRTUAL_OP_PUSH: 0x14
+Bytes to push: 6934efcef36903b5b45ebd1e5f862d1b63a99fa5
+OP_EQUALVERIFY: 0x88
+OP_CHECKSIG: 0xac
+</pre>
+</div>
+<div id="hexpile_tx_74c1a6dd6e88f73035143f8fc7420b5c395d28300a70bb35b943f7f2eddc656d_output_0_output"></div>
+
+And the input is:
+
+<div id="hexpile_tx_74c1a6dd6e88f73035143f8fc7420b5c395d28300a70bb35b943f7f2eddc656d_input_0">
+<pre>
+VIRTUAL_OP_PUSH #1: 0x49
+Bytes to push #1: 30460221009f8aef83489d5c3524b68ddf77e8af8ceb5cba89790d31d2d2db0c80b9cbfd26022100bb2c13e15bb356a4accdd55288e8b2fd39e204a93d849ccf749eaef9d816278701
+VIRTUAL_OP_PUSH #2: 0x41
+Bytes to push #2: 04f9804cfb86fb17441a6562b07c4ee8f012bdb2da5be022032e4b87100350ccc7c0f4d47078b06c9d22b0ec10bdce4c590e0d01aed618987a6caa8c94d74ee6dc
+</pre>
+</div>
+<div id="hexpile_tx_74c1a6dd6e88f73035143f8fc7420b5c395d28300a70bb35b943f7f2eddc656d_input_0_output"></div>
+
+This input script consists of two `VIRTUAL_OP_PUSH` operations.  The first pushes a 72 byte value onto the stack. That 72 byte value is a signature that signs the previous output and the new output so that we make sure know that the person unlocking the coins is the same person spending the coins.  The second pushes a 64 byte value onto the stack which will be hashed by `OP_HASH160`.  That 
