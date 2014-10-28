@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="UPDATE 2012-02-06: The native library issue has been resolved. You can now keep the native library installed with just a minor configuration tweak. &hellip;">
+  <meta name="description" content="If you&rsquo;ve set up Hadoop for development you may be wondering why you can&rsquo;t read or write files or create MapReduce jobs then you&rsquo;re &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,63 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/">How-To: Disable HDFS Permissions for Hadoop Development</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-26T11:47:35-05:00" pubdate data-updated="true">Dec 26<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;ve <a href="http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/">set up Hadoop for development</a> you may be wondering why you can&rsquo;t read or write files or create MapReduce jobs then you&rsquo;re probably missing a tiny bit of configuration.  For most development systems in pseudo-distributed mode it&rsquo;s easiest to disable permissions altogether.  This means that any user, not just the &ldquo;hdfs&rdquo; user, can do anything they want to HDFS so do not do this in production unless you have a very good reason.</p>
+
+<p>The error message you&rsquo;re most likely seeing if permissions are the problem is similar to this:</p>
+
+<p><code>
+put: org.apache.hadoop.security.AccessControlException: Permission denied: user=tim, access=WRITE, inode="/user":hdfs:supergroup:drwxr-xr-x
+</code></p>
+
+<p>If that&rsquo;s the case and you really want to disable permissions just add this snippet into your hdfs-site.xml file (located in /etc/hadoop-0.20/conf.empty/hdfs-site.xml on Debian Squeeze) in the configuration section:</p>
+
+<pre><code>  &lt;property&gt;
+    &lt;name&gt;dfs.permissions&lt;/name&gt;
+    &lt;value&gt;false&lt;/value&gt;
+  &lt;/property&gt;
+</code></pre>
+
+<p>Then restart Hadoop (su to the &ldquo;hdfs&rdquo; user and run bin/stop-all.sh then bin/start-all.sh) and try putting a file again.  You should now be able to read/write with no restrictions.</p>
+
+<p>Good luck!  Post in the comments if it doesn&rsquo;t work for you.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -877,68 +934,6 @@ INFO: Server startup in 18871 ms
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/">Mini Hack: Create Read-only Properties With Hibernate (Fixes &#8220;PropertyNotFoundException: Could Not Find a Setter&#8221; Issues)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-06-22T14:51:58-04:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2011</time>
-        
-           | <a href="/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Ok, this mini-hack isn&rsquo;t pretty but it solves an issue that I have seen come up many times in Java.  You&rsquo;re trying to add a method to an object that you want Hibernate to persist.  Let&rsquo;s assume that your object is an elevator and it has the following real properties:</p>
-
-<ul>
-<li>Current floor (int)</li>
-<li>Hours in use (int)</li>
-<li>Pounds in elevator (int)</li>
-</ul>
-
-
-<p>You want to add a method that tells you how many days it has been in use.  Normally you&rsquo;d do this:</p>
-
-<pre><code>public double getDaysInUse() {
-  return this.hoursInUse / 24.0;
-}
-</code></pre>
-
-<p>However, if you do that you get the dreaded &ldquo;PropertyNotFoundException: Could not find a setter&rdquo; error.  How do we fix this?  Simply with a throw away parameter like this:</p>
-
-<pre><code>public double getDaysInUse(int unused) {
-  return this.hoursInUse / 24.0;
-}
-</code></pre>
-
-<p>And there you have it.  No more error!  I&rsquo;m sure there&rsquo;s a better way and when I find it I&rsquo;ll post again but for now this does the trick.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/8/">&larr; Older</a>
@@ -972,6 +967,10 @@ INFO: Server startup in 18871 ms
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
       </li>
     
@@ -985,10 +984,6 @@ INFO: Server startup in 18871 ms
     
       <li class="post">
         <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a>
       </li>
     
   </ul>
