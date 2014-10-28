@@ -254,4 +254,7 @@ For example there is an automatic JNDI binding for `com.timmattison.jndibeans.in
 
 You'll notice that in our `DirectTestRoutes` class we routed the direct test route to `beanRef` with the parameter `SayHello1.class.getName()`.  That's all you need to do as you add more classes to your Camel routes.
 
+Want to try this out without building everything from scratch?  Head over to [my apache-camel-guice repo on Github](http://github.com/timmattison/apache-camel-guice
+).
+
 Good luck!  Don't forget to post in the comments!
