@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="This has been a nuisance for me since I started using a Mac but only today did I finally spend the time to figure it out. I found a post that has &hellip;">
+  <meta name="description" content="Here&rsquo;s a quick step-by-step guide to get Google Analytics into your nanoblogger installation. Step 1: Get your Google Analytics JavaScript code &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,86 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/03/12/how-to-add-google-analytics-to-nanoblogger/">How-To: Add Google Analytics to Nanoblogger</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-12T09:06:40-04:00" pubdate data-updated="true">Mar 12<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/03/12/how-to-add-google-analytics-to-nanoblogger/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/03/12/how-to-add-google-analytics-to-nanoblogger/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Here&rsquo;s a quick step-by-step guide to get Google Analytics into your nanoblogger installation.</p>
+
+<p>Step 1: Get your Google Analytics JavaScript code.  If you missed or skipped this step when you signed up you can replicate it if you log into your Analytics account, go to the overview page, and search for &ldquo;UA&rdquo;.  Take the unique ID that looks like UA-0123456-7 and put it into this code (it&rsquo;s the bold, italicized part):</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+&lt;/script&gt;
+
+
+
+
+&lt;script type="text/javascript"&gt;
+try {
+var pageTracker = _gat._getTracker("&lt;strong&gt;&lt;em&gt;UA-0123456-7&lt;/em&gt;&lt;/strong&gt;");
+pageTracker._trackPageview();
+} catch(err) {}&lt;/script&gt;
+</code></pre>
+
+<p>If you don&rsquo;t put your unique ID then you will not get any stats!  Don&rsquo;t use UA-0123456-7!</p>
+
+<p>Step 2: Back up your site and templates.  If you make a mistake in the next few steps you&rsquo;ll thank yourself.</p>
+
+<p>Step 3: Add the code in the following templates just before the </body> tag:</p>
+
+<ul>
+<li><p>templates/category_archive.htm</p></li>
+<li><p>templates/day_archive.htm</p></li>
+<li><p>templates/main_index.htm</p></li>
+<li><p>templates/makepage.htm</p></li>
+<li><p>templates/month_archive.htm</p></li>
+<li><p>templates/permalink.htm</p></li>
+<li><p>templates/year_archive.htm</p></li>
+</ul>
+
+
+<p>Step 4: Regenerate your site with the update all command.  Replace &ldquo;blog&rdquo; with the relative directory of your blog:</p>
+
+<pre><code>nb --blog-dir blog --force update all
+</code></pre>
+
+<p>Step 5: Check the results and push your update to your server.  You should see analytics start updating as soon as people start hitting your site.  Ifyou don&rsquo;t be sure to give it a few hours before reporting it to Google.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -487,6 +567,10 @@ sub fix_cisco_issues {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
       </li>
     
@@ -500,10 +584,6 @@ sub fix_cisco_issues {
     
       <li class="post">
         <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
       </li>
     
   </ul>

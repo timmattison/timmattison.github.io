@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-10-28T18:40:58-04:00</updated>
+  <updated>2014-10-28T19:10:42-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,29 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Activating U2F on a Yubikey Neo on Mac OS]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/"/>
+    <updated>2014-10-28T16:25:12-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os</id>
+    <content type="html"><![CDATA[<p>I just got my Yubikey Neo with U2F support and I felt like the documentation on how to get it up and running was a bit hard to find.  If you are having trouble getting started with U2F these few quick steps will help you get through it.</p>
+
+<p>Step 0: Download and install the <a href="https://developers.yubico.com/yubikey-neo-manager/Releases/">Yubikey Neo Manager application</a>.  This is NOT the Yubikey Personalization Tool!  The Yubikey Personalization Tool does not support enabling U2F yet.</p>
+
+<p>Step 1: Open the Yubikey Neo Manager with your Yubikey installed and click <code>Change connection mode [OTP]</code> <img src="http://blog.timmattison.com/images/yubikey-neo-manager/step-1.png" alt="Yubikey Neo Manager main screen" /></p>
+
+<p>Step 2: On the <code>Change connection mode</code> check the <code>U2F</code> box to change the setting from <code>OTP</code> to <code>U2F</code> and click <code>OK</code>. <img src="http://blog.timmattison.com/images/yubikey-neo-manager/step-2.png" alt="Yubikey Neo Manager main screen" /> <img src="http://blog.timmattison.com/images/yubikey-neo-manager/step-3.png" alt="Yubikey Neo Manager main screen" /></p>
+
+<p>The application will now prompt you to remove your device.  You can remove it and plug it back in again.  Close the Yubikey Neo Manager application.</p>
+
+<p>Step 3: Open Chrome and install the <a href="https://chrome.google.com/webstore/detail/fido-u2f-universal-2nd-fa/pfboblefjcgdjicmnffhdgionmgcdmne">FIDO U2F (Universal 2nd Factor) extension</a> from the Chrome web store.</p>
+
+<p>Step 4: Register on <a href="http://demo.yubico.com/u2f">Yubico&rsquo;s U2F demo page</a> and you&rsquo;re done.</p>
+
+<p>Now you can log in on the demo page and other sites that support U2F.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Building Apache Camel Applications With Guice]]></title>
@@ -2829,55 +2852,6 @@ Hash type: 01000000
 <p>Have better ways to do this?  Did this get you out of a jam?  Please post in the comments below.</p>
 
 <p>UPDATE: <a href="https://github.com/timmattison/jayuda/commit/1484b47d72c6f5943340eebc8d78fafaa9604485">Added to Jayuda</a>!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/"/>
-    <updated>2014-06-19T07:06:23-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch</id>
-    <content type="html"><![CDATA[<p>I often get asked about what recommendations I would make to people to make them better developers.  After working on a very large project last year I have consistently told people that no matter what platform they use they should work on and think about two things: software testing and dependency injection.</p>
-
-<p>Software testing includes unit tests, integration tests, regression tests, human testing, and a lot more.  It is a broad set of topics that is hard to distill into just a few bits that will always be applicable.</p>
-
-<p>But how about getting people to write code that is testable?  Testability is an easy concept to gloss over.  While there is a stigma associated with writing code that has no test coverage there is nowhere near as much of a stigma for having to jump through endless hoops to get your software to be tested.  In fact, these hoops combined with time pressure are probably why a lot of developers don&rsquo;t do proper testing.</p>
-
-<p>There are three things that you can do immediately to start writing more testable code.  First, <a href="https://en.wikipedia.org/wiki/SOLID_(object-oriented_design">learn the SOLID principle</a> and if you need tighter focus then just start with S (single responsibility principle) and D (dependency inversion principle).  Second, use a <a href="https://en.wikipedia.org/wiki/Dependency_injection">dependency injection</a> framework (AKA &ldquo;DI framework&rdquo;).  Third, try to follow the <a href="https://en.wikipedia.org/wiki/Law_of_Demeter">Law of Demeter</a> as much as possible.</p>
-
-<p>Here are some dependency injection framework recommendations:</p>
-
-<ul>
-<li>For Java developers I recommend <a href="https://code.google.com/p/google-guice/">Guice</a>.</li>
-<li>For Android developers I recommend <a href="https://square.github.io/dagger/">Dagger</a>.</li>
-<li>For .NET developers I recommend <a href="http://www.ninject.org/">Ninject</a>.</li>
-</ul>
-
-
-<p>Those Wikipedia links are only meant for basic information on the topics.  Once you&rsquo;re ready to learn about these principles you can get a serious head start by watching a few videos.  The videos by Misko Hevery are some of my favorites and they&rsquo;re 30 minutes versus 60 minutes which is a little easier to carve out of your day.  I suggest watching those first.</p>
-
-<p>These videos are all part of the <a href="https://www.youtube.com/channel/UCtXKDgv1AVoG88PLl8nGXmw">Google Tech Talk</a> series.</p>
-
-<p>30 minute sessions with Misko:</p>
-
-<ul>
-<li><a href="http://www.youtube.com/watch?v=RlfLCWKxHJ0">Don’t look for things</a> &ndash; Discusses how the object model of a system may be broken if you’re not directly handed what your object needs to get its job done.  In the best case this is handled automatically by dependency injection which makes it so you’re never shuffling in and out constructor argument lists as you swap implementations.</li>
-<li><a href="http://www.youtube.com/watch?v=-FRm3VPhseI">Global State and Singletons</a> &ndash; Discusses how global state can silently break tests and how to try to avoid it</li>
-<li><a href="http://www.youtube.com/watch?v=wEhu57pih5w">Unit Testing</a> &ndash; Discusses how unit tests should be structured and that the goal should be to have unit tests that run so fast that you’re running them all the time.  Integration tests and user simulations will still take longer but you should always try to write unit tests that run in milliseconds when possible.  An interesting fact that he drops in this talk, I think, is that Google’s set of tests for a project are often as large as or even larger than the actual project itself.</li>
-<li><a href="http://www.youtube.com/watch?v=4F72VULWFvc">Inheritance, Polymorphism, &amp; Testing</a> &ndash; Discusses how dense code can be unraveled with polymorphism and how that can make it easier to test and get complete testing coverage</li>
-</ul>
-
-
-<p>60 minute sessions:</p>
-
-<ul>
-<li><a href="http://www.youtube.com/watch?v=hBVJbzAagfs">Big Modular Java with Guice</a> &ndash; Discusses how to use Guice to write maintainable, large Java projects</li>
-<li><a href="http://www.youtube.com/watch?v=0iSB0L9avmg">Java on Guice: Dependency Injection, the Java Way</a> &ndash; One of the earlier Guice talks that compares and contrasts using Guice with the non-DI way</li>
-<li><a href="https://www.youtube.com/watch?v=XcT4yYu_TTs">How to Write Clean, Testable Code</a> &ndash; Discusses the Law of Demeter, and getting buried in setup code</li>
-</ul>
-
-
-<p>Have any other recommendations?  Please post them in the comments below!</p>
 ]]></content>
   </entry>
   

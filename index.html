@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Apache Camel is a great framework for implementing Enterprise Integration Patterns. However, most of the examples you&rsquo;ll find out there show &hellip;">
+  <meta name="description" content="I just got my Yubikey Neo with U2F support and I felt like the documentation on how to get it up and running was a bit hard to find. If you are &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,59 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-28T16:25:12-04:00" pubdate data-updated="true">Oct 28<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I just got my Yubikey Neo with U2F support and I felt like the documentation on how to get it up and running was a bit hard to find.  If you are having trouble getting started with U2F these few quick steps will help you get through it.</p>
+
+<p>Step 0: Download and install the <a href="https://developers.yubico.com/yubikey-neo-manager/Releases/">Yubikey Neo Manager application</a>.  This is NOT the Yubikey Personalization Tool!  The Yubikey Personalization Tool does not support enabling U2F yet.</p>
+
+<p>Step 1: Open the Yubikey Neo Manager with your Yubikey installed and click <code>Change connection mode [OTP]</code> <img src="/images/yubikey-neo-manager/step-1.png" alt="Yubikey Neo Manager main screen" /></p>
+
+<p>Step 2: On the <code>Change connection mode</code> check the <code>U2F</code> box to change the setting from <code>OTP</code> to <code>U2F</code> and click <code>OK</code>. <img src="/images/yubikey-neo-manager/step-2.png" alt="Yubikey Neo Manager main screen" /> <img src="/images/yubikey-neo-manager/step-3.png" alt="Yubikey Neo Manager main screen" /></p>
+
+<p>The application will now prompt you to remove your device.  You can remove it and plug it back in again.  Close the Yubikey Neo Manager application.</p>
+
+<p>Step 3: Open Chrome and install the <a href="https://chrome.google.com/webstore/detail/fido-u2f-universal-2nd-fa/pfboblefjcgdjicmnffhdgionmgcdmne">FIDO U2F (Universal 2nd Factor) extension</a> from the Chrome web store.</p>
+
+<p>Step 4: Register on <a href="http://demo.yubico.com/u2f">Yubico&rsquo;s U2F demo page</a> and you&rsquo;re done.</p>
+
+<p>Now you can log in on the demo page and other sites that support U2F.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1793,139 +1846,6 @@ Hash type: 01000000
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-02T08:01:00-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Checking to see if a constraint already exists should be easy.  H2 and many other database have syntax for it.</p>
-
-<p>For some reason PostgreSQL, my favorite database, doesn&rsquo;t have this.  I looked around and found <a href="https://stackoverflow.com/questions/6801919/postgres-add-constraint-if-it-doesnt-already-exist?answertab=votes#tab-top">a decent solution on Stack Overflow</a> that I can add to my default template but something about it bothered me.</p>
-
-<p>I didn&rsquo;t like the fact that the code asked for the table name and constraint name but then didn&rsquo;t use it in the SQL statement.  Leaving it like this means that someone could write this (note that foo becomes foo2 and bar becomes bar2 in the first two parameters):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
-</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
-</span><span class='line'>        <span class="s1">&#39;foo2&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="s1">&#39;bar2&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And they would get an exception rather than having the constraint creation be skipped which could break a lot of things that expect this function to be safe.</p>
-
-<p>They also could do this (note that foo becomes foo2 and bar becomes bar2 in the constraint SQL):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
-</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
-</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo2 ADD CONSTRAINT bar2 CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This could be even worse because a constraint wouldn&rsquo;t be created.</p>
-
-<p>My solution was to modify this script slightly:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='plpgsql'><span class='line'><span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">FUNCTION</span> <span class="n">create_constraint_if_not_exists</span> <span class="p">(</span><span class="n">t_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">c_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">constraint_sql</span> <span class="nb">text</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">RETURNS</span> <span class="nb">void</span>
-</span><span class='line'><span class="k">AS</span>
-</span><span class='line'><span class="s">$BODY$</span>
-</span><span class='line'>  <span class="k">begin</span>
-</span><span class='line'>    <span class="c1">-- Look for our constraint</span>
-</span><span class='line'>    <span class="k">if</span> <span class="k">not</span> <span class="k">exists</span> <span class="p">(</span><span class="k">select</span> <span class="n">constraint_name</span>
-</span><span class='line'>                   <span class="k">from</span> <span class="n">information_schema</span><span class="mf">.</span><span class="n">constraint_column_usage</span>
-</span><span class='line'>                   <span class="k">where</span> <span class="n">table_name</span> <span class="o">=</span> <span class="n">t_name</span>  <span class="k">and</span> <span class="n">constraint_name</span> <span class="o">=</span> <span class="n">c_name</span><span class="p">)</span> <span class="k">then</span>
-</span><span class='line'>        <span class="k">execute</span> <span class="s1">&#39;ALTER TABLE &#39;</span> <span class="o">||</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39; ADD CONSTRAINT &#39;</span> <span class="o">||</span> <span class="n">c_name</span> <span class="o">||</span> <span class="s1">&#39; &#39;</span> <span class="o">||</span> <span class="n">constraint_sql</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">end</span> <span class="k">if</span><span class="p">;</span>
-</span><span class='line'><span class="k">end</span><span class="p">;</span>
-</span><span class='line'><span class="s">$BODY$</span>
-</span><span class='line'><span class="k">LANGUAGE</span> <span class="n">plpgsql</span> <span class="k">VOLATILE</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you call it like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And it will check the constraint properly by name.  This doesn&rsquo;t stop you from creating multiple constraints with the same criteria and different names though.  That&rsquo;s something you&rsquo;ll need to check for manually (for now).</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1957,6 +1877,10 @@ Hash type: 01000000
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
       </li>
     
@@ -1970,10 +1894,6 @@ Hash type: 01000000
     
       <li class="post">
         <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a>
       </li>
     
   </ul>
