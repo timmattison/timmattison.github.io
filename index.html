@@ -9,7 +9,8 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I just got my Yubikey Neo with U2F support and I felt like the documentation on how to get it up and running was a bit hard to find. If you are &hellip;">
+  <meta name="description" content="When writing some routes with Camel&rsquo;s Java DSL I came across this exception: 1
+Caused by: java.lang.IllegalStateException: No method invocation &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +78,111 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-30T16:29:26-04:00" pubdate data-updated="true">Oct 30<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When writing some routes with Camel&rsquo;s Java DSL I came across this exception:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Caused by: java.lang.IllegalStateException: No method invocation could be created, no matching method could be found on: null</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After a lot of tracing I figured out that it was related to me calling the <code>.bean(...)</code> method with a class that was actually just an interface.  What was happening was that Camel wants to instantiate this class, usually using Spring, but cannot do that if it isn&rsquo;t a concrete implementation.</p>
+
+<p>This proved to be a real problem because I had an interface that had two implementations.  One of these implementations is used for debugging and the other is used for production.  I didn&rsquo;t want to have to manually select which one I was using in my code because that&rsquo;s Spring&rsquo;s job so I came up with a way to do it.</p>
+
+<p>For the complete background here&rsquo;s what my interface looks like:</p>
+
+<figure class='code'><figcaption><span>The interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">org.apache.camel.Processor</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ProtobufToWire</span> <span class="kd">extends</span> <span class="n">Processor</span> <span class="o">{</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This converts a Protobuf to our &ldquo;wire&rdquo; format.  That format could be the native protobuf binary format or JSON.  I implement this empty interface in two classes called <code>ProtobufToBinary</code> and <code>ProtobufToJson</code> and I want to use the JSON one only for debugging.</p>
+
+<p>To be clear doing this always fails with the exception I listed above:</p>
+
+<figure class='code'><figcaption><span>A route that always fails</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">from</span><span class="o">(</span><span class="n">SOME_URI</span><span class="o">).</span><span class="na">bean</span><span class="o">(</span><span class="n">ProtobufToWire</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To fix this I added this to my Java-based Spring config:</p>
+
+<figure class='code'><figcaption><span>Getting an instance of ProtobufToWire</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Bean</span>
+</span><span class='line'><span class="kd">public</span> <span class="n">ProtobufToWire</span> <span class="nf">protobufToWire</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">ProtobufToBinary</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now because, I believe, that Camel&rsquo;s <code>bean(...)</code> method doesn&rsquo;t look up the beans with Spring this still fails.  What I needed to where I am defining my routes is this:</p>
+
+<figure class='code'><figcaption><span>Finally, how to get Camel to instantiate the right type</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="nd">@Autowired</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">ProtobufToWire</span> <span class="n">protobufToWire</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">from</span><span class="o">(</span><span class="n">SOME_URI</span><span class="o">).</span><span class="na">bean</span><span class="o">(</span><span class="n">protobufToWire</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What I&rsquo;m doing here is getting Spring to autowire an instance of that interface into a private variable and then asking it for its real concrete type.  Part of me says that I shouldn&rsquo;t have to do this but this is what works for me.</p>
+
+<p>Did this help you out?  Do you have a better way to do it?  Post in the comments!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1749,103 +1855,6 @@ Hash type: 01000000
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-02T08:16:01-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In <a href="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">my last post</a> I showed you a simple way to check to see if a constraint already existed in PostgreSQL.  Now I want to show you how to do the same thing for an index.</p>
-
-<p>Here&rsquo;s the code but keep in mind that it makes the assumption that everything is in the <code>public</code> schema.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='plpgsql'><span class='line'><span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">FUNCTION</span> <span class="n">create_index_if_not_exists</span> <span class="p">(</span><span class="n">t_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">i_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">index_sql</span> <span class="nb">text</span><span class="p">)</span> <span class="k">RETURNS</span> <span class="nb">void</span> <span class="k">AS</span> <span class="s">$$</span>
-</span><span class='line'><span class="k">DECLARE</span>
-</span><span class='line'>  <span class="n">full_index_name</span> <span class="nb">varchar</span><span class="p">;</span>
-</span><span class='line'>  <span class="n">schema_name</span> <span class="nb">varchar</span><span class="p">;</span>
-</span><span class='line'><span class="k">BEGIN</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">full_index_name</span> <span class="o">=</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39;_&#39;</span> <span class="o">||</span> <span class="n">i_name</span><span class="p">;</span>
-</span><span class='line'><span class="n">schema_name</span> <span class="o">=</span> <span class="s1">&#39;public&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span>
-</span><span class='line'>    <span class="k">SELECT</span> <span class="mf">1</span>
-</span><span class='line'>    <span class="k">FROM</span>   <span class="n">pg_class</span> <span class="n">c</span>
-</span><span class='line'>    <span class="k">JOIN</span>   <span class="n">pg_namespace</span> <span class="n">n</span> <span class="k">ON</span> <span class="n">n</span><span class="mf">.</span><span class="n">oid</span> <span class="o">=</span> <span class="n">c</span><span class="mf">.</span><span class="n">relnamespace</span>
-</span><span class='line'>    <span class="k">WHERE</span>  <span class="n">c</span><span class="mf">.</span><span class="n">relname</span> <span class="o">=</span> <span class="n">full_index_name</span>
-</span><span class='line'>    <span class="k">AND</span>    <span class="n">n</span><span class="mf">.</span><span class="n">nspname</span> <span class="o">=</span> <span class="n">schema_name</span>
-</span><span class='line'>    <span class="p">)</span> <span class="k">THEN</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">execute</span> <span class="s1">&#39;CREATE INDEX &#39;</span> <span class="o">||</span> <span class="n">full_index_name</span> <span class="o">||</span> <span class="s1">&#39; ON &#39;</span> <span class="o">||</span> <span class="n">schema_name</span> <span class="o">||</span> <span class="s1">&#39;.&#39;</span> <span class="o">||</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39; &#39;</span> <span class="o">||</span> <span class="n">index_sql</span><span class="p">;</span>
-</span><span class='line'><span class="k">END</span> <span class="k">IF</span><span class="p">;</span>
-</span><span class='line'><span class="k">END</span>
-</span><span class='line'><span class="s">$$</span>
-</span><span class='line'><span class="k">LANGUAGE</span> <span class="n">plpgsql</span> <span class="k">VOLATILE</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can now use the function like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_index_if_not_exists</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">,</span> <span class="s1">&#39;index_name&#39;</span><span class="p">,</span> <span class="s1">&#39;(column)&#39;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>No duplicated data, no exceptions.  Enjoy!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1877,6 +1886,10 @@ Hash type: 01000000
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
       </li>
     
@@ -1890,10 +1903,6 @@ Hash type: 01000000
     
       <li class="post">
         <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a>
       </li>
     
   </ul>

@@ -5,11 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0 - Tim Mattison</title>
+  <title>Using Interfaces in Camel's Java DSL With Spring - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Update 2012-06-16: This still happens on the 8.0.4 update so change the values that read &ldquo;8.0.3&rdquo; to &ldquo;8.0.4&rdquo; if you are using &hellip;">
+  <meta name="description" content="When writing some routes with Camel&rsquo;s Java DSL I came across this exception: 1
+Caused by: java.lang.IllegalStateException: No method invocation &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -80,7 +81,7 @@
   
   <header>
     
-      <h1 class="entry-title">How-To: Fix VMware Kernel Module Compile Issues With VMware Workstation 8.0.3 and Linux Kernel 3.2.0</h1>
+      <h1 class="entry-title">Using Interfaces in Camel's Java DSL With Spring</h1>
     
     
       <p class="meta">
@@ -96,7 +97,7 @@
   
 
 
-<time datetime="2012-05-04T09:06:30-04:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
+<time datetime="2014-10-30T16:29:26-04:00" pubdate data-updated="true">Oct 30<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -106,44 +107,73 @@
   </header>
 
 
-<div class="entry-content"><p><strong>Update 2012-06-16</strong>: This still happens on the 8.0.4 update so change the values that read &ldquo;8.0.3&rdquo; to &ldquo;8.0.4&rdquo; if you are using 8.0.4.  Also, if you have patched previously and try to run the script again after an upgrade you need to remove a file called &ldquo;/usr/lib/vmware/modules/source/.patched&rdquo; first.  The script will let you know that it won&rsquo;t patch because it has already been done if you forget.  Just delete it and re-run the script.</p>
+<div class="entry-content"><p>When writing some routes with Camel&rsquo;s Java DSL I came across this exception:</p>
 
-<p>Today I upgraded to VMware Workstation 8.0.3 and immediately I ran into the following error message:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Caused by: java.lang.IllegalStateException: No method invocation could be created, no matching method could be found on: null</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>make[1]: Entering directory `/usr/src/linux-headers-3.2.0-2-amd64'
-  CC [M]  /tmp/vmware-root/modules/vmnet-only/userif.o
-  CC [M]  /tmp/vmware-root/modules/vmnet-only/netif.o
-  CC [M]  /tmp/vmware-root/modules/vmnet-only/filter.o
-/tmp/vmware-root/modules/vmnet-only/userif.c: In function ‘VNetCsumCopyDatagram’:
-/tmp/vmware-root/modules/vmnet-only/userif.c:520:3: error: incompatible type for argument 1 of ‘kmap’
-/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:48:21: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
-/tmp/vmware-root/modules/vmnet-only/userif.c:523:3: error: incompatible type for argument 1 of ‘kunmap’
-/usr/src/linux-headers-3.2.0-2-common/include/linux/highmem.h:54:20: note: expected ‘struct page *’ but argument is of type ‘const struct &lt;anonymous&gt;’
-/tmp/vmware-root/modules/vmnet-only/netif.c: In function ‘VNetNetIfSetup’:
-/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: error: unknown field ‘ndo_set_multicast_list’ specified in initializer
-/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: initialization from incompatible pointer type [enabled by default]
-/tmp/vmware-root/modules/vmnet-only/netif.c:134:7: warning: (near initialization for ‘vnetNetifOps.ndo_validate_addr’) [enabled by default]
-make[4]: *** [/tmp/vmware-root/modules/vmnet-only/userif.o] Error 1
-make[4]: *** Waiting for unfinished jobs....
-make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
-</code></pre>
 
-<p>After lots of Googling I found <a href="http://weltall.heliohost.org/wordpress/2012/01/26/vmware-workstation-8-0-2-player-4-0-2-fix-for-linux-kernel-3-2-and-3-3/">a blog post with a patch for kernels 3.2.0 and 3.3.0</a>.  Unfortunately when I tried to run the patch it failed and said:</p>
+<p>After a lot of tracing I figured out that it was related to me calling the <code>.bean(...)</code> method with a class that was actually just an interface.  What was happening was that Camel wants to instantiate this class, usually using Spring, but cannot do that if it isn&rsquo;t a concrete implementation.</p>
 
-<pre><code>Sorry, this script is only for VMWare WorkStation 8.0.2 or VMWare Player 4.0.2. Exiting
-</code></pre>
+<p>This proved to be a real problem because I had an interface that had two implementations.  One of these implementations is used for debugging and the other is used for production.  I didn&rsquo;t want to have to manually select which one I was using in my code because that&rsquo;s Spring&rsquo;s job so I came up with a way to do it.</p>
 
-<p>In order to fix this open up the script after you download it and change the line this line:</p>
+<p>For the complete background here&rsquo;s what my interface looks like:</p>
 
-<pre><code>vmreqver=8.0.2
-</code></pre>
+<figure class='code'><figcaption><span>The interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">org.apache.camel.Processor</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ProtobufToWire</span> <span class="kd">extends</span> <span class="n">Processor</span> <span class="o">{</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>To this:</p>
 
-<pre><code>vmreqver=8.0.3
-</code></pre>
+<p>This converts a Protobuf to our &ldquo;wire&rdquo; format.  That format could be the native protobuf binary format or JSON.  I implement this empty interface in two classes called <code>ProtobufToBinary</code> and <code>ProtobufToJson</code> and I want to use the JSON one only for debugging.</p>
 
-<p>Re-run the script and you should be good to go.</p>
+<p>To be clear doing this always fails with the exception I listed above:</p>
+
+<figure class='code'><figcaption><span>A route that always fails</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">from</span><span class="o">(</span><span class="n">SOME_URI</span><span class="o">).</span><span class="na">bean</span><span class="o">(</span><span class="n">ProtobufToWire</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To fix this I added this to my Java-based Spring config:</p>
+
+<figure class='code'><figcaption><span>Getting an instance of ProtobufToWire</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Bean</span>
+</span><span class='line'><span class="kd">public</span> <span class="n">ProtobufToWire</span> <span class="nf">protobufToWire</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">ProtobufToBinary</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now because, I believe, that Camel&rsquo;s <code>bean(...)</code> method doesn&rsquo;t look up the beans with Spring this still fails.  What I needed to where I am defining my routes is this:</p>
+
+<figure class='code'><figcaption><span>Finally, how to get Camel to instantiate the right type</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="nd">@Autowired</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">ProtobufToWire</span> <span class="n">protobufToWire</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">from</span><span class="o">(</span><span class="n">SOME_URI</span><span class="o">).</span><span class="na">bean</span><span class="o">(</span><span class="n">protobufToWire</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What I&rsquo;m doing here is getting Spring to autowire an instance of that interface into a private variable and then asking it for its real concrete type.  Part of me says that I shouldn&rsquo;t have to do this but this is what works for me.</p>
+
+<p>Did this help you out?  Do you have a better way to do it?  Post in the comments!</p>
 </div>
 
 
@@ -152,7 +182,7 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
 
       
 
@@ -166,21 +196,15 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
   
 
 
-<time datetime="2012-05-04T09:06:30-04:00" pubdate data-updated="true">May 4<span>th</span>, 2012</time>
+<time datetime="2014-10-30T16:29:26-04:00" pubdate data-updated="true">Oct 30<span>th</span>, 2014</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/categories/how-to/'>How-To</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -191,10 +215,8 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/" title="Previous Post: Tips for debugging Spring's @Transactional annotation">&laquo; Tips for debugging Spring's @Transactional annotation</a>
+        <a class="basic-alignment left" href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/" title="Previous Post: Activating U2F on a Yubikey Neo on Mac OS">&laquo; Activating U2F on a Yubikey Neo on Mac OS</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/" title="Next Post: Coming soon: How to easily enable PoE (power over Ethernet) in your homebrew projects">Coming soon: How to easily enable PoE (power over Ethernet) in your homebrew projects &raquo;</a>
       
     </p>
   </footer>
@@ -314,8 +336,8 @@ make[4]: *** [/tmp/vmware-root/modules/vmnet-only/netif.o] Error 1
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/';
         var disqus_script = 'embed.js';
       
     (function () {
