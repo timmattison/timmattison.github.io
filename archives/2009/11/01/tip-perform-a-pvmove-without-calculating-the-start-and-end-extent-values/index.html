@@ -31,6 +31,20 @@ Getting &hellip;">
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -174,6 +188,41 @@ Getting &hellip;">
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Tip: Perform a pvmove without calculating the start and end extent values"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="Tips"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/">
+    If you're used pvmove before you might be in the habit of doing the following:
+
+
+
+	
+  * Determining where you want to move an extent (new_start)
+
+	
+  * Getting the start and end of the existing extent to move (original_start, original_end)
+
+	
+  * Calculating the length of the extent from original_end - original_start (length)
+
+	
+  * Adding the length to new_start (new_end)
+
+	
+  * Running pvmove
+
+
+Well, there is an easier way.  Let's assume you originally would've done this
+
+    
+    pvmove -v / &hellip;
+</a>
+
   
 </div>
 

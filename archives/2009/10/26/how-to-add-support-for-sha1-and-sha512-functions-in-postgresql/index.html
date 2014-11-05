@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -181,6 +195,18 @@ $$ LANGUAGE plperlu;
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Add support for SHA1 and SHA512 functions in PostgreSQL"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/10/26/how-to-add-support-for-sha1-and-sha512-functions-in-postgresql/">
+    I was working on comparing some data in PostgreSQL today and I realized just how long it can take to compare millions of rows of bytea data in raw form. The bytea fields ranged from 30 bytes to several kilobytes so I figured that maybe pre-computing the hash and then comparing the hashes would be faster. PostgreSQL only has support for MD5 hashing and [we all know how reliable that can be](http://www.mathstat.dal.ca/~selinger/md5collision/). So, I fired up Google and set out to figure out the &hellip;
+</a>
+
   
 </div>
 

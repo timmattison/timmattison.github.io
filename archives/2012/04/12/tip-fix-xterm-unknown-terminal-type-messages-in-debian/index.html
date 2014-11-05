@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -159,6 +173,30 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Tip: Fix "'xterm': unknown terminal type" messages in Debian"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="Tips"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/">
+    This one has been a bit of a nuisance on newly spooled up Debian instances for me lately.  When I try to run "top" or "clear" or really anything that does something with the terminal I get the following message:
+
+
+    
+    'xterm': unknown terminal type.
+
+
+
+This is because either you haven't installed ncurses-term (unlikely) or a symlink from /lib/terminfo/x/xterm to /usr/share/terminfo/x/xterm is missing.  To cover all possibilities do this:
+
+
+    
+    sudo apt-get install ncurses-term &hellip;
+</a>
+
   
 </div>
 

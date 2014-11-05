@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -214,6 +228,31 @@
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How to get SIPML5 working with Asterisk"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">
+    Another "all business" post that has been sitting in Evernote for months.  Enjoy!
+
+Assume Asterisk is running on localhost and Apache is installed and running with /var/www at the htdocs directory
+
+http.conf changes:
+
+* Set "enabled=yes" OR uncomment ";enabled=yes"
+* Set "bindport=8088" OR uncomment ";bindport=8088"
+
+sip.conf changes:
+
+* Get the SIP code listening via TCP - set "tcpenable=yes"
+* Add web socket support for SIP - set "transport=udp,ws" OR add ",ws" to existing transport list
+* &hellip;
+</a>
+
   
 </div>
 

@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -316,6 +330,22 @@
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Using Amazon STS credentials inside of a properties file"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">
+    Amazon provides several credentials providers in their Java API that let you use IAM user credentials various ways.  The credentials can come from IMDS, environment variables, or a properties file, just to name a few.
+
+If you're developing and debugging and you need to use STS credentials your options are a bit more limited.  To help deal with this I came up with a few bits of code that, for me at least, make it significantly easier.
+
+First, there's an `awscredentials.properties` file format &hellip;
+</a>
+
   
 </div>
 

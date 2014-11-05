@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -202,6 +216,32 @@
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Using SSH agent to simplify connecting to EC2"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">
+    TL;DR - Jump to the bottom and look for the `eval $(ssh-agent)` snippet!
+
+Once you start using EC2 you'll probably need to do a lot of things that involve SSH.  A common frustration is having to specify your identity file when connecting to your EC2 instance.  Instead of doing this:
+
+``` console
+ssh ubuntu@my-ec2-instance
+```
+
+You end up doing this:
+
+``` console
+ssh -i ~/.ssh/identity-file.pem ubuntu@my-ec2-instance
+```
+
+This gets even more complex when tools based on SSH are brought into the &hellip;
+</a>
+
   
 </div>
 

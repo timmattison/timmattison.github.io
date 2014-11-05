@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -167,6 +181,25 @@
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Stop USB storage messages from filling your logs"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/11/02/how-to-stop-usb-storage-messages-from-filling-your-logs/">
+    After a reinstall of Gentoo the other day I noticed that when I checked my logs with dmesg that all I saw was a ton of information relating to usb-storage.  It turns out that the default kernel in some operating systems (and apparently the latest Gentoo is one of them) has the verbose USB storage debug logs enabled.
+
+In order to disable it you'll need to rebuild your kernel.  The option you're looking for is deep in the menu system but you can find it by drilling down like this
+
+
+
+	
+  * Device &hellip;
+</a>
+
   
 </div>
 

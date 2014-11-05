@@ -31,6 +31,20 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -171,6 +185,32 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Octal and hexadecimal IP addresses with ping"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">
+    Have you ever seen a system print out an IP address like this?
+
+```
+Disconnected from 010.000.001.133
+```
+
+If you try to ping this IP address you'll get quite interesting results.  What the IP address should be is 10.0.1.133 but what ping reports that it is if you run the command with those leading zeroes included looks very odd.
+
+```
+timmattison$ ping 010.000.001.133
+PING 010.000.001.133 (8.0.1.133): 56 data bytes
+Request timeout for icmp_seq 0
+```
+
+See that `8.0.1.133` IP address that it is &hellip;
+</a>
+
   
 </div>
 

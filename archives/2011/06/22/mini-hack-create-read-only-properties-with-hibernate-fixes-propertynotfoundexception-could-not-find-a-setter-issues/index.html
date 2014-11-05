@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -171,6 +185,29 @@
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Mini Hack: Create read-only properties with Hibernate (fixes "PropertyNotFoundException: Could not find a setter" issues)"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="Mini Hacks"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/">
+    Ok, this mini-hack isn't pretty but it solves an issue that I have seen come up many times in Java.  You're trying to add a method to an object that you want Hibernate to persist.  Let's assume that your object is an elevator and it has the following real properties:
+
+- Current floor (int)
+- Hours in use (int)
+- Pounds in elevator (int)
+
+You want to add a method that tells you how many days it has been in use.  Normally you'd do this:
+
+
+    
+    public double getDaysInUse() {
+      return this. &hellip;
+</a>
+
   
 </div>
 

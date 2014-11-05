@@ -31,6 +31,20 @@ Caused by: java.lang.IllegalStateException: No method invocation &hellip;">
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -209,6 +223,24 @@ Caused by: java.lang.IllegalStateException: No method invocation &hellip;">
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Using interfaces in Camel's Java DSL with Spring"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">
+    When writing some routes with Camel's Java DSL I came across this exception:
+
+```
+Caused by: java.lang.IllegalStateException: No method invocation could be created, no matching method could be found on: null
+```
+
+After a lot of tracing I figured out that it was related to me calling the `.bean(...)` method with a class that was actually just an interface.  What was happening was that Camel wants to instantiate this class, usually using Spring, but cannot do that if it isn't a concrete &hellip;
+</a>
+
   
 </div>
 

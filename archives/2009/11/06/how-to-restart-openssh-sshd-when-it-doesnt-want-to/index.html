@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -173,6 +187,18 @@ killall sshd ; sleep 5 ; /etc/init.d/sshd restart
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Restart OpenSSH (sshd) when it doesn't want to"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/">
+    If you're doing a remote system upgrade from time to time you'll have to deal with changes in OpenSSH (sshd).  I just did an update on a Gentoo machine and afterwards I couldn't get OpenSSH to stop, much less restart.  When you're in these kinds of situations you risk losing remote access to the machine if it's not a VPS (like [Linode](http://linode.com), my favorite VPS hosting company so far) or doesn't have a KVM.  You can't just killall sshd since that'll disconnect you, and in my case &hellip;
+</a>
+
   
 </div>
 

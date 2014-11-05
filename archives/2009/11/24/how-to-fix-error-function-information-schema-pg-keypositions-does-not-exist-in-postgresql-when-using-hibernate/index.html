@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -165,6 +179,24 @@ $pg_keypositions$;
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Fix "ERROR: function information_schema._pg_keypositions() does not exist" in PostgreSQL when using Hibernate"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/">
+    I'll keep this one short.  If you're writing and debugging a Hibernate application and you're using PostgreSQL you may notice that you get the following error message when your application first connects to the database:
+
+    
+    ERROR:  function information_schema._pg_keypositions() does not exist
+
+
+According to [a forum I came across](http://qaix.com/postgresql-database-development/445-710-information-schema-pg-keypositions-in-8-1-read.shtml) this is because the Hibernate team ended up &hellip;
+</a>
+
   
 </div>
 

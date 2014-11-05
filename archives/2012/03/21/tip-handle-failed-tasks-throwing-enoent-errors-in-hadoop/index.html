@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -184,6 +198,26 @@
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Tip: Handle failed tasks throwing "ENOENT" errors in Hadoop"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To,Tips"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/">
+    Today when I tried to run a new Hadoop job I got the following error:
+
+
+    
+         [exec] 12/03/21 22:51:47 INFO mapred.JobClient: Task Id : attempt_201203212250_0001_m_000002_1, Status : FAILED
+         [exec] Error initializing attempt_201203212250_0001_m_000002_1:
+         [exec] ENOENT: No such file or directory
+         [exec] 	at org.apache.hadoop.io.nativeio.NativeIO.chmod(Native Method)
+         [exec] 	at org.apache.hadoop.fs.RawLocalFileSystem.setPermission(RawLocalFileSystem.java: &hellip;
+</a>
+
   
 </div>
 

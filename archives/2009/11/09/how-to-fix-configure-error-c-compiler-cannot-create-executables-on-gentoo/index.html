@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -167,6 +181,20 @@ cc1: error: unrecognized command line option &ldquo;-fmno-tls-direct-seg-refs&rd
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Fix "configure: error: C compiler cannot create executables" on Gentoo"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/">
+    I encountered this message today when trying to update glib-2.20.5-r1 on my 64-bit Gentoo box.  I've seen this error message before but today, as luck would have it, I had just made some changes to my make.conf so I knew exactly where to look.  What I was doing was preparing my system for Xen and I was duped into adding the "--mno-tls-direct-seg-refs" option to my CFLAGS.  It turns out that 64-bit Gentoo doesn't need this option and actually it will cause your C compiler to fail.
+
+If you have &hellip;
+</a>
+
   
 </div>
 

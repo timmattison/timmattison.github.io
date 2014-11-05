@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -166,6 +180,18 @@ put: org.apache.hadoop.security.AccessControlException: Permission denied: user=
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Disable HDFS permissions for Hadoop development"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="Hadoop,How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/">
+    If you've [set up Hadoop for development](http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/) you may be wondering why you can't read or write files or create MapReduce jobs then you're probably missing a tiny bit of configuration.  For most development systems in pseudo-distributed mode it's easiest to disable permissions altogether.  This means that any user, not just the "hdfs" user, can do anything they want to HDFS so do not do this in production unless &hellip;
+</a>
+
   
 </div>
 

@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -175,6 +189,36 @@ rc-update add vmware default
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Fix VMware Workstation's modules after updating your kernel on Gentoo"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/11/17/how-to-fix-vmware-workstations-modules-after-updating-your-kernel-on-gentoo/">
+    Here's another thing I ran into today when adding support for KVM to my kernel... VMware Workstation's modules failed to load at boot time.  Normally, the fix is to run:
+
+    
+    vmware-modconfig --console --install-all
+
+
+Or:
+
+    
+    emerge --config vmware-workstation
+
+
+**Neither of these will work on the latest versions of Gentoo**.  The real fix is to re-emerge your vmware-modules package.  You can do this by just running:
+
+    
+    emerge vmware-modules
+
+
+That will build the modules &hellip;
+</a>
+
   
 </div>
 

@@ -30,6 +30,20 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -166,6 +180,30 @@
   
   <div class="g-plusone" data-size="medium"></div>
   
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Build libwiimote-0.4 on Gentoo"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/02/28/how-to-build-libwiimote-0-4-on-gentoo/">
+    This may only be related to 64-bit Gentoo but if you're having build troubles try starting from scratch like this.  Note: These are all commands that you'll have to run directly.  There is narrative except in step 6.
+
+Step 1: wget http://downloads.sourceforge.net/libwiimote/libwiimote-0.4.tgz?use_mirror=internap
+
+Step 2: tar xzvf libwiimote-0.4.tgz
+
+Step 3: cd libwiimote-0.4
+
+Step 4: autoconf
+
+Step 5: ./configure
+
+Step 6: Edit src/Makefile and add "CFLAGS=-fPIC" to it.  If CFLAGS already exists &hellip;
+</a>
+
   
 </div>
 
