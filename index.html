@@ -9,8 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="When writing some routes with Camel&rsquo;s Java DSL I came across this exception: 1
-Caused by: java.lang.IllegalStateException: No method invocation &hellip;">
+  <meta name="description" content="For some reason I decided to install the Java 8 JDK a few days ago when I upgraded to Yosemite. In IntelliJ it isn&rsquo;t a problem but on the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -92,6 +91,155 @@ Caused by: java.lang.IllegalStateException: No method invocation &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-12T06:59:45-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>For some reason I decided to install the Java 8 JDK a few days ago when I upgraded to Yosemite.  In IntelliJ it isn&rsquo;t a problem but on the command-line it isn&rsquo;t so nice.  Here&rsquo;s what I get when I try to use javac:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> javac src/com/timmattison/Main.java
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/Object.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/String.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/Object.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;: class file for jdk.Profile+Annotation not found</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/String.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/AutoCloseable.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/AutoCloseable.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/System.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/System.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/PrintStream.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/PrintStream.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/FilterOutputStream.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/FilterOutputStream.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/OutputStream.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When I run <code>javac -version</code> I get mostly what I&rsquo;d expect:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> javac -version
+</span><span class='line'><span class="go">javac 1.7.0_45</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So why is it trying to use libraries from the Java 8 JDK?  Simply because I forgot to set JAVA_HOME.  On Mac OS you can quickly fix this by adding the following line to your .bash_profile and starting a new Terminal session:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">export JAVA_HOME=&quot;/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Of course you should change <code>_45</code> to reflect the specific version you&rsquo;re running and validate that the path in the <code>JAVA_HOME</code> variable exists.</p>
+
+<p>Good luck!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-12T06:50:31-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Is Unicode breaking in your application and you can&rsquo;t figure out where?  Maybe data from HttpClient is coming back mangled, maybe database queries via JDBC are having Unicode data replaced with question marks, maybe your <a href="https://code.google.com/p/protobuf/">protobufs</a> are getting shredded, but somewhere something is eating your Unicode data and nothing you&rsquo;ve tried fixes it.  Well&hellip;</p>
+
+<p>Did you know the JVM itself has a global Unicode setting specified by the <code>-Dfile.encoding</code> option?  Most people I talked to didn&rsquo;t know about it, myself included, when I ran into a Unicode issue on a project.  After some great teamwork and research we found this option, set it, and everything started working again.</p>
+
+<p>All we had to do was put <code>-Dfile.encoding=UTF8</code> in the script that ran our JVM and everything was fixed.  If you want to play with it <a href="https://github.com/timmattison/jvm-unicode-settings">I created a test project on Github</a> that is incredibly simple and shows the right and wrong settings and what they do to a simple trademark symbol.  Otherwise, try this on your project and see if it fixes the issue.</p>
+
+<p>Good luck!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1433,442 +1581,6 @@ Hash type: 01000000
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-02T13:02:53-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Amazon provides several credentials providers in their Java API that let you use IAM user credentials various ways.  The credentials can come from IMDS, environment variables, or a properties file, just to name a few.</p>
-
-<p>If you&rsquo;re developing and debugging and you need to use STS credentials your options are a bit more limited.  To help deal with this I came up with a few bits of code that, for me at least, make it significantly easier.</p>
-
-<p>First, there&rsquo;s an <code>awscredentials.properties</code> file format you need to follow that looks like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>aws.accessKeyId=XXXXXXXXXXXXXXXXXXX
-</span><span class='line'>aws.secretAccessKey=YYYYYYYYYYYYYYYYYYY
-</span><span class='line'>aws.sessionToken=ZZZZZZZZZZZZZZZZZZZ</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Replace the X, Y, and Z strings with your credentials and put them in your resources directory where the classloader can find them.  <strong><em>DO NOT COMMIT THEM TO SOURCE CONTROL!</em></strong></p>
-
-<p>Next, there&rsquo;s a method that loads these credentials into the system properties:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">AWSCREDENTIALS_PROPERTIES</span> <span class="o">=</span> <span class="s">&quot;awscredentials.properties&quot;</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">void</span> <span class="nf">loadAwsCredentialsProperties</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">InputStream</span> <span class="n">inputStream</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getClassLoader</span><span class="o">().</span><span class="na">getResourceAsStream</span><span class="o">(</span><span class="n">AWSCREDENTIALS_PROPERTIES</span><span class="o">);</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="c1">// Was there a properties file?</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">inputStream</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="c1">// No, just return</span>
-</span><span class='line'>      <span class="k">return</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperties</span><span class="o">());</span>
-</span><span class='line'>  <span class="n">properties</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">inputStream</span><span class="o">);</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="c1">// set the system properties</span>
-</span><span class='line'>  <span class="n">System</span><span class="o">.</span><span class="na">setProperties</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Finally, there&rsquo;s the credentials provider:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.AmazonClientException</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.BasicSessionCredentials</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.services.securitytoken.model.Credentials</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.util.StringUtils</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SystemPropertiesStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">ACCESS_KEY_ID_SYSTEM_PROPERTY</span> <span class="o">=</span> <span class="s">&quot;aws.accessKeyId&quot;</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SECRET_ACCESS_KEY_SYSTEM_PROPERTY</span> <span class="o">=</span> <span class="s">&quot;aws.secretAccessKey&quot;</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SESSION_TOKEN_SYSTEM_PROPERTY</span> <span class="o">=</span> <span class="s">&quot;aws.sessionToken&quot;</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// Get the access key ID</span>
-</span><span class='line'>        <span class="n">String</span> <span class="n">accessKeyId</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">trim</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">ACCESS_KEY_ID_SYSTEM_PROPERTY</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Get the secret access key</span>
-</span><span class='line'>        <span class="n">String</span> <span class="n">secretAccessKey</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">trim</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">SECRET_ACCESS_KEY_SYSTEM_PROPERTY</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Get the session token</span>
-</span><span class='line'>        <span class="n">String</span> <span class="n">sessionToken</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">trim</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">SESSION_TOKEN_SYSTEM_PROPERTY</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Are we missing any of the necessary values?</span>
-</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">isNullOrEmpty</span><span class="o">(</span><span class="n">accessKeyId</span><span class="o">)</span>
-</span><span class='line'>                <span class="o">||</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">isNullOrEmpty</span><span class="o">(</span><span class="n">secretAccessKey</span><span class="o">)</span>
-</span><span class='line'>                <span class="o">||</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">isNullOrEmpty</span><span class="o">(</span><span class="n">sessionToken</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// Yes, throw an exception like the Amazon code does</span>
-</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">AmazonClientException</span><span class="o">(</span>
-</span><span class='line'>                    <span class="s">&quot;Unable to load AWS credentials from Java system &quot;</span>
-</span><span class='line'>                            <span class="o">+</span> <span class="s">&quot;properties (&quot;</span> <span class="o">+</span> <span class="n">ACCESS_KEY_ID_SYSTEM_PROPERTY</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span>
-</span><span class='line'>                            <span class="o">+</span> <span class="n">SECRET_ACCESS_KEY_SYSTEM_PROPERTY</span> <span class="o">+</span> <span class="s">&quot;, and &quot;</span>
-</span><span class='line'>                            <span class="o">+</span> <span class="n">SESSION_TOKEN_SYSTEM_PROPERTY</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Create the credentials</span>
-</span><span class='line'>        <span class="n">Credentials</span> <span class="n">sessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Credentials</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setAccessKeyId</span><span class="o">(</span><span class="n">accessKeyId</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSecretAccessKey</span><span class="o">(</span><span class="n">secretAccessKey</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSessionToken</span><span class="o">(</span><span class="n">sessionToken</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Convert them to basic session credentials</span>
-</span><span class='line'>        <span class="n">BasicSessionCredentials</span> <span class="n">basicSessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BasicSessionCredentials</span><span class="o">(</span>
-</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getAccessKeyId</span><span class="o">(),</span>
-</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSecretAccessKey</span><span class="o">(),</span>
-</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSessionToken</span><span class="o">());</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">return</span> <span class="n">basicSessionCredentials</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// Do nothing</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This should make things quite a bit easier if you don&rsquo;t have access to a real IAM user and must use STS for your application.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-02T11:28:42-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>While debugging and developing using the AWS SDK you&rsquo;ll find that sometimes you just need to use real credentials on a box that lives outside of EC2.  You should always be using <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AESDG-chapter-instancedata.html">Instance Metadata</a> for your credentials inside of EC2 though.  Never use this pattern inside EC2!</p>
-
-<p>Also, make sure you never commit your credentials.  That can be an expensive mistake when they show up on Github and people snag them to use them for Bitcoin mining.</p>
-
-<p><strong>NOTE:</strong> These snippets include <code>@Inject</code> and <code>@Assisted</code> annotations used by <a href="https://github.com/google/guice">Guice</a>.  If you&rsquo;re not using Guice remove those and the related imports.</p>
-
-<p>Anyway, if you want to use static IAM user credentials you can use a credentials provider like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Inject</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.assistedinject.Assisted</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TempNonStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSecretKey</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Inject</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">TempNonStsCredentialsProvider</span><span class="o">(</span><span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsAccessKeyId&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">,</span>
-</span><span class='line'>                                         <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSecretKey&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSecretKey</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsAccessKeyId</span> <span class="o">=</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSecretKey</span> <span class="o">=</span> <span class="n">awsSecretKey</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">return</span> <span class="k">new</span> <span class="nf">AWSCredentials</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="n">String</span> <span class="nf">getAWSAccessKeyId</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="n">String</span> <span class="nf">getAWSSecretKey</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="n">awsSecretKey</span><span class="o">;</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">};</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// Do nothing</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Pass in your credentials and you&rsquo;re good to go.  If you&rsquo;re using <a href="http://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html">STS</a> it requires a little bit more work.  Use this instead:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.BasicSessionCredentials</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.services.securitytoken.model.Credentials</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.assistedinject.Assisted</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TempStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSecretAccessKey</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSessionToken</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Inject</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">TempStsCredentialsProvider</span><span class="o">(</span><span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsAccessKeyId&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">,</span>
-</span><span class='line'>                                      <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSecretAccessKey&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSecretAccessKey</span><span class="o">,</span>
-</span><span class='line'>                                      <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSessionToken&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSessionToken</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsAccessKeyId</span> <span class="o">=</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSecretAccessKey</span> <span class="o">=</span> <span class="n">awsSecretAccessKey</span><span class="o">;</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSessionToken</span> <span class="o">=</span> <span class="n">awsSessionToken</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">Credentials</span> <span class="n">sessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Credentials</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setAccessKeyId</span><span class="o">(</span><span class="n">awsAccessKeyId</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSecretAccessKey</span><span class="o">(</span><span class="n">awsSecretAccessKey</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSessionToken</span><span class="o">(</span><span class="n">awsSessionToken</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">BasicSessionCredentials</span> <span class="n">basicSessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BasicSessionCredentials</span><span class="o">(</span>
-</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getAccessKeyId</span><span class="o">(),</span>
-</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSecretAccessKey</span><span class="o">(),</span>
-</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSessionToken</span><span class="o">());</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">return</span> <span class="n">basicSessionCredentials</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>      <span class="c1">// Do nothing</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you just need to pass in the extra session token parameter and then you can use this to provide credentials to your AWS calls.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1900,6 +1612,14 @@ Hash type: 01000000
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
@@ -1909,14 +1629,6 @@ Hash type: 01000000
     
       <li class="post">
         <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
   </ul>

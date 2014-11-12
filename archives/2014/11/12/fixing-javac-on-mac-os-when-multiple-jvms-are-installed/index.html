@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Using SSH Agent to Simplify Connecting to EC2 - Tim Mattison</title>
+  <title>Fixing Javac on Mac OS When Multiple JVMs Are Installed - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="TL;DR &ndash; Jump to the bottom and look for the eval $(ssh-agent) snippet! Once you start using EC2 you&rsquo;ll probably need to do a lot of &hellip;">
+  <meta name="description" content="For some reason I decided to install the Java 8 JDK a few days ago when I upgraded to Yosemite. In IntelliJ it isn&rsquo;t a problem but on the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -94,7 +94,7 @@
   
   <header>
     
-      <h1 class="entry-title">Using SSH Agent to Simplify Connecting to EC2</h1>
+      <h1 class="entry-title">Fixing Javac on Mac OS When Multiple JVMs Are Installed</h1>
     
     
       <p class="meta">
@@ -110,7 +110,7 @@
   
 
 
-<time datetime="2014-09-04T08:00:41-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2014</time>
+<time datetime="2014-11-12T06:59:45-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -120,67 +120,72 @@
   </header>
 
 
-<div class="entry-content"><p>TL;DR &ndash; Jump to the bottom and look for the <code>eval $(ssh-agent)</code> snippet!</p>
-
-<p>Once you start using EC2 you&rsquo;ll probably need to do a lot of things that involve SSH.  A common frustration is having to specify your identity file when connecting to your EC2 instance.  Instead of doing this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh ubuntu@my-ec2-instance</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You end up doing this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh -i ~/.ssh/identity-file.pem ubuntu@my-ec2-instance</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This gets even more complex when tools based on SSH are brought into the mix.  Some of these tools don&rsquo;t have a mechanism to even specify the identity file.  If they do sometimes it makes the command-line really ugly and it almost always makes the script custom to a specific user.  For example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">rsync -avz -e &quot;ssh -p1234  -i /home/username/.ssh/identity-file.pem&quot; ...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Is only going to work for the user <code>username</code>.</p>
-
-<p>How do we make this a lot easier?  It turns out there is a very simple way to make all of that pain go away.  Whether you use <a href="http://rsync.samba.org/">rsync</a>, <a href="http://www.cis.upenn.edu/~bcpierce/unison/">unison</a>, <a href="https://mosh.mit.edu/">mosh</a>, scp, or any of a number of other tools that make use of SSH under the hood there is a standard mechanism for SSH to manage your identity.  That mechanism is called <a href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/ssh-agent.1?query=ssh-agent&amp;sec=1">ssh-agent</a>.</p>
-
-<p>If I try to rsync directly to my EC2 instance I get this:</p>
+<div class="entry-content"><p>For some reason I decided to install the Java 8 JDK a few days ago when I upgraded to Yosemite.  In IntelliJ it isn&rsquo;t a problem but on the command-line it isn&rsquo;t so nice.  Here&rsquo;s what I get when I try to use javac:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> rsync -avzP ubuntu@my-ec2-instance:file-on-ec2.txt <span class="nb">local</span>-file.txt
-</span><span class='line'><span class="go">Permission denied (publickey).</span>
-</span><span class='line'><span class="go">rsync: connection unexpectedly closed (0 bytes received so far) [Receiver]</span>
-</span><span class='line'><span class="go">rsync error: unexplained error (code 255) at io.c(226) [Receiver=3.1.1]</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> javac src/com/timmattison/Main.java
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/Object.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/String.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/Object.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;: class file for jdk.Profile+Annotation not found</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/String.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/AutoCloseable.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/AutoCloseable.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/System.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/System.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/PrintStream.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/PrintStream.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/FilterOutputStream.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
+</span><span class='line'><span class="go">/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/FilterOutputStream.class): warning: Cannot find annotation method &#39;value()&#39; in type &#39;Profile+Annotation&#39;</span>
+</span><span class='line'><span class="go">warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/io/OutputStream.class): major version 52 is newer than 51, the highest major version supported by this compiler.</span>
+</span><span class='line'><span class="go">It is recommended that the compiler be upgraded.</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Instead what I want to do is start the ssh-agent, tell it about my identity file, and have the agent worry about providing my identity file when necessary.  To do that I do this:</p>
+<p>When I run <code>javac -version</code> I get mostly what I&rsquo;d expect:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">eval $(ssh-agent) &amp;&amp; ssh-add ~/.ssh/identity-file.pem</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> javac -version
+</span><span class='line'><span class="go">javac 1.7.0_45</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Once you do that SSH will use that identity file to connect to EC2 automatically.  You just need to run that in each shell you are using to connect to EC2 and you are set.</p>
-
-<p>Do you have more than one identity file?  You can keep running ssh-add with additional identity files and it will manage them all.</p>
-
-<p>Do you want to be really lazy and load all of your identities at once?  Try this:</p>
+<p>So why is it trying to use libraries from the Java 8 JDK?  Simply because I forgot to set JAVA_HOME.  On Mac OS you can quickly fix this by adding the following line to your .bash_profile and starting a new Terminal session:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">eval $(ssh-agent) &amp;&amp; ssh-add ~/.ssh/*.pem</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">export JAVA_HOME=&quot;/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/&quot;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Enjoy!</p>
+<p>Of course you should change <code>_45</code> to reflect the specific version you&rsquo;re running and validate that the path in the <code>JAVA_HOME</code> variable exists.</p>
 
-<p>NOTE: Your pem files need to have the permission set to 400 so they can only be read by your user and not written to.  Otherwise ssh-agent and ssh may refuse to use them.</p>
+<p>Good luck!</p>
 </div>
 
 
@@ -203,7 +208,7 @@
   
 
 
-<time datetime="2014-09-04T08:00:41-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2014</time>
+<time datetime="2014-11-12T06:59:45-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2014</time>
       
 
 
@@ -211,7 +216,7 @@
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -219,27 +224,18 @@
   
   
     <a class="FlattrButton" style="display:none;"
-    title="Using SSH agent to simplify connecting to EC2"
+    title="Fixing javac on Mac OS when multiple JVMs are installed"
     data-flattr-uid="timmattison"
     data-flattr-tags=""
     data-flattr-button="compact"
     data-flattr-category="text"
-    href="http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">
-    TL;DR - Jump to the bottom and look for the `eval $(ssh-agent)` snippet!
-
-Once you start using EC2 you'll probably need to do a lot of things that involve SSH.  A common frustration is having to specify your identity file when connecting to your EC2 instance.  Instead of doing this:
+    href="http://blog.timmattison.com/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">
+    For some reason I decided to install the Java 8 JDK a few days ago when I upgraded to Yosemite.  In IntelliJ it isn't a problem but on the command-line it isn't so nice.  Here's what I get when I try to use javac:
 
 ``` console
-ssh ubuntu@my-ec2-instance
-```
-
-You end up doing this:
-
-``` console
-ssh -i ~/.ssh/identity-file.pem ubuntu@my-ec2-instance
-```
-
-This gets even more complex when tools based on SSH are brought into the &hellip;
+$ javac src/com/timmattison/Main.java 
+warning: /Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/lib/ct.sym(META-INF/sym/rt.jar/java/lang/Object.class): major version 52 is newer than 51, the highest major version supported by this compiler.
+It is &hellip;
 </a>
 
   
@@ -248,10 +244,8 @@ This gets even more complex when tools based on SSH are brought into the &hellip
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/" title="Previous Post: Full example code showing how to use Guice and Jetty">&laquo; Full example code showing how to use Guice and Jetty</a>
+        <a class="basic-alignment left" href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/" title="Previous Post: When Unicode goes wrong in Java">&laquo; When Unicode goes wrong in Java</a>
       
-      
-        <a class="basic-alignment right" href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/" title="Next Post: Rid yourself of smart quotes, smart dashes, and automatic spelling correction on Mac OS">Rid yourself of smart quotes, smart dashes, and automatic spelling correction on Mac OS &raquo;</a>
       
     </p>
   </footer>
@@ -371,8 +365,8 @@ This gets even more complex when tools based on SSH are brought into the &hellip
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/';
         var disqus_script = 'embed.js';
       
     (function () {

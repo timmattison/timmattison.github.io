@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I&rsquo;ve been digging through exceptions lately and it&rsquo;s sometimes a pain to dig through the Tomcat logs depending on your logging level.   &hellip;">
+  <meta name="description" content="I am a big fan of the Avast! line of security products.  I just upgraded from Pro to Internet Security since I got a new laptop and getting the Pro &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,117 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/07/12/how-to-fix-vmware-connectivity-problems-after-installing-avast-internet-security/">How-To: Fix VMware Connectivity Problems After Installing Avast! Internet Security</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-07-12T08:59:23-04:00" pubdate data-updated="true">Jul 12<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/07/12/how-to-fix-vmware-connectivity-problems-after-installing-avast-internet-security/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/07/12/how-to-fix-vmware-connectivity-problems-after-installing-avast-internet-security/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am a big fan of the Avast! line of security products.  I just upgraded from Pro to Internet Security since I got a new laptop and getting the Pro version for that was the same price as the Internet Security version and I figured that an added firewall couldn&rsquo;t hurt.  Naturally, it&rsquo;s never that simple and I realized that after I rebooted the firewall was causing the web browsers in my virtual machines to lose access to the Internet.  I was still able to ping things via the command line but I couldn&rsquo;t do much else.</p>
+
+<p>In order to fix this I found out that you just need to do the following steps and you&rsquo;re back online:</p>
+
+<ol>
+<li><p> Open Avast!</p></li>
+<li><p> Click the Firewall tab</p></li>
+<li><p> Make sure the Firewall Settings sub-tab is selected</p></li>
+<li><p> Click &ldquo;Expert Settings&rdquo; next to the &ldquo;Stop&rdquo; button</p></li>
+<li><p> Check &ldquo;Internet Connection Sharing mode&rdquo;</p></li>
+<li><p> Click OK</p></li>
+<li><p> Close Avast!</p></li>
+</ol>
+
+
+<p>Now your VMs are back online.  Post in the comments if you found it useful.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/07/07/how-to-get-vmware-virtual-machines-to-use-three-or-more-monitors/">How-To: Get VMware Virtual Machines to Use Three or More Monitors</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-07-07T08:52:27-04:00" pubdate data-updated="true">Jul 7<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/07/07/how-to-get-vmware-virtual-machines-to-use-three-or-more-monitors/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/07/07/how-to-get-vmware-virtual-machines-to-use-three-or-more-monitors/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I just upgraded from a dual monitor to a triple monitor setup.  The strange thing was that when I went into my virtual machines, after rebooting them to recognize the new graphics cards, I couldn&rsquo;t get them to span all three displays.  When I pressed the button to switch monitor configurations it would alternate between the combinations of two different displays and then it would go to a configuration where the display was double width but centered across all three displays.  This left windows split across monitors and large vertical black bars on either side of things.  It wasn&rsquo;t pretty but I figured out what was wrong.</p>
+
+<p>VMware has a notion of a virtual machine&rsquo;s video RAM.  By default this value is too low to support three 1920 x 1080 displays.  In order to fix this do the following:</p>
+
+<ol>
+<li><p> Determine the resolution of each of your screens.  In my case they all were 1920 x 1080.</p></li>
+<li><p> Calculate the pixel count by multiplying the vertical resolution by the horizontal resolution.  This gave me 2,073,600.</p></li>
+<li><p> Multiply each screen&rsquo;s pixel count by 4 (1 byte per pixel and 1 byte for alignment).  This gave me 8,294,400.</p></li>
+<li><p> Add all of the values from step 3 together.  This now gives me 8,294,400 * 3 for my three displays so my total is 24,883,200 (approximately 24 MB).  This is approximately how many bytes of video memory you need.</p></li>
+<li><p> Add a margin of error of about another 8,000,000.  This bumped my value up to 33,000,000.</p></li>
+<li><p> Back up your VMX file and your VM.</p></li>
+<li><p> Edit the VMX file and add this line at the bottom but replace 33000000 with your value from step 5. Note: Search the file to make sure this line doesn&rsquo;t exist already. If it does you&rsquo;ll need to modify it instead of adding a second one.</p>
+
+<p>svga.vramSize=33000000</p></li>
+<li><p> Save the configuration file and restart your VM</p></li>
+</ol>
+
+
+<p>That&rsquo;s it.  You&rsquo;ll now be able to run as many displays as you can afford.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -696,88 +807,6 @@ make install
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/">Listen to WCDB Right on Your Desktop</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-18T22:23:02-04:00" pubdate data-updated="true">Oct 18<span>th</span>, 2010</time>
-        
-           | <a href="/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Another day, another free radio application for your desktop.  This time it&rsquo;s for <a href="http://www.wcdbfm.com/">WCDB on 90.9 FM in Albany, NY</a>.  So go and <a href="http://get.adobe.com/air/">install Adobe AIR if you haven&rsquo;t already</a>, <a href="/static/WCDBPlayer.air">download my WCDB player application</a>, and start listening!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone/">Listen to Skidmore Radio (WSPN) on Your Android Phone</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-10-14T14:25:15-04:00" pubdate data-updated="true">Oct 14<span>th</span>, 2010</time>
-        
-           | <a href="/archives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In the same vein of <a href="http://blog.timmattison.com/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop/">my previous desktop app</a> I put together <a href="/static/wspn-player.apk">an Android app that lets you listen to WSPN</a>.  It also includes the schedule so you can see what&rsquo;s on when you start it up.  Just press the menu button and then view schedule.</p>
-
-<p>Enjoy and let me know if you have any comments or suggestions.</p>
-
-<p>Update: There are a few changes I&rsquo;ll need to make to this application.  After running in the background for an extended period of time there is a bug that causes a force close when exiting.  This will be fixed soon.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -811,6 +840,14 @@ make install
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
@@ -820,14 +857,6 @@ make install
     
       <li class="post">
         <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
   </ul>

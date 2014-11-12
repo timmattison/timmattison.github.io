@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="WARNING! Do not do this on production clusters unless you are willing to take responsibility for any issues that may occur. This wipes out all of &hellip;">
+  <meta name="description" content="I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests. In the past few days I&rsquo; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,155 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/">Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-02T08:02:47-05:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2012</time>
+        
+           | <a href="/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests.  In the past few days I&rsquo;ve been playing around with Unicode and wanted to copy a code snippet from a Hadoop book to see how everything looks in the debugger.  When I entered the code I realized that I was missing some methods that I needed to complete the tests.</p>
+
+<p>Specifically I was trying to use assertThat() and is() but didn&rsquo;t know where to find them.  After a bit of Googling I found the two static imports that I needed to copy the code without qualifying assertThat() as Assert.assertThat() and the same goes for is().  They are:</p>
+
+<pre><code>import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+</code></pre>
+
+<p>I have to admit that org.hamcrest is a bit less obvious than I would have liked.  :)</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/">Tip: A Quick Primer on Waiting on Multiple Threads in Java</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-28T16:32:21-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last night I was writing some code to do some performance testing on HDFS.  I noticed that single threaded performance wasn&rsquo;t anywhere near as good as I expected and my CPUs were spending most of their time idle.  I decided to add some threads into the process to see if a multi-threaded speed test would consume some of that idle CPU.  It worked as expected so I figured I would share some basic knowledge on how to I started up multiple threads, had them do their work, waited for them to finish without polling, and then recorded the total duration to calculate my statistics.</p>
+
+<p>What you&rsquo;ll need to do first is decide what you want to do in the processing thread.  This code will go into a Java Runnable like this:</p>
+
+<pre><code>Runnable runnable = new Runnable() {
+    @Override
+    public void run() {
+        // Do something exciting here
+    }
+};
+</code></pre>
+
+<p>Next you&rsquo;ll need to decide how many threads you want to run.  If you wanted to run four threads you could do this:</p>
+
+<pre><code>int threadCount = 4;
+
+for (int threadLoop = 0; threadLoop &lt; threadCount; threadLoop++) {
+    // XXX - Put the runnable block from above right here
+
+    // Create a new thread
+    Thread thread = new Thread(runnable);
+
+    // Add the thread to our thread list
+    threads.add(thread);
+
+    // Start the thread
+    thread.start();
+}
+</code></pre>
+
+<p>That will start four threads.  It&rsquo;s best to use a variable so you can update it and use it in other places like calculating your statistics.  Now let&rsquo;s wait for all the threads to finish:</p>
+
+<pre><code>// Loop through the threads
+for (Thread thread : threads) {
+    try {
+        // Wait for this thread to die
+        thread.join();
+    } catch (InterruptedException e) {
+        // Ignore this but print a stack trace
+        e.printStackTrace();
+    }
+}
+</code></pre>
+
+<p>Finally, you&rsquo;ll want to time all of this.  I do something very simple here.  Before all of the code I do this:</p>
+
+<pre><code>long startTime = new Date().getTime();
+</code></pre>
+
+<p>After all of the code I do this:</p>
+
+<pre><code>long endTime = new Date().getTime();
+long durationInMilliseconds = endTime - startTime;
+</code></pre>
+
+<p>With all of that in place you can now measure how long your code ran and then calculate important metrics about it.  For example, if this code did 10,000 operations per thread and ran with 4 threads you would then take the duration and divide that by 40,000 and you&rsquo;d get an idea of how many milliseconds it took per operation.  Just make sure you use doubles or you&rsquo;ll lose all of your precision due to coercion.  Do this (assuming that your number of operations is stored in a variable called &ldquo;operations&rdquo;):</p>
+
+<pre><code>double millisecondsPerOperation = (double) durationInMilliseconds / (double) operations;
+double operationsPerMillisecond = (double) operations / (double) durationInMilliseconds;
+</code></pre>
+
+<p>These are just reciprocals of each other but sometimes one value is a lot easier to understand than the other so I usually calculate them both.</p>
+
+<p>Now that you have those statistics you can try different thread counts, optimize code/loops, etc.  Good luck!  Post in the comments with any ideas and/or issues.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -784,397 +933,6 @@ public class TestClass {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/">Mini Hack: Parallel Vacuuming in PostgreSQL</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-01-24T11:42:41-05:00" pubdate data-updated="true">Jan 24<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/24/mini-hack-parallel-vacuuming-in-postgresql/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I run several development environments that I need to sync with production databases to do bug fixes and new feature development.  It&rsquo;s always good to vacuum these databases before using them especially if you&rsquo;re doing it via rsync on a live system.  If you don&rsquo;t you could end up with rows that are inaccessible from your indicies and get strange results from your database.</p>
-
-<p>Full vacuums are slow but we can&rsquo;t get around it here.  What I noticed is that normally in production vacuuming the database is an I/O bound operation but in development where we&rsquo;re working with dedicated development machines with tons of RAM we typically end up with a lot of the database for our smaller projects (&lt; 5 GB) in the cache.  This makes vacuuming a CPU bound process again and where there&rsquo;s a CPU bound process there&rsquo;s usually room for parallelism.</p>
-
-<p>Today I decided to test out how well <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> could speed up my development machine&rsquo;s vacuuming process and I&rsquo;m happy to report that it cuts it nearly in half.  If you&rsquo;re running into the same issue and waiting for vacuuming is eating into your development time try this one liner (make sure you have <a href="http://www.gnu.org/software/parallel/">GNU Parallel</a> installed first):</p>
-
-<pre><code>echo "\dt" | psql DB_NAME | head -n -2 | tail -n +4 | awk ' { print $3 } ' | parallel -I {} vacuumdb -f -v -d DB_NAME -t {}
-</code></pre>
-
-<p>What this does is:</p>
-
-<ul>
-<li><p>Sends the string &ldquo;\dt&rdquo; to PostgreSQL to list the table names</p></li>
-<li><p>Pipes that through head and removes the last two lines (they don&rsquo;t contain table names)</p></li>
-<li><p>Pipes that through tail and removes the first four lines (they also don&rsquo;t contain table names)</p></li>
-<li><p>Pipes that to awk and extracts the third field (the table name)</p></li>
-<li><p>Pipes that to parallel, runs vacuumdb with a full vacuum (-f) in verbose mode (-v), placing the table names where we included the curly bracket pair</p></li>
-</ul>
-
-
-<p>UPDATE: Ole Tange, the author of the fantastic GNU Parallel package, wrote in with his own one-liner to do the same thing as mine.  His is a bit shorter and requires fewer pipes.  Take a look:</p>
-
-<pre><code>sql -n --list-tables pg:///DB_NAME | parallel -j0 -r --colsep '\|' sql pg:///DB_NAME vacuum full verbose {2}
-</code></pre>
-
-<p>What his does is:</p>
-
-<ul>
-<li><p>Gets a table list from GNU sql (which I had never used before, it&rsquo;s great to know that it exists!)</p></li>
-<li><p>Pipes that to GNU Parallel specifying it should run as many jobs as the machine has cores (-j0), should not run if there is no input (-r), and uses the pipe character as a column separator</p></li>
-<li><p>GNU Parallel then calls GNU sql, connects to the proper database executes a full, verbose vacuum on the second field it extracted from the table list (the table name)</p></li>
-</ul>
-
-
-<p>I added in the &ldquo;full verbose&rdquo; to Ole&rsquo;s example so the two scripts are doing the same work instead of just a plain vacuum.</p>
-
-<p>Compare that against the run time for a normal vacuum and report your results in the comments.  For databases that won&rsquo;t fit in your RAM it may not help that much but I&rsquo;d like to hear either way.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/01/16/how-to-set-up-multi-head-x-in-debian-using-nvidia-cards/">How-To: Set Up Multi-head X in Debian Using Nvidia Cards</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-01-16T12:53:52-05:00" pubdate data-updated="true">Jan 16<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/01/16/how-to-set-up-multi-head-x-in-debian-using-nvidia-cards/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/16/how-to-set-up-multi-head-x-in-debian-using-nvidia-cards/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I just had to set up a multi-head system in Debian and it consumed way too much of my time.  I did see a lot of articles about it online but they all had a few common threads.</p>
-
-<p>First, they all mentioned Xinerama was deprecated which initially scared me off of it.  Xinerama is deprecated but there&rsquo;s no replacement so for now I&rsquo;m using it until it&rsquo;s replacement is mature.  Wayland is a system that keeps getting mentioned but seems too far off to be considered for me.</p>
-
-<p>Second, they didn&rsquo;t clearly outline how they determined all of their display information.  Some were better than others but I need to build a real list of commands to get things done properly and repeatably since I know I will have to do this again at some point.</p>
-
-<p>So, let&rsquo;s go over what you need to do and how I got to a working system with three side-by-side displays.</p>
-
-<p>My system consists of two Nvidia GTX 470 cards.  Each card has two DVI outputs but I only have three displays.  Therefore one card has two displays connected to it (the left and right displays) and another card has one display connected to it (the center display).</p>
-
-<p>What you&rsquo;ll want to do is first figure out which display is connected to which card and how Linux enumerates them in your system.  To do this you should be in text mode (not X!) and go to the &ldquo;/sys/class/drm&rdquo; directory.  Let&rsquo;s take a look at mine:</p>
-
-<pre><code>tim@desktop:/sys/class/drm$ ls -la
-total 0
-drwxr-xr-x  2 root root    0 Jan 15 19:21 .
-drwxr-xr-x 40 root root    0 Jan 15 19:21 ..
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 card0 -&gt; ../../devices/pci0000:00/0000:00:01.0/0000:01:00.0/drm/card0
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 card0-DVI-I-1 -&gt; ../../devices/pci0000:00/0000:00:01.0/0000:01:00.0/drm/card0/card0-DVI-I-1
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 card0-DVI-I-2 -&gt; ../../devices/pci0000:00/0000:00:01.0/0000:01:00.0/drm/card0/card0-DVI-I-2
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 card0-HDMI-A-1 -&gt; ../../devices/pci0000:00/0000:00:01.0/0000:01:00.0/drm/card0/card0-HDMI-A-1
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 card1 -&gt; ../../devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/card1
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 card1-DVI-I-3 -&gt; ../../devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/card1/card1-DVI-I-3
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 card1-DVI-I-4 -&gt; ../../devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/card1/card1-DVI-I-4
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 card1-HDMI-A-2 -&gt; ../../devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/card1/card1-HDMI-A-2
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 controlD64 -&gt; ../../devices/pci0000:00/0000:00:01.0/0000:01:00.0/drm/controlD64
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 controlD65 -&gt; ../../devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/controlD65
-lrwxrwxrwx  1 root root    0 Jan 15 19:21 ttm -&gt; ../../devices/virtual/drm/ttm
--r--r--r--  1 root root 4096 Jan 15 19:21 version
-</code></pre>
-
-<p>Here you can see that I have two cards named card0 and card1.  Card 0 has three connectors on it named card0-DVI-I-1, card0-DVI-2, and card0-HDMI-A-1.  Card 1 has three connectors on it named card1-DVI-3, card1-DVI-4, card1-HDMI-A-2.  We will need this information later to build our xorg.conf so keep it handy.</p>
-
-<p>Now you&rsquo;ll want to determine which monitor is hooked up to which card and port.  If you are using this setup in Windows already you are not guaranteed that the cards are recognized in the same order so just forget what Windows has told you.  To figure out which is which first make sure all of your displays are connected to your cards.  Then ask Linux which displays are connected by executing this command:</p>
-
-<pre><code>ls /sys/class/drm/*/status | xargs -I {} -i bash -c "echo -n {}: ; cat {}"
-</code></pre>
-
-<p>This will show you which connectors think that they have something connected to them.  My output looks like this:</p>
-
-<pre><code>tim@desktop:/sys/class/drm$ ls /sys/class/drm/*/status | xargs -I {} -i bash -c "echo -n {}: ; cat {}"
-/sys/class/drm/card0-DVI-I-1/status:connected
-/sys/class/drm/card0-DVI-I-2/status:connected
-/sys/class/drm/card0-HDMI-A-1/status:disconnected
-/sys/class/drm/card1-DVI-I-3/status:connected
-/sys/class/drm/card1-DVI-I-4/status:disconnected
-/sys/class/drm/card1-HDMI-A-2/status:disconnected
-</code></pre>
-
-<p>So now I know that card0 is the card that has my two displays attached to it and card1 is the card that has my two displays attached to it.  That tells me that &ldquo;DVI-I-3&rdquo; is my center display and &ldquo;DVI-I-1&rdquo; and &ldquo;DVI-I-2&rdquo; are my left and right displays.  We&rsquo;ll figure out which is left and which is right in a minute.</p>
-
-<p>For now, let&rsquo;s figure out which PCI device Linux considers these devices.  You can do this by running this command:</p>
-
-<pre><code>ls -la /sys/class/drm/card?
-</code></pre>
-
-<p>My output looks like this:</p>
-
-<pre><code>tim@desktop:~$ ls -la /sys/class/drm/card?
-lrwxrwxrwx 1 root root 0 Jan 15 19:21 /sys/class/drm/card0 -&gt; ../../devices/pci0000:00/0000:00:01.0/0000:01:00.0/drm/card0
-lrwxrwxrwx 1 root root 0 Jan 15 19:21 /sys/class/drm/card1 -&gt; ../../devices/pci0000:00/0000:00:03.0/0000:02:00.0/drm/card1
-</code></pre>
-
-<p>Look at the numbers directly before &ldquo;drm&rdquo;.  They are &ldquo;0000:01:00.0&rdquo; for card 0 and &ldquo;0000:02:00.0&rdquo; for card 1.  This tells us that card 0 is PCI device 1 and card 1 is PCI device 2.  Keep these numbers handy too.</p>
-
-<p>The next step is to figure out which connectors is the left and which is the right.  You can do this by guessing but let&rsquo;s just get a definitive answer.  Type the same command we used before to get the list of all of our displays (or press the up arrow if your shell supports that to get to the last command) but don&rsquo;t run it yet.  Now disconnect one display, press enter, and reconnect it.  I suggest you do this so that just in case you disconnect the display that your terminal is running on you can still run the command and see the results when you reconnect it.</p>
-
-<p>In my case I got this output when my right display was disconnected:</p>
-
-<pre><code>tim@desktop:/sys/class/drm$ ls /sys/class/drm/*/status | xargs -I {} -i bash -c "echo -n {}: ; cat {}"
-/sys/class/drm/card0-DVI-I-1/status:disconnected
-/sys/class/drm/card0-DVI-I-2/status:connected
-/sys/class/drm/card0-HDMI-A-1/status:disconnected
-/sys/class/drm/card1-DVI-I-3/status:connected
-/sys/class/drm/card1-DVI-I-4/status:disconnected
-/sys/class/drm/card1-HDMI-A-2/status:disconnected
-</code></pre>
-
-<p>Now I know that &ldquo;DVI-I-1&rdquo; is my right display since before it was connected and when I ran the command it was disconnected.  By elimination I know &ldquo;DVI-I-2&rdquo; is my right display.  If you have more displays you&rsquo;ll need to do this a few more times.</p>
-
-<p>Let&rsquo;s recap.  I know that card 0 has two displays on it, its DVI-I-1 connector is my right display, its DVI-I-2 connector is my left display.  Card 1 has one display on it and its DVI-I-3 connector is my center display.  With that information I can start building my xorg.conf file.  I&rsquo;ll show you what I ended up with and then break it out and explain it:</p>
-
-<pre><code>Section "ServerLayout"
-    Identifier  "X.org Configured"
-    Option      "Xinerama"            "on"
-    Screen      0  "Screen0" 0 0
-    Screen      1  "Screen1" RightOf  "Screen0"
-    Screen      2  "Screen2" LeftOf   "Screen0"
-    InputDevice    "Mouse0"           "CorePointer"
-    InputDevice    "Keyboard0"        "CoreKeyboard"
-EndSection
-
-Section "Files"
-    ModulePath   "/usr/lib/xorg/modules"
-    FontPath     "/usr/share/fonts/X11/misc"
-    FontPath     "/usr/share/fonts/X11/cyrillic"
-    FontPath     "/usr/share/fonts/X11/100dpi/:unscaled"
-    FontPath     "/usr/share/fonts/X11/75dpi/:unscaled"
-    FontPath     "/usr/share/fonts/X11/Type1"
-    FontPath     "/usr/share/fonts/X11/100dpi"
-    FontPath     "/usr/share/fonts/X11/75dpi"
-    FontPath     "/var/lib/defoma/x-ttcidfont-conf.d/dirs/TrueType"
-    FontPath     "built-ins"
-EndSection
-
-Section "Module"
-    Load  "glx"
-    Load  "dbe"
-    Load  "dri"
-    Load  "record"
-    Load  "dri2"
-    Load  "extmod"
-EndSection
-
-Section "InputDevice"
-    Identifier  "Keyboard0"
-    Driver      "kbd"
-EndSection
-
-Section "InputDevice"
-    Identifier  "Mouse0"
-    Driver      "mouse"
-    Option      "Protocol" "auto"
-    Option      "Device" "/dev/input/mice"
-    Option      "ZAxisMapping" "4 5 6 7"
-EndSection
-
-Section "Device"
-    Identifier  "Device1"
-    Driver      "nouveau"
-    BusID       "PCI:1:0:0"
-    Option      "ZaphodHeads" "DVI-I-1"
-    Screen      0
-EndSection
-
-Section "Device"
-    Identifier  "Device2"
-    Driver      "nouveau"
-    BusID       "PCI:1:0:0"
-    Option      "ZaphodHeads" "DVI-I-2"
-    Screen      1
-EndSection
-
-Section "Device"
-    Identifier  "Device0"
-    Driver      "nouveau"
-    BusID       "PCI:2:0:0"
-    Option      "ZaphodHeads" "DVI-I-3"
-    Screen      0
-EndSection
-
-Section "Screen"
-    Identifier  "Screen0"
-    Device      "Device0"
-EndSection
-
-Section "Screen"
-    Identifier  "Screen1"
-    Device      "Device1"
-EndSection
-
-Section "Screen"
-    Identifier  "Screen2"
-    Device      "Device2"
-EndSection
-</code></pre>
-
-<p>Here&rsquo;s the explanation of each section:</p>
-
-<pre><code>Section "ServerLayout"
-    Identifier  "X.org Configured"
-    Option      "Xinerama"            "on"
-    Screen      0  "Screen0" 0 0
-    Screen      1  "Screen1" RightOf  "Screen0"
-    Screen      2  "Screen2" LeftOf   "Screen0"
-    InputDevice    "Mouse0"           "CorePointer"
-    InputDevice    "Keyboard0"        "CoreKeyboard"
-EndSection
-</code></pre>
-
-<p>This is the server layout section that declares how the screens are laid out and what input devices we&rsquo;re using.  It specifies a name of &ldquo;X.org Configured&rdquo; since I used another configuration as a baseline for this.  You can change that name to whatever you&rsquo;d like.  Then it specifies that Xinerama is on.  This means that you can drag windows back and forth between screens.  It has some downsides but they are outweighed by the convenience of placing windows anywhere across all of your displays.</p>
-
-<p>Then it specifies three &ldquo;screen&rdquo; entries.  Later on &ldquo;Screen0&rdquo; will by my center screen.  &ldquo;0 0&rdquo; just means that that screen starts at pixel 0,0.  &ldquo;Screen1&rdquo; will be might right screen so it will be to the right of my center screen.  In xorg.conf language that is done with &ldquo;RightOf&rdquo;.  &ldquo;Screen2&rdquo; will be my left screen so it is &ldquo;LeftOf&rdquo; my center screen.</p>
-
-<pre><code>Section "Files"
-    ModulePath   "/usr/lib/xorg/modules"
-    FontPath     "/usr/share/fonts/X11/misc"
-    FontPath     "/usr/share/fonts/X11/cyrillic"
-    FontPath     "/usr/share/fonts/X11/100dpi/:unscaled"
-    FontPath     "/usr/share/fonts/X11/75dpi/:unscaled"
-    FontPath     "/usr/share/fonts/X11/Type1"
-    FontPath     "/usr/share/fonts/X11/100dpi"
-    FontPath     "/usr/share/fonts/X11/75dpi"
-    FontPath     "/var/lib/defoma/x-ttcidfont-conf.d/dirs/TrueType"
-    FontPath     "built-ins"
-EndSection
-
-Section "Module"
-    Load  "glx"
-    Load  "dbe"
-    Load  "dri"
-    Load  "record"
-    Load  "dri2"
-    Load  "extmod"
-EndSection
-</code></pre>
-
-<p>I left these two sections completely stock.  They&rsquo;re magic for now so don&rsquo;t make any changes to them.</p>
-
-<pre><code>Section "InputDevice"
-    Identifier  "Keyboard0"
-    Driver      "kbd"
-EndSection
-
-Section "InputDevice"
-    Identifier  "Mouse0"
-    Driver      "mouse"
-    Option      "Protocol" "auto"
-    Option      "Device" "/dev/input/mice"
-    Option      "ZAxisMapping" "4 5 6 7"
-EndSection
-</code></pre>
-
-<p>These two sections specify our input devices.  These are stock also so you can leave them alone too.</p>
-
-<pre><code>Section "Device"
-    Identifier  "Device1"
-    Driver      "nouveau"
-    BusID       "PCI:1:0:0"
-    Option      "ZaphodHeads" "DVI-I-1"
-    Screen      0
-EndSection
-</code></pre>
-
-<p>Here&rsquo;s some more configuration we have to do.  Remember that DVI-I-1 is our right display and we are calling it &ldquo;Screen1&rdquo;.  In this section we need to create a device for it that tells X which drive, card, and connector it uses as well as which screen it is relative to its specific graphics card.  We&rsquo;ll call it &ldquo;Device1&rdquo;, use the open-source Nvidia driver called &ldquo;Nouveau&rdquo;, tell it to use PCI device 1 (since card 0 was device 1) with the &ldquo;PCI:1:0:0&rdquo; string, then tell it the connector is &ldquo;DVI-I-1&rdquo; with the &ldquo;ZaphodHeads&rdquo; option, and finally that this is the first display (display 0) on this graphics card.</p>
-
-<pre><code>Section "Device"
-    Identifier  "Device2"
-    Driver      "nouveau"
-    BusID       "PCI:1:0:0"
-    Option      "ZaphodHeads" "DVI-I-2"
-    Screen      1
-EndSection
-</code></pre>
-
-<p>For our left display we have similar settings but the connector is &ldquo;DVI-I-2&rdquo; and this is the second display (display 1) on this graphics card.  We also call this &ldquo;Device2&rdquo;.</p>
-
-<pre><code>Section "Device"
-    Identifier  "Device0"
-    Driver      "nouveau"
-    BusID       "PCI:2:0:0"
-    Option      "ZaphodHeads" "DVI-I-3"
-    Screen      0
-EndSection
-</code></pre>
-
-<p>Our center screen is &ldquo;Device0&rdquo; and it is on a different graphics card.  Remember card 1 was PCI device 2 so we use &ldquo;PCI:2:0:0&rdquo; here and specify the connector as &ldquo;DVI-I-3&rdquo;.  This is the first display (display 0) on this graphics card.</p>
-
-<pre><code>Section "Screen"
-    Identifier  "Screen0"
-    Device      "Device0"
-EndSection
-
-Section "Screen"
-    Identifier  "Screen1"
-    Device      "Device1"
-EndSection
-
-Section "Screen"
-    Identifier  "Screen2"
-    Device      "Device2"
-EndSection
-</code></pre>
-
-<p>Finally, these sections map our devices to name screens.  In this case DeviceX is ScreenX.  Nothing fancy goes on here.</p>
-
-<p>Replace or create your xorg.conf using the steps you see here and you should be up and running in no time.  I had to change from Gnome to Xfce since Gnome had a really tall black bar that took over my center display that I couldn&rsquo;t get rid of.  If you run into the same problem try Xfce or another window manager instead.</p>
-
-<p>Good luck and post in the comments if you found this useful or need some assistance.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/7/">&larr; Older</a>
@@ -1208,6 +966,14 @@ EndSection
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
@@ -1217,14 +983,6 @@ EndSection
     
       <li class="post">
         <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
   </ul>

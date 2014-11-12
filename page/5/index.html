@@ -9,7 +9,8 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Update 2012-06-16: This still happens on the 8.0.4 update so change the values that read &ldquo;8.0.3&rdquo; to &ldquo;8.0.4&rdquo; if you are using &hellip;">
+  <meta name="description" content="I finally got tired of dealing with Wordpress and all of the baggage that comes along with it. I&rsquo;ve migrated to Octopress and it feels nice.
+We &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +92,103 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-30T10:10:22-05:00" pubdate data-updated="true">Dec 30<span>th</span>, 2013</time>
+        
+           | <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I finally got tired of dealing with Wordpress and all of the baggage that comes along with it.  I&rsquo;ve migrated to Octopress and it feels nice.
+We&rsquo;ll see if it makes me post any more or not though.  It appears that this is my only post for the entire year so far.</p>
+
+<p>If you can recommend any themes that look a bit nicer than this please post in the comments.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-25T09:14:20-04:00" pubdate data-updated="true">May 25<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>UPDATE 2013-12-30: This is on hold permanently.  I never ended up having the time (this post is from way over a year ago) and PoE just isn&rsquo;t on my radar lately as I&rsquo;ve shifted more towards security and software testing.</p>
+
+<p>PoE (<a href="http://en.wikipedia.org/wiki/Power_over_Ethernet">Power over Ethernet</a>) is an exciting and promising technology.  I think that a lot of people take it for granted now that you can plug your IP phone into an Ethernet jack and it gets data and power over that single connection.  It&rsquo;s easy to forget that your IP phone isn&rsquo;t a real landline with convenience like this.</p>
+
+<p>One thing that has been frustrating about PoE over the years is not supply side availability but consumption side hardware for hobbyists.  You can find very cheap PoE switches online and that&rsquo;s great for all of your pre-fab gadgets (IP phones, WiFi access points, even video cameras) but implementing PoE in your own projects has been tough to say the least.</p>
+
+<p>There is now <a href="http://canakit.webstorepowered.com/Arduino-Ethernet-Power-over-Ethernet-PoE-Module/dp/B005D22FR6">an Arduino board that supports PoE</a> but if you&rsquo;re using an existing Arduino board (Mega, etc), a Netduino Plus, or a single board computer you are still out of luck if you want to use PoE so far.  Don&rsquo;t get me wrong you can do it but it takes significant electronics experience, a multitude of components, and even some luck since not all PoE mid-span devices follow the standard perfectly.  When using PoE with a non-compliant mid-span device you will certainly run into grounding issues that can range from a minor hassle to project killing either from noise or <a href="http://en.wikipedia.org/wiki/Magic_smoke">magic smoke</a>.  I haven&rsquo;t experienced magic smoke yet but I&rsquo;ve definitely seen issues with noise and FTDI boards connecting and disconnecting from USB when hooked into a PoE circuit powered by a non-compliant device.</p>
+
+<p>As far as the mid-span devices go you&rsquo;ll have to do your homework to find one that is compliant and that might even mean buying a few devices to test them out.  So far I&rsquo;ve had some luck with a <a href="http://www.phihong.com/html/psa16u-480_15_4w_1-port_poe.html">Phihong PSA16U-480</a> although there have been a few times where I&rsquo;ve gotten the network TX/RX to stop working while the PoE portion still works.  I never did conclude whether it was a circuit problem, a Phihong problem, or a cabling problem though so I would say that so far the Phihong has been the best.  On the other hand my <a href="http://www.intellinet-network.com/en-US/products/6897-power-over-ethernet-poe-injector">Intellinet 524179</a> has consistently caused my <a href="http://www.sparkfun.com/products/9873">Sparkfun FTDI basic module</a> to disconnect from USB each time power is disconnected.  The Phihong does not do that and I have concluded that it must be a grounding problem.  To be clear my FTDI module in this case is being used to connect to a circuit that is powered by PoE but the FTDI module derives its power from a USB port, not the PoE adapter, on a computer that is connected to the same ground as the Intellinet 524179.  Because of this I would steer clear of this mid-span device if possible.</p>
+
+<p>Now a company called <a href="http://silvertel.com">Silvertel</a> has released <a href="http://www.silvertel.com/poe_products.htm">a line of PoE modules</a> that finally make adding PoE to your circuits a much easier proposition.  With these new modules you only need 1 or 2 extra components to get yourself up and running which is a far cry from the 10 or more components I&rsquo;ve seen in previous designs.  Naturally you&rsquo;ll need to have direct, board level access to the magnetics for the Ethernet connection so it won&rsquo;t work in all circuits.  There are some embedded modules that don&rsquo;t expose the two taps needed on the TX and RX coil to make this all work so those modules will still be unable to use PoE right in their circuitry.</p>
+
+<p>However, if you find that you&rsquo;re working with a module that doesn&rsquo;t have the proper taps you can always get a <a href="http://www.cisco.com/en/US/prod/collateral/voicesw/ps6788/phones/ps10042/ps10044/data_sheet_c78-502433.html">PoE splitter</a>.  These devices extract PoE power and either provide 48V or some lower regulated voltage and put that into a standard barrel connector.  It&rsquo;s not elegant but it works.  You must avoid any hacks where you put raw voltage on spare Ethernet lines as tempting as they might be.  Some people can get away with it during testing but there&rsquo;s always the risk that you&rsquo;ll fry something when you unexpectedly hook up the wrong port.  Do yourself a favor and stick with the standards for consistency and safety.</p>
+
+<p>I&rsquo;m hoping to get some time next week to try Silvertel&rsquo;s modules out.  Once I do I&rsquo;ll be posting my results and, if I&rsquo;m successful, some information on how to convert your Netduino Plus into a Netduino Plus with PoE.  Either way I&rsquo;ll post updates next week and keep everyone up to date on my progress.  I expect that if it works PoE will be a major player in most or all of my future projects.</p>
+
+<p>What projects do you have that you would like to add PoE to?  What has stopped you from doing it so far other than a lack of time?  Post in the comments and let me know.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1219,155 +1317,6 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/">Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-02T08:02:47-05:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2012</time>
-        
-           | <a href="/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests.  In the past few days I&rsquo;ve been playing around with Unicode and wanted to copy a code snippet from a Hadoop book to see how everything looks in the debugger.  When I entered the code I realized that I was missing some methods that I needed to complete the tests.</p>
-
-<p>Specifically I was trying to use assertThat() and is() but didn&rsquo;t know where to find them.  After a bit of Googling I found the two static imports that I needed to copy the code without qualifying assertThat() as Assert.assertThat() and the same goes for is().  They are:</p>
-
-<pre><code>import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-</code></pre>
-
-<p>I have to admit that org.hamcrest is a bit less obvious than I would have liked.  :)</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/">Tip: A Quick Primer on Waiting on Multiple Threads in Java</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-02-28T16:32:21-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Last night I was writing some code to do some performance testing on HDFS.  I noticed that single threaded performance wasn&rsquo;t anywhere near as good as I expected and my CPUs were spending most of their time idle.  I decided to add some threads into the process to see if a multi-threaded speed test would consume some of that idle CPU.  It worked as expected so I figured I would share some basic knowledge on how to I started up multiple threads, had them do their work, waited for them to finish without polling, and then recorded the total duration to calculate my statistics.</p>
-
-<p>What you&rsquo;ll need to do first is decide what you want to do in the processing thread.  This code will go into a Java Runnable like this:</p>
-
-<pre><code>Runnable runnable = new Runnable() {
-    @Override
-    public void run() {
-        // Do something exciting here
-    }
-};
-</code></pre>
-
-<p>Next you&rsquo;ll need to decide how many threads you want to run.  If you wanted to run four threads you could do this:</p>
-
-<pre><code>int threadCount = 4;
-
-for (int threadLoop = 0; threadLoop &lt; threadCount; threadLoop++) {
-    // XXX - Put the runnable block from above right here
-
-    // Create a new thread
-    Thread thread = new Thread(runnable);
-
-    // Add the thread to our thread list
-    threads.add(thread);
-
-    // Start the thread
-    thread.start();
-}
-</code></pre>
-
-<p>That will start four threads.  It&rsquo;s best to use a variable so you can update it and use it in other places like calculating your statistics.  Now let&rsquo;s wait for all the threads to finish:</p>
-
-<pre><code>// Loop through the threads
-for (Thread thread : threads) {
-    try {
-        // Wait for this thread to die
-        thread.join();
-    } catch (InterruptedException e) {
-        // Ignore this but print a stack trace
-        e.printStackTrace();
-    }
-}
-</code></pre>
-
-<p>Finally, you&rsquo;ll want to time all of this.  I do something very simple here.  Before all of the code I do this:</p>
-
-<pre><code>long startTime = new Date().getTime();
-</code></pre>
-
-<p>After all of the code I do this:</p>
-
-<pre><code>long endTime = new Date().getTime();
-long durationInMilliseconds = endTime - startTime;
-</code></pre>
-
-<p>With all of that in place you can now measure how long your code ran and then calculate important metrics about it.  For example, if this code did 10,000 operations per thread and ran with 4 threads you would then take the duration and divide that by 40,000 and you&rsquo;d get an idea of how many milliseconds it took per operation.  Just make sure you use doubles or you&rsquo;ll lose all of your precision due to coercion.  Do this (assuming that your number of operations is stored in a variable called &ldquo;operations&rdquo;):</p>
-
-<pre><code>double millisecondsPerOperation = (double) durationInMilliseconds / (double) operations;
-double operationsPerMillisecond = (double) operations / (double) durationInMilliseconds;
-</code></pre>
-
-<p>These are just reciprocals of each other but sometimes one value is a lot easier to understand than the other so I usually calculate them both.</p>
-
-<p>Now that you have those statistics you can try different thread counts, optimize code/loops, etc.  Good luck!  Post in the comments with any ideas and/or issues.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/6/">&larr; Older</a>
@@ -1401,6 +1350,14 @@ double operationsPerMillisecond = (double) operations / (double) durationInMilli
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
@@ -1410,14 +1367,6 @@ double operationsPerMillisecond = (double) operations / (double) durationInMilli
     
       <li class="post">
         <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
   </ul>

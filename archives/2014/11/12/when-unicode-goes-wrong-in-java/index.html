@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap - Tim Mattison</title>
+  <title>When Unicode Goes Wrong in Java - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="If you&rsquo;re writing code that accesses HDFS and you get an exception that looks like this: Exception in thread "main" java.lang. &hellip;">
+  <meta name="description" content="Is Unicode breaking in your application and you can&rsquo;t figure out where? Maybe data from HttpClient is coming back mangled, maybe database &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.com/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -94,7 +94,7 @@
   
   <header>
     
-      <h1 class="entry-title">Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap</h1>
+      <h1 class="entry-title">When Unicode Goes Wrong in Java</h1>
     
     
       <p class="meta">
@@ -110,7 +110,7 @@
   
 
 
-<time datetime="2012-02-07T11:16:19-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+<time datetime="2014-11-12T06:50:31-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2014</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://blog.timmattison.com">Comments</a>
@@ -120,22 +120,13 @@
   </header>
 
 
-<div class="entry-content"><p>If you&rsquo;re writing code that accesses HDFS and you get an exception that looks like this:</p>
+<div class="entry-content"><p>Is Unicode breaking in your application and you can&rsquo;t figure out where?  Maybe data from HttpClient is coming back mangled, maybe database queries via JDBC are having Unicode data replaced with question marks, maybe your <a href="https://code.google.com/p/protobuf/">protobufs</a> are getting shredded, but somewhere something is eating your Unicode data and nothing you&rsquo;ve tried fixes it.  Well&hellip;</p>
 
-<pre><code>Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap
-    at org.apache.hadoop.hdfs.SocketCache.&lt;init&gt;(SocketCache.java:48)
-    at org.apache.hadoop.hdfs.DFSClient.&lt;init&gt;(DFSClient.java:240)
-    at org.apache.hadoop.hdfs.DFSClient.&lt;init&gt;(DFSClient.java:208)
-    at org.apache.hadoop.hdfs.DistributedFileSystem.initialize(DistributedFileSystem.java:89)
-    at org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:1563)
-    at org.apache.hadoop.fs.FileSystem.access$200(FileSystem.java:67)
-    at org.apache.hadoop.fs.FileSystem$Cache.getInternal(FileSystem.java:1597)
-    at org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:1579)
-    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:228)
-    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:111)
-</code></pre>
+<p>Did you know the JVM itself has a global Unicode setting specified by the <code>-Dfile.encoding</code> option?  Most people I talked to didn&rsquo;t know about it, myself included, when I ran into a Unicode issue on a project.  After some great teamwork and research we found this option, set it, and everything started working again.</p>
 
-<p>Make sure you include the guava-r09-jarjar.jar JAR in your build path.  This is usually located in /usr/lib/hadoop-0.20/lib.</p>
+<p>All we had to do was put <code>-Dfile.encoding=UTF8</code> in the script that ran our JVM and everything was fixed.  If you want to play with it <a href="https://github.com/timmattison/jvm-unicode-settings">I created a test project on Github</a> that is incredibly simple and shows the right and wrong settings and what they do to a simple trademark symbol.  Otherwise, try this on your project and see if it fixes the issue.</p>
+
+<p>Good luck!</p>
 </div>
 
 
@@ -144,7 +135,7 @@
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
 
       
 
@@ -158,21 +149,15 @@
   
 
 
-<time datetime="2012-02-07T11:16:19-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+<time datetime="2014-11-12T06:50:31-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2014</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/categories/tips/'>Tips</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -180,22 +165,15 @@
   
   
     <a class="FlattrButton" style="display:none;"
-    title="Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap"
+    title="When Unicode goes wrong in Java"
     data-flattr-uid="timmattison"
-    data-flattr-tags="Tips"
+    data-flattr-tags=""
     data-flattr-button="compact"
     data-flattr-category="text"
-    href="http://blog.timmattison.com/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/">
-    If you're writing code that accesses HDFS and you get an exception that looks like this:
+    href="http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java/">
+    Is Unicode breaking in your application and you can't figure out where?  Maybe data from HttpClient is coming back mangled, maybe database queries via JDBC are having Unicode data replaced with question marks, maybe your [protobufs](https://code.google.com/p/protobuf/) are getting shredded, but somewhere something is eating your Unicode data and nothing you've tried fixes it.  Well...
 
-
-    
-    
-    Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap
-    	at org.apache.hadoop.hdfs.SocketCache.<init>(SocketCache.java:48)
-    	at org.apache.hadoop.hdfs.DFSClient.<init>(DFSClient.java:240)
-    	at org.apache.hadoop.hdfs.DFSClient.<init>(DFSClient.java:208)
-    	at org.apache.hadoop.hdfs.DistributedFileSystem. &hellip;
+Did you know the JVM itself has a global Unicode setting specified by the `-Dfile.encoding` option?  Most &hellip;
 </a>
 
   
@@ -204,10 +182,10 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/" title="Previous Post: How-To: Debug HDFS applications in Eclipse">&laquo; How-To: Debug HDFS applications in Eclipse</a>
+        <a class="basic-alignment left" href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/" title="Previous Post: Using interfaces in Camel's Java DSL with Spring">&laquo; Using interfaces in Camel's Java DSL with Spring</a>
       
       
-        <a class="basic-alignment right" href="/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/" title="Next Post: Tip: Fix basic build issues when using Maven">Tip: Fix basic build issues when using Maven &raquo;</a>
+        <a class="basic-alignment right" href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/" title="Next Post: Fixing javac on Mac OS when multiple JVMs are installed">Fixing javac on Mac OS when multiple JVMs are installed &raquo;</a>
       
     </p>
   </footer>
@@ -327,8 +305,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.timmattison.com/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/';
-        var disqus_url = 'http://blog.timmattison.com/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/';
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java/';
         var disqus_script = 'embed.js';
       
     (function () {

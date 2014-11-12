@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I don&rsquo;t have anything exciting to write here, just a few pictures to share of an electronics project I&rsquo;m debugging. A few people asked &hellip;">
+  <meta name="description" content="If you&rsquo;re an avid OpenVPN user like I am you&rsquo;re probably used to telling people &ldquo;OpenVPN works everywhere, unlike IPsec, unlike &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,113 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/08/08/how-to-get-openvpn-and-the-iburst-to-cooperate/">How-To: Get OpenVPN and the iBurst to Cooperate</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-08-08T19:59:59-04:00" pubdate data-updated="true">Aug 8<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/08/08/how-to-get-openvpn-and-the-iburst-to-cooperate/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/08/08/how-to-get-openvpn-and-the-iburst-to-cooperate/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;re an avid OpenVPN user like I am you&rsquo;re probably used to telling people</p>
+
+<p>&ldquo;OpenVPN works everywhere, unlike IPsec, unlike PPTP, etc&hellip;&rdquo;</p>
+
+<p>Well, that <em>was</em> true for me until I went to South Africa and started using <a href="http://www.iburst.co.za/default.aspx?link=packages_wireless_fromhome">iBurst</a>.  It started to drive me crazy that I couldn&rsquo;t use VNC over it, I&rsquo;d lose connection with my mail server, and SSH sessions would mysteriously (but repeatably) die.  Thankfully I found <a href="http://mybroadband.co.za/vb/archive/index.php/t-53268.html">a forum post about the issue</a> that helped me tune my settings to get things to work without a hitch.  The advice they gave didn&rsquo;t work for me at first but a little persistence got me up and running in just a few minutes.</p>
+
+<p>If you&rsquo;re using a Mac here is the secret sauce:</p>
+
+<ul>
+<li><p>Connect to the Internet with your iBurst</p></li>
+<li><p>Connect to your OpenVPN VPN (I use <a href="http://www.tunnelblick.net">Tunnelblick</a>)</p></li>
+<li><p>Open up a Terminal session</p></li>
+<li><p>Type &ldquo;sudo ifconfig tun0 mtu 1000&rdquo; (without the quotes) and enter your root/sudo password if necessary</p></li>
+<li><p>That&rsquo;s it, your OpenVPN session should be rock solid now or at least as rock solid as your iBurst connection is</p></li>
+</ul>
+
+
+<p>If you&rsquo;re looking to increase the performance of your OpenVPN session you can raise the MTU of 1000 a little bit.  You&rsquo;ll have to experiment to get the correct value.  Anything beyond and including the suggested 1352 didn&rsquo;t work for me, 1200 was flaky as well.  I erred on the side of caution and just stuck with 1000.  There&rsquo;s some performance hit but not noticeable enough for me to really spend tons of time tuning it.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/06/08/how-to-convert-from-vmware-vmdks-to-virtualbox-vdis/">How-To: Convert From VMware VMDKs to VirtualBox VDIs</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-08T19:59:59-04:00" pubdate data-updated="true">Jun 8<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/06/08/how-to-convert-from-vmware-vmdks-to-virtualbox-vdis/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/06/08/how-to-convert-from-vmware-vmdks-to-virtualbox-vdis/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>A lot of the how-to files out there that explain this process are either too verbose, outdated, or both.  Here is a no nonsense step-by-step guide to converting your VMDKs to VDIs for use with VirtualBox.</p>
+
+<p>Step 1: qemu-img convert original.vmdk raw.bin</p>
+
+<p>On the Mac I had to install &ldquo;<a href="http://www.kju-app.org/">Q</a>&rdquo;.  Then I used the absolute path &ldquo;/Applications/Q.app/Contents/MacOS/qemu-img&rdquo; so my command-line looked like: /Applications/Q.app/Contents/MacOS/qemu-img convert original.vmdk raw.bin</p>
+
+<p>Step 2: VBoxManage convertdd raw.bin out.vdi</p>
+
+<p>On the Mac I had to run VBoxManage from /Applications/VirtualBox.app/Contents/MacOS/VBoxManage so my command-line looked like:</p>
+
+<p>/Applications/VirtualBox.app/Contents/MacOS/VBoxManage convertdd raw.bin out.vdi</p>
+
+<p>That&rsquo;s it!  Keep in mind that this requires a lot of disk space.  On my system original.vmdk and the associated files was about 10 gigs, converted to raw.bin brought it up to 20 gigs (the full size of the disk), and then converting it to out.vdi took another 20 gigs.  After all that you can delete the VMDK and bin files if you don&rsquo;t need them anymore but the original VMDK is nice for a backup especially if it&rsquo;s not preallocated to the full size.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -628,6 +735,14 @@ sub fix_cisco_issues {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
@@ -637,14 +752,6 @@ sub fix_cisco_issues {
     
       <li class="post">
         <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
   </ul>

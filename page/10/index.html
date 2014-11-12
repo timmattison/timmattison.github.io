@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Even though I have a nice dual monitor setup in my office I tend to use my laptop for almost everything. The dual monitor system ends up holding a &hellip;">
+  <meta name="description" content="VMware Server is a complicated beast. When it breaks, you&rsquo;re usually without support (although paid support options do exist), and out of &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,177 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/12/01/how-to-fix-issues-with-vmware-server-tools-on-gentoo-and-other-distros/">How-To: Fix Issues With VMware Server Tools on Gentoo (and Other Distros)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-12-01T18:59:59-05:00" pubdate data-updated="true">Dec 1<span>st</span>, 2009</time>
+        
+           | <a href="/archives/2009/12/01/how-to-fix-issues-with-vmware-server-tools-on-gentoo-and-other-distros/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/01/how-to-fix-issues-with-vmware-server-tools-on-gentoo-and-other-distros/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>VMware Server is a complicated beast.  When it breaks, you&rsquo;re usually without support (although <a href="mailto:sales@vmware.com">paid support options do exist</a>), and out of commission.  One problem that tripped me up for a few weeks was that I had a running VM that refused to suspend.  Because of this I couldn&rsquo;t get clean backups of the VM in a suspended state and had to resort to just a plain backup of the filesystem via rsync.  It worked, but it was less than optimal.  Any time I ran the suspend command:</p>
+
+<pre><code>/opt/vmware/bin/vmrun suspend Gentoo.vmx
+</code></pre>
+
+<p>The error message I was presented with was:</p>
+
+<pre><code>Error: Command failed: Cannot connect to the virtual machine
+</code></pre>
+
+<p>I could hobble along like this for a while but today I needed to add another virtual disk which required a restart of the VM.  When I tried to start it via the command-line tools like this:</p>
+
+<pre><code>/opt/vmware/bin/vmrun start Gentoo.vmx
+</code></pre>
+
+<p>The system just hung indefinitely.  Eventually I had to CTRL-C out of it and get back to the command-line to figure out the issue.</p>
+
+<p>What was the underlying problem?  Almost every time I&rsquo;ve had a VMware Server issue it has been permissions.  When you&rsquo;re working with VMs you should always make sure that the following criteria is applied to the files in the VM&rsquo;s working directory:</p>
+
+<ul>
+<li><p>All files must be owned by the vmware user and/or the vmware group</p></li>
+<li><p>All of the files must be readable and writeable by the vmware user and/or group</p></li>
+<li><p>Disk files must be marked as executable by the vmware user and/or group</p></li>
+<li><p>Optional: All permissions should be removed from anyone other than the owning user and/or group</p></li>
+</ul>
+
+
+<p>What I do to get this done quickly on all of my VMs is run the following few commands in each VM&rsquo;s working directory:</p>
+
+<pre><code>chgrp vmware *
+chmod 660 *vmem
+chmod 660 *.vmsn
+chmod 750 *.vmdk
+chmod 750 *.vmsd
+chmod 750 nvram
+</code></pre>
+
+<p>After running those few commands VMware Server works like a charm again.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/">How-To: Setup Streaming MP4 Video on Your Own Gentoo Server (and Other Distros)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-29T22:52:59-05:00" pubdate data-updated="true">Nov 29<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>With so many free streaming services available today (<a href="http://www.vimeo.com">Vimeo</a> being the best and <a href="http://www.youtube.com">YouTube</a> being the most widely recognized) you might wonder why someone would want to host their own videos.  My main reason is so that I can more easily see who watches my content.  Other reasons include better access control if your videos are personal in nature, or a more integrated, branded user experience if you&rsquo;re producing content that is subscription, pay-per-view or ad supported.  You might also want to get around the restrictions that come with the free accounts these sites offer without paying for their premium services.  If you&rsquo;re already invested in the hardware to host your site and you can support the bandwidth requirements for your expected traffic volume then it might make sense to host things yourself.</p>
+
+<p>So, what&rsquo;s the big deal?  If you&rsquo;re looking to get started right away you can render an MP4 file, install a free player like <a href="http://flowplayer.org/">FlowPlayer</a>, and start hosting video in 5 minutes.  The problem that you&rsquo;ll notice straight away is that your videos have to buffer completely (ie. the user&rsquo;s browser downloads the whole video) before they start playing.  For short videos or video files that are small this isn&rsquo;t a big deal.  But for HD videos and videos that are long in duration the delay can cause even the most patient viewers navigate away from your site.  Since all of the other services have gotten users accustomed to video playing immediately it&rsquo;s hard to justify this kind of behavior on any site today.</p>
+
+<p>I&rsquo;ve figured out the secret sauce to get this working.  Now you can do it too with just these few simple steps:</p>
+
+<ul>
+<li><p>Step 1: Render your MP4 files and place them on your server</p></li>
+<li><p>Step 2: Create a webpage with <a href="http://flowplayer.org/">FlowPlayer</a> embedded.  A template to get you started looks like this:</p>
+
+<p><head>
+<script type="text/javascript" src="http://your-site.com/flowplayer-3.2.4.min.js"></script>
+</head></p>
+
+<p><a href="http://your-site.com/your-video.mp4" style="display:block;width:800px;height:475px" id="player"> </a></p>
+
+<p><script>flowplayer(&ldquo;player&rdquo;, &ldquo;flowplayer-3.2.5.swf&rdquo;,</p>
+
+<p>{ clip:
+  { url: &ldquo;<a href="http://your-site.com/your-video.mp4">http://your-site.com/your-video.mp4</a>&rdquo;,
+    duration: 120,
+    metadata: false,
+    autoPlay: true,
+    autoBuffer: true,
+    bufferLength: 3,
+    linkUrl: &ldquo;<a href="http://your-site.com/your-video-description.html">http://your-site.com/your-video-description.html</a>&rdquo;
+  }
+});</script></p></li>
+</ul>
+
+
+<p>Just replace your-site.com/your-video.mp4 with the real URL of your MP4 video and your-site.com/your-video-description.html with the site you want to link the user to if they click on the video while it&rsquo;s playing.  Also, replace &ldquo;120&rdquo; after the duration variable with the actual duration of your video in seconds.  If you don&rsquo;t know this value, or you&rsquo;re feeling lazy, you can set it to zero and FlowPlayer will figure it out for you.  Don&rsquo;t set it too short or your video will end prematurely and make sure that flowplayer-3.1.4.min.js is on your server in the appropriate location.  This example assumes it is in the root directory.</p>
+
+<ul>
+<li><p>Step 3: Download and install mod_h264 for Apache.  There are instructions for <a href="http://h264.code-shop.com/trac/wiki/Mod-H264-Streaming-Apache-Version2">distros other than Gentoo</a> or youcan run these commands on Gentoo to do it all:</p>
+
+<p>cd /tmp
+wget <a href="http://h264.code-shop.com/download/apache_mod_h264_streaming-2.2.5.tar.gz">http://h264.code-shop.com/download/apache_mod_h264_streaming-2.2.5.tar.gz</a>
+tar xzvf apache_mod_h264_streaming-2.2.5.tar.gz
+rm apache_mod_h264_streaming-2.2.5.tar.gz
+cd mod_h264_streaming-2.2.5
+./configure
+sudo make install</p></li>
+<li><p>Step 4: Add mod_h264 for your Apache configuration.  Append these lines to the bottom of your /etc/apache/httpd.conf:</p>
+
+<p>LoadModule h264_streaming_module /usr/lib/apache2/modules/mod_h264_streaming.so
+AddHandler h264-streaming.extensions .mp4</p></li>
+<li><p>Step 5: Restart apache with</p>
+
+<p>/etc/init.d/apache restart</p></li>
+<li><p>Step 6: Test out your streaming video.  If all went well then you&rsquo;ll see the bar behind the playhead fill in as the video buffers.</p></li>
+</ul>
+
+
+<p>That&rsquo;s all there is to it.  Thanks to the mod_h264 developers (and these instructions) you&rsquo;re now able to stream MP4 video like the big guys.  Here&rsquo;s an example of what it should look like (the source material in this video is from <a href="http://freestockphotos.com/">FreeStockPhotos.com</a> but the controls in the player cut off their watermark):</p>
+
+<p><a href="http://blog.timmattison.com/static/howto-test.mp4"> </a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -606,152 +777,6 @@ cc1: error: unrecognized command line option &ldquo;-fmno-tls-direct-seg-refs&rd
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/08/how-to-fix-error-unexpected-java-lang-nosuchmethoderror-messages-when-compiling-gwt-code-in-eclipse/">How-To: Fix &#8220;[ERROR] Unexpected java.lang.NoSuchMethodError&#8221; Messages When Compiling GWT Code in Eclipse</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-08T18:59:59-05:00" pubdate data-updated="true">Nov 8<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/08/how-to-fix-error-unexpected-java-lang-nosuchmethoderror-messages-when-compiling-gwt-code-in-eclipse/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/08/how-to-fix-error-unexpected-java-lang-nosuchmethoderror-messages-when-compiling-gwt-code-in-eclipse/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This morning when I opened up an old GWT project to rebuild it and bring it from GWT 1.5 to GWT 1.7 Eclipse spit out this error message:</p>
-
-<pre><code>[ERROR] Unexpected
-
-java.lang.NoSuchMethodError: org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding.closestReferenceMatch()Lorg/eclipse/jdt/internal/compiler/lookup/ReferenceBinding;
-    at com.google.gwt.dev.javac.JsniChecker$CheckingVisitor.findClass(JsniChecker.java:231)
-    at com.google.gwt.dev.javac.JsniChecker$CheckingVisitor.checkRefs(JsniChecker.java:142)
-    at com.google.gwt.dev.javac.JsniChecker$CheckingVisitor.endVisit(JsniChecker.java:65)
-    at org.eclipse.jdt.internal.compiler.ast.MethodDeclaration.traverse(MethodDeclaration.java:247)
-    at org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.traverse(TypeDeclaration.java:1337)
-    at org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.traverse(TypeDeclaration.java:1206)
-    at org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration.traverse(CompilationUnitDeclaration.java:518)
-    at com.google.gwt.dev.javac.JsniChecker.check(JsniChecker.java:350)
-    at com.google.gwt.dev.javac.JsniChecker.check(JsniChecker.java:340)
-    at com.google.gwt.dev.javac.CompilationUnitInvalidator.validateCompilationUnits(CompilationUnitInvalidator.java:159)
-    at com.google.gwt.dev.javac.CompilationState.compile(CompilationState.java:198)
-    at com.google.gwt.dev.javac.CompilationState.refresh(CompilationState.java:178)
-    at com.google.gwt.dev.javac.CompilationState.(CompilationState.java:93)
-    at com.google.gwt.dev.cfg.ModuleDef.getCompilationState(ModuleDef.java:264)
-    at com.google.gwt.dev.Precompile.precompile(Precompile.java:283)
-    at com.google.gwt.dev.Compiler.run(Compiler.java:170)
-    at com.google.gwt.dev.Compiler$1.run(Compiler.java:124)
-    at com.google.gwt.dev.CompileTaskRunner.doRun(CompileTaskRunner.java:88)
-    at com.google.gwt.dev.CompileTaskRunner.runWithAppropriateLogger(CompileTaskRunner.java:82)
-    at com.google.gwt.dev.Compiler.main(Compiler.java:131)
-</code></pre>
-
-<p>As usual I Googled around a bit and <a href="http://forums.smartclient.com/showthread.php?t=7718">found a solution</a> but I really wanted to know exactly how to fix this issue in the future.  The solution is even simpler than the original poster thought but without their input I would&rsquo;ve never figured it out so thank you sujaydutta!</p>
-
-<p>The issue stems from the GWT compiler needing your classpath in a certain order.  In particular you need to have your application source as the first entry, then GWT as the second entry.  In Eclipse you can do it like this:</p>
-
-<ul>
-<li><p>Step 1: Right-click on your project and select &ldquo;Properties&rdquo;</p></li>
-<li><p>Step 2: Click on &ldquo;Java Build Path&rdquo;</p></li>
-<li><p>Step 3: Click on the &ldquo;Order and Export&rdquo; tab</p></li>
-<li><p>Step 4: Click on your &ldquo;GWT SDK&rdquo; entry (if you&rsquo;re using the <a href="http://code.google.com/eclipse/">Google Plugin for Eclipse</a> it&rsquo;s called &ldquo;GWT SDK&rdquo;, otherwise it&rsquo;s whatever you decided to name it when you created your custom user library)</p></li>
-<li><p>Step 5: Click the &ldquo;Top&rdquo; button on the right</p></li>
-<li><p>Step 6: Click on your &ldquo;src&rdquo; entry (it should be your project name, followed by a forward slash, and then the word &ldquo;src&rdquo;)</p></li>
-<li><p>Step 7: Click the &ldquo;Top&rdquo; button on the right</p></li>
-<li><p>Step 8: Click &ldquo;OK&rdquo;</p></li>
-</ul>
-
-
-<p>Now when you go to rebuild your project you&rsquo;ll finally be rid of this error message and you can start hacking out GWT 1.7 code.  Good luck!  Post below if the above instructions don&rsquo;t work for you and maybe I can help.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/">How-To: Restart OpenSSH (Sshd) When It Doesn&#8217;t Want To</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-06T18:59:59-05:00" pubdate data-updated="true">Nov 6<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>If you&rsquo;re doing a remote system upgrade from time to time you&rsquo;ll have to deal with changes in OpenSSH (sshd).  I just did an update on a Gentoo machine and afterwards I couldn&rsquo;t get OpenSSH to stop, much less restart.  When you&rsquo;re in these kinds of situations you risk losing remote access to the machine if it&rsquo;s not a VPS (like <a href="http://linode.com">Linode</a>, my favorite VPS hosting company so far) or doesn&rsquo;t have a KVM.  You can&rsquo;t just killall sshd since that&rsquo;ll disconnect you, and in my case running /etc/init.d/sshd restart failed to stop sshd.  If you don&rsquo;t restart sshd then all of those security patches are going to waste since your system is relying on the original copy of sshd in RAM.</p>
-
-<p>So what do you do?  <strong>NOT THIS UNLESS YOU ARE CONNECTED VIA A SERIAL PORT!</strong> I have remote console access do I can just fire up Linode&#8217; AJAX console and do the following:</p>
-
-<pre><code>killall sshd
-
-/etc/init.d/sshd restart
-</code></pre>
-
-<p>That got me running and I was all set. But you can do something similar remotely.  The trick is that you&rsquo;ll need to run it in <a href="http://www.gnu.org/software/screen/">GNU&rsquo;s screen</a> utility to make sure that all of the commands are run.  Here&rsquo;s what you should do:</p>
-
-<pre><code>screen
-
-killall sshd ; sleep 5 ; /etc/init.d/sshd restart
-</code></pre>
-
-<p>It&rsquo;s a bit risky because there&rsquo;s no guarantee that sshd will come up after that but this is a last ditch effort only.  Make sure all of your ducks are in a row, double check the upgrade process, run revdep-rebuild on Gentoo if you have to to make sure all of your libraries are correct.  I take no responsibility if you lose your connection and need to drive to the colo or sheepishly call for a reboot or remote hands.</p>
-
-<p>I can tell you that in my case, a Gentoo upgrade, it did work fine.  You lose your connection but you can reconnect in 10 or so seconds, and then run</p>
-
-<pre><code>screen -r
-</code></pre>
-
-<p>to see that all of the commands executed successfully.</p>
-
-<p>Make sure you separate the commands by semi-colons though.  It&rsquo;s required, not just stylistic here.  You can&rsquo;t killall sshd and then keep issuing the commands interactively.  You have to let the shell do it for you inside screen, or else.  :)</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/11/">&larr; Older</a>
@@ -785,6 +810,14 @@ killall sshd ; sleep 5 ; /etc/init.d/sshd restart
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
@@ -794,14 +827,6 @@ killall sshd ; sleep 5 ; /etc/init.d/sshd restart
     
       <li class="post">
         <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
   </ul>

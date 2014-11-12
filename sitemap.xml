@@ -759,12 +759,24 @@
         <lastmod>2014-10-30T16:43:37-04:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java/
+        </loc>
+        <lastmod>2014-11-12T07:24:55-05:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://blog.timmattison.com/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/
+        </loc>
+        <lastmod>2014-11-12T07:05:53-05:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.timmattison.com/archives/</loc>
-        <lastmod>2014-10-30T16:43:37-04:00</lastmod>
+        <lastmod>2014-11-12T07:24:55-05:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/</loc>
-        <lastmod>2014-10-30T16:43:37-04:00</lastmod>
+        <lastmod>2014-11-12T07:24:55-05:00</lastmod>
     </url>
     <url>
         <loc>http://blog.timmattison.com/robots.txt</loc>

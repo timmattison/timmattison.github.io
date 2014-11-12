@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Just testing an Octopress plugin from github called Octopress responsive video embed. A Vimeo video: A YouTube video: ">
+  <meta name="description" content="TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default. If you have &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,211 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-16T08:50:19-05:00" pubdate data-updated="true">Jan 16<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default.  If you have Internet access at home or at a client location you care about then you should be testing to see if they are vulnerable with <a href="https://www.grc.com/x/portprobe=32764">ShieldsUP</a>.</p>
+
+<p>I would recommend running this test ASAP.  The <a href="https://github.com/elvanderb/TCP-32764">list of affected routers</a> includes Netgear, Linksys, and even “real” Cisco hardware.  That list is not exhaustive.</p>
+
+<p>If you need to run this test via SSH I’ve whipped up a script that will spit out whether you’re vulnerable or not based on the ShieldsUP results.  It was designed to run on Mac OS (because their version of sed is busted) and tested on Mavericks and Debian Linux.  Here’s what you can run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl -L http://bit.ly/port32764 2&gt;&amp;1 | <span class="se">\</span>
+</span><span class='line'>  tr <span class="s2">&quot;\n&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
+</span><span class='line'>  tr <span class="s2">&quot;\r&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/&lt;[^&gt;][^&gt;]*&gt;/ /g&#39;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/^.*32764/32764/&#39;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/Unknown.*$//&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The response should look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Stealth
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Closed
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you get anything else then you are vulnerable.  Even if you run this test I recommend running it in a browser on the connection you’re testing just in case the script has an issue.</p>
+
+<p>If you are vulnerable then the following pieces of information about your connection may have already been compromised:</p>
+
+<ul>
+<li>Your wireless key (in the clear, not hashed)</li>
+<li>Your router admin username and password (in the clear, not hashed)</li>
+<li>Your router’s SSID and MAC address (this can be used to add your router to a database of access points with passwords)</li>
+<li>Any custom settings you have on your router (port mapping to interesting devices, tunnels you thought would be hidden on a high port number, etc)</li>
+</ul>
+
+
+<p>People have written plenty of applications that do scans of the entire Internet in days <a href="http://zmap.io/">or even hours</a>.  This is being scanned for constantly right now and you cannot hide in the four billion addresses out there.</p>
+
+<p>If you are not vulnerable but you have used the same wireless password on an older router it is probably a good idea to change your password.  Nobody knows how long this has been in the wild.  It has been in the firmware for a long time.</p>
+
+<p>If you need help post in the comments.  Good luck!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/">Fixing In-Page Analytics With Google Analytics</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-10T08:40:24-05:00" pubdate data-updated="true">Jan 10<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>After migrating to Octopress I started getting interested in my site&rsquo;s analytics again.  A co-worker told me about in-page analytics with Google Analytics and how it would show you what people were doing on your site so you could tune your layout.  We tried loading it and ran into some problems.</p>
+
+<p>First, we got the &ldquo;Loading&hellip;&rdquo; spinner for a long time:</p>
+
+<p><img src="/images/in-page-analytics/loading.png" alt="Loading..." /></p>
+
+<p>Then we got the &ldquo;Still loading&hellip;&rdquo; message that didn&rsquo;t inspire much confidence:</p>
+
+<p><img src="/images/in-page-analytics/still-loading.png" alt="Still loading..." /></p>
+
+<p>Finally, we got a popup that said &ldquo;Problem loading In-Page Analytics&rdquo;:</p>
+
+<p><img src="/images/in-page-analytics/problem-loading-in-page-analytics.png" alt="Problem loading In-Page Analytics" /></p>
+
+<p>What the problem was in my case was that I told Google Analytics that I wanted to track timmattison.com but my site redirects to blog.timmattison.com.  My two options were to make my site actually be served from timmattison.com or to change my tracking code.  I opted to change my tracking code.  I&rsquo;ll walk you through how I did it.</p>
+
+<p>NOTE: <em>You will lose your existing tracking data if you do this!</em>  If you want to keep your tracking data you&rsquo;ll need to find another way.  For me it wasn&rsquo;t a big deal because I just moved my site anyway and my analytics were reset a week or two ago already.</p>
+
+<p>Here are the steps:</p>
+
+<ul>
+<li>Log into your analytics account</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/log-into-your-analytics-account.png" alt="Log into your analytics account" /></p>
+
+<ul>
+<li>Click the admin button</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-the-admin-button.png" alt="Click the admin button" /></p>
+
+<ul>
+<li>Click &ldquo;View Settings&rdquo;</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-view-settings.png" alt="Click &quot;View Settings&quot;" /></p>
+
+<ul>
+<li><p>Scroll all the way to the bottom of the page</p></li>
+<li><p>Click &ldquo;Delete View&rdquo;</p></li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-delete-view.png" alt="Click &quot;Delete View&quot;" /></p>
+
+<ul>
+<li>Click &ldquo;Delete View&rdquo; again.  <em>At this point you&rsquo;ll lose all of your analytics history!</em></li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-delete-view-again.png" alt="Click &quot;Delete View&quot; again" /></p>
+
+<ul>
+<li>Click the admin button</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-the-admin-button.png" alt="Click the admin button" /></p>
+
+<ul>
+<li>Click the property drop down and then click &ldquo;Create new property&rdquo;</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-property-drop-down-and-click-create-new-property.png" alt="Click the property drop down and then click &quot;Create new property&quot;" /></p>
+
+<ul>
+<li><p>Re-create your property and make sure you use the site you redirect to.  In my case &ldquo;blog.timmattison.com&rdquo;, not &ldquo;timmattison.com&rdquo;.</p></li>
+<li><p>Put your new tracking code into your site.  <em>Don&rsquo;t forget to do this or tracking won&rsquo;t work at all!</em></p></li>
+</ul>
+
+
+<p>And that should do it.  Let me know if it works for you or if you need some help.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -930,103 +1135,6 @@ it is in the right location.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Migrated From Wordpress to Octopress</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-30T10:10:22-05:00" pubdate data-updated="true">Dec 30<span>th</span>, 2013</time>
-        
-           | <a href="/archives/2013/12/30/migrated-from-wordpress-to-octopress/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2013/12/30/migrated-from-wordpress-to-octopress/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I finally got tired of dealing with Wordpress and all of the baggage that comes along with it.  I&rsquo;ve migrated to Octopress and it feels nice.
-We&rsquo;ll see if it makes me post any more or not though.  It appears that this is my only post for the entire year so far.</p>
-
-<p>If you can recommend any themes that look a bit nicer than this please post in the comments.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Coming Soon: How to Easily Enable PoE (Power Over Ethernet) in Your Homebrew Projects</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-05-25T09:14:20-04:00" pubdate data-updated="true">May 25<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/05/25/coming-soon-how-to-easily-enable-poe-power-over-ethernet-in-your-homebrew-projects/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>UPDATE 2013-12-30: This is on hold permanently.  I never ended up having the time (this post is from way over a year ago) and PoE just isn&rsquo;t on my radar lately as I&rsquo;ve shifted more towards security and software testing.</p>
-
-<p>PoE (<a href="http://en.wikipedia.org/wiki/Power_over_Ethernet">Power over Ethernet</a>) is an exciting and promising technology.  I think that a lot of people take it for granted now that you can plug your IP phone into an Ethernet jack and it gets data and power over that single connection.  It&rsquo;s easy to forget that your IP phone isn&rsquo;t a real landline with convenience like this.</p>
-
-<p>One thing that has been frustrating about PoE over the years is not supply side availability but consumption side hardware for hobbyists.  You can find very cheap PoE switches online and that&rsquo;s great for all of your pre-fab gadgets (IP phones, WiFi access points, even video cameras) but implementing PoE in your own projects has been tough to say the least.</p>
-
-<p>There is now <a href="http://canakit.webstorepowered.com/Arduino-Ethernet-Power-over-Ethernet-PoE-Module/dp/B005D22FR6">an Arduino board that supports PoE</a> but if you&rsquo;re using an existing Arduino board (Mega, etc), a Netduino Plus, or a single board computer you are still out of luck if you want to use PoE so far.  Don&rsquo;t get me wrong you can do it but it takes significant electronics experience, a multitude of components, and even some luck since not all PoE mid-span devices follow the standard perfectly.  When using PoE with a non-compliant mid-span device you will certainly run into grounding issues that can range from a minor hassle to project killing either from noise or <a href="http://en.wikipedia.org/wiki/Magic_smoke">magic smoke</a>.  I haven&rsquo;t experienced magic smoke yet but I&rsquo;ve definitely seen issues with noise and FTDI boards connecting and disconnecting from USB when hooked into a PoE circuit powered by a non-compliant device.</p>
-
-<p>As far as the mid-span devices go you&rsquo;ll have to do your homework to find one that is compliant and that might even mean buying a few devices to test them out.  So far I&rsquo;ve had some luck with a <a href="http://www.phihong.com/html/psa16u-480_15_4w_1-port_poe.html">Phihong PSA16U-480</a> although there have been a few times where I&rsquo;ve gotten the network TX/RX to stop working while the PoE portion still works.  I never did conclude whether it was a circuit problem, a Phihong problem, or a cabling problem though so I would say that so far the Phihong has been the best.  On the other hand my <a href="http://www.intellinet-network.com/en-US/products/6897-power-over-ethernet-poe-injector">Intellinet 524179</a> has consistently caused my <a href="http://www.sparkfun.com/products/9873">Sparkfun FTDI basic module</a> to disconnect from USB each time power is disconnected.  The Phihong does not do that and I have concluded that it must be a grounding problem.  To be clear my FTDI module in this case is being used to connect to a circuit that is powered by PoE but the FTDI module derives its power from a USB port, not the PoE adapter, on a computer that is connected to the same ground as the Intellinet 524179.  Because of this I would steer clear of this mid-span device if possible.</p>
-
-<p>Now a company called <a href="http://silvertel.com">Silvertel</a> has released <a href="http://www.silvertel.com/poe_products.htm">a line of PoE modules</a> that finally make adding PoE to your circuits a much easier proposition.  With these new modules you only need 1 or 2 extra components to get yourself up and running which is a far cry from the 10 or more components I&rsquo;ve seen in previous designs.  Naturally you&rsquo;ll need to have direct, board level access to the magnetics for the Ethernet connection so it won&rsquo;t work in all circuits.  There are some embedded modules that don&rsquo;t expose the two taps needed on the TX and RX coil to make this all work so those modules will still be unable to use PoE right in their circuitry.</p>
-
-<p>However, if you find that you&rsquo;re working with a module that doesn&rsquo;t have the proper taps you can always get a <a href="http://www.cisco.com/en/US/prod/collateral/voicesw/ps6788/phones/ps10042/ps10044/data_sheet_c78-502433.html">PoE splitter</a>.  These devices extract PoE power and either provide 48V or some lower regulated voltage and put that into a standard barrel connector.  It&rsquo;s not elegant but it works.  You must avoid any hacks where you put raw voltage on spare Ethernet lines as tempting as they might be.  Some people can get away with it during testing but there&rsquo;s always the risk that you&rsquo;ll fry something when you unexpectedly hook up the wrong port.  Do yourself a favor and stick with the standards for consistency and safety.</p>
-
-<p>I&rsquo;m hoping to get some time next week to try Silvertel&rsquo;s modules out.  Once I do I&rsquo;ll be posting my results and, if I&rsquo;m successful, some information on how to convert your Netduino Plus into a Netduino Plus with PoE.  Either way I&rsquo;ll post updates next week and keep everyone up to date on my progress.  I expect that if it works PoE will be a major player in most or all of my future projects.</p>
-
-<p>What projects do you have that you would like to add PoE to?  What has stopped you from doing it so far other than a lack of time?  Post in the comments and let me know.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/5/">&larr; Older</a>
@@ -1060,6 +1168,14 @@ We&rsquo;ll see if it makes me post any more or not though.  It appears that thi
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
@@ -1069,14 +1185,6 @@ We&rsquo;ll see if it makes me post any more or not though.  It appears that thi
     
       <li class="post">
         <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a>
       </li>
     
   </ul>
