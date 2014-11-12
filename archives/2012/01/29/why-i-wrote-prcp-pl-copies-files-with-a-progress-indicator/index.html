@@ -1,0 +1,362 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Why I Wrote prcp.pl (Copies Files With a Progress Indicator) - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="Just last night I had a few large files I wanted to bring to a friends house. They were HD videos that I took a long time ago and were about 7 GB in &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Why I Wrote prcp.pl (Copies Files With a Progress Indicator)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-29T17:01:40-05:00" pubdate data-updated="true">Jan 29<span>th</span>, 2012</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Just last night I had a few large files I wanted to bring to a friends house.  They were HD videos that I took a long time ago and were about 7 GB in total.  I figured I would just plop them on a USB drive and in a few minutes I&rsquo;d be ready to go.</p>
+
+<p>It didn&rsquo;t quite work out so easily.  15 minutes after I tried to drag the files to the drive in Nautilus it wasn&rsquo;t apparent that anything was happening.  The progress bar had frozen, the flash drive was still doing something, and some of the files looked like they were there.  I tried to do it again on the command line using &ldquo;cp&rdquo; and got the same results (with no progress bar).  I knew there had to be a better way to copy these files and know what was actually going on but first I had to figure out what was really happening.</p>
+
+<p>The initial discovery was that when &ldquo;cp&rdquo; copies a file to a vfat (FAT32) formatted flash drive it immediately allocates enough space for the entire file to fit.  This is smart because it makes sure you can&rsquo;t get stuck copying a file to a drive where it won&rsquo;t fit.  It&rsquo;s also a pain because I can&rsquo;t open another terminal window and see the file growing as it is being written to.</p>
+
+<p>My next discovery was that disk caching was making the process difficult to understand.  Nautilus appeared to copy the file quickly at first and then it just looked like it hung completely.</p>
+
+<p>So I set out to write a script to fix these problems.  I knew I wanted all of the following things:</p>
+
+<ul>
+<li><p>A command-line utility &ndash; I wanted to be able to use this program without a GUI</p></li>
+<li><p>A progress bar &ndash; I wanted to get visual feedback without babysitting the script</p></li>
+<li><p>Files that &ldquo;grew&rdquo; while they were being copied &ndash; I wanted to be able to check it remotely in a different terminal session if necessary</p></li>
+<li><p>Predictable behavior with regard to the disk cache &ndash; I couldn&rsquo;t have the disk cache making it seem like the devices were writing very fast, then stalling, then writing very fast again</p></li>
+</ul>
+
+
+<p>After an hour I came up with prcp.pl.  It is a Perl script that uses mainly Term::ProgressBar and File::Sync to do what I needed.  It&rsquo;s not finished but it&rsquo;s very functional.  What it does is copy the file using sysread and syswrite while fsyncing the output file after each write.  This forces what you see on the disk to be consistent with what the program is copying since it largely bypasses the disk cache.</p>
+
+<p>If you&rsquo;re brave give it a try and let me know what you think.  Only use it on data that you have backed up since it has undergone minimal testing so far.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-29T17:01:40-05:00" pubdate data-updated="true">Jan 29<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Why I wrote prcp.pl (copies files with a progress indicator)"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/">
+    Just last night I had a few large files I wanted to bring to a friends house.  They were HD videos that I took a long time ago and were about 7 GB in total.  I figured I would just plop them on a USB drive and in a few minutes I'd be ready to go.
+
+It didn't quite work out so easily.  15 minutes after I tried to drag the files to the drive in Nautilus it wasn't apparent that anything was happening.  The progress bar had frozen, the flash drive was still doing something, and some of the files &hellip;
+</a>
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2012/01/29/free-tool-collection-available-on-github/" title="Previous Post: Free tool collection available on github">&laquo; Free tool collection available on github</a>
+      
+      
+        <a class="basic-alignment right" href="/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/" title="Next Post: Why I wrote dirhash.pl (a whole directory filename and contents hashing system)">Why I wrote dirhash.pl (a whole directory filename and contents hashing system) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel's Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

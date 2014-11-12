@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Fenced Code Blocks in Ordered Lists in Octopress - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown. I searched around and came across a gist that &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Fenced Code Blocks in Ordered Lists in Octopress</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-17T06:54:17-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown.  I searched around and came across <a href="https://gist.github.com/clintel/1155906">a gist that showed how to do it</a> but I still couldn&rsquo;t get it to work.</p>
+
+<p>It turns out that the parser used in Octopress is slightly different than some of the other parsers out there and treats this markdown differently.  There is <a href="https://github.com/imathis/octopress/issues/488">an issue filed for this</a> but the issue resolution is to use a workaround.</p>
+
+<p>After some experimentation I came up with some simple steps that cover all the scenarios for putting code blocks or formatted text into an ordered list while writing my blog posts.</p>
+
+<p>It is organized so that the two main scenarios include four different snippets of code.  The first snippet of code is put directly before the entire block you want to format.  The second snippet of code is put before each line of code.  The third snippet of code is put after each line of code.  The fourth snippet of code is put at the end of the entire block.</p>
+
+<ol>
+<li><p>No line numbers, no syntax highlighting.  I use this when including snippets of commands that I have run from the console.</p>
+
+<ol>
+<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code&gt;</code></li>
+<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
+<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
+</ol>
+</li>
+<li><p>No line numbers, syntax highlighting.  I use this for regular code if I don&rsquo;t care about line numbers.  Replace <code>LANGUAGE</code> with the language you are using.  For example, <code>c</code> or <code>python</code> (see the <a href="http://pygments.org/docs/lexers/">supported language list</a> for more).</p>
+
+<ol>
+<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code class="LANGUAGE"&gt;</code></li>
+<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
+<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
+</ol>
+</li>
+</ol>
+
+
+<p>If you want to do line numbers when syntax highlighting it gets messy.  You need to build a table to have the line number &ldquo;gutter&rdquo; in there.  You can do it but it is a bit more work.</p>
+
+<p>Line numbers and syntax highlighting:</p>
+
+<ol>
+<li><p>Start a table that holds everything.  This is the block you&rsquo;ll use:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&ldquo;gutter&rdquo;&gt;&lt;pre class=&ldquo;line-numbers&rdquo;&gt;</span>
+ </code></pre></div></p></li>
+<li><p>Determine how many lines are in your code snippet.  Now create a line number row for each of them.  Assuming you have five lines of code that would look like this:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;1&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;2&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;3&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;4&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;5&lt;/span&gt;</span>
+ </code></pre></div></p></li>
+<li><p>Close this column of the table and start the column for the code:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;/pre&gt;&lt;/td&gt;&lt;td class=&ldquo;code&rdquo;&gt;&lt;pre&gt;&lt;code class=&ldquo;LANGUAGE&rdquo;&gt;
+ </code></pre></div></p></li>
+<li><p>Before each line of code &ndash; <code>&lt;span class="line"&gt;</code></p></li>
+<li>After each line of code &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</code></li>
+</ol>
+
+
+<p>That should do it.  Good luck!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-17T06:54:17-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Fenced code blocks in ordered lists in Octopress"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">
+    While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown.  I searched around and came across [a gist that showed how to do it](https://gist.github.com/clintel/1155906) but I still couldn't get it to work.
+
+It turns out that the parser used in Octopress is slightly different than some of the other parsers out there and treats this markdown differently.  There is [an issue filed for this](https://github.com/imathis/octopress/issues/488) but the issue &hellip;
+</a>
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2014/07/16/common-android-wear-tasks-for-developers/" title="Previous Post: Common Android Wear tasks for developers">&laquo; Common Android Wear tasks for developers</a>
+      
+      
+        <a class="basic-alignment right" href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/" title="Next Post: Using Guice dependency injection with Quartz schedulding">Using Guice dependency injection with Quartz schedulding &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel's Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

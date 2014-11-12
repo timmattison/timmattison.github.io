@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Checking PostgreSQL to See if an Index Already Exists - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="In my last post I showed you a simple way to check to see if a constraint already existed in PostgreSQL. Now I want to show you how to do the same &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Checking PostgreSQL to See if an Index Already Exists</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-02T08:16:01-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In <a href="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">my last post</a> I showed you a simple way to check to see if a constraint already existed in PostgreSQL.  Now I want to show you how to do the same thing for an index.</p>
+
+<p>Here&rsquo;s the code but keep in mind that it makes the assumption that everything is in the <code>public</code> schema.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='plpgsql'><span class='line'><span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">FUNCTION</span> <span class="n">create_index_if_not_exists</span> <span class="p">(</span><span class="n">t_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">i_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">index_sql</span> <span class="nb">text</span><span class="p">)</span> <span class="k">RETURNS</span> <span class="nb">void</span> <span class="k">AS</span> <span class="s">$$</span>
+</span><span class='line'><span class="k">DECLARE</span>
+</span><span class='line'>  <span class="n">full_index_name</span> <span class="nb">varchar</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">schema_name</span> <span class="nb">varchar</span><span class="p">;</span>
+</span><span class='line'><span class="k">BEGIN</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">full_index_name</span> <span class="o">=</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39;_&#39;</span> <span class="o">||</span> <span class="n">i_name</span><span class="p">;</span>
+</span><span class='line'><span class="n">schema_name</span> <span class="o">=</span> <span class="s1">&#39;public&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span>
+</span><span class='line'>    <span class="k">SELECT</span> <span class="mf">1</span>
+</span><span class='line'>    <span class="k">FROM</span>   <span class="n">pg_class</span> <span class="n">c</span>
+</span><span class='line'>    <span class="k">JOIN</span>   <span class="n">pg_namespace</span> <span class="n">n</span> <span class="k">ON</span> <span class="n">n</span><span class="mf">.</span><span class="n">oid</span> <span class="o">=</span> <span class="n">c</span><span class="mf">.</span><span class="n">relnamespace</span>
+</span><span class='line'>    <span class="k">WHERE</span>  <span class="n">c</span><span class="mf">.</span><span class="n">relname</span> <span class="o">=</span> <span class="n">full_index_name</span>
+</span><span class='line'>    <span class="k">AND</span>    <span class="n">n</span><span class="mf">.</span><span class="n">nspname</span> <span class="o">=</span> <span class="n">schema_name</span>
+</span><span class='line'>    <span class="p">)</span> <span class="k">THEN</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">execute</span> <span class="s1">&#39;CREATE INDEX &#39;</span> <span class="o">||</span> <span class="n">full_index_name</span> <span class="o">||</span> <span class="s1">&#39; ON &#39;</span> <span class="o">||</span> <span class="n">schema_name</span> <span class="o">||</span> <span class="s1">&#39;.&#39;</span> <span class="o">||</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39; &#39;</span> <span class="o">||</span> <span class="n">index_sql</span><span class="p">;</span>
+</span><span class='line'><span class="k">END</span> <span class="k">IF</span><span class="p">;</span>
+</span><span class='line'><span class="k">END</span>
+</span><span class='line'><span class="s">$$</span>
+</span><span class='line'><span class="k">LANGUAGE</span> <span class="n">plpgsql</span> <span class="k">VOLATILE</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can now use the function like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_index_if_not_exists</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">,</span> <span class="s1">&#39;index_name&#39;</span><span class="p">,</span> <span class="s1">&#39;(column)&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>No duplicated data, no exceptions.  Enjoy!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-02T08:16:01-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Checking PostgreSQL to see if an index already exists"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">
+    In [my last post](http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/) I showed you a simple way to check to see if a constraint already existed in PostgreSQL.  Now I want to show you how to do the same thing for an index.
+
+Here's the code but keep in mind that it makes the assumption that everything is in the `public` schema.
+
+``` plpgsql
+CREATE OR REPLACE FUNCTION create_index_if_not_exists (t_name text, i_name text, index_sql text) &hellip;
+</a>
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/" title="Previous Post: Checking PostgreSQL to see if a constraint already exists">&laquo; Checking PostgreSQL to see if a constraint already exists</a>
+      
+      
+        <a class="basic-alignment right" href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/" title="Next Post: Simple snippets for using AWS credentials while debugging">Simple snippets for using AWS credentials while debugging &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel's Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

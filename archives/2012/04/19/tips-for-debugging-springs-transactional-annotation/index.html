@@ -1,0 +1,652 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tips for Debugging Spring's @Transactional Annotation - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="For over a week now I&rsquo;ve been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database. The &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Tips for Debugging Spring's @Transactional Annotation</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-19T10:31:14-04:00" pubdate data-updated="true">Apr 19<span>th</span>, 2012</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>For over a week now I&rsquo;ve been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database.  The code works but it doesn&rsquo;t follow the strict philosophy of service oriented architecture in the sense that there are several places that Spring and Hibernate weren&rsquo;t doing what they were expected to do and a few workarounds had to be implemented.  Since we were bringing more programmers on board I wanted to make sure that everything played by the rules and was easy to update so I had to learn a lot that I had glossed over in the past.</p>
+
+<p>With some creative Googling I found two invaluable resources that I need to give credit to:</p>
+
+<ul>
+<li><p><a href="http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1">Monitoring Declarative Transactions in Spring</a></p></li>
+<li><p><a href="http://stackoverflow.com/questions/3037006/starting-new-transaction-in-spring-bean">Starting new transactions in Spring bean</a></p></li>
+</ul>
+
+
+<p>Here&rsquo;s what I distilled out of everything I went through:</p>
+
+<ol>
+<li><p> @Transactional annotations only work on public methods.  If you have a private or protected method with this annotation there&rsquo;s no (easy) way for Spring AOP to see the annotation.  It doesn&rsquo;t go crazy trying to find them so make sure all of your annotated methods are public.</p></li>
+<li><p> Transaction boundaries are only created when properly annotated (see above) methods are called through a Spring proxy.  This means that you need to call your annotated method directly through an @Autowired bean or the transaction will never start.  If you call a method on an @Autowired bean that isn&rsquo;t annotated which itself calls a public method that is annotated <strong><em>YOUR ANNOTATION IS IGNORED</em></strong>.  This is because Spring AOP is only checking annotations when it first enters the @Autowired code.</p></li>
+<li><p> Never blindly trust that your @Transactional annotations are actually creating transaction boundaries.  When in doubt test whether a transaction really is active (see below)</p></li>
+</ol>
+
+
+<p>My first problem was that the code was annotated improperly like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * This code example is BAD code, do not use it!</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">NonWorkingMyClass</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">protected</span> <span class="n">MyService</span> <span class="n">myService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">calledFirst</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Do some setup work...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Call our internal method</span>
+</span><span class='line'>    <span class="n">calledSecond</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Transactional</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">calledSecond</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">MyObject</span> <span class="n">myObject</span> <span class="o">=</span> <span class="n">myService</span><span class="o">.</span><span class="na">retrieveLatest</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Update some object fields</span>
+</span><span class='line'>    <span class="n">myObject</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&quot;New Name&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this case someone would call NonWorkingMyClass.calledFirst(), it would then call calledSecond() and try to update the name field.  This works if your XML configuration is set up properly but it will not be in a transaction.  This can cause concurrency issues that won&rsquo;t show up until it&rsquo;s really inconvenient.</p>
+
+<p>Here&rsquo;s the working version of that code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * This code example works</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">WorkingMyClass</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">protected</span> <span class="n">MyService</span> <span class="n">myService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Transactional</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">calledFirst</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Do some setup work...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Call our internal method</span>
+</span><span class='line'>    <span class="n">calledSecond</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">calledSecond</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">MyObject</span> <span class="n">myObject</span> <span class="o">=</span> <span class="n">myService</span><span class="o">.</span><span class="na">retrieveLatest</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Update some object fields</span>
+</span><span class='line'>    <span class="n">myObject</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&quot;New Name&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when someone called WorkingMyClass.calledFirst() it would do what you expect in a transaction and the transaction boundaries are properly respected.</p>
+
+<p>This looks like a simple fix that should only take a few minutes but finding out that was the problem involved turning on lots of Spring DEBUG level logging, Googling, and actually testing to make sure the transactions were active.  Before I knew what I know now I used some code from the first site I listed to show if I was inside a transaction or not.  I was shocked and relieved when it showed that I wasn&rsquo;t because it meant the concurrency issues weren&rsquo;t due to bad programming, just bad configuration.  Here are the methods that I came up with that you can use to see if you are in a transaction and even force your code to throw an exception if it isn&rsquo;t.  This can be invaluable if someone messes up an annotation in the future or breaks your XML configuration.</p>
+
+<p>This code belongs in a utility class that is accessible from anywhere.  There are two flags you will need to put somewhere:</p>
+
+<p>transactionDebugging &ndash; Indicates we should do the transaction tests
+verboseTransactionDebugging &ndash; Indicates we should print debug messages with the transaction tests</p>
+
+<p>verboseTransactionDebugging has no effect if transactionDebugging is false.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">DebugUtils</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">transactionDebugging</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">verboseTransactionDebugging</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">showTransactionStatus</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">transactionActive</span><span class="o">())</span> <span class="o">?</span> <span class="s">&quot;[+] &quot;</span> <span class="o">:</span> <span class="s">&quot;[-] &quot;</span><span class="o">)</span> <span class="o">+</span> <span class="n">message</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Some guidance from: http://java.dzone.com/articles/monitoring-declarative-transac?page=0,1</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">transactionActive</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">ClassLoader</span> <span class="n">contextClassLoader</span> <span class="o">=</span> <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getContextClassLoader</span><span class="o">();</span>
+</span><span class='line'>          <span class="n">Class</span> <span class="n">tsmClass</span> <span class="o">=</span> <span class="n">contextClassLoader</span><span class="o">.</span><span class="na">loadClass</span><span class="o">(</span><span class="s">&quot;org.springframework.transaction.support.TransactionSynchronizationManager&quot;</span><span class="o">);</span>
+</span><span class='line'>          <span class="n">Boolean</span> <span class="n">isActive</span> <span class="o">=</span> <span class="o">(</span><span class="n">Boolean</span><span class="o">)</span> <span class="n">tsmClass</span><span class="o">.</span><span class="na">getMethod</span><span class="o">(</span><span class="s">&quot;isActualTransactionActive&quot;</span><span class="o">,</span> <span class="kc">null</span><span class="o">).</span><span class="na">invoke</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">return</span> <span class="n">isActive</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ClassNotFoundException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalArgumentException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">SecurityException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IllegalAccessException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvocationTargetException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchMethodException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// If we got here it means there was an exception</span>
+</span><span class='line'>      <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;ServerUtils.transactionActive was unable to complete properly&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">transactionRequired</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// Are we debugging transactions?</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">transactionDebugging</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="c1">// No, just return</span>
+</span><span class='line'>          <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Are we doing verbose transaction debugging?</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">verboseTransactionDebugging</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="c1">// Yes, show the status before we get to the possibility of throwing an exception</span>
+</span><span class='line'>          <span class="n">showTransactionStatus</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Is there a transaction active?</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(!</span><span class="n">transactionActive</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>          <span class="c1">// No, throw an exception</span>
+</span><span class='line'>          <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;Transaction required but not active [&quot;</span> <span class="o">+</span> <span class="n">message</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span><span class="o">);</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>In our previous code example we could use these new methods like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * This code example works</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">class</span> <span class="nc">WorkingMyClass</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">protected</span> <span class="n">MyService</span> <span class="n">myService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Transactional</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">calledFirst</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Make sure we&#39;re using transactions.  Include the name of the class and method</span>
+</span><span class='line'>    <span class="c1">//   so it is easier to track down later if there are problems.</span>
+</span><span class='line'>    <span class="n">DebugUtils</span><span class="o">.</span><span class="na">transactionRequired</span><span class="o">(</span><span class="s">&quot;WorkingMyClass.calledFirst&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Do some setup work...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Call our internal method</span>
+</span><span class='line'>    <span class="n">calledSecond</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">calledSecond</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">MyObject</span> <span class="n">myObject</span> <span class="o">=</span> <span class="n">myService</span><span class="o">.</span><span class="na">retrieveLatest</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Update some object fields</span>
+</span><span class='line'>    <span class="n">myObject</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&quot;New Name&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it.  Post in the comments if this helps you out or if you want to add to the code.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-19T10:31:14-04:00" pubdate data-updated="true">Apr 19<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/tips/'>Tips</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Tips for debugging Spring's @Transactional annotation"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="Tips"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/">
+    For over a week now I've been cleaning up some legacy code that uses Spring and Hibernate to persist and process data in a SQL database.  The code works but it doesn't follow the strict philosophy of service oriented architecture in the sense that there are several places that Spring and Hibernate weren't doing what they were expected to do and a few workarounds had to be implemented.  Since we were bringing more programmers on board I wanted to make sure that everything played by the rules and &hellip;
+</a>
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2012/04/17/how-to-get-verizons-media-manager-to-read-content-from-a-network-location/" title="Previous Post: How-To: Get Verizon's Media Manager to read content from a network location">&laquo; How-To: Get Verizon's Media Manager to read content from a network location</a>
+      
+      
+        <a class="basic-alignment right" href="/archives/2012/05/04/how-to-fix-vmware-kernel-module-compile-issues-with-vmware-workstation-8-0-3-and-linux-kernel-3-2-0/" title="Next Post: How-To: Fix VMware kernel module compile issues with VMware Workstation 8.0.3 and Linux kernel 3.2.0">How-To: Fix VMware kernel module compile issues with VMware Workstation 8.0.3 and Linux kernel 3.2.0 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel's Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

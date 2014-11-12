@@ -1,0 +1,1511 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="Recently I needed to find a way to reboot an embedded device remotely. The trick was that we didn&rsquo;t have a handy Web Power Switch and the &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/page/3">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/25/automating-cisco-switch-interactions/">Automating Cisco Switch Interactions</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-25T19:03:09-04:00" pubdate data-updated="true">Jun 25<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/25/automating-cisco-switch-interactions/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/25/automating-cisco-switch-interactions/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Recently I needed to find a way to reboot an embedded device remotely.  The trick was that we didn&rsquo;t have a handy <a href="http://www.digital-loggers.com/lpc.html">Web Power Switch</a> and the device was PoE.  I figured that I&rsquo;d just quickly slap together a script to telnet to the switch&rsquo;s management interface and simulate a few simple commands.  To make a long story short SSH was the only option which complicated things a bit.</p>
+
+<p>Fortunately for me <a href="http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">I had already written an article about this</a> but that turned out only to be a starting point as the script just wouldn&rsquo;t work out of the box with Cisco&rsquo;s SSH server.</p>
+
+<p>In the end I found a few very interesting things out about Paramiko and Cisco&rsquo;s SSH server.  Using Paramiko with a Cisco switch through out a bunch of errors like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Traceback (most recent call last):
+</span><span class='line'>  File "/Applications/PyCharm.app/helpers/pydev/pydevd.py", line 1733, in &lt;module&gt;
+</span><span class='line'>    debugger.run(setup['file'], None, None)
+</span><span class='line'>  File "/Applications/PyCharm.app/helpers/pydev/pydevd.py", line 1226, in run
+</span><span class='line'>    pydev_imports.execfile(file, globals, locals)  # execute the script
+</span><span class='line'>  File "poe-state.py", line 69, in &lt;module&gt;
+</span><span class='line'>    client.connect(switch_ip_address, username=username, password=password, look_for_keys=True)
+</span><span class='line'>  File "/usr/local/lib/python2.7/site-packages/paramiko/client.py", line 273, in connect
+</span><span class='line'>    self._auth(username, password, pkey, key_filenames, allow_agent, look_for_keys)
+</span><span class='line'>  File "/usr/local/lib/python2.7/site-packages/paramiko/client.py", line 456, in _auth
+</span><span class='line'>    raise saved_exception
+</span><span class='line'>paramiko.ssh_exception.AuthenticationException: Authentication failed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you are seeing <code>Authentication failed</code> messages while using Paramiko and you are certain your credentials are correct you may be running into the same problem I was.  The issue is that Paramiko tries to use your SSH keys to do public key authentication before it tries to use your password.  Normally, this doesn&rsquo;t cause an issue because if it fails one authentication method it just moves onto trying the next authentication method.  Due to a quirk in both Paramiko and Cisco&rsquo;s SSH server implementation Paramiko gets confused after the public key authentication failure and gives up.  I figured this out by turning on full debugging in Paramiko like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>paramiko.common.logging.basicConfig(level=paramiko.common.DEBUG)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is an incredibly handy flag if you ever need to debug Paramiko yourself so keep it around!</p>
+
+<p>Anyway, the solution is normally to add the <code>look_for_keys=False</code> option to your Paramiko connect call.  However, as I found out that works on some systems and not others.  To be certain that it only tried password authentication I needed to also add the <code>allow_agent=False</code> flag.</p>
+
+<p>The other quirk I hit was that my script initially waited forever for a response when I sent it commands that had a lot of output.  This was because the Cisco shell&rsquo;s pager was on.  Turning it off meant sending one additional command <code>terminal length 0\n</code>.</p>
+
+<p>In the end I ended up with a script that lets me check the PoE state of a port and enable/disable PoE on a per port basis.  If you need a script that does that it is included below.  Two important points to remember are that I only needed to use this on interfaces that start with <code>Gi1/0/</code> so that value is hardcoded and you&rsquo;ll need to change it if your switch is different.  You will also need to install my little Python library called <a href="https://pypi.python.org/pypi/pyuda/0.1dev">pyuda</a> because I use it to process the command-line arguments.  Rip that out if you want to simplify things.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;timmattison&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">pyuda</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">re</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">paramiko</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">time</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># For debugging only</span>
+</span><span class='line'><span class="c"># paramiko.common.logging.basicConfig(level=paramiko.common.DEBUG)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># This is part of the regex we use to look for the interfaces we care about</span>
+</span><span class='line'><span class="n">interface_regex</span> <span class="o">=</span> <span class="s">&quot;Gi1\/0\/&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># These are the operation we support</span>
+</span><span class='line'><span class="n">status_operation</span> <span class="o">=</span> <span class="s">&quot;status&quot;</span>
+</span><span class='line'><span class="n">on_operation</span> <span class="o">=</span> <span class="s">&quot;on&quot;</span>
+</span><span class='line'><span class="n">off_operation</span> <span class="o">=</span> <span class="s">&quot;off&quot;</span>
+</span><span class='line'><span class="n">valid_operations</span> <span class="o">=</span> <span class="p">[</span><span class="n">status_operation</span><span class="p">,</span> <span class="n">on_operation</span><span class="p">,</span> <span class="n">off_operation</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_string</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Send the su command</span>
+</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Create a new receive buffer</span>
+</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">while</span> <span class="ow">not</span> <span class="n">wait_string</span> <span class="ow">in</span> <span class="n">receive_buffer</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Flush the receive buffer</span>
+</span><span class='line'>        <span class="n">receive_buffer</span> <span class="o">+=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">receive_buffer</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">validate_operation</span><span class="p">(</span><span class="n">operation</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Is this an operation we support?</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">operation</span> <span class="ow">in</span> <span class="n">valid_operations</span><span class="p">):</span>
+</span><span class='line'>        <span class="c"># No, tell them and bail out</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">operation</span> <span class="o">+</span> <span class="s">&quot; is not a valid operation&quot;</span>
+</span><span class='line'>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the command-line arguments</span>
+</span><span class='line'><span class="n">switch_ip_address</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">port_number</span> <span class="o">=</span> <span class="n">pyuda</span><span class="o">.</span><span class="n">get_command_line_arguments</span><span class="p">([</span><span class="s">&quot;Switch IP address&quot;</span><span class="p">,</span> <span class="s">&quot;Admin username&quot;</span><span class="p">,</span> <span class="s">&quot;Admin password&quot;</span><span class="p">,</span> <span class="n">status_operation</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="n">on_operation</span> <span class="o">+</span> <span class="s">&quot;, or &quot;</span> <span class="o">+</span> <span class="n">off_operation</span><span class="p">,</span> <span class="s">&quot;Port number&quot;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the operation makes sense</span>
+</span><span class='line'><span class="n">validate_operation</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create an SSH client</span>
+</span><span class='line'><span class="n">client</span> <span class="o">=</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure that we add the remote server&#39;s SSH key automatically</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">set_missing_host_key_policy</span><span class="p">(</span><span class="n">paramiko</span><span class="o">.</span><span class="n">AutoAddPolicy</span><span class="p">())</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Connect to the client</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">switch_ip_address</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">allow_agent</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">look_for_keys</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a raw shell</span>
+</span><span class='line'><span class="n">shell</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke_shell</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for the prompt</span>
+</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Disable more</span>
+</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;terminal length 0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Which command are we trying to run?</span>
+</span><span class='line'><span class="k">if</span><span class="p">((</span><span class="n">operation</span> <span class="o">==</span> <span class="n">on_operation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">operation</span> <span class="o">==</span> <span class="n">off_operation</span><span class="p">)):</span>
+</span><span class='line'>    <span class="c"># Trying to do on or off</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Send the &quot;conf t&quot; command</span>
+</span><span class='line'>    <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;conf t</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;(config)#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Send the interface command</span>
+</span><span class='line'>    <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;interface Gi1/0/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">port_number</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;(config-if)#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Build the power command</span>
+</span><span class='line'>    <span class="n">power_command</span> <span class="o">=</span> <span class="s">&quot;power inline &quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># What kind of operation is this?</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">operation</span> <span class="o">==</span> <span class="n">off_operation</span><span class="p">):</span>
+</span><span class='line'>        <span class="c"># Power off, &quot;never&quot; means off</span>
+</span><span class='line'>        <span class="n">power_command</span> <span class="o">+=</span> <span class="s">&quot;never&quot;</span>
+</span><span class='line'>    <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Power on, &quot;auto&quot; means on (there are other options but this is the simplest)</span>
+</span><span class='line'>        <span class="n">power_command</span> <span class="o">+=</span> <span class="s">&quot;auto&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Add the carriage return</span>
+</span><span class='line'>    <span class="n">power_command</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Send the power command</span>
+</span><span class='line'>    <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">power_command</span><span class="p">,</span> <span class="s">&quot;(config-if)#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'><span class="k">elif</span><span class="p">(</span><span class="n">operation</span> <span class="o">==</span> <span class="n">status_operation</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Get the status of all of the PoE ports</span>
+</span><span class='line'>    <span class="n">power_data</span> <span class="o">=</span> <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;show power inline</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Split the data into lines</span>
+</span><span class='line'>    <span class="n">power_data_lines</span> <span class="o">=</span> <span class="n">power_data</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># We haven&#39;t found what we&#39;re looking for yet</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Loop through all of the lines</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">power_data_line</span> <span class="ow">in</span> <span class="n">power_data_lines</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Does this look like the interface we want?</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;^&quot;</span> <span class="o">+</span> <span class="n">interface_regex</span> <span class="o">+</span> <span class="n">port_number</span> <span class="o">+</span> <span class="s">&quot;\s&quot;</span><span class="p">,</span> <span class="n">power_data_line</span><span class="p">)):</span>
+</span><span class='line'>            <span class="c"># No, keep going</span>
+</span><span class='line'>            <span class="k">continue</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Found the interface we want, split up the fields</span>
+</span><span class='line'>        <span class="n">power_data_fields</span> <span class="o">=</span> <span class="n">power_data_line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Get the second field which is the power state field and print it</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">power_data_fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># We found what we needed</span>
+</span><span class='line'>        <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Get out of the for loop</span>
+</span><span class='line'>        <span class="k">break</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Did we find what we needed?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># No, let the user know</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Did not find port &quot;</span> <span class="o">+</span> <span class="n">port_number</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">else</span><span class="p">:</span>
+</span><span class='line'>    <span class="c"># This is an operation we didn&#39;t handle</span>
+</span><span class='line'>    <span class="k">print</span> <span class="n">operation</span> <span class="o">+</span> <span class="s">&quot; not handled&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Close the SSH connection</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/20/advanced-port-forwarding-with-ssh/">Advanced Port Forwarding With SSH</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-20T06:38:14-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/20/advanced-port-forwarding-with-ssh/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/20/advanced-port-forwarding-with-ssh/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><strong><em>NOTE</em></strong>: This has all been done on a Mac running OS 10.9.  YMMV on other operating systems or versions.</p>
+
+<p>If you&rsquo;ve ever had to use an SSH server as a jump off point, possibly to get to machines that don&rsquo;t have a public IP address, then you know that it can be complicated to set up, manage, and annoying if you need to access a lot of machines and/or a lot of different services.  Typically, using local port forwarding you can do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh -L8080:REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That will let you connect to localhost on port 8080 to get to <code>REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service.  What if you needed to get to two services?  You start stacking them up:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh -L8080:REMOTE_PRIVATE_SERVER:80 -L8181:ANOTHER_REMOTE_PRIVATE_SERVER:80 USER@REMOTE_PUBLIC_SERVER</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can get to <code>REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service and <code>ANOTHER_REMOTE_PRIVATE_SERVER</code>&rsquo;s port 80 service.  You just have to configure your applications to use ports 8080 and 8181 on localhost instead of port 80 on the two remote hosts.</p>
+
+<p>Wouldn&rsquo;t it be nice if you could not worry about re-mapping ports and could just connect to <code>REMOTE_PRIVATE_SERVER</code> and <code>ANOTHER_REMOTE_PRIVATE_SERVER</code> as if they were hosts on your network?  SSH does offer you a way to do this but I have never seen it documented anywhere.  There is <a href="http://www.securitybulletins.com/mediawiki/index.php/SSH_Tunnelling#Using_SSH_to_build_a_Virtual_Private_Network_.28VPN.29">a way to create a VPN using pppd</a> and <a href="http://www.securitybulletins.com/mediawiki/index.php/SSH_Tunnelling#Using_SSH_to_emulate_a_SOCKS_proxy">a way to use SOCKS</a> but those are no fun.  I don&rsquo;t want to use pppd and I have applications that don&rsquo;t support SOCKS.</p>
+
+<p>rsync and other applications that depend on SSH can be particularly tricky.  On top of the command-line options you need to pass to your main application you need to pass options to SSH directly (not so bad), use each applications special syntax to pass those options to SSH (really bad), or convince the application to shell out to the OS with a specific command-line you&rsquo;ve concocted for SSH (also really bad).</p>
+
+<p>Instead, what I do is I make use of the 127.0.0.0/8 address space that is available to everyone but rarely used.  You can always use 127.0.0.1 to access your local machine but you may not realize that you can bind to all of the rest of the addresses in that space.</p>
+
+<p>I need to set up some terminology so this will be easier to discuss.  The machine that you&rsquo;re SSHing will be the &ldquo;source machine&rdquo;.  The machine that is publicly accessible on the remote network that you SSH into will be called the &ldquo;gateway machine&rdquo;.  The machine that provides the remote service that only has a private IP address will be called the &ldquo;destination machine&rdquo;.</p>
+
+<p>My first use case is that the source machine wants to connect to a web server on the destination machine but I want to do it on port 80.  We can do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">sudo ifconfig lo0 alias 127.0.0.2</span>
+</span><span class='line'><span class="go">sudo ssh -L127.0.0.2:80:DESTINATION_MACHINE:80 user@GATEWAY_MACHINE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That first line creates an alias IP address of <code>127.0.0.2</code> on your <code>lo0</code> interface.  Then we ssh to the gateway machine and port forward the destination machine&rsquo;s port 80 to <code>127.0.0.1</code>.  Since 80 is a privileged port you need to sudo your ssh session.</p>
+
+<p>Now instead of having to point our browser to something like <code>localhost:9000</code> we can point our browser directly to <code>127.0.0.2</code>.  What can we do this to make it even better?  Create a host entry for <code>127.0.0.2</code> that gives it a descriptive name like <code>remote_application_server</code>.</p>
+
+<p>Is that not enough?  How about this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">sudo ifconfig lo0 alias 127.0.0.2</span>
+</span><span class='line'><span class="go">sudo ssh -L127.0.0.2:22:DESTINATION_MACHINE:22 user@GATEWAY_MACHINE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All that changed here is the port number.  It was 80 and now it is 22 which is the ssh port.  Now you can ssh to this machine in one step like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh user@127.0.0.2</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This also means that you can sftp, scp, and rsync directly to that IP address.  Without this trick to rsync you&rsquo;d need to do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">rsync -rvz -e &#39;ssh -p 2222&#39; ./dir user@host:/dir</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It may not seem like much but if you have to do it a lot it can get ugly.  Especially since it is one of those options you always forget since you don&rsquo;t use it that often.</p>
+
+<p>I&rsquo;m thinking about scripting the IP aliasing and port forwarding so that it can be specified in a simple configuration file.  If you&rsquo;re interested in that post in the comments below and let me know!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Forcing Java&#8217;s Logger to Work, Even When It Doesn&#8217;t Want To</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-19T18:31:42-04:00" pubdate data-updated="true">Jun 19<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/19/forcing-javas-logger-to-work-even-when-it-doesnt-want-to/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you do any Java development I&rsquo;m sure you&rsquo;ve run into a situation where the logger just does not do what you want it to do.  Sometimes you can&rsquo;t get it to print messages other than <code>INFO</code> level messages, sometimes you can&rsquo;t get it to print anything to the console at all.</p>
+
+<p>In order to get around this I have a few convenience methods that I&rsquo;ve migrated from project to project that I wanted to share.  Soon I&rsquo;ll put them in <a href="https://github.com/timmattison/jayuda">Jayuda</a> when I revamp it.  For now, you can just copy them from the blocks below.</p>
+
+<p><strong><em>NOTE:</em></strong> All of this info is for plain <code>java.util.logging</code>.  If you are using another logging system this probably won&rsquo;t work for you.</p>
+
+<p>The first function makes sure that there is at least one console logger in your logging system.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">forceConsoleLogging</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Get the root logger instance</span>
+</span><span class='line'>    <span class="n">LogManager</span> <span class="n">logManager</span> <span class="o">=</span> <span class="n">LogManager</span><span class="o">.</span><span class="na">getLogManager</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">Logger</span> <span class="n">rootLogger</span> <span class="o">=</span> <span class="n">logManager</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Set the default logging level to all</span>
+</span><span class='line'>    <span class="n">rootLogger</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Loop and see if a console handler is already installed</span>
+</span><span class='line'>    <span class="kt">boolean</span> <span class="n">consoleHandlerInstalled</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">:</span> <span class="n">rootLogger</span><span class="o">.</span><span class="na">getHandlers</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">handler</span> <span class="k">instanceof</span> <span class="n">ConsoleHandler</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">consoleHandlerInstalled</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Is a console handler already installed?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">consoleHandlerInstalled</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Yes, do nothing</span>
+</span><span class='line'>        <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// No console handler installed, install one</span>
+</span><span class='line'>    <span class="n">rootLogger</span><span class="o">.</span><span class="na">addHandler</span><span class="o">(</span><span class="k">new</span> <span class="n">ConsoleHandler</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The second function is a bit more aggressive.  It iterates over your console loggers and makes sure all of them log everything.  You can use this in a pinch when you&rsquo;re having serious issues and you need to see everything.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logEverything</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Get the logger instance</span>
+</span><span class='line'>        <span class="n">LogManager</span> <span class="n">logManager</span> <span class="o">=</span> <span class="n">LogManager</span><span class="o">.</span><span class="na">getLogManager</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Logger</span> <span class="n">rootLogger</span> <span class="o">=</span> <span class="n">logManager</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Set the default logging level to all</span>
+</span><span class='line'>        <span class="n">rootLogger</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Loop and see if any console handlers are already installed</span>
+</span><span class='line'>        <span class="n">List</span><span class="o">&lt;</span><span class="n">ConsoleHandler</span><span class="o">&gt;</span> <span class="n">consoleHandlers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">ConsoleHandler</span><span class="o">&gt;();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">Handler</span> <span class="n">handler</span> <span class="o">:</span> <span class="n">rootLogger</span><span class="o">.</span><span class="na">getHandlers</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">handler</span> <span class="k">instanceof</span> <span class="n">ConsoleHandler</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">consoleHandlers</span><span class="o">.</span><span class="na">add</span><span class="o">((</span><span class="n">ConsoleHandler</span><span class="o">)</span> <span class="n">handler</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Is a console handler already installed?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">consoleHandlers</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// No, create one.  Add it to the list and to the root logger.</span>
+</span><span class='line'>            <span class="n">Handler</span> <span class="n">consoleHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConsoleHandler</span><span class="o">();</span>
+</span><span class='line'>            <span class="n">consoleHandlers</span><span class="o">.</span><span class="na">add</span><span class="o">((</span><span class="n">ConsoleHandler</span><span class="o">)</span> <span class="n">consoleHandler</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">rootLogger</span><span class="o">.</span><span class="na">addHandler</span><span class="o">(</span><span class="n">consoleHandler</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Loop through all console handlers and make them log everything</span>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">ConsoleHandler</span> <span class="n">consoleHandler</span> <span class="o">:</span> <span class="n">consoleHandlers</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">consoleHandler</span><span class="o">.</span><span class="na">setLevel</span><span class="o">(</span><span class="n">Level</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you do this be prepared to see TONS of output including output from all of the libraries you use.  Most of the time this is overkill.  But sometimes when the logger just won&rsquo;t do what you want no matter how hard you try this will save your sanity.</p>
+
+<p>Have better ways to do this?  Did this get you out of a jam?  Please post in the comments below.</p>
+
+<p>UPDATE: <a href="https://github.com/timmattison/jayuda/commit/1484b47d72c6f5943340eebc8d78fafaa9604485">Added to Jayuda</a>!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">A Collection of Software Testing and Dependency Injection Videos That All Developers Should Watch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-19T07:06:23-04:00" pubdate data-updated="true">Jun 19<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/19/a-collection-of-software-testing-and-dependency-injection-videos-that-all-developers-should-watch/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I often get asked about what recommendations I would make to people to make them better developers.  After working on a very large project last year I have consistently told people that no matter what platform they use they should work on and think about two things: software testing and dependency injection.</p>
+
+<p>Software testing includes unit tests, integration tests, regression tests, human testing, and a lot more.  It is a broad set of topics that is hard to distill into just a few bits that will always be applicable.</p>
+
+<p>But how about getting people to write code that is testable?  Testability is an easy concept to gloss over.  While there is a stigma associated with writing code that has no test coverage there is nowhere near as much of a stigma for having to jump through endless hoops to get your software to be tested.  In fact, these hoops combined with time pressure are probably why a lot of developers don&rsquo;t do proper testing.</p>
+
+<p>There are three things that you can do immediately to start writing more testable code.  First, <a href="https://en.wikipedia.org/wiki/SOLID_(object-oriented_design">learn the SOLID principle</a> and if you need tighter focus then just start with S (single responsibility principle) and D (dependency inversion principle).  Second, use a <a href="https://en.wikipedia.org/wiki/Dependency_injection">dependency injection</a> framework (AKA &ldquo;DI framework&rdquo;).  Third, try to follow the <a href="https://en.wikipedia.org/wiki/Law_of_Demeter">Law of Demeter</a> as much as possible.</p>
+
+<p>Here are some dependency injection framework recommendations:</p>
+
+<ul>
+<li>For Java developers I recommend <a href="https://code.google.com/p/google-guice/">Guice</a>.</li>
+<li>For Android developers I recommend <a href="https://square.github.io/dagger/">Dagger</a>.</li>
+<li>For .NET developers I recommend <a href="http://www.ninject.org/">Ninject</a>.</li>
+</ul>
+
+
+<p>Those Wikipedia links are only meant for basic information on the topics.  Once you&rsquo;re ready to learn about these principles you can get a serious head start by watching a few videos.  The videos by Misko Hevery are some of my favorites and they&rsquo;re 30 minutes versus 60 minutes which is a little easier to carve out of your day.  I suggest watching those first.</p>
+
+<p>These videos are all part of the <a href="https://www.youtube.com/channel/UCtXKDgv1AVoG88PLl8nGXmw">Google Tech Talk</a> series.</p>
+
+<p>30 minute sessions with Misko:</p>
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=RlfLCWKxHJ0">Don’t look for things</a> &ndash; Discusses how the object model of a system may be broken if you’re not directly handed what your object needs to get its job done.  In the best case this is handled automatically by dependency injection which makes it so you’re never shuffling in and out constructor argument lists as you swap implementations.</li>
+<li><a href="http://www.youtube.com/watch?v=-FRm3VPhseI">Global State and Singletons</a> &ndash; Discusses how global state can silently break tests and how to try to avoid it</li>
+<li><a href="http://www.youtube.com/watch?v=wEhu57pih5w">Unit Testing</a> &ndash; Discusses how unit tests should be structured and that the goal should be to have unit tests that run so fast that you’re running them all the time.  Integration tests and user simulations will still take longer but you should always try to write unit tests that run in milliseconds when possible.  An interesting fact that he drops in this talk, I think, is that Google’s set of tests for a project are often as large as or even larger than the actual project itself.</li>
+<li><a href="http://www.youtube.com/watch?v=4F72VULWFvc">Inheritance, Polymorphism, &amp; Testing</a> &ndash; Discusses how dense code can be unraveled with polymorphism and how that can make it easier to test and get complete testing coverage</li>
+</ul>
+
+
+<p>60 minute sessions:</p>
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=hBVJbzAagfs">Big Modular Java with Guice</a> &ndash; Discusses how to use Guice to write maintainable, large Java projects</li>
+<li><a href="http://www.youtube.com/watch?v=0iSB0L9avmg">Java on Guice: Dependency Injection, the Java Way</a> &ndash; One of the earlier Guice talks that compares and contrasts using Guice with the non-DI way</li>
+<li><a href="https://www.youtube.com/watch?v=XcT4yYu_TTs">How to Write Clean, Testable Code</a> &ndash; Discusses the Law of Demeter, and getting buried in setup code</li>
+</ul>
+
+
+<p>Have any other recommendations?  Please post them in the comments below!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-18T09:10:21-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Are you a developer?  Do you have trouble remembering what you did yesterday when it is time for your daily standup?  Do you use git?  Do you commit regularly?  If you answered yes to those questions you can now quickly figure out what you did yesterday with the help of <a href="https://github.com/timmattison/gitrdun">gitrdun</a>.</p>
+
+<p>gitrdun simply looks for git repos in your home directory, lists all of the commits in those repos from yesterday, and then prints that on the screen.  The current iteration is the &ldquo;5 minute version&rdquo;.  It literally took 5 minutes to write.  The &ldquo;5 hour version&rdquo; may make the formatting a bit nicer and add some features but don&rsquo;t hold your breath for that to come out.</p>
+
+<p>Don&rsquo;t want to fork the repo?  No problem, it&rsquo;s just a one liner anyway.  Use this alias&hellip;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>alias gitrdun="clear ; PAGER=\"cat\" find ~ -name \".git\" -type d -exec sh -c \"cd '{}' ; echo '{}'; git log --all --since='yesterday'\" \; | less"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This clears the screen, uses &ldquo;cat&rdquo; as the pager so that the pager doesn&rsquo;t clear the screen between repo checks, finds all git repos, goes into their directory that is under version control, and then lists all commits on all branches from yesterday.</p>
+
+<p>Enjoy!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Octal and Hexadecimal IP Addresses With Ping</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-18T07:12:14-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Have you ever seen a system print out an IP address like this?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Disconnected from 010.000.001.133</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you try to ping this IP address you&rsquo;ll get quite interesting results.  What the IP address should be is 10.0.1.133 but what ping reports that it is if you run the command with those leading zeroes included looks very odd.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 010.000.001.133
+</span><span class='line'>PING 010.000.001.133 (8.0.1.133): 56 data bytes
+</span><span class='line'>Request timeout for icmp_seq 0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>See that <code>8.0.1.133</code> IP address that it is trying to reach?  It turns out that if you put leading zeroes into an IP address that you pass to <code>ping</code>, and possibly other network tools, it treats those numbers as <a href="https://en.wikipedia.org/wiki/Octal">octal</a>.  Octal isn&rsquo;t something most end-users deal with unless they&rsquo;re reminiscing about their old <a href="https://en.wikipedia.org/wiki/CompuServe">Compuserve</a> addresses.</p>
+
+<p>In any case, if you find yourself trying to ping a machine with an IP address that has leading zeroes make sure you remove them!</p>
+
+<p>This got me wondering what other weird things ping might do with IP addresses so I played around a bit and saw that it actually allows you to enter them in hex as well.  This is useful for IPv6 but really strange for IPv4.  Try it out and try to ping the above address with the first octet in hex:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 0xa.0.1.133
+</span><span class='line'>PING 0xa.0.1.133 (10.0.1.133): 56 data bytes</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sure enough it converts <code>0xa</code> into <code>10</code>.  I&rsquo;m not sure I&rsquo;ll ever use that feature but its good to know what ping does to its input in the even that some other weird situation pops up.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/">My Problem With &#8216;the Problem With Altcoins&#8217;</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-18T00:00:00-04:00" pubdate data-updated="true"></time>
+        
+           | <a href="/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/my-problem-with-the-problem-with-altcoins/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>TL;DR &ndash; The author&rsquo;s strongest argument is that some altcoins are junk.  This unfortunately then morphs into saying that all altcoins are junk and none of them can ever be good.  In my opinion that is going too far.</p>
+
+<p>On the Google Plus Bitcoin community someone posted a link to <a href="http://themisescircle.org/blog/2013/08/22/the-problem-with-altcoins/">The Problem with Altcoins</a>.  I think this article is complete link bait based on the fact that the first paragraph is titled &ldquo;Why no altcoin can succeed&rdquo; but nevertheless I&rsquo;d like to address a few of the things in it because they could be confusing to people new to the cryptocurrency space.</p>
+
+<p>I&rsquo;ll preface this post by saying that I hold a few Bitcoins, some Litecoins, and some Feathercoins.  I bought most of them to play around with and not as a serious investment so I&rsquo;m not here to tell you that any of these things are a solid investment.  If you are like me you want to get into cryptocurrencies because they&rsquo;re interesting and understanding them gives me new ways to approach problems that I see in software development.</p>
+
+<p>Issue #1:</p>
+
+<blockquote><p>Quite simply, a medium of exchange that is more widely accepted on the market is more useful than one which is not. This is known as the network effect. Thus, an initial imbalance between two nearly equal media of exchange will benefit whichever is more widely accepted until a single one overwhelms the rest.</p></blockquote>
+
+<p>This paragraph does quite a good job of shooting itself down unknowingly.  I agree with the statement &ldquo;a medium of exchange that is more widely accepted on the market is more useful than one that is not&rdquo;.  The leap that it then goes to make isn&rsquo;t very well thought out.  Just because something is better does not mean that eventually it will be the only thing.  If that was the case then why are there so many different brands of any product you can think of?</p>
+
+<p>The end of this paragraph is its complete downfall.  It states &ldquo;until a single one overwhelms the rest&rdquo;.  There is no example of this happening as far as I know.  Is there only one currency in the world?  You might think the world currency is the US Dollar but I can assure you it isn&rsquo;t.  Admittedly it does say it will &ldquo;overwhelm&rdquo; the rest and not &ldquo;extinguish&rdquo; the rest but I believe overwhelm here was meant to imply that the others would disappear.</p>
+
+<p>My stance: There is room for more than one physical currency.  There is room for more than one digital currency.</p>
+
+<p>Issue #2:</p>
+
+<blockquote><p>Furthermore, a truly great innovation would much better serve people by being incorporated into future versions of Bitcoin rather than by requiring them to switch to something else</p></blockquote>
+
+<p>This makes the assumption that just because a feature benefits someone that it will be incorporated.  Since the interests of each individual are different you could have features that benefit some (shorter confirmation times, lower transaction fees, anonymity, etc) that do not benefit others.  In fact, one of these features mentioned later is Zerocoin which provides anonymous transactions.  Some would argue that if this was incorporated into Bitcoin that it would set it back a few years as the media picked it up again as the anonymous currency used by drug dealers and terrorists.</p>
+
+<p>Other kinds of transactions like creating &ldquo;<a href="http://bitcoin.stackexchange.com/questions/10986/what-is-meant-by-bitcoin-dust">dust</a>&rdquo; to sign arbitrary bits of data to use the block chain as a kind of digital notary are probably best implemented in a different system altogether.</p>
+
+<p>My stance: Not all features should be incorporated into Bitcoin.  Blockchain bloat is already a bit of a problem and I think we need to minimize it.</p>
+
+<p>Issue #3:</p>
+
+<blockquote><p>Can anyone really expect to create something of value by rereleasing Bitcoin under a new name and with a few tiny changes to its source code?</p></blockquote>
+
+<p>Actually, I&rsquo;m in total agreement here.  There are altcoins that are just knockoffs that don&rsquo;t add any value.  Don&rsquo;t translate my issue with the statement &ldquo;Why no altcoin can succeed&rdquo; into &ldquo;All altcoins should succeed&rdquo;.  I think the market is the place to decide that.</p>
+
+<p>My stance: Some altcoins are useful and interesting.  Some altcoins are not.  I doubt <a href="https://en.wikipedia.org/wiki/Dogecoin">Dogecoin</a> will survive as long as Litecoin.</p>
+
+<p>Issue #4:</p>
+
+<blockquote><p>What is a cryptocurrency actually for? I say that its purpose is to become money. It is obvious that creating altcoins impedes that purpose. Altcoins can only be explained if we believe the purpose of cryptocurrencies is to make money rather than to become money.</p></blockquote>
+
+<p>(Premining)[<a href="https://bitcointalk.org/index.php?topic=194023.0">https://bitcointalk.org/index.php?topic=194023.0</a>] has rightly tainted people&rsquo;s views of altcoins.  If you premine your new cryptocurrency then you are probably just in it for the money.  Granted maybe not enough people knew about your coin when it started but with a public announcement and some planning you can avoid this.  Going back to my previous point I don&rsquo;t understand why Bitcoin gets a pass on this.  What if the original motivation was exactly the same as the altcoins that are guilty of premining?  We can&rsquo;t know if that was or was not the case until we know the true identity of Satoshi Nakamoto.</p>
+
+<p>A lot of the time when people tell me something is &ldquo;obvious&rdquo; it&rsquo;s because they&rsquo;re trying to glaze over the fact that their explanation and understanding of the concept is lacking.  I prefer proof rather than assertions.</p>
+
+<p>My stance: Same as issue #3.  Some altcoins are junk, some altcoins are not.  The market will decide which ones are the winners.  The author references the Wikipedia page for &ldquo;<a href="https://en.wikipedia.org/wiki/Motivated_reasoning">motivated reasoning</a>.  Indeed either side of the argument could say the other is doing this especially when they assert the obviousness of the fact that they are right.</p>
+
+<p>Issue #5:</p>
+
+<blockquote><p>If you try to compete with the best currency with another one that’s exactly the same, that makes yours the worse currency, so you really should not have bothered.</p></blockquote>
+
+<p>Another partial agreement here so this is a quick one.  If your currency is exactly the same as Bitcoin then you shouldn&rsquo;t have bothered.  There are people who are trying to differentiate and that&rsquo;s the kind of competition we should welcome.  Starting a new altcoin gives you the freedom to try out these new ideas and see if they stick.  Getting a feature into Bitcoin takes a lot of work and an altcoin can be a proving ground for that work.</p>
+
+<p>My stance: Altcoins that don&rsquo;t innovate are junk. If you&rsquo;re going to create an altcoin it better have a few differentiators to be taken seriously.</p>
+
+<p>Issue #6:</p>
+
+<blockquote><p>Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.</p></blockquote>
+
+<p>I have another post that touches this topic and explains <a href="http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">why all proof of work algorithms need to use memory bound functions</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-17T20:09:15-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Recently I read an article called <a href="http://en.wikipedia.org/wiki/Memory_bound_function">&ldquo;The Problem with Altcoins&rdquo;</a> and the author states this about Litecoin:</p>
+
+<blockquote><p>Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.</p></blockquote>
+
+<p>This is something that I hear a lot and it needs to be cleared up.  There are some things <a href="http://en.wikipedia.org/wiki/Application-specific_integrated_circuit">ASICs</a> are not good at.  Where ASICs really shine are problems where you can design a pipeline that the data goes through in a mostly fixed order.  <a href="http://en.wikipedia.org/wiki/SHA-2">SHA256</a> is perfect for ASICs.  Each step of the algorithm requires very little storage.  If I&rsquo;m counting correctly you need 64 32-bit words, 16 16-bit words, and somewhere around 22 32-bit registers.</p>
+
+<p>We&rsquo;re talking about a really small amount of storage here.  ((64 * 4) + (16 * 2) + (22 * 4)) == 376 bytes</p>
+
+<p>Even if we bump it up to 512 bytes it is still a miniscule amount of storage in the grand scheme of all of the kinds of storage that we use today (registers, L1 cache, L2 cache, L3 cache, RAM, and hard drive space).  Because of this it is cheap to make it very, very fast to read and write this data.  Physically it occupies little space so you can put the components for this storage exactly where it needs to go on the chip.</p>
+
+<p>Litecoin, and several other cryptocurrencies, use <a href="http://en.wikipedia.org/wiki/scrypt">scrypt</a> instead of SHA256.  This algorithm was supposed to make mining only feasibly on CPUs.  Modern GPUs though were found to have a bit of an edge over CPUs and the memory requirements weren&rsquo;t high enough to really take GPUs out of the running.</p>
+
+<p>Now there is <a href="http://cpucoinlist.com/cryptocurrency-algorithms/x11/">X11</a>, and <a href="http://cpucoinlist.com/cryptocurrency-algorithms/cryptonight/">CryptoNight</a> which are even harder to implement on ASICs&hellip;</p>
+
+<p>But anyway what I really want to address is this particular section of the statement:</p>
+
+<blockquote><p>an ASIC machine could be produced with a shared memory</p></blockquote>
+
+<p>This is a fundamental misunderstanding of computer architecture.  An ASIC is super fast because it doesn&rsquo;t have a pool of shared memory.  The memory is exactly where it needs to be for each stage.</p>
+
+<p>Do you know what the technical term for &ldquo;ASICs with shared memory&rdquo; is?  A general purpose CPU.  :)  Yes, an ASIC with a pool of memory like this would still have some advantage but not the orders of magnitude we see now.  This is because it would be bound to the same limits a CPU is bound to which is the relatively slow access time of RAM versus the CPU&rsquo;s clock speed.</p>
+
+<p>What can we do to make sure mining stays CPU bound?  We should be using <a href="https://en.wikipedia.org/wiki/Memory_bound_function">memory bound functions</a> which are sometimes also called memory hard problems.  These memory bound functions should require enormous amounts of memory.  More than a Raspberry Pi has, more than a BeagleBone Black, more than a GPU.  I mean ridiculous gobs of memory.  Why not?  If the proof of work function can be adjusted, and it has to be to keep up with Moore&rsquo;s law, we can adjust the work to be easy in the sense that it requires few iterations but tons of memory.  As CPUs and memory get faster and people join the network we just adjust it as we always have.</p>
+
+<p>X11 and CryptoNight seem like a good start but there are still problems with them.  It turns out there is one big benefit from algorithms that are not profitable on CPUs and that is that bot net operators are much less likely to waste their bot net time on mining those currencies.  I have a feeling that X11 and CryptoNight are very profitable to mine on bot nets right now.</p>
+
+<p>Is there a solution to level the playing field?  Considering the bot net angle what does that even mean?  I believe that there is a solution that would allow people to participate with CPUs, not require GPU and ASIC investments, and would prevent bot net operators from profiting on mining.  I&rsquo;ve been thinking about this for over a year and I&rsquo;m getting very close to having what I think is a workable solution.  There still is one hole in it but I think that it may be better than what is out there.  Stay tuned and when I&rsquo;m ready I&rsquo;ll post it on my blog.</p>
+
+<p>BTW, I started this blog post on 2014-01-10 and just finished it on 2014-06-17 so it may be a while before I release something.  Be patient!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-17T09:19:34-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Have you used <a href="http://blog.chromium.org/2011/05/remote-debugging-with-chrome-developer.html">Chrome&rsquo;s remote debugging feature</a>?  It is a handy tool for debugging JavaScript in another tab/window.</p>
+
+<p>That&rsquo;s nice, but have you ever wanted to debug JavaScript that was running on another machine running Chrome?  If so, and you&rsquo;re running on Mac OS, you&rsquo;ve come to the right place.</p>
+
+<p>The first step in this process is to disable <a href="http://joshuamcginnis.com/2011/02/28/how-to-disable-same-origin-policy-in-chrome/">Chrome&rsquo;s same origin policy</a>.  This may not be necessary in your application but I&rsquo;ve always found I needed to do it in mine.</p>
+
+<p>Now you&rsquo;ll need to make sure you have <a href="http://www.dest-unreach.org/socat/">socat</a> installed.  The easiest way to do this is with <a href="http://brew.sh/">Homebrew</a>.  Install Homebrew, and then run this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install socat</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That will install socat if it isn&rsquo;t installed already.</p>
+
+<p>Now start Chrome remote debugging on the system that you want to connect to.</p>
+
+<p>Next, get socat to relay traffic from port 9223 to port 9222 using this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>socat tcp-listen:9223,fork tcp:localhost:9222</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, try to connect to the remote computer using <em>its IP address, not localhost</em> with a URL like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://IP_ADDRESS:9223</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should be connected to the remote system&rsquo;s debugger using port 9223.</p>
+
+<p>When you are done be sure to do this to stop socat:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>killall socat</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">How to: Execute a Command on a Remote Server That Requires You to Su or Sudo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-13T14:28:49-05:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Recently I ran into a situation where I had to reboot a ton of machines remotely.  I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do that anyway, so I thought I might be stuck trying to SSH in, &ldquo;sudo reboot&rdquo;, enter the password, and go on to the next machine.  One snag was that some machines supported sudo and some required me to su.</p>
+
+<p>I didn&rsquo;t want to have to do this for all of the machines I was working on so I searched around and found <a href="https://github.com/paramiko/paramiko">Paramiko</a>.  Paramiko is an SSH library for Python that lets you tell Python the login password and also gives you direct access to the terminal stream from your SSH session.  This means that I can send su or sudo and then send the password without the user doing anything.</p>
+
+<p>Security wise this is an obvious hole in many ways.  First of all if you do this for a machine and specify the password on the command-line it is going to end up in your history file.  So without going through the exhaustive list of reasons why this is generally a bad idea lets just say that you should use this sparingly.</p>
+
+<p>Set the variable <code>root_command</code> to the command that you want to execute as root, set <code>root_command_result</code> to the expected result of the command.  The command needs to have <code>\n</code> on the end of it because it simulates the user pressing enter.  Without it the system will never execute the command.  Pass these command-line parameters in this order:</p>
+
+<ul>
+<li>The IP of the system you want to connect to</li>
+<li>The username of the user that can su to root</li>
+<li>The password of the user that can su to root</li>
+<li>The password required to su to root</li>
+</ul>
+
+
+<p>This particular version of the script just performs the &ldquo;su&rdquo; command.  It can be modified to do a &ldquo;sudo&rdquo; with just a few tweaks.  If there&rsquo;s demand I&rsquo;ll post a version that lets you swap between both and does some additional error handling.</p>
+
+<p>And here&rsquo;s the script&hellip; don&rsquo;t forget to install Paramiko!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;timmattison&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">paramiko</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">time</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">root_command</span> <span class="o">=</span> <span class="s">&quot;whoami</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'><span class="n">root_command_result</span> <span class="o">=</span> <span class="s">&quot;root&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_time</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Send the su command</span>
+</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Wait a bit, if necessary</span>
+</span><span class='line'>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Flush the receive buffer</span>
+</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_string</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Send the su command</span>
+</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Create a new receive buffer</span>
+</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">while</span> <span class="ow">not</span> <span class="n">wait_string</span> <span class="ow">in</span> <span class="n">receive_buffer</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Flush the receive buffer</span>
+</span><span class='line'>        <span class="n">receive_buffer</span> <span class="o">+=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the command-line arguments</span>
+</span><span class='line'><span class="n">system_ip</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'><span class="n">system_username</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span><span class='line'><span class="n">system_ssh_password</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span><span class='line'><span class="n">system_su_password</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create an SSH client</span>
+</span><span class='line'><span class="n">client</span> <span class="o">=</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure that we add the remote server&#39;s SSH key automatically</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">set_missing_host_key_policy</span><span class="p">(</span><span class="n">paramiko</span><span class="o">.</span><span class="n">AutoAddPolicy</span><span class="p">())</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Connect to the client</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">system_ip</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">system_username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">system_ssh_password</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a raw shell</span>
+</span><span class='line'><span class="n">shell</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke_shell</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Send the su command</span>
+</span><span class='line'><span class="n">send_string_and_wait</span><span class="p">(</span><span class="s">&quot;su</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Send the client&#39;s su password followed by a newline</span>
+</span><span class='line'><span class="n">send_string_and_wait</span><span class="p">(</span><span class="n">system_su_password</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Send the install command followed by a newline and wait for the done string</span>
+</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">root_command</span><span class="p">,</span> <span class="n">root_command_result</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Close the SSH connection</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/4/">&larr; Older</a>
+    
+    <a href="/archives">Archives</a>
+    
+    <a class="next" href="/page/2/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1006 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="This morning when I opened up an old GWT project to rebuild it and bring it from GWT 1.5 to GWT 1.7 Eclipse spit out this error message: [ERROR] &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/page/11">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/08/how-to-fix-error-unexpected-java-lang-nosuchmethoderror-messages-when-compiling-gwt-code-in-eclipse/">How-To: Fix &#8220;[ERROR] Unexpected java.lang.NoSuchMethodError&#8221; Messages When Compiling GWT Code in Eclipse</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-08T18:59:59-05:00" pubdate data-updated="true">Nov 8<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/08/how-to-fix-error-unexpected-java-lang-nosuchmethoderror-messages-when-compiling-gwt-code-in-eclipse/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/08/how-to-fix-error-unexpected-java-lang-nosuchmethoderror-messages-when-compiling-gwt-code-in-eclipse/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This morning when I opened up an old GWT project to rebuild it and bring it from GWT 1.5 to GWT 1.7 Eclipse spit out this error message:</p>
+
+<pre><code>[ERROR] Unexpected
+
+java.lang.NoSuchMethodError: org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding.closestReferenceMatch()Lorg/eclipse/jdt/internal/compiler/lookup/ReferenceBinding;
+    at com.google.gwt.dev.javac.JsniChecker$CheckingVisitor.findClass(JsniChecker.java:231)
+    at com.google.gwt.dev.javac.JsniChecker$CheckingVisitor.checkRefs(JsniChecker.java:142)
+    at com.google.gwt.dev.javac.JsniChecker$CheckingVisitor.endVisit(JsniChecker.java:65)
+    at org.eclipse.jdt.internal.compiler.ast.MethodDeclaration.traverse(MethodDeclaration.java:247)
+    at org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.traverse(TypeDeclaration.java:1337)
+    at org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.traverse(TypeDeclaration.java:1206)
+    at org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration.traverse(CompilationUnitDeclaration.java:518)
+    at com.google.gwt.dev.javac.JsniChecker.check(JsniChecker.java:350)
+    at com.google.gwt.dev.javac.JsniChecker.check(JsniChecker.java:340)
+    at com.google.gwt.dev.javac.CompilationUnitInvalidator.validateCompilationUnits(CompilationUnitInvalidator.java:159)
+    at com.google.gwt.dev.javac.CompilationState.compile(CompilationState.java:198)
+    at com.google.gwt.dev.javac.CompilationState.refresh(CompilationState.java:178)
+    at com.google.gwt.dev.javac.CompilationState.(CompilationState.java:93)
+    at com.google.gwt.dev.cfg.ModuleDef.getCompilationState(ModuleDef.java:264)
+    at com.google.gwt.dev.Precompile.precompile(Precompile.java:283)
+    at com.google.gwt.dev.Compiler.run(Compiler.java:170)
+    at com.google.gwt.dev.Compiler$1.run(Compiler.java:124)
+    at com.google.gwt.dev.CompileTaskRunner.doRun(CompileTaskRunner.java:88)
+    at com.google.gwt.dev.CompileTaskRunner.runWithAppropriateLogger(CompileTaskRunner.java:82)
+    at com.google.gwt.dev.Compiler.main(Compiler.java:131)
+</code></pre>
+
+<p>As usual I Googled around a bit and <a href="http://forums.smartclient.com/showthread.php?t=7718">found a solution</a> but I really wanted to know exactly how to fix this issue in the future.  The solution is even simpler than the original poster thought but without their input I would&rsquo;ve never figured it out so thank you sujaydutta!</p>
+
+<p>The issue stems from the GWT compiler needing your classpath in a certain order.  In particular you need to have your application source as the first entry, then GWT as the second entry.  In Eclipse you can do it like this:</p>
+
+<ul>
+<li><p>Step 1: Right-click on your project and select &ldquo;Properties&rdquo;</p></li>
+<li><p>Step 2: Click on &ldquo;Java Build Path&rdquo;</p></li>
+<li><p>Step 3: Click on the &ldquo;Order and Export&rdquo; tab</p></li>
+<li><p>Step 4: Click on your &ldquo;GWT SDK&rdquo; entry (if you&rsquo;re using the <a href="http://code.google.com/eclipse/">Google Plugin for Eclipse</a> it&rsquo;s called &ldquo;GWT SDK&rdquo;, otherwise it&rsquo;s whatever you decided to name it when you created your custom user library)</p></li>
+<li><p>Step 5: Click the &ldquo;Top&rdquo; button on the right</p></li>
+<li><p>Step 6: Click on your &ldquo;src&rdquo; entry (it should be your project name, followed by a forward slash, and then the word &ldquo;src&rdquo;)</p></li>
+<li><p>Step 7: Click the &ldquo;Top&rdquo; button on the right</p></li>
+<li><p>Step 8: Click &ldquo;OK&rdquo;</p></li>
+</ul>
+
+
+<p>Now when you go to rebuild your project you&rsquo;ll finally be rid of this error message and you can start hacking out GWT 1.7 code.  Good luck!  Post below if the above instructions don&rsquo;t work for you and maybe I can help.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/">How-To: Restart OpenSSH (Sshd) When It Doesn&#8217;t Want To</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-06T18:59:59-05:00" pubdate data-updated="true">Nov 6<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/06/how-to-restart-openssh-sshd-when-it-doesnt-want-to/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;re doing a remote system upgrade from time to time you&rsquo;ll have to deal with changes in OpenSSH (sshd).  I just did an update on a Gentoo machine and afterwards I couldn&rsquo;t get OpenSSH to stop, much less restart.  When you&rsquo;re in these kinds of situations you risk losing remote access to the machine if it&rsquo;s not a VPS (like <a href="http://linode.com">Linode</a>, my favorite VPS hosting company so far) or doesn&rsquo;t have a KVM.  You can&rsquo;t just killall sshd since that&rsquo;ll disconnect you, and in my case running /etc/init.d/sshd restart failed to stop sshd.  If you don&rsquo;t restart sshd then all of those security patches are going to waste since your system is relying on the original copy of sshd in RAM.</p>
+
+<p>So what do you do?  <strong>NOT THIS UNLESS YOU ARE CONNECTED VIA A SERIAL PORT!</strong> I have remote console access do I can just fire up Linode&#8217; AJAX console and do the following:</p>
+
+<pre><code>killall sshd
+
+/etc/init.d/sshd restart
+</code></pre>
+
+<p>That got me running and I was all set. But you can do something similar remotely.  The trick is that you&rsquo;ll need to run it in <a href="http://www.gnu.org/software/screen/">GNU&rsquo;s screen</a> utility to make sure that all of the commands are run.  Here&rsquo;s what you should do:</p>
+
+<pre><code>screen
+
+killall sshd ; sleep 5 ; /etc/init.d/sshd restart
+</code></pre>
+
+<p>It&rsquo;s a bit risky because there&rsquo;s no guarantee that sshd will come up after that but this is a last ditch effort only.  Make sure all of your ducks are in a row, double check the upgrade process, run revdep-rebuild on Gentoo if you have to to make sure all of your libraries are correct.  I take no responsibility if you lose your connection and need to drive to the colo or sheepishly call for a reboot or remote hands.</p>
+
+<p>I can tell you that in my case, a Gentoo upgrade, it did work fine.  You lose your connection but you can reconnect in 10 or so seconds, and then run</p>
+
+<pre><code>screen -r
+</code></pre>
+
+<p>to see that all of the commands executed successfully.</p>
+
+<p>Make sure you separate the commands by semi-colons though.  It&rsquo;s required, not just stylistic here.  You can&rsquo;t killall sshd and then keep issuing the commands interactively.  You have to let the shell do it for you inside screen, or else.  :)</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/03/tip-get-your-mouse-and-keyboard-back-after-upgrading-xorgx11/">Tip: Get Your Mouse and Keyboard Back After Upgrading Xorg/X11</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/03/tip-get-your-mouse-and-keyboard-back-after-upgrading-xorgx11/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/tip-get-your-mouse-and-keyboard-back-after-upgrading-xorgx11/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I finally got my mouse and keyboard back.  After changing profiles on Gentoo and doing a complete rebuild my mouse was totally unresponsive.  Since I was running enlightenment I couldn&rsquo;t really do much with the keyboard either.  I checked my /var/log/Xorg.0.log and one very weird log message jumped out and caught my eye</p>
+
+<pre><code>AllowEmptyInput is on, devices using drivers 'kbd', 'mouse' or 'vmmouse' will be disabled
+</code></pre>
+
+<p>My old installation had no such problem but I guess that&rsquo;s what happens as you track the latest versions of things.</p>
+
+<p>The solution is simple.  You just need to add this line</p>
+
+<pre><code>    Option              "AllowEmptyInput" "false"
+</code></pre>
+
+<p>To your &ldquo;ServerLayout&rdquo; section.  My Nvidia TwinView configuration is below, feel free to copy it as a known working configuration to base your own system on.</p>
+
+<pre><code># nvidia-xconfig: X configuration file generated by nvidia-xconfig
+# nvidia-xconfig:  version 1.0  (buildmeister@builder58)  Tue Nov  4 17:18:57 PST 2008
+Section "ServerLayout"
+    Identifier          "Layout0"
+    Screen              0  "Screen0" 0 0
+    InputDevice         "Keyboard0" "CoreKeyboard"
+    InputDevice         "Mouse0" "CorePointer"
+    Option              "AllowEmptyInput" "false"
+EndSection
+
+Section "Files"
+EndSection
+
+
+
+
+Section "Module"
+    Load           "dbe"
+    Load           "extmod"
+    Load           "type1"
+    Load           "freetype"
+    Load           "glx"
+    Load           "dri"
+EndSection
+
+Section "dri"
+        Mode 0666
+EndSection
+
+Section "InputDevice"
+    # generated from data in "/etc/conf.d/gpm"
+    Identifier     "Mouse0"
+    Driver         "mouse"
+    Option         "Protocol"
+    Option         "Device" "/dev/input/mice"
+    Option         "Emulate3Buttons" "no"
+    Option         "ZAxisMapping" "4 5"
+EndSection
+
+Section "InputDevice"
+    # generated from default
+    Identifier     "Keyboard0"
+    Driver         "kbd"
+EndSection
+
+Section "Monitor"
+    Identifier     "Monitor0"
+    VendorName     "Unknown"
+    ModelName      "Unknown"
+    HorizSync       30.0 - 110.0
+    VertRefresh     50.0 - 150.0
+    Option         "DPMS"
+EndSection
+
+Section "Monitor"
+    Identifier     "Monitor1"
+    VendorName     "Unknown"
+    ModelName      "Unknown"
+    HorizSync       30.0 - 110.0
+    VertRefresh     50.0 - 150.0
+    Option         "DPMS"
+EndSection
+
+Section "Device"
+    Identifier     "Device0"
+    Driver         "nvidia"
+    VendorName     "NVIDIA Corporation"
+    BusID          "PCI:1:0:0"
+    Screen      0
+
+
+
+
+    # other options I recommend:
+    Option     "RenderAccel"
+    Option     "HWcursor"
+    Option     "CursorShadow"
+    Option     "CursorShadowAlpha" "32"
+    Option     "CursorShadowXOffset" "3"
+    Option     "CursorShadowYOffset" "3"
+
+    # if you want Composite and GLX (they don't cooperate):
+    Option     "AllowGLXWithComposite"
+
+    # the TwinView stuff
+    Option     "TwinView"
+    Option     "MetaModes"  "1280x1024,1680x1050; 1280x1024,1280x1024; 1280x1024; 1024x768,1024x768; 1024x768; 800x600,800x600; 800x600"
+    Option     "TwinViewOrientation"      "RightOf"
+    Option     "SecondMonitorHorizSync"   "UseEdidFreqs"
+    Option     "SecondMonitorVertRefresh" "UseEdidFreqs"
+EndSection
+
+Section "Screen"
+    Identifier     "Screen0"
+    Device         "Device0"
+    Monitor        "Monitor0"
+    DefaultDepth    24
+    SubSection     "Display"
+        Depth       24
+    EndSubSection
+EndSection
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/">Tip: Get VMware Workstation 6.5.3 Working on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The final piece to my reinstall was to get VMware Workstation 6.5.3 running so I could use my nice Linux box (8GB RAM, fast RAID configuration) to run virtual machines instead of running them on my much less powerful MacBook Pro.</p>
+
+<p>To do this installation you need to download the files from VMware directly, move them into portage, then do the installation from a real console (SSH or screen sessions won&rsquo;t cut it).  That was no problem but I ended up staring at a message like this</p>
+
+<pre><code>process XXXXX: Attempt to remove filter function 0xXXXXXXXX user data 0x88162a8, but no such filter has been added
+  D-Bus not built with -rdynamic so unable to print a backtrace
+</code></pre>
+
+<p>I tried to re-emerge dbus with that option but there are no USE flags that correspond to it that I could see.  I checked if D-Bus was even running and it was.  At this point I randomly and luckily found the fix.  All you need to do is to stop D-Bus via</p>
+
+<pre><code>/etc/init.d/dbus stop
+</code></pre>
+
+<p>As soon as I did that VMware started up, asked me to accept the EULA, and I was straight back on the virtualization track.</p>
+
+<p>Note: While stopping DBus will get VMware to start you&rsquo;ll still need to do two last things to make everything happy</p>
+
+<p>Step 1: Run</p>
+
+<pre><code>/etc/init.d/vmware start
+</code></pre>
+
+<p>Step 2: Run</p>
+
+<pre><code>rc-update add vmware default
+</code></pre>
+
+<p>This makes sure that VMware creates all the device nodes that it needs, loads all of the modules for virtual networking, monitoring, etc., and that this will always come up after a reboot.  Without this you can end up chasing down some seriously weird error messages.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/">Tip: Fix &#8220;NVIDIA(0): Failed to Initialize the GLX Module; Please Check in Your X Log File&#8221; on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have been rebuilding my Gentoo machine for a few days now.  Not that it really takes that long, but I only have limited time I can dedicate to it each day while still managing the time constraints of work.  After emerging xorg-x11 I restored my old configuration file that included my Nvidia Twinview display settings and I saw these errors popup</p>
+
+<pre><code>(EE) NVIDIA(0): Failed to initialize the GLX module; please check in your X
+(EE) NVIDIA(0):     log file that the GLX module has been loaded in your X
+(EE) NVIDIA(0):     server, and that the module is the NVIDIA GLX module.  If
+(EE) NVIDIA(0):     you continue to encounter problems, Please try
+(EE) NVIDIA(0):     reinstalling the NVIDIA driver.
+</code></pre>
+
+<p>What this means in a nutshell is that you haven&rsquo;t told Gentoo to use Nvidia&rsquo;s OpenGL support yet.  To fix that you can just run the following command</p>
+
+<pre><code>eselect opengl set nvidia
+</code></pre>
+
+<p>Gentoo should respond with this</p>
+
+<pre><code>Switching to nvidia OpenGL interface... done
+</code></pre>
+
+<p>You&rsquo;ll not only be rid of that error message but you&rsquo;ll have much better OpenGL performance than before.  Now I&rsquo;ve got to just get rid of those last few errors and fix my mouse and I&rsquo;ll be all set.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/">How-To: Migrate VMware Fusion-based Windows VMs to VMware Workstation on Linux</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>VMware Fusion and VMware Workstation are both incredible products that will literally change the way you work if you are a developer or an IT admin.  One thing that is a bit of a pain point, though, is moving virtual machines from VMware Fusion on the Mac to VMware Workstation on Linux.  If you move your VMs without doing this you may notice incredibly bad performance.  When I say bad performance I mean that the system is so slow it may take you 5 minutes to go from the desktop to the control panel.  Here is how to do it properly and avoid all of that&hellip;</p>
+
+<p>Note: You can do these steps either when going from VMware Fusion to VMware Workstation or the other way around.</p>
+
+<p>For the purposes of this article we&rsquo;ll skip calling them VMware Fusion and VMware Workstation and we&rsquo;ll refer to them as your source host and your destination host.</p>
+
+<p>Step 1: Take a snapshot of your VM so you can revert if anything goes wrong.</p>
+
+<p>Step 2: Start up your Windows VM on the source host.</p>
+
+<p>Step 3: Go to Control Panel &ndash;> Add/Remove programs</p>
+
+<p>Step 4: Uninstall VMware tools and shutdown</p>
+
+<p>If you don&rsquo;t need audio support, do steps 5 through 8 otherwise you&rsquo;re ready to move your VM over to the</p>
+
+<p>destination host.</p>
+
+<p>Step 5: Reboot and go to Control Panel &ndash;> Administrative Tools &ndash;> Services</p>
+
+<p>Step 6: Stop &ldquo;Windows Audio&rdquo;, and set it&rsquo;s startup mode to &ldquo;Disabled&rdquo;</p>
+
+<p>Step 7: Shutdown the VM</p>
+
+<p>Step 8: Open the VM settings and remove the audio device</p>
+
+<p>Now, move your VMs to the destination host.  If your destination host is Linux you can safely remove the &#8221;Applications&#8221; directory inside the vmwarevm directory.</p>
+
+<p>Finally, restart your host, install VMware Tools as you normally would, power off, and create another snapshot. This snapshot will serve as a clean starting off point if you need to tweak things experimentally to get the system running the way you&rsquo;d like.  Never underestimate the power of a few snapshots to save you hours upon hours even when you think that everything will go just fine.  Once things are stable you can remove them and reclaim the disk space. Also, don&rsquo;t forget about the VMware Tools &ldquo;Shrink&rdquo; function.  Once you&rsquo;re stable and you&rsquo;ve removed your snapshots you should always run &ldquo;Shrink&rdquo; to get back some storage.  Usually it trims a few hundred MB for me but sometimes it can free up a few GB if the VM has seen a lot of use.  You can&rsquo;t run &ldquo;Shrink&rdquo; if you have any snapshots on your virtual machine so it&rsquo;s really only good when you&rsquo;ve tweaked your setup and you&rsquo;re happy.  As soon as you &ldquo;Shrink&rdquo; you should always snapshot the machine again.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/02/how-to-stop-usb-storage-messages-from-filling-your-logs/">How-To: Stop USB Storage Messages From Filling Your Logs</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-02T18:59:59-05:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/02/how-to-stop-usb-storage-messages-from-filling-your-logs/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/02/how-to-stop-usb-storage-messages-from-filling-your-logs/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>After a reinstall of Gentoo the other day I noticed that when I checked my logs with dmesg that all I saw was a ton of information relating to usb-storage.  It turns out that the default kernel in some operating systems (and apparently the latest Gentoo is one of them) has the verbose USB storage debug logs enabled.</p>
+
+<p>In order to disable it you&rsquo;ll need to rebuild your kernel.  The option you&rsquo;re looking for is deep in the menu system but you can find it by drilling down like this</p>
+
+<ul>
+<li><p>Device Drivers</p>
+
+<ul>
+<li><p>USB support</p>
+
+<ul>
+<li>USB Mass Storage verbose debug</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p>This option is also known as CONFIG_USB_STORAGE_DEBUG if you are editing your configuration manually.  Make sure this is unchecked in the menu (ie. no asterisk next to it) or set to &ldquo;=n&rdquo; in your configuration file.  Rebuild your kernel, reboot, and you&rsquo;ll never be bothered with these messages again.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/02/how-to-fix-importerror-no-module-named-webappconfig-config-on-gentoo/">How-To: Fix &#8220;ImportError: No Module Named WebappConfig.config&#8221; on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-02T18:59:59-05:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/02/how-to-fix-importerror-no-module-named-webappconfig-config-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/02/how-to-fix-importerror-no-module-named-webappconfig-config-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I just tried to upgrade <a href="http://trac.edgewall.org/">trac</a> on my Gentoo box to get back into the swing of tracking and squashing bugs.  Gentoo was having none of it and reported &ldquo;ImportError: No module named WebappConfig.config&rdquo;. That error by itself isn&rsquo;t terribly helpful so in order to fix it I determined you usually need to do a few things. If you aren&rsquo;t installing trac, replace trac in these steps to the application you are trying to install.</p>
+
+<p>Step 1) Run</p>
+
+<pre><code>python-updater
+</code></pre>
+
+<p>This can take a LONG time so be ready to wait.</p>
+
+<p>Step 2) Try to run trac.  If that doesn&rsquo;t work, go on to step 3.  If it does, you&rsquo;re done.</p>
+
+<p>Step 3) Try to emerge trac again.  If that doesn&rsquo;t work, go on to step 4.</p>
+
+<p>Step 4) Run</p>
+
+<pre><code>emerge webapp-config
+</code></pre>
+
+<p>trac should be updated by python-updater but the three other steps are just a backup to be extra sure that everything is installed properly.  After jumping through those hoops you should be back online again.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/">Tip: Perform a Pvmove Without Calculating the Start and End Extent Values</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-01T18:59:59-05:00" pubdate data-updated="true">Nov 1<span>st</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;re used pvmove before you might be in the habit of doing the following:</p>
+
+<ul>
+<li><p>Determining where you want to move an extent (new_start)</p></li>
+<li><p>Getting the start and end of the existing extent to move (original_start, original_end)</p></li>
+<li><p>Calculating the length of the extent from original_end &ndash; original_start (length)</p></li>
+<li><p>Adding the length to new_start (new_end)</p></li>
+<li><p>Running pvmove</p></li>
+</ul>
+
+
+<p>Well, there is an easier way.  Let&rsquo;s assume you originally would&rsquo;ve done this</p>
+
+<pre><code>pvmove -v /dev/sdc:17067-29866 /dev/sdc:0-17066 --alloc anywhere
+</code></pre>
+
+<p>If you want to be lazy (and let LVM2 figure out whether you&rsquo;re doing the right thing or not) you can just do this instead</p>
+
+<pre><code>pvmove -v /dev/sdc:17067-29866 /dev/sdc:0-`echo "0+29866-17067" | bc` --alloc anywhere
+</code></pre>
+
+<p>Basically, after you&rsquo;ve determined where you want the new extent to start you put that extent number (&ldquo;0&rdquo; in this case) and just follow it up with that bc recipe.  This tells bc to calculate the length and feed it to LVM2.</p>
+
+<p>The bc formula should be new_start plus original_end minus original_start.  That will calculate the length and then add it to the new_start.</p>
+
+<p>Isn&rsquo;t that what you&rsquo;d expect it to do anyway?  :)</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/">How-To: Fix LVM2&#8217;s &#8220;No Extents Available for Allocation&#8221; Errors When Using Pvmove</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-01T18:59:59-05:00" pubdate data-updated="true">Nov 1<span>st</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/01/how-to-fix-lvm2s-no-extents-available-for-allocation-errors-when-using-pvmove/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I just started using LVM2 about two weeks ago.  I recently wanted to shuffle around some physical extents on my disks to keep them from becoming a mess as I added new logical volumes.  So in order to see how LVM2 laid out my logical volumes</p>
+
+<p>I ran:</p>
+
+<pre><code>pvdisplay -m
+</code></pre>
+
+<p>This roughly translates to &ldquo;show me the physical volume information including the mapping data&rdquo;.  On my machine this printed out something like this</p>
+
+<pre><code>  --- Physical Segments ---
+  Physical extent 0 to 17066:
+    FREE
+
+  Physical extent 17067 to 29866:
+    Logical volume  /dev/vg-raid-array/work-area-1
+    Logical extents 0 to 51199
+
+  Physical extent 29867 to 31146:
+    Logical volume  /dev/vg-raid-array/postgresql
+    Logical extents 0 to 5119
+
+  Physical extent 31147 to 59617:
+    FREE
+
+  --- Physical volume ---
+  PV Name               /dev/sdc
+  VG Name               vg-raid-array
+  PV Size               232.89 GB / not usable 3.18 MB
+  Allocatable           yes
+  PE Size (KByte)       4096
+  Total PE              59618
+  Free PE               45538
+  Allocated PE          14080
+  PV UUID               xxxxxx-xxxx-xxxx-xxxx-xxxx-xxxx-xxxxxx
+</code></pre>
+
+<p>What you&rsquo;ll notice here is that my disk has my &ldquo;work-area-1&rdquo; volume starting at physical extent 17067 but the physical extents before that (0 &ndash; 17066) are empty.  What I wanted to do was move those extents to the beginning of the disk, then move the postgresql extents to the extents directly after that, so that I would have a large block of contiguous extents to add new partitions.  Here&rsquo;s what happened on my first try</p>
+
+<pre><code># pvmove /dev/sdc:17067-29866 /dev/sdc:0-17066
+
+  No extents available for allocation
+</code></pre>
+
+<p>After lots of digging I found that <a href="http://lists.alioth.debian.org/pipermail/pkg-lvm-maintainers/2007-August/001322.html">I needed a magical, seemingly undocumented flag</a> to get it to work.  So now my command-line looked like this</p>
+
+<pre><code># pvmove -v /dev/sdc:17067-29866 /dev/sdc:0-17066 --alloc anywhere
+</code></pre>
+
+<p>After that I was off and running.  <strong>If you&rsquo;re doing this on a remote terminal make sure you use <em>screen</em></strong> so you can disconnect!  The command I used runs pvmove in the foreground so if you disconnect while it&rsquo;s doing it bad things may happen.  This process usually takes a long time since you&rsquo;re reading and writing from the same disk.  Moving my 50GB of data took about 35 minutes.  Alternatively you can specify the background option (&ldquo;-b&rdquo; or &ldquo;&mdash;background&rdquo;) and let it run silently.</p>
+
+<p>Good luck!  Make sure you always back up your data before you start moving partitions around with LVM2.  It&rsquo;s fairly safe with all of it&rsquo;s fancy checkpointing code but it&rsquo;s never fun to be in the situation where you have to depend on it. rsyncing to a backup first is much easier than trying to wade through documentation later.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/12/">&larr; Older</a>
+    
+    <a href="/archives">Archives</a>
+    
+    <a class="next" href="/page/10/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

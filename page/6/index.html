@@ -1,0 +1,1088 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests. In the past few days I&rsquo; &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/page/6">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/">Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-02T08:02:47-05:00" pubdate data-updated="true">Mar 2<span>nd</span>, 2012</time>
+        
+           | <a href="/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;ve written plenty of JUnit tests in the past but usually I&rsquo;m building onto an existing codebase of tests.  In the past few days I&rsquo;ve been playing around with Unicode and wanted to copy a code snippet from a Hadoop book to see how everything looks in the debugger.  When I entered the code I realized that I was missing some methods that I needed to complete the tests.</p>
+
+<p>Specifically I was trying to use assertThat() and is() but didn&rsquo;t know where to find them.  After a bit of Googling I found the two static imports that I needed to copy the code without qualifying assertThat() as Assert.assertThat() and the same goes for is().  They are:</p>
+
+<pre><code>import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+</code></pre>
+
+<p>I have to admit that org.hamcrest is a bit less obvious than I would have liked.  :)</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/">Tip: A Quick Primer on Waiting on Multiple Threads in Java</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-28T16:32:21-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last night I was writing some code to do some performance testing on HDFS.  I noticed that single threaded performance wasn&rsquo;t anywhere near as good as I expected and my CPUs were spending most of their time idle.  I decided to add some threads into the process to see if a multi-threaded speed test would consume some of that idle CPU.  It worked as expected so I figured I would share some basic knowledge on how to I started up multiple threads, had them do their work, waited for them to finish without polling, and then recorded the total duration to calculate my statistics.</p>
+
+<p>What you&rsquo;ll need to do first is decide what you want to do in the processing thread.  This code will go into a Java Runnable like this:</p>
+
+<pre><code>Runnable runnable = new Runnable() {
+    @Override
+    public void run() {
+        // Do something exciting here
+    }
+};
+</code></pre>
+
+<p>Next you&rsquo;ll need to decide how many threads you want to run.  If you wanted to run four threads you could do this:</p>
+
+<pre><code>int threadCount = 4;
+
+for (int threadLoop = 0; threadLoop &lt; threadCount; threadLoop++) {
+    // XXX - Put the runnable block from above right here
+
+    // Create a new thread
+    Thread thread = new Thread(runnable);
+
+    // Add the thread to our thread list
+    threads.add(thread);
+
+    // Start the thread
+    thread.start();
+}
+</code></pre>
+
+<p>That will start four threads.  It&rsquo;s best to use a variable so you can update it and use it in other places like calculating your statistics.  Now let&rsquo;s wait for all the threads to finish:</p>
+
+<pre><code>// Loop through the threads
+for (Thread thread : threads) {
+    try {
+        // Wait for this thread to die
+        thread.join();
+    } catch (InterruptedException e) {
+        // Ignore this but print a stack trace
+        e.printStackTrace();
+    }
+}
+</code></pre>
+
+<p>Finally, you&rsquo;ll want to time all of this.  I do something very simple here.  Before all of the code I do this:</p>
+
+<pre><code>long startTime = new Date().getTime();
+</code></pre>
+
+<p>After all of the code I do this:</p>
+
+<pre><code>long endTime = new Date().getTime();
+long durationInMilliseconds = endTime - startTime;
+</code></pre>
+
+<p>With all of that in place you can now measure how long your code ran and then calculate important metrics about it.  For example, if this code did 10,000 operations per thread and ran with 4 threads you would then take the duration and divide that by 40,000 and you&rsquo;d get an idea of how many milliseconds it took per operation.  Just make sure you use doubles or you&rsquo;ll lose all of your precision due to coercion.  Do this (assuming that your number of operations is stored in a variable called &ldquo;operations&rdquo;):</p>
+
+<pre><code>double millisecondsPerOperation = (double) durationInMilliseconds / (double) operations;
+double operationsPerMillisecond = (double) operations / (double) durationInMilliseconds;
+</code></pre>
+
+<p>These are just reciprocals of each other but sometimes one value is a lot easier to understand than the other so I usually calculate them both.</p>
+
+<p>Now that you have those statistics you can try different thread counts, optimize code/loops, etc.  Good luck!  Post in the comments with any ideas and/or issues.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/">How-To: Fix &#8220;Chown: Cannot Dereference&#8221; Errors in Cloudera CDH on Debian/Ubuntu Linux When Upgrading</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-26T12:10:47-05:00" pubdate data-updated="true">Feb 26<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/26/how-to-fix-chown-cannot-dereference-errors-in-cloudera-cdh-on-debianubuntu-linux-when-upgrading/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><strong><em>WARNING!</em></strong> Do not do this on production clusters unless you are willing to take responsibility for any issues that may occur.  This wipes out all of your logs and potentially other files.  Always have a backup before trying anything like this.  I take no responsibility for issues that may arise from running any or all of these instructions.</p>
+
+<p>When I tried to upgrade my CDH installation today I received many errors from dpkg that caused the upgrade to fail.  The errors looked like this:</p>
+
+<pre><code>chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000015_0': No such file or directory
+chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000003_0': No such file or directory
+chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000009_0': No such file or directory
+chown: cannot dereference `/var/log/hadoop-0.20/userlogs/job_201202031049_0008/attempt_201202031049_0008_m_000018_0': No such file or directory
+
+...
+
+dpkg: error processing hadoop-0.20 (--configure):
+ subprocess installed post-installation script returned error exit status 123
+dpkg: dependency problems prevent configuration of hadoop-0.20-tasktracker:
+ hadoop-0.20-tasktracker depends on hadoop-0.20 (= 0.20.2+923.195-1~squeeze-cdh3); however:
+  Package hadoop-0.20 is not configured yet.
+</code></pre>
+
+<p>My simple fix, not for production clusters, is to do the following:</p>
+
+<ul>
+<li><p>Step 1: Become the HDFS user and stop Hadoop by running</p>
+
+<p>~/bin/stop-all.sh</p></li>
+<li><p>Step 2: Become root and remove all of your Hadoop related logs by running</p>
+
+<p>rm -rf /var/log/hadoop-0.20/*</p></li>
+<li><p>Step 3: Become root and run your upgrade by running</p>
+
+<p>apt-get upgrade</p></li>
+<li><p>Step 4: Become the HDFS user and restart Hadoop by running</p>
+
+<p>~/bin/start-all.sh</p></li>
+</ul>
+
+
+<p>After that your installation should be working and up to date again.  Post in the comments if it works for your or if you need any assistance.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail/">Tip: Trimming the Tops and Bottoms of Text Files With Head and Tail</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-16T09:05:21-05:00" pubdate data-updated="true">Feb 16<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Normally the head and tail applications on Linux are good for what their names imply.  head gives you the first few lines of a file, tail gives you last few lines of a file and even lets you watch the end of a file for changes.  This is great but what if you want to get an entire file <em>except</em> for the first few or last few lines?  It turns out that head and tail have options to do this and it&rsquo;s incredibly useful for trimming files without knowing exactly how many lines they contain.</p>
+
+<p>I&rsquo;m writing this because I keep forgetting which one does what.  Here&rsquo;s how you can remember it and use it every day&hellip;</p>
+
+<p>Tip #1: If you only want the end of a file use tail like this:</p>
+
+<pre><code>tail -n +3 input.file &gt; output.file
+</code></pre>
+
+<p>An example file, like a PostgreSQL database dump, might look like this:</p>
+
+<pre><code>column_a | column_b | column_c
+---------+----------+---------
+    1    |   bob    |  65000
+    2    |   joe    |  80000
+    3    |   jim    |  54000
+(3 rows)
+</code></pre>
+
+<p>After running</p>
+
+<pre><code>tail -n +3 input.file &gt; output.file
+</code></pre>
+
+<p>on this we&rsquo;ll end up with output that looks like this:</p>
+
+<pre><code>    1    |   bob    |  65000
+    2    |   joe    |  80000
+    3    |   jim    |  54000
+(3 rows)
+</code></pre>
+
+<p>The best way to remember this is that you want everything until the end of the file starting at the third line.</p>
+
+<p>Tip #2: If you only want the beginning of a file use head like this:</p>
+
+<pre><code>head -n -2 input.file &gt; output.file
+</code></pre>
+
+<p>Using the same example file we end up with:</p>
+
+<pre><code>column_a | column_b | column_c
+---------+----------+---------
+    1    |   bob    |  65000
+    2    |   joe    |  80000
+    3    |   jim    |  54000
+</code></pre>
+
+<p>The best way to remember this is that you want everything from the beginning file excluding the last two lines.  Note, there is a blank line after &ldquo;(3 rows)&rdquo; and we want to remove that too.</p>
+
+<p>Tip #3: If you need to trim from both side you can pipe like this:</p>
+
+<pre><code>tail -n +3 input.file | head -n -2 &gt; output.file
+</code></pre>
+
+<p>Using the same example we end up:</p>
+
+<pre><code>    1    |   bob    |  65000
+    2    |   joe    |  80000
+    3    |   jim    |  54000
+</code></pre>
+
+<p>This now translates to start at the third line and stop two lines from the end.  If you ever forget just come back here and re-read the examples.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/">Tip: Fix Basic Build Issues When Using Maven</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-07T13:33:46-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When trying to build Hadoop with Maven today I got this ugly error message:</p>
+
+<pre><code>[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[ERROR] FATAL ERROR
+[INFO] ------------------------------------------------------------------------
+[INFO] Error building POM (may not be this project's POM).
+
+
+Project ID: org.apache.hadoop:hadoop-project
+POM Location: /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+Validation Messages:
+
+    [0]  For dependency Dependency {groupId=jdk.tools, artifactId=jdk.tools, version=1.6, type=jar}: system-scoped dependency must specify an absolute path systemPath.
+
+
+Reason: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+
+
+[INFO] ------------------------------------------------------------------------
+[INFO] Trace
+org.apache.maven.reactor.MavenExecutionException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:404)
+    at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:272)
+    at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:138)
+    at org.apache.maven.cli.MavenCli.main(MavenCli.java:362)
+    at org.apache.maven.cli.compat.CompatibleMain.main(CompatibleMain.java:60)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:616)
+    at org.codehaus.classworlds.Launcher.launchEnhanced(Launcher.java:315)
+    at org.codehaus.classworlds.Launcher.launch(Launcher.java:255)
+    at org.codehaus.classworlds.Launcher.mainWithExitCode(Launcher.java:430)
+    at org.codehaus.classworlds.Launcher.main(Launcher.java:375)
+Caused by: org.apache.maven.project.InvalidProjectModelException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+    at org.apache.maven.project.DefaultMavenProjectBuilder.processProjectLogic(DefaultMavenProjectBuilder.java:1077)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.buildInternal(DefaultMavenProjectBuilder.java:880)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.buildFromSourceFileInternal(DefaultMavenProjectBuilder.java:508)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.build(DefaultMavenProjectBuilder.java:200)
+    at org.apache.maven.DefaultMaven.getProject(DefaultMaven.java:604)
+    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:487)
+    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:560)
+    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:391)
+    ... 12 more
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: &lt; 1 second
+[INFO] Finished at: Tue Feb 07 13:30:39 EST 2012
+[INFO] Final Memory: 3M/361M
+[INFO] ------------------------------------------------------------------------
+</code></pre>
+
+<p>Tsk, tsk on me.  All I had to do was set my JAVA_HOME variable.  Not sure how to set yours?  Just do this:</p>
+
+<pre><code>export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+</code></pre>
+
+<p>I&rsquo;m actually running 64-bit Debian Wheezy so I had to do some other things to get my system prepped.  I needed to get off of Maven 2 and onto Maven 3, add the JDK, install the protocol buffers compiler, install zlib and its development files, and use a slightly different path.  Here&rsquo;s what I did:</p>
+
+<pre><code>sudo apt-get install maven openjdk-6-jdk libprotoc-dev protobuf-compiler zlib1g-dev
+export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
+</code></pre>
+
+<p>After that Maven started humming away when I ran:</p>
+
+<pre><code>mvn compile -Pnative
+</code></pre>
+
+<p>Good luck!  Post in the comments if you run into trouble.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/">Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-07T11:16:19-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;re writing code that accesses HDFS and you get an exception that looks like this:</p>
+
+<pre><code>Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap
+    at org.apache.hadoop.hdfs.SocketCache.&lt;init&gt;(SocketCache.java:48)
+    at org.apache.hadoop.hdfs.DFSClient.&lt;init&gt;(DFSClient.java:240)
+    at org.apache.hadoop.hdfs.DFSClient.&lt;init&gt;(DFSClient.java:208)
+    at org.apache.hadoop.hdfs.DistributedFileSystem.initialize(DistributedFileSystem.java:89)
+    at org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:1563)
+    at org.apache.hadoop.fs.FileSystem.access$200(FileSystem.java:67)
+    at org.apache.hadoop.fs.FileSystem$Cache.getInternal(FileSystem.java:1597)
+    at org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:1579)
+    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:228)
+    at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:111)
+</code></pre>
+
+<p>Make sure you include the guava-r09-jarjar.jar JAR in your build path.  This is usually located in /usr/lib/hadoop-0.20/lib.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/">How-To: Debug HDFS Applications in Eclipse</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-07T10:56:58-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS.  One thing that I noticed is that when running the application via &ldquo;hadoop jar&rdquo; it properly accessed HDFS and stored its files there but if I ran it in the debugger the API calls succeeded but the files never showed up.</p>
+
+<p>After a bit more investigation I saw that the HDFS API was unable to read my configuration files and find the NameNode so it defaulted to writing the files on the local file system instead.  This is nice behavior for debugging sometimes but can be dangerous if you&rsquo;re running an application that must put its files in HDFS like a mission critical application that doesn&rsquo;t fulfill its operational contract if data is lost.  In the case of an application like that accidentally writing to the local file system could be disastrous and expensive so it&rsquo;s good to know how to detect when this happens, and/or overcome it in a situation where you&rsquo;re trying to debug against your HDFS cluster.</p>
+
+<p>Let&rsquo;s look at a simple code snippet that connects to HDFS that is just a cleaned up version of <a href="http://developer.yahoo.com/hadoop/tutorial/module2.html#programmatically">Yahoo&rsquo;s Hadoop tutorial</a>:</p>
+
+<pre><code>import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+public class TestClass {
+    private static final String theFilename = "timmattison.txt";
+    private static final String message = "This is the message that gets put into the file";
+
+    public static void main(String[] args) {
+        try {
+            // Get the configuration and connect to the file system
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
+
+            // Create the path object for our output file
+            Path filenamePath = new Path(theFilename);
+
+            // Does it exist already?
+            if (fs.exists(filenamePath)) {
+                // Yes, remove it first
+                fs.delete(filenamePath);
+            }
+
+            // Create the output file and write the data into it
+            FSDataOutputStream out = fs.create(filenamePath);
+            out.writeUTF(message);
+            out.close();
+
+            // Open the output file as an input file and read it
+            FSDataInputStream in = fs.open(filenamePath);
+            String messageIn = in.readUTF();
+
+            // Print its contents and close the file
+            System.out.print(messageIn);
+            in.close();
+        } catch (IOException ioe) {
+            System.err.println("IOException during operation: "
+                    + ioe.toString());
+            System.exit(1);
+        }
+    }
+}
+</code></pre>
+
+<p>If you run this code with &ldquo;hadoop jar&rdquo; you&rsquo;ll see that it creates the expected file (timmattison.txt) in the current user&rsquo;s default path in HDFS.  If you run this code with Eclipse either in Run or Debug mode you&rsquo;ll see that the file is not created in HDFS, it is created relative to where Eclipse starts the JVM for the new process.</p>
+
+<p>We can tell where the HDFS library will attempt to write our files by very simply checking the type of the FileSystem object that is created by the call to <code>FileSystem.get(conf)</code>.  If that object&rsquo;s type is <a href="http://hadoop.apache.org/common/docs/current/api/org/apache/hadoop/fs/LocalFileSystem.html">LocalFileSystem</a> we are not connecting to HDFS.  However if that object&rsquo;s type is <a href="http://hadoop.apache.org/hdfs/docs/current/api/org/apache/hadoop/hdfs/DistributedFileSystem.html">DistributedFileSystem</a> then you know that you&rsquo;re connected to a Hadoop cluster and writing to a real instance of HDFS.</p>
+
+<p>In your code you can leverage this in a few ways.  First, if you always need to be sure you&rsquo;re writing to the cluster you can check the fs variable and see if it is an instance of LocalFileSystem.  If it is you can signal an error, e-mail an admin, etc.  Configuration changes in the field could cause this to happen so it is important to be aware of.  In general running programs through &ldquo;hadoop jar&rdquo; will make sure this doesn&rsquo;t happen but a little <a href="http://en.wikipedia.org/wiki/Defensive_programming">defensive programming</a> usually can&rsquo;t hurt.  Just consider what the cost of running your code against the wrong file system would be and trap this condition accordingly.</p>
+
+<p>If you&rsquo;re interested in handling this automatically in your development environment I&rsquo;ve come up with a simple pattern that works for me.  In some instances such as running your code outside of Eclipse without &ldquo;hadoop jar&rdquo; this pattern could fail so only use it specifically for debugging in Eclipse.  Here&rsquo;s what I do:</p>
+
+<pre><code>import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
+
+public class TestClass {
+    private static final String CORE_SITE_NAME = "core-site.xml";
+    private static final String CORE_SITE_LOCATION = "/etc/hadoop-0.20/conf.empty/"
+            + CORE_SITE_NAME;
+    private static final String LOCAL_SEARCH_PATH = "bin/";
+    private static final String LOCAL_CORE_SITE_LOCATION = LOCAL_SEARCH_PATH
+            + CORE_SITE_NAME;
+
+    private static boolean updatedConfiguration = false;
+
+    public static void main(String[] args) throws IOException {
+        try {
+            // Get the configuration and connect to the file system
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
+
+            // Is this the local file system?
+            if (fs instanceof LocalFileSystem) {
+                // Yes, we need to do use the cluster. Update the configuration.
+                updatedConfiguration = true;
+
+                /**
+                 * Remove the file if it already exists. Just in case this is a
+                 * symlink or something.
+                 */
+                removeTemporaryConfigurationFile();
+
+                // Copy the core-site.xml file to where our JVM can see it
+                copyConfigurationToTemporaryLocation();
+
+                // Recreate the configuration object
+                conf = new Configuration();
+
+                // Get a new file system object
+                fs = FileSystem.get(conf);
+
+                // Is this the local file system?
+                if (fs instanceof LocalFileSystem) {
+                    // Yes, give up. We cannot connect to the cluster.
+                    System.err.println("Failed to connect to the cluster.");
+                    System.exit(2);
+                }
+            }
+
+            // Do your HDFS related work here...
+        } catch (IOException ioe) {
+            // An IOException occurred, give up
+            System.err.println("IOException during operation: "
+                    + ioe.toString());
+            System.exit(1);
+        } finally {
+            // Did we update the configuration?
+            if (updatedConfiguration) {
+                // Yes, clean up the temporary configuration file
+                removeTemporaryConfigurationFile();
+            }
+        }
+    }
+
+    private static void copyConfigurationToTemporaryLocation()
+            throws IOException {
+        Runtime.getRuntime().exec(
+                new String[] { "cp", CORE_SITE_LOCATION,
+                        LOCAL_CORE_SITE_LOCATION });
+    }
+
+    private static void removeTemporaryConfigurationFile() throws IOException {
+        Runtime.getRuntime().exec(
+                new String[] { "rm", LOCAL_CORE_SITE_LOCATION });
+    }
+}
+</code></pre>
+
+<p>Now where it says &ldquo;Do your HDFS related work here&hellip;&rdquo; you can put your code and be sure that it&rsquo;s accessing the cluster, not your local file system.</p>
+
+<p>In a future article and on github I&rsquo;ll wrap this up in a reusable chunk so that you won&rsquo;t have to copy and paste this every time you start a new project.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/">Why I Wrote dirhash.pl (a Whole Directory Filename and Contents Hashing System)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-29T17:17:15-05:00" pubdate data-updated="true">Jan 29<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Over the years I have accumulated many, many disks full of data.  Ordinarily I migrate them to my latest disk and just keep a backup or two and get rid of the old disks.  However, every once in a while I come across an old disk that has a directory structure that I really want to keep but don&rsquo;t have the time to go through.  Recently this happened with a large directory of old projects and to make matters worse there were multiple copies of this directory in different places.</p>
+
+<p>I looked around and found some interesting stuff so I certainly didn&rsquo;t want to lose this time capsule of code but I now had an interesting problem.  How do I take multiple copies of what appear like identical directories and compare them so I can nuke them if they are duplicates?</p>
+
+<p>I could rsync one to the other but that would involve modifying one or both copies and I wasn&rsquo;t excited about that since there&rsquo;s the chance that one is newer than the other and I could mix them up.  There are flags to check that but I didn&rsquo;t want to go the potentially destructive route.</p>
+
+<p>I could hash each file and determine which are dupes but with over 20,000 files it becomes tedious work.  Dupe removers are OK but it still felt clunky.  I just wanted a quick yea or nay as to whether I could give these files the good old &ldquo;rm -rf&rdquo;.</p>
+
+<p>Hashing the files, dumping it to a list, and then hashing the list sounds good but there are a few problems:</p>
+
+<ul>
+<li><p>If the files are in different order the results will be different but I can resolve this with &ldquo;sort&rdquo;</p></li>
+<li><p>If the hashing program reports the relative path names then the file list will definitely be different and therefore the final hash will be different.  I could resolve this with some vi-fu or sed-fu but that leaves me with some work that is just lost when I need to do it again.</p></li>
+</ul>
+
+
+<p>My solution was to write a Perl script that rolled all of that logic into one package.  It does the following:</p>
+
+<ul>
+<li><p>Gets a list of files in the specified directory</p></li>
+<li><p>Sorts that list</p></li>
+<li><p>Hashes each entry in the list.  If it is a file it is hashed and its filename is appended to the hash, if it is a directory it is opened up and those files are run through this process recursively.</p></li>
+<li><p>The final list of hashes and filenames itself is hashed to make sure we get one hash for the entire directory</p></li>
+</ul>
+
+
+<p>This solves the order problem and the script removes the relative path elements from each filename automatically so that&rsquo;s no longer an issue as well.</p>
+
+<p>If you&rsquo;re looking to see if two directory structures are equal (filenames all equal, no files added or removed between the two of them, and file contents equal) give it a shot and let me know how it works for you.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/">Why I Wrote prcp.pl (Copies Files With a Progress Indicator)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-29T17:01:40-05:00" pubdate data-updated="true">Jan 29<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/29/why-i-wrote-prcp-pl-copies-files-with-a-progress-indicator/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Just last night I had a few large files I wanted to bring to a friends house.  They were HD videos that I took a long time ago and were about 7 GB in total.  I figured I would just plop them on a USB drive and in a few minutes I&rsquo;d be ready to go.</p>
+
+<p>It didn&rsquo;t quite work out so easily.  15 minutes after I tried to drag the files to the drive in Nautilus it wasn&rsquo;t apparent that anything was happening.  The progress bar had frozen, the flash drive was still doing something, and some of the files looked like they were there.  I tried to do it again on the command line using &ldquo;cp&rdquo; and got the same results (with no progress bar).  I knew there had to be a better way to copy these files and know what was actually going on but first I had to figure out what was really happening.</p>
+
+<p>The initial discovery was that when &ldquo;cp&rdquo; copies a file to a vfat (FAT32) formatted flash drive it immediately allocates enough space for the entire file to fit.  This is smart because it makes sure you can&rsquo;t get stuck copying a file to a drive where it won&rsquo;t fit.  It&rsquo;s also a pain because I can&rsquo;t open another terminal window and see the file growing as it is being written to.</p>
+
+<p>My next discovery was that disk caching was making the process difficult to understand.  Nautilus appeared to copy the file quickly at first and then it just looked like it hung completely.</p>
+
+<p>So I set out to write a script to fix these problems.  I knew I wanted all of the following things:</p>
+
+<ul>
+<li><p>A command-line utility &ndash; I wanted to be able to use this program without a GUI</p></li>
+<li><p>A progress bar &ndash; I wanted to get visual feedback without babysitting the script</p></li>
+<li><p>Files that &ldquo;grew&rdquo; while they were being copied &ndash; I wanted to be able to check it remotely in a different terminal session if necessary</p></li>
+<li><p>Predictable behavior with regard to the disk cache &ndash; I couldn&rsquo;t have the disk cache making it seem like the devices were writing very fast, then stalling, then writing very fast again</p></li>
+</ul>
+
+
+<p>After an hour I came up with prcp.pl.  It is a Perl script that uses mainly Term::ProgressBar and File::Sync to do what I needed.  It&rsquo;s not finished but it&rsquo;s very functional.  What it does is copy the file using sysread and syswrite while fsyncing the output file after each write.  This forces what you see on the disk to be consistent with what the program is copying since it largely bypasses the disk cache.</p>
+
+<p>If you&rsquo;re brave give it a try and let me know what you think.  Only use it on data that you have backed up since it has undergone minimal testing so far.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/01/29/free-tool-collection-available-on-github/">Free Tool Collection Available on Github</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-29T16:38:52-05:00" pubdate data-updated="true">Jan 29<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/01/29/free-tool-collection-available-on-github/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/29/free-tool-collection-available-on-github/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today I just released <a href="https://github.com/timmattison/timmattison-tools">a few home brew tools</a> that I&rsquo;ve been meaning to write for a while.  I&rsquo;m going to write full articles on them soon but just as a preliminary taste here are descriptions of the two programs I released today:</p>
+
+<ul>
+<li><p>prcp.pl &ndash; Copies files and has a progress indicator</p></li>
+<li><p>dirhash.pl &ndash; Hashes the names and contents of an entire directory to a single hash</p></li>
+</ul>
+
+
+<p>If you use them please post in the comments below.  If you want to contribute to them just send me merge requests and open tickets!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/7/">&larr; Older</a>
+    
+    <a href="/archives">Archives</a>
+    
+    <a class="next" href="/page/5/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

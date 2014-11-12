@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How-To: Convert From Bzr to Git on Debian/Ubuntu - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="For a brief period of time I was totally sold on Bazaar (AKA bzr) for my distributed version control needs.  Then I found out about github and the &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How-To: Convert From Bzr to Git on Debian/Ubuntu</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-13T17:41:14-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>For a brief period of time I was totally sold on <a href="http://bazaar.canonical.com/en/">Bazaar</a> (AKA bzr) for my distributed version control needs.  Then I found out about <a href="http://github.com">github</a> and the rest is history.  bzr is neat and has it&rsquo;s advantages but github is just too hot a community to pass up.  Building skills on both would be great but realistically I&rsquo;m only going to get good at the one that I use consistently.  So, git wins for me.</p>
+
+<p>When I was using bzr I accumulated a bunch of code in bzr repositories that I now want to convert to git.  There are a bunch of tutorials out there on how to do this but they all didn&rsquo;t work for some reason or another.  Here I have step by step instructions on how to move from bzr to git, with any branches you have created, that should work without fuss on both Debian and Ubuntu.</p>
+
+<p>These instructions assume the following:</p>
+
+<ol>
+<li><p> You have a bzr repository that you&rsquo;d like to become your master git branch that currently resides in a directory called bzr-master.</p></li>
+<li><p> You have one branch you&rsquo;d like to bring into git as &ldquo;branch-1&rdquo; that currently resides in a directory called bzr-branch-1.</p></li>
+<li><p> You want to call your new repository git-repo.</p></li>
+</ol>
+
+
+<p>Obviously, you will have different master and branch names so fill those in appropriately.  They are bold faced and italicized where you will need to replace the names.</p>
+
+<ul>
+<li><p>Step 1: Install bzr.</p>
+
+<p>sudo apt-get install bzr</p></li>
+<li><p>Step 2: Install bzr-fastimport.</p>
+
+<p>sudo apt-get install bzr-fastimport</p></li>
+<li><p>Step 3: Go to the parent directory that contains your two bzr branches in your shell.</p></li>
+<li><p>Step 4: Create the new git repository and stay in that directory</p>
+
+<p>mkdir <strong><em>git-repo</em></strong> ; cd <strong><em>git-repo</em></strong> ; git init .</p></li>
+<li><p>Step 5: Pull the master branch into git</p>
+
+<p>bzr fast-export &mdash;export-marks=../marks.bzr ../<strong><em>bzr-master</em></strong> | git fast-import &mdash;export-marks=../marks.git</p></li>
+<li><p>Step 6: Pull branch-1 into git</p>
+
+<p>bzr fast-export &mdash;marks=../marks.bzr &mdash;git-branch=branch-1 ../<strong><em>bzr-branch-1</em></strong> | git fast-import &mdash;import-marks=../marks.git &mdash;export-marks=../marks.git</p></li>
+</ul>
+
+
+<p>Now if you do a git branch you should see the master branch as well as branch-1.  Check the logs to make sure they&rsquo;re complete, nuke the marks.bzr and marks.git files, and then push them to github!  :)</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-13T17:41:14-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/how-to/'>How-To</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Convert from bzr to git on Debian/Ubuntu"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/">
+    For a brief period of time I was totally sold on [Bazaar](http://bazaar.canonical.com/en/) (AKA bzr) for my distributed version control needs.  Then I found out about [github](http://github.com) and the rest is history.  bzr is neat and has it's advantages but github is just too hot a community to pass up.  Building skills on both would be great but realistically I'm only going to get good at the one that I use consistently.  So, git wins for me.
+
+When I was using bzr I accumulated a bunch of &hellip;
+</a>
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/" title="Previous Post: How-To: Secure your WordPress blog with two-factor authentication">&laquo; How-To: Secure your WordPress blog with two-factor authentication</a>
+      
+      
+        <a class="basic-alignment right" href="/archives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files/" title="Next Post: How-To: Improve your duplicity backup and restore times on Rackspace Cloud Files">How-To: Improve your duplicity backup and restore times on Rackspace Cloud Files &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel's Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

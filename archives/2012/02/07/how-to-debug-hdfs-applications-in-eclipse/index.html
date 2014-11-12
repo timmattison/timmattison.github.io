@@ -1,0 +1,491 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How-To: Debug HDFS Applications in Eclipse - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS. One thing that I noticed is that when running &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How-To: Debug HDFS Applications in Eclipse</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-07T10:56:58-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS.  One thing that I noticed is that when running the application via &ldquo;hadoop jar&rdquo; it properly accessed HDFS and stored its files there but if I ran it in the debugger the API calls succeeded but the files never showed up.</p>
+
+<p>After a bit more investigation I saw that the HDFS API was unable to read my configuration files and find the NameNode so it defaulted to writing the files on the local file system instead.  This is nice behavior for debugging sometimes but can be dangerous if you&rsquo;re running an application that must put its files in HDFS like a mission critical application that doesn&rsquo;t fulfill its operational contract if data is lost.  In the case of an application like that accidentally writing to the local file system could be disastrous and expensive so it&rsquo;s good to know how to detect when this happens, and/or overcome it in a situation where you&rsquo;re trying to debug against your HDFS cluster.</p>
+
+<p>Let&rsquo;s look at a simple code snippet that connects to HDFS that is just a cleaned up version of <a href="http://developer.yahoo.com/hadoop/tutorial/module2.html#programmatically">Yahoo&rsquo;s Hadoop tutorial</a>:</p>
+
+<pre><code>import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+public class TestClass {
+    private static final String theFilename = "timmattison.txt";
+    private static final String message = "This is the message that gets put into the file";
+
+    public static void main(String[] args) {
+        try {
+            // Get the configuration and connect to the file system
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
+
+            // Create the path object for our output file
+            Path filenamePath = new Path(theFilename);
+
+            // Does it exist already?
+            if (fs.exists(filenamePath)) {
+                // Yes, remove it first
+                fs.delete(filenamePath);
+            }
+
+            // Create the output file and write the data into it
+            FSDataOutputStream out = fs.create(filenamePath);
+            out.writeUTF(message);
+            out.close();
+
+            // Open the output file as an input file and read it
+            FSDataInputStream in = fs.open(filenamePath);
+            String messageIn = in.readUTF();
+
+            // Print its contents and close the file
+            System.out.print(messageIn);
+            in.close();
+        } catch (IOException ioe) {
+            System.err.println("IOException during operation: "
+                    + ioe.toString());
+            System.exit(1);
+        }
+    }
+}
+</code></pre>
+
+<p>If you run this code with &ldquo;hadoop jar&rdquo; you&rsquo;ll see that it creates the expected file (timmattison.txt) in the current user&rsquo;s default path in HDFS.  If you run this code with Eclipse either in Run or Debug mode you&rsquo;ll see that the file is not created in HDFS, it is created relative to where Eclipse starts the JVM for the new process.</p>
+
+<p>We can tell where the HDFS library will attempt to write our files by very simply checking the type of the FileSystem object that is created by the call to <code>FileSystem.get(conf)</code>.  If that object&rsquo;s type is <a href="http://hadoop.apache.org/common/docs/current/api/org/apache/hadoop/fs/LocalFileSystem.html">LocalFileSystem</a> we are not connecting to HDFS.  However if that object&rsquo;s type is <a href="http://hadoop.apache.org/hdfs/docs/current/api/org/apache/hadoop/hdfs/DistributedFileSystem.html">DistributedFileSystem</a> then you know that you&rsquo;re connected to a Hadoop cluster and writing to a real instance of HDFS.</p>
+
+<p>In your code you can leverage this in a few ways.  First, if you always need to be sure you&rsquo;re writing to the cluster you can check the fs variable and see if it is an instance of LocalFileSystem.  If it is you can signal an error, e-mail an admin, etc.  Configuration changes in the field could cause this to happen so it is important to be aware of.  In general running programs through &ldquo;hadoop jar&rdquo; will make sure this doesn&rsquo;t happen but a little <a href="http://en.wikipedia.org/wiki/Defensive_programming">defensive programming</a> usually can&rsquo;t hurt.  Just consider what the cost of running your code against the wrong file system would be and trap this condition accordingly.</p>
+
+<p>If you&rsquo;re interested in handling this automatically in your development environment I&rsquo;ve come up with a simple pattern that works for me.  In some instances such as running your code outside of Eclipse without &ldquo;hadoop jar&rdquo; this pattern could fail so only use it specifically for debugging in Eclipse.  Here&rsquo;s what I do:</p>
+
+<pre><code>import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
+
+public class TestClass {
+    private static final String CORE_SITE_NAME = "core-site.xml";
+    private static final String CORE_SITE_LOCATION = "/etc/hadoop-0.20/conf.empty/"
+            + CORE_SITE_NAME;
+    private static final String LOCAL_SEARCH_PATH = "bin/";
+    private static final String LOCAL_CORE_SITE_LOCATION = LOCAL_SEARCH_PATH
+            + CORE_SITE_NAME;
+
+    private static boolean updatedConfiguration = false;
+
+    public static void main(String[] args) throws IOException {
+        try {
+            // Get the configuration and connect to the file system
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
+
+            // Is this the local file system?
+            if (fs instanceof LocalFileSystem) {
+                // Yes, we need to do use the cluster. Update the configuration.
+                updatedConfiguration = true;
+
+                /**
+                 * Remove the file if it already exists. Just in case this is a
+                 * symlink or something.
+                 */
+                removeTemporaryConfigurationFile();
+
+                // Copy the core-site.xml file to where our JVM can see it
+                copyConfigurationToTemporaryLocation();
+
+                // Recreate the configuration object
+                conf = new Configuration();
+
+                // Get a new file system object
+                fs = FileSystem.get(conf);
+
+                // Is this the local file system?
+                if (fs instanceof LocalFileSystem) {
+                    // Yes, give up. We cannot connect to the cluster.
+                    System.err.println("Failed to connect to the cluster.");
+                    System.exit(2);
+                }
+            }
+
+            // Do your HDFS related work here...
+        } catch (IOException ioe) {
+            // An IOException occurred, give up
+            System.err.println("IOException during operation: "
+                    + ioe.toString());
+            System.exit(1);
+        } finally {
+            // Did we update the configuration?
+            if (updatedConfiguration) {
+                // Yes, clean up the temporary configuration file
+                removeTemporaryConfigurationFile();
+            }
+        }
+    }
+
+    private static void copyConfigurationToTemporaryLocation()
+            throws IOException {
+        Runtime.getRuntime().exec(
+                new String[] { "cp", CORE_SITE_LOCATION,
+                        LOCAL_CORE_SITE_LOCATION });
+    }
+
+    private static void removeTemporaryConfigurationFile() throws IOException {
+        Runtime.getRuntime().exec(
+                new String[] { "rm", LOCAL_CORE_SITE_LOCATION });
+    }
+}
+</code></pre>
+
+<p>Now where it says &ldquo;Do your HDFS related work here&hellip;&rdquo; you can put your code and be sure that it&rsquo;s accessing the cluster, not your local file system.</p>
+
+<p>In a future article and on github I&rsquo;ll wrap this up in a reusable chunk so that you won&rsquo;t have to copy and paste this every time you start a new project.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-02-07T10:56:58-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/hadoop/'>Hadoop</a>, <a class='category' href='/categories/how-to/'>How-To</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Debug HDFS applications in Eclipse"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="Hadoop,How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/">
+    I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS.  One thing that I noticed is that when running the application via "hadoop jar" it properly accessed HDFS and stored its files there but if I ran it in the debugger the API calls succeeded but the files never showed up.
+
+After a bit more investigation I saw that the HDFS API was unable to read my configuration files and find the NameNode so it defaulted to writing the files on the local file &hellip;
+</a>
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2012/01/29/why-i-wrote-dirhash-pl-a-whole-directory-filename-and-contents-hashing-system/" title="Previous Post: Why I wrote dirhash.pl (a whole directory filename and contents hashing system)">&laquo; Why I wrote dirhash.pl (a whole directory filename and contents hashing system)</a>
+      
+      
+        <a class="basic-alignment right" href="/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/" title="Next Post: Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap">Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel's Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

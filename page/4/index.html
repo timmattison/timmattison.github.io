@@ -1,0 +1,1290 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default. If you have &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/page/4">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Port 32764 - a Router Backdoor That You Need to Take Seriously</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-16T08:50:19-05:00" pubdate data-updated="true">Jan 16<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/16/port-32764-a-router-backdoor-that-you-need-to-take-seriously/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>TL;DR Several routers have been found to have a backdoor installed on them that is accessible via the LAN and WAN connections by default.  If you have Internet access at home or at a client location you care about then you should be testing to see if they are vulnerable with <a href="https://www.grc.com/x/portprobe=32764">ShieldsUP</a>.</p>
+
+<p>I would recommend running this test ASAP.  The <a href="https://github.com/elvanderb/TCP-32764">list of affected routers</a> includes Netgear, Linksys, and even “real” Cisco hardware.  That list is not exhaustive.</p>
+
+<p>If you need to run this test via SSH I’ve whipped up a script that will spit out whether you’re vulnerable or not based on the ShieldsUP results.  It was designed to run on Mac OS (because their version of sed is busted) and tested on Mavericks and Debian Linux.  Here’s what you can run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl -L http://bit.ly/port32764 2&gt;&amp;1 | <span class="se">\</span>
+</span><span class='line'>  tr <span class="s2">&quot;\n&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
+</span><span class='line'>  tr <span class="s2">&quot;\r&quot;</span> <span class="s2">&quot; &quot;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/&lt;[^&gt;][^&gt;]*&gt;/ /g&#39;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/^.*32764/32764/&#39;</span> | <span class="se">\</span>
+</span><span class='line'>  sed <span class="s1">&#39;s/Unknown.*$//&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The response should look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Stealth
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>32764 Closed
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you get anything else then you are vulnerable.  Even if you run this test I recommend running it in a browser on the connection you’re testing just in case the script has an issue.</p>
+
+<p>If you are vulnerable then the following pieces of information about your connection may have already been compromised:</p>
+
+<ul>
+<li>Your wireless key (in the clear, not hashed)</li>
+<li>Your router admin username and password (in the clear, not hashed)</li>
+<li>Your router’s SSID and MAC address (this can be used to add your router to a database of access points with passwords)</li>
+<li>Any custom settings you have on your router (port mapping to interesting devices, tunnels you thought would be hidden on a high port number, etc)</li>
+</ul>
+
+
+<p>People have written plenty of applications that do scans of the entire Internet in days <a href="http://zmap.io/">or even hours</a>.  This is being scanned for constantly right now and you cannot hide in the four billion addresses out there.</p>
+
+<p>If you are not vulnerable but you have used the same wireless password on an older router it is probably a good idea to change your password.  Nobody knows how long this has been in the wild.  It has been in the firmware for a long time.</p>
+
+<p>If you need help post in the comments.  Good luck!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/">Fixing In-Page Analytics With Google Analytics</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-10T08:40:24-05:00" pubdate data-updated="true">Jan 10<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/10/fixing-in-page-analytics-with-google-analytics/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>After migrating to Octopress I started getting interested in my site&rsquo;s analytics again.  A co-worker told me about in-page analytics with Google Analytics and how it would show you what people were doing on your site so you could tune your layout.  We tried loading it and ran into some problems.</p>
+
+<p>First, we got the &ldquo;Loading&hellip;&rdquo; spinner for a long time:</p>
+
+<p><img src="/images/in-page-analytics/loading.png" alt="Loading..." /></p>
+
+<p>Then we got the &ldquo;Still loading&hellip;&rdquo; message that didn&rsquo;t inspire much confidence:</p>
+
+<p><img src="/images/in-page-analytics/still-loading.png" alt="Still loading..." /></p>
+
+<p>Finally, we got a popup that said &ldquo;Problem loading In-Page Analytics&rdquo;:</p>
+
+<p><img src="/images/in-page-analytics/problem-loading-in-page-analytics.png" alt="Problem loading In-Page Analytics" /></p>
+
+<p>What the problem was in my case was that I told Google Analytics that I wanted to track timmattison.com but my site redirects to blog.timmattison.com.  My two options were to make my site actually be served from timmattison.com or to change my tracking code.  I opted to change my tracking code.  I&rsquo;ll walk you through how I did it.</p>
+
+<p>NOTE: <em>You will lose your existing tracking data if you do this!</em>  If you want to keep your tracking data you&rsquo;ll need to find another way.  For me it wasn&rsquo;t a big deal because I just moved my site anyway and my analytics were reset a week or two ago already.</p>
+
+<p>Here are the steps:</p>
+
+<ul>
+<li>Log into your analytics account</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/log-into-your-analytics-account.png" alt="Log into your analytics account" /></p>
+
+<ul>
+<li>Click the admin button</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-the-admin-button.png" alt="Click the admin button" /></p>
+
+<ul>
+<li>Click &ldquo;View Settings&rdquo;</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-view-settings.png" alt="Click &quot;View Settings&quot;" /></p>
+
+<ul>
+<li><p>Scroll all the way to the bottom of the page</p></li>
+<li><p>Click &ldquo;Delete View&rdquo;</p></li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-delete-view.png" alt="Click &quot;Delete View&quot;" /></p>
+
+<ul>
+<li>Click &ldquo;Delete View&rdquo; again.  <em>At this point you&rsquo;ll lose all of your analytics history!</em></li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-delete-view-again.png" alt="Click &quot;Delete View&quot; again" /></p>
+
+<ul>
+<li>Click the admin button</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-the-admin-button.png" alt="Click the admin button" /></p>
+
+<ul>
+<li>Click the property drop down and then click &ldquo;Create new property&rdquo;</li>
+</ul>
+
+
+<p><img src="/images/in-page-analytics/click-property-drop-down-and-click-create-new-property.png" alt="Click the property drop down and then click &quot;Create new property&quot;" /></p>
+
+<ul>
+<li><p>Re-create your property and make sure you use the site you redirect to.  In my case &ldquo;blog.timmattison.com&rdquo;, not &ldquo;timmattison.com&rdquo;.</p></li>
+<li><p>Put your new tracking code into your site.  <em>Don&rsquo;t forget to do this or tracking won&rsquo;t work at all!</em></p></li>
+</ul>
+
+
+<p>And that should do it.  Let me know if it works for you or if you need some help.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/04/testing-a-video-plugin/">Testing a Video Plugin</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-04T13:54:46-05:00" pubdate data-updated="true">Jan 4<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/04/testing-a-video-plugin/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/04/testing-a-video-plugin/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Just testing an Octopress plugin from github called <a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Octopress responsive video embed</a>.</p>
+
+<p>A Vimeo video:</p>
+
+<div class="embed-video-container"><iframe src="http://player.vimeo.com/video/82648212 "></iframe></div>
+
+
+<p>A YouTube video:</p>
+
+<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/T3gacnHb9TI "></iframe></div>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">BeagleBone Black and Raspberry Pi SD Card Gotchas on Mac OS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T19:18:24-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/beaglebone-black-and-raspberry-pi-sd-card-gotchas-on-mac-os/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you&rsquo;re using dd on the command-line to write SD card images in Mac OS then you may have run into a weird issue where the image is starting to write and then dd comes back and says:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>dd: /dev/diskX: Resource busy
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I ran into this multiple times when building Raspberry Pi and BeagleBone Black images.  What it turned out to be was that Mac OS needed me to set the block size for some reason.  I arbitrarily chose 1 MiB so my command looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo dd <span class="k">if</span><span class="o">=</span>image-file.img <span class="nv">of</span><span class="o">=</span>/dev/disk3 <span class="nv">bs</span><span class="o">=</span>1048576
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After specifying the bs parameter it never happened to me again.  Let me know if you ran into the same thing and whether or not this fixed it on your system.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Building Asterisk With Support for SIPML5</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T19:06:58-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you are trying to use SIPML5 with Asterisk there are some gotchas that often come up.  If you&rsquo;re running it on Debian these tips below may help.</p>
+
+<p>If you haven&rsquo;t gotten that far with Asterisk and don&rsquo;t care about your current configuration you can try this procedure that I use to build Asterisk myself:</p>
+
+<ul>
+<li>Download latest Asterisk, extract it, and cd into the directory it was extracted into</li>
+<li>Install some necessary dependencies</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install build-essential libncurses5-dev libxml2-dev libsqlite3-dev libssl-dev libsrtp0-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Run the configuration script</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>./configure
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Build Asterisk.  NOTE: I have only had problems running a multi-job make so I would suggest you do not include a -jX option to take advantage of all of your cores.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>make
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Install Asterisk</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make install
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Build the samples and <strong>overwrite your current configuration</strong>.  <strong>You lose everything here so skip this step if you want to keep your config</strong>.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make samples
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Start Asterisk with crazy verbosity so you can see what is going on</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo /usr/sbin/asterisk -vvvvvvvvvvvvvvg
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are two issues I ran into when trying to use SIPML5.</p>
+
+<h1>Error #1: no protocols out of &lsquo;sip&rsquo; supported &ndash; in Asterisk console</h1>
+
+<p>In this case chan_sip.so probably isn&rsquo;t built.  Check in make menuconfig, add libssl-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_crypto is enabled.</p>
+
+<h1>Error #2: SRTP issues</h1>
+
+<p>If you are having SRTP issues you probably get one or more of these messages:</p>
+
+<ul>
+<li>In the browser &ndash; Not acceptable here</li>
+<li>In the Asterisk console &ndash; Received SAVPF profile in audio offer but AVPF is not enabled</li>
+<li>In the Asterisk console &ndash; Insufficient information in SDP</li>
+<li>In the Asterisk console &ndash; No SRTP module loaded, can&rsquo;t setup SRTP session</li>
+<li>In the Asterisk console &ndash; Rejecting secure audio stream without encryption details</li>
+</ul>
+
+
+<p>In this case res_srtp.so probably isn&rsquo;t built.  Check in make menuconfig, add libsrtp0-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_srtp is enabled.</p>
+
+<p>Good luck and post in the comments if it worked for you or if you need some help.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">How to Get SIPML5 Working With Asterisk</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T18:59:44-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months.  Enjoy!</p>
+
+<p>Assume Asterisk is running on localhost and Apache is installed and running with /var/www at the htdocs directory</p>
+
+<p>http.conf changes:</p>
+
+<ul>
+<li>Set &ldquo;enabled=yes&rdquo; OR uncomment &ldquo;;enabled=yes&rdquo;</li>
+<li>Set &ldquo;bindport=8088&rdquo; OR uncomment &ldquo;;bindport=8088&rdquo;</li>
+</ul>
+
+
+<p>sip.conf changes:</p>
+
+<ul>
+<li>Get the SIP code listening via TCP &ndash; set &ldquo;tcpenable=yes&rdquo;</li>
+<li>Add web socket support for SIP &ndash; set &ldquo;transport=udp,ws&rdquo; OR add &ldquo;,ws&rdquo; to existing transport list</li>
+<li>Uncomment xlite1 account</li>
+<li>Add &ldquo;avpf=yes&rdquo; to xlite1 account</li>
+<li>Add &ldquo;icesupport=yes&rdquo; to xlite1 account</li>
+</ul>
+
+
+<p>Steps to perform test call:</p>
+
+<ul>
+<li>Restart Asterisk</li>
+<li>Get the source from Subversion</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>svn checkout http://sipml5.googlecode.com/svn/trunk/ sipml5-read-only</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Move the sipml5 source into /var/www</li>
+<li>Open Chrome and point it to the SIPML5 index.html in /var/www (or the subdirectory you put it in)</li>
+<li>Click &ldquo;Enjoy our live demo&rdquo;</li>
+<li>Set these values in the &ldquo;Registration&rdquo; panel
+
+<ul>
+<li>Display Name: xlite1</li>
+<li>Private Identity: xlite1</li>
+<li>Public Identity: sip:xlite1@localhost</li>
+<li>Realm: localhost</li>
+<li>Password is left blank</li>
+</ul>
+</li>
+<li>Click &ldquo;Expert Mode&rdquo;</li>
+<li>Set these values in &ldquo;Expert settings&rdquo;
+
+<ul>
+<li>Disable Video: Checked</li>
+<li>Enable RTCWeb Breaker: Unchecked</li>
+<li>WebSocket Server URL: ws://localhost:8088/ws</li>
+<li>SIP outbound Proxy URL: udp://localhost:5060</li>
+<li>Click &ldquo;Save&rdquo;</li>
+<li>Close &ldquo;Expert settings&rdquo; tab</li>
+</ul>
+</li>
+<li>Enter &ldquo;sip:2@localhost&rdquo; in the &ldquo;Call control&rdquo; field</li>
+<li>Click &ldquo;Call&rdquo;</li>
+</ul>
+
+
+<p>At this point you should hear audio coming from Asterisk in a few seconds and your first call is complete.  Now you can build out your server as you&rsquo;d want!</p>
+
+<p>Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.</p>
+
+<p><img src="/images/sipml5-asterisk/registration-and-call-control.png" alt="Registration and call control" /></p>
+
+<p><img src="/images/sipml5-asterisk/expert-settings.png" alt="Expert settings" /></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/installing-unison-on-a-synology-nas/">Installing Unison on a Synology NAS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T18:53:31-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/installing-unison-on-a-synology-nas/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/installing-unison-on-a-synology-nas/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This is all business.  I wrote this up a long time ago and never got a chance to put it online.  Enjoy!</p>
+
+<p>First, install SSH:</p>
+
+<ol>
+<li>Go to Synology web GUI</li>
+<li>Open Control Panel</li>
+<li>Click &ldquo;Terminal&rdquo;</li>
+<li>Check &ldquo;Enable SSH service&rdquo;</li>
+<li>Click &ldquo;Apply&rdquo;</li>
+</ol>
+
+
+<p>Set up your users so they have a home directory:</p>
+
+<ol>
+<li>Go to Synology web GUI</li>
+<li>Open Control Panel</li>
+<li>Click &ldquo;User&rdquo;</li>
+<li>Click &ldquo;User Home&rdquo; button at the top</li>
+<li>Check &ldquo;Enable user home service&rdquo;</li>
+<li>Select the volume on which the home directories should be stored</li>
+<li>Click &ldquo;OK&rdquo;</li>
+</ol>
+
+
+<p>Connect via SSH and make sure it works:</p>
+
+<ol>
+<li>ssh as admin to the Synology box.  Use the same password you use as admin on the web GUI.  <strong>If you leave it blank, even if your password is blank, it will always fail.  You must have a non-blank password!</strong> This is to protect against your device getting compromised from having no password.</li>
+<li>If you get the &ldquo;Diskstation>&rdquo; prompt then it is working</li>
+</ol>
+
+
+<p>Connect via SSH and make sure non-admin/non-root logins work:</p>
+
+<ol>
+<li>Connect as a regular user.  If you get permission denied SSH back in as root and change the desired user&rsquo;s shell from /sbin/nologin to /bin/ash in /etc/passwd.</li>
+<li>Try logging in again as that user</li>
+</ol>
+
+
+<p>Bootstrap for ipkg:</p>
+
+<ol>
+<li><a href="http://forum.synology.com/wiki/index.php/Overview_on_modifying_the_Synology_Server,_bootstrap,_ipkg_etc">http://forum.synology.com/wiki/index.php/Overview_on_modifying_the_Synology_Server,_bootstrap,_ipkg_etc</a></li>
+<li>Log in as root</li>
+<li>If you have DSM 4 or greater:</li>
+<li> Edit /root/.profile and comment out the lines that set and export the PATH variable</li>
+<li> Log out</li>
+<li> Log back in as root</li>
+<li>Run &ldquo;ipkg&rdquo;.  You should see the options come up and not an error message that ipkg can&rsquo;t be found.</li>
+</ol>
+
+
+<p>Compile and install Unison &ndash; <a href="http://www.multigesture.net/articles/how-to-compile-unison-for-a-synology-ds212/">http://www.multigesture.net/articles/how-to-compile-unison-for-a-synology-ds212/</a>
+This error is expected:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if [ -f `which etags` ]; then \
+</span><span class='line'>    etags *.mli */*.mli *.ml */*.ml */*.m *.c */*.c *.txt \
+</span><span class='line'>          ; fi
+</span><span class='line'>/bin/sh: etags: not found
+</span><span class='line'>make[1]: [tags] Error 127 (ignored)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Good luck and post success stories and issues in the comments and I&rsquo;ll help if I can.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T18:29:05-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am running Debian on a BeagleBone Black at home as a toy server/sandbox.  One application that I thought would be interesting to run on it was the standard Bitcoin client.  I think it is a bit strange that the latest version of the Bitcoin client (0.8.6 at the time I wrote this) doesn&rsquo;t use &ldquo;configure&rdquo; like most other Linux/Unix applications because it leads to having to track down dependencies during a build rather than before them.  On a normal system this might not be a big deal because Bitcoin compiles in just a minute or so.  On a smaller device like the BeagleBone Black though it means you&rsquo;ll end up checking in on it periodically over a long period of time only to find that it needs another dependency.</p>
+
+<p>In their defense the github version DOES use a &ldquo;configure&rdquo; script.  I found that out after going through a manual build on 0.8.6 so for completeness I&rsquo;ll show how to compile both and you can use whichever one suits your needs.  The configure script on a lean device like the BeagleBone Black still takes quite a while to run though so this should get you through doing the process just once.</p>
+
+<p>You can use either the current stable version today which is 0.8.6 or you can use the bleeding edge github source.  I would recommend 0.8.6 if you want something that is as stable as possible.  When compiling from source you should keep in mind that your build may not be compatible with old wallet formats.</p>
+
+<p>I cannot stress this enough &ndash; IF YOU HAVE AN OLD WALLET YOU ARE BEST OFF USING THE OFFICIAL BINARIES INSTEAD OF BUILDING FROM SOURCE!</p>
+
+<h1>Using version 0.8.6</h1>
+
+<p>If you want to use version 0.8.6 here&rsquo;s what you need to do:</p>
+
+<ul>
+<li>Install the necessary dependencies</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install g++ libboost-dev libdb-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Download the <a href="http://sourceforge.net/projects/bitcoin/files/Bitcoin/bitcoin-0.8.6/bitcoin-0.8.6-linux.tar.gz/download">Bitcoin 0.8.6 source</a></p></li>
+<li><p>Extract the source</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>tar xzvf bitcoin-0.8.6-linux.tar.gz
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Remove the binaries, these are Intel binaries and won&rsquo;t work on the BeagleBone Black anyway</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>rm bitcoin-0.8.6-linux/bin/*/*
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Go to the src directory</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>bitcoin-0.8.6-linux/src/src
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Build the source</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>make -f makefile.unix
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you follow these instructions you should get Bitcoin up and running in just one build cycle.  Here are the commands that you should run:</p>
+
+<h1>Using the latest Bitcoin development version (NOT RECOMMENDED!)</h1>
+
+<p>NOTE: I do not recommend that you use this version.  Currently Debian does not have libdb4.8 in its default repository and the Bitcoin client requires it to maintain compatibility with existing wallet files.</p>
+
+<p>If you want to use the latest development version here&rsquo;s what you need to do:</p>
+
+<ul>
+<li>Install the necessary dependencies</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install g++ libboost-dev libdb-dev git automake pkg-config
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Clone the Bitcoin repository</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone https://github.com/bitcoin/bitcoin.git
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Configure the source</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>bitcoin
+</span><span class='line'>./autogen.sh
+</span><span class='line'>./configure --with-incompatible-bdb
+</span><span class='line'>make
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you&rsquo;ll have the bitcoind executable sitting on your BeagleBone Black.  When you try to run it the first time it will complain that some variables aren&rsquo;t set and that your config is incomplete.  The output will look something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>debian@arm:~/bitcoin/src/src<span class="nv">$ </span>./bitcoind
+</span><span class='line'>Error: To use bitcoind, you must <span class="nb">set </span>a rpcpassword in the configuration file:
+</span><span class='line'>/home/debian/.bitcoin/bitcoin.conf
+</span><span class='line'>It is recommended you use the following random password:
+</span><span class='line'><span class="nv">rpcuser</span><span class="o">=</span>bitcoinrpc
+</span><span class='line'><span class="nv">rpcpassword</span><span class="o">=</span>XxXXxXXxxxXxXXxXXXXXXxxxxXxxxxxXxXXXXXxXxxXx
+</span><span class='line'><span class="o">(</span>you <span class="k">do </span>not need to remember this password<span class="o">)</span>
+</span><span class='line'>The username and password MUST NOT be the same.
+</span><span class='line'>If the file does not exist, create it with owner-readable-only file permissions.
+</span><span class='line'>It is also recommended to <span class="nb">set </span>alertnotify so you are notified of problems;
+</span><span class='line'><span class="k">for </span>example: <span class="nv">alertnotify</span><span class="o">=</span><span class="nb">echo</span> %s | mail -s <span class="s2">&quot;Bitcoin Alert&quot;</span> admin@foo.com
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What you&rsquo;ll need to do is put these values into the ~/.bitcoin/bitcoin.conf.  Then you can restart bitcoind and it&rsquo;ll run and start grabbing the blockchain.  IT IS INCREDIBLY IMPORTANT THAT YOU DO NOT COPY THE VALUES THAT I PUT HERE.  Your file will look like this (except the rpcpassword will be whatever bitcoind told you):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">rpcuser</span><span class="o">=</span>bitcoinrpc
+</span><span class='line'><span class="nv">rpcpassword</span><span class="o">=</span>XxXXxXXxxxXxXXxXXXXXXxxxxXxxxxxXxXXXXXxXxxXx
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This password gives someone complete access to your bitcoind instance.  If you store money there and use the rpcpassword value that I put above you can and probably will lose it.</p>
+
+<p>Unless you have a giant SD card on your BeagleBone Black you&rsquo;ll probably want to put your blockchain on a different disk.  I have my Synology home directory mounted on my BeagleBone Black via NFS (as explained in another post).  It is mounted at ~/synology.  In order to make sure my blockchain is on my Synology I did the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mkdir ~/synology/bitcoind
+</span><span class='line'>mv ~/.bitcoin/blocks ~/.bitcoin/chainstate ~/.bitcoin/database ~/.bitcoin/db.log ~/.bitcoin/debug.log ~/synology/bitcoind/
+</span><span class='line'>ln -s ~/synology/bitcoind/blocks ~/.bitcoin/blocks
+</span><span class='line'>ln -s ~/synology/bitcoind/chainstate ~/.bitcoin/chainstate
+</span><span class='line'>mkdir -p ~/synology/bitcoind/database
+</span><span class='line'>ln -s ~/synology/bitcoind/database ~/.bitcoin/database
+</span><span class='line'>ln -s ~/synology/bitcoind/db.log ~/.bitcoin/db.log
+</span><span class='line'>ln -s ~/synology/bitcoind/debug.log ~/.bitcoin/debug.log
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You may get a few errors about files not existing when you run this.  This is normal and you should try to proceed and see if it works for you.  I was very careful here to not put bitcoin.conf or the wallet.dat file on the Synology.  You should also avoid putting those files on there.  Since the remote file system is potentially a shared resource an attacker can get into that and modify or steal data.  It&rsquo;s best to keep the wallet.dat, peers.dat, and bitcoin.conf local to your BeagleBone Black.</p>
+
+<p>At this point you can restart bitcoind.  I did this in a screen session rather than make it a true service since I&rsquo;m still playing around with it.  Once I set it up as a service I&rsquo;ll post an update and include that information as well.  I am a bit skeptical that it will stay stable since after just a few hours it is already taking up 50% of the BeagleBone Black&rsquo;s RAM.  I guess I&rsquo;ll just have to wait and see.</p>
+
+<p>Periodically check your free file system space and make sure that the blockchain isn&rsquo;t on your SD card.  In my case I can do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Show the amount of free space on my SD card</span>
+</span><span class='line'>du -sh /
+</span><span class='line'>
+</span><span class='line'><span class="c"># Show the amount of free space on my Synology NAS</span>
+</span><span class='line'>du -sh ~/synology/
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Good luck and post in the comments if this helps you out or if you need any assistance.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Connecting a BeagleBone Black to a Synology NAS With NFS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T06:52:06-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I originally purchased my Synology NAS because of all of the packages that it offers and the fact that it was supposed to give me one less thing to manage.  After a few failed attempts at getting OpenVPN to work and some Plex issues I decided that I needed to have something a little less opaque that I could install different packages on.  I wanted something small, low power, and solid state so I decided to use the BeagleBone Black.</p>
+
+<p>I tried using both CIFS/Samba and sshfs to mount the Synology&rsquo;s filesystem but both of them had extremely strange issues with the applications I planned on using.  I wouldn&rsquo;t recommend either of them for production work involving Linux and NAS.  Often it would tell me that files didn&rsquo;t exist even though I could clearly see they were there.  After moving to NFS none of this happened anymore.</p>
+
+<p>NOTE: Security here is all done by IP address so this is not suitable for a sensitive environment!</p>
+
+<p>Here are the steps I went through to connect my first enable and configure NFS on my Synoloy NAS:</p>
+
+<ol>
+<li>Make sure your BeagleBone Black has a static IP and that you know what it is</li>
+<li>Log into the Synology web GUI as an admin</li>
+<li>Click &ldquo;Control Panel&rdquo;</li>
+<li>Click &ldquo;Win/Mac/NFS&rdquo;</li>
+<li>Click &ldquo;NFS Service&rdquo;</li>
+<li>Make sure that &ldquo;Enable NFS&rdquo; and &ldquo;Enable NFSv4 support&rdquo; are checked</li>
+<li>Click the link that says &ldquo;Shared Folder&rdquo;</li>
+<li>Find and select the directory you want to share.  In my case it was my user account&rsquo;s home directory so I selected &ldquo;homes&rdquo;.</li>
+<li>Click the &ldquo;Privileges&rdquo; drop down</li>
+<li>Select &ldquo;NFS Privileges&rdquo;</li>
+<li>Click &ldquo;Create&rdquo;</li>
+<li>Enter your BeagleBone Black&rsquo;s IP address into the &ldquo;Hostname or IP&rdquo; field</li>
+<li>Make sure that the &ldquo;Privilege&rdquo; field is set to &ldquo;Read/Write&rdquo;</li>
+<li>Make sure that the &ldquo;Root squash&rdquo; field is set to &ldquo;No mapping&rdquo;</li>
+<li>Make sure that &ldquo;Enable asynchronous&rdquo; is checked</li>
+<li>Make sure that &ldquo;Allow connections from non-privileged ports (ports higher than 1024&rdquo; is NOT checked</li>
+<li>Click &ldquo;OK&rdquo; in the &ldquo;Create an NFS rule&rdquo; popup</li>
+<li>Take note of the &ldquo;Mount path&rdquo; field in the &ldquo;Edit NFS privileges of homes&rdquo; window, you&rsquo;ll need this later</li>
+<li>Click &ldquo;OK&rdquo; in the &ldquo;Edit NFS privileges of homes&rdquo; window</li>
+<li>Log out of the Synology web GUI</li>
+</ol>
+
+
+<p>Now you have your Synology all set up to accept NFS connections from your BeagleBone Black.  Here are the steps to do that:</p>
+
+<ol>
+<li>Connect to your BeagleBone Black via SSH as a user that can run sudo</li>
+<li>Install the NFS utilities and client by running &ldquo;sudo apt-get install nfs-common&rdquo;</li>
+<li>Go to your home directory</li>
+<li>Create a directory for your Synology mount point.  I chose &ldquo;synology&rdquo;.</li>
+<li>Mount your directory using the &ldquo;Mount path&rdquo; from above along with any additional paths to get you to the desired directory you want.  My mount path was &ldquo;/volume1/homes&rdquo; but I wanted &ldquo;/volume1/homes/tim&rdquo; for my actual home directory.  The command I used was &ldquo;sudo mount -t nfs synology:/volume1/homes/tim /home/tim/synology/&rdquo;</li>
+<li>Test out your newly mounted Synology NAS</li>
+</ol>
+
+
+<p>You can now add this to your /etc/fstab file if you&rsquo;d like but I prefer to keep it in a script.  I have a script called mount-nfs.sh in my home directory that I run when necessary since I&rsquo;m still testing out NFSv4.  Once I get it stable I&rsquo;ll make sure that I get it to mount automatically the proper way and update this post.</p>
+
+<h1>Potential issues</h1>
+
+<p>If you receive an error message that says &ldquo;mount.nfs: access denied by server while mounting synology&rdquo; you probably have the wrong IP for your BeagleBone Black in the Synology configuration.</p>
+
+<p>If it appears to mount the volume but no files show up try unmounting it and re-mounting it.  If you unmount it successfully and when re-mounting it again it complains that the device is busy it is possible that your BeagleBone Black&rsquo;s IP address changed.  This happened on my test machine when its IP went from 192.168.1.109 to 192.168.1.110.  It didn&rsquo;t give me the access denied error message but instead exhibited this weird behavior.  If this is the case make sure you have your IP assigned statically, reboot the BeagleBone Black, verify the static IP in the Synology configuration again, and then try re-mounting the path.  After that mine started working again.</p>
+
+<p>Good luck!  Post any success stories or issues in the comments.  I&rsquo;ll do my best to help out if possible.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2013/12/30/reading-resources-in-java/">Reading Resources in Java</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-30T11:02:52-05:00" pubdate data-updated="true">Dec 30<span>th</span>, 2013</time>
+        
+           | <a href="/archives/2013/12/30/reading-resources-in-java/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2013/12/30/reading-resources-in-java/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Reading resources in Java has always been a mystery to me.  It&rsquo;s not because I don&rsquo;t understand how to do it but more that I do it so infrequently that
+I always forget what I need to do.  In Java&rsquo;s defense once you understand what you need to do it&rsquo;s actually very simple.  I&rsquo;ve run into this issue
+many times in a professional context.  Usually it is just trying to load a simple resource so I can keep it inside the JAR file I&rsquo;m delivering to a
+client.</p>
+
+<p>The sixty second explanation of how to do this is as follows.  If you&rsquo;re using an IDE and have a standard project layout you can simply follow these steps:</p>
+
+<ol>
+<li>Under your src/main directory create a new directory called &ldquo;resources&rdquo;</li>
+<li>Put your static file in the &ldquo;resources&rdquo; directory.  For example, &ldquo;jquery-1.10.2.min.js&rdquo; if you want to serve this file from an embedded web server.</li>
+<li>When you want to load the file do this:</li>
+</ol>
+
+
+<p>The long way:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">URL</span> <span class="n">jqueryUrl</span> <span class="o">=</span> <span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">InputStream</span> <span class="n">jqueryInputStream</span> <span class="o">=</span> <span class="n">jqueryUrl</span><span class="o">.</span><span class="na">openStream</span><span class="o">();</span>
+</span><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">jqueryInputStream</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The short way:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">jquery</span> <span class="o">=</span> <span class="n">IOUtils</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">&quot;/jquery-1.10.2.min.js&quot;</span><span class="o">).</span><span class="na">openStream</span><span class="o">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it!  I recommend the long way because you can step through it if the file isn&rsquo;t found and get some insight into what happened rather than
+just getting an opaque NullPointerException.  If you don&rsquo;t have the file in the directory, or you have the wrong file name, after attempting to get
+the jqueryUrl it&rsquo;ll just be NULL.  If that happens just check to make sure that you have the file name correct, resources is spelled correctly, and
+it is in the right location.</p>
+
+<p>Good luck!  Post in the comments if you find this useful or if you have trouble.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/5/">&larr; Older</a>
+    
+    <a href="/archives">Archives</a>
+    
+    <a class="next" href="/page/3/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

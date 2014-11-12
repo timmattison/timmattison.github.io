@@ -1,0 +1,396 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How-To: Fix a Broken Eclipse Environment Without Starting Completely From Scratch - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="Over time my Eclipse environment has become quiet a bit crufty. I have a bunch of errors from plugins that I installed that didn&rsquo;t work &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How-To: Fix a Broken Eclipse Environment Without Starting Completely From Scratch</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-10T08:46:58-05:00" pubdate data-updated="true">Nov 10<span>th</span>, 2009</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Over time my Eclipse environment has become quiet a bit crufty.  I have a bunch of errors from plugins that I installed that didn&rsquo;t work properly and yesterday my environment completely stopped building my Java projects.  When I tried to export a JAR I got these two messages:</p>
+
+<p>JAR creation failed. See details for additional information.</p>
+
+<p>class file(s) on classpath not found or not accessible</p>
+
+<p>There are also some other errors you may see that indicate you should probahly rebuild your environment:</p>
+
+<p>No property tester contributes a property projectPersistentProperty org.eclipse.team.core.repository to type class org.eclipse.core.internal.resources.Project</p>
+
+<p>org.eclipse.core.runtime.CoreException: No property tester contributes a property projectPersistentProperty org.eclipse.team.core.repository to type class org.eclipse.core.internal.resources.Project</p>
+
+<p>java.util.zip.ZipException: error in opening zip file</p>
+
+<p>An internal error occurred during: &ldquo;Initializing Java Tooling&rdquo;</p>
+
+<p>An error occurred while loading the manifest</p>
+
+<p>In my case the class files that it couldn&rsquo;t find were classes that Eclipse was supposed to build.  After checking everything I couldn&rsquo;t figure it out so I decided that it was time to start fresh.  What I wanted to do was nuke the whole environment but not have to hunt around for all the JARs that I had in my user-defined libraries.  In the future I&rsquo;ll put all of those files in a directory for each library but right now I needed a fix so I could get back to work.</p>
+
+<p>Here are the steps to get a fresh start without reinstalling and without losing your user libraries:</p>
+
+<ul>
+<li><p>Step 1: Quit Eclipse</p></li>
+<li><p>Step 2: Make a backup of your workspace</p></li>
+<li><p>Step 3: Go into your workspace on the command-line and run</p>
+
+<p>mv .metadata .metadata-old</p></li>
+<li><p>Step 4: Restart Eclipse.  Don&rsquo;t panic!  Everything is only gone temporarily.  This step forces Eclipse to build a fresh .metadata directory.</p></li>
+<li><p>Step 5: Quit Eclipse</p></li>
+<li><p>Step 6: Restore your user-defined libraries on the command-line by running</p>
+
+<p>cp .metadata-old/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs</p></li>
+<li><p>Step 7: Restart Eclipse and import your projects back into the workspace</p></li>
+</ul>
+
+
+<p>If you are still having trouble and cannot build your code or export JARs make sure you right-click on a project that is having that problem, select &ldquo;Java Build Path&rdquo;, then select &ldquo;Libraries&rdquo;.  Any libraries marked with a red X are almost certainly your issue.  Resolve this issue (or remove them if they&rsquo;re not needed) and you&rsquo;ll be almost right where you left off but with a fresh, clean environment.</p>
+
+<p>You will lose settings like the location of your Android SDK if you use that, or the location where the save dialogs open up, but if you can deal with that this is a great way to start over.  Once you&rsquo;re comfortable with your setup you can remove the old metadata by running this on the command-line</p>
+
+<pre><code>rm -rf .metadata-old
+</code></pre>
+
+<p>Don&rsquo;t delete your backup copy though!  You never know when you&rsquo;ll need it.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-10T08:46:58-05:00" pubdate data-updated="true">Nov 10<span>th</span>, 2009</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/how-to/'>How-To</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Fix a broken Eclipse environment without starting completely from scratch"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/">
+    Over time my Eclipse environment has become quiet a bit crufty.  I have a bunch of errors from plugins that I installed that didn't work properly and yesterday my environment completely stopped building my Java projects.  When I tried to export a JAR I got these two messages:
+
+JAR creation failed. See details for additional information.
+
+class file(s) on classpath not found or not accessible
+
+There are also some other errors you may see that indicate you should probahly rebuild your environment &hellip;
+</a>
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/" title="Previous Post: How-To: Fix "configure: error: C compiler cannot create executables" on Gentoo">&laquo; How-To: Fix "configure: error: C compiler cannot create executables" on Gentoo</a>
+      
+      
+        <a class="basic-alignment right" href="/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/" title="Next Post: How-To: Fix "This selection is not within a valid module" errors in Eclipse when refactoring web projects">How-To: Fix "This selection is not within a valid module" errors in Eclipse when refactoring web projects &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel's Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

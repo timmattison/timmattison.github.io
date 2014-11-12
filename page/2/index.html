@@ -1,0 +1,1820 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="Amazon provides several credentials providers in their Java API that let you use IAM user credentials various ways. The credentials can come from &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/page/2">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Using Amazon STS Credentials Inside of a Properties File</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-02T13:02:53-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/using-amazon-sts-credentials-inside-of-a-properties-file/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Amazon provides several credentials providers in their Java API that let you use IAM user credentials various ways.  The credentials can come from IMDS, environment variables, or a properties file, just to name a few.</p>
+
+<p>If you&rsquo;re developing and debugging and you need to use STS credentials your options are a bit more limited.  To help deal with this I came up with a few bits of code that, for me at least, make it significantly easier.</p>
+
+<p>First, there&rsquo;s an <code>awscredentials.properties</code> file format you need to follow that looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aws.accessKeyId=XXXXXXXXXXXXXXXXXXX
+</span><span class='line'>aws.secretAccessKey=YYYYYYYYYYYYYYYYYYY
+</span><span class='line'>aws.sessionToken=ZZZZZZZZZZZZZZZZZZZ</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Replace the X, Y, and Z strings with your credentials and put them in your resources directory where the classloader can find them.  <strong><em>DO NOT COMMIT THEM TO SOURCE CONTROL!</em></strong></p>
+
+<p>Next, there&rsquo;s a method that loads these credentials into the system properties:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">AWSCREDENTIALS_PROPERTIES</span> <span class="o">=</span> <span class="s">&quot;awscredentials.properties&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">loadAwsCredentialsProperties</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">InputStream</span> <span class="n">inputStream</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getClassLoader</span><span class="o">().</span><span class="na">getResourceAsStream</span><span class="o">(</span><span class="n">AWSCREDENTIALS_PROPERTIES</span><span class="o">);</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="c1">// Was there a properties file?</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">inputStream</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// No, just return</span>
+</span><span class='line'>      <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperties</span><span class="o">());</span>
+</span><span class='line'>  <span class="n">properties</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">inputStream</span><span class="o">);</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="c1">// set the system properties</span>
+</span><span class='line'>  <span class="n">System</span><span class="o">.</span><span class="na">setProperties</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, there&rsquo;s the credentials provider:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.AmazonClientException</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.BasicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.services.securitytoken.model.Credentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.util.StringUtils</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SystemPropertiesStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">ACCESS_KEY_ID_SYSTEM_PROPERTY</span> <span class="o">=</span> <span class="s">&quot;aws.accessKeyId&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SECRET_ACCESS_KEY_SYSTEM_PROPERTY</span> <span class="o">=</span> <span class="s">&quot;aws.secretAccessKey&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SESSION_TOKEN_SYSTEM_PROPERTY</span> <span class="o">=</span> <span class="s">&quot;aws.sessionToken&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Get the access key ID</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">accessKeyId</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">trim</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">ACCESS_KEY_ID_SYSTEM_PROPERTY</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Get the secret access key</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">secretAccessKey</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">trim</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">SECRET_ACCESS_KEY_SYSTEM_PROPERTY</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Get the session token</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">sessionToken</span> <span class="o">=</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">trim</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">SESSION_TOKEN_SYSTEM_PROPERTY</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Are we missing any of the necessary values?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">isNullOrEmpty</span><span class="o">(</span><span class="n">accessKeyId</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">||</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">isNullOrEmpty</span><span class="o">(</span><span class="n">secretAccessKey</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">||</span> <span class="n">StringUtils</span><span class="o">.</span><span class="na">isNullOrEmpty</span><span class="o">(</span><span class="n">sessionToken</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Yes, throw an exception like the Amazon code does</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">AmazonClientException</span><span class="o">(</span>
+</span><span class='line'>                    <span class="s">&quot;Unable to load AWS credentials from Java system &quot;</span>
+</span><span class='line'>                            <span class="o">+</span> <span class="s">&quot;properties (&quot;</span> <span class="o">+</span> <span class="n">ACCESS_KEY_ID_SYSTEM_PROPERTY</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span>
+</span><span class='line'>                            <span class="o">+</span> <span class="n">SECRET_ACCESS_KEY_SYSTEM_PROPERTY</span> <span class="o">+</span> <span class="s">&quot;, and &quot;</span>
+</span><span class='line'>                            <span class="o">+</span> <span class="n">SESSION_TOKEN_SYSTEM_PROPERTY</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Create the credentials</span>
+</span><span class='line'>        <span class="n">Credentials</span> <span class="n">sessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Credentials</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setAccessKeyId</span><span class="o">(</span><span class="n">accessKeyId</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSecretAccessKey</span><span class="o">(</span><span class="n">secretAccessKey</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSessionToken</span><span class="o">(</span><span class="n">sessionToken</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Convert them to basic session credentials</span>
+</span><span class='line'>        <span class="n">BasicSessionCredentials</span> <span class="n">basicSessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BasicSessionCredentials</span><span class="o">(</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getAccessKeyId</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSecretAccessKey</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSessionToken</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">basicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Do nothing</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This should make things quite a bit easier if you don&rsquo;t have access to a real IAM user and must use STS for your application.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Simple Snippets for Using AWS Credentials While Debugging</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-02T11:28:42-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/simple-snippets-for-using-aws-credentials-while-debugging/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>While debugging and developing using the AWS SDK you&rsquo;ll find that sometimes you just need to use real credentials on a box that lives outside of EC2.  You should always be using <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AESDG-chapter-instancedata.html">Instance Metadata</a> for your credentials inside of EC2 though.  Never use this pattern inside EC2!</p>
+
+<p>Also, make sure you never commit your credentials.  That can be an expensive mistake when they show up on Github and people snag them to use them for Bitcoin mining.</p>
+
+<p><strong>NOTE:</strong> These snippets include <code>@Inject</code> and <code>@Assisted</code> annotations used by <a href="https://github.com/google/guice">Guice</a>.  If you&rsquo;re not using Guice remove those and the related imports.</p>
+
+<p>Anyway, if you want to use static IAM user credentials you can use a credentials provider like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Inject</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.assistedinject.Assisted</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TempNonStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSecretKey</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Inject</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">TempNonStsCredentialsProvider</span><span class="o">(</span><span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsAccessKeyId&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">,</span>
+</span><span class='line'>                                         <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSecretKey&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSecretKey</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsAccessKeyId</span> <span class="o">=</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSecretKey</span> <span class="o">=</span> <span class="n">awsSecretKey</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">new</span> <span class="nf">AWSCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="n">String</span> <span class="nf">getAWSAccessKeyId</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">public</span> <span class="n">String</span> <span class="nf">getAWSSecretKey</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">awsSecretKey</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">};</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Do nothing</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pass in your credentials and you&rsquo;re good to go.  If you&rsquo;re using <a href="http://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html">STS</a> it requires a little bit more work.  Use this instead:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.AWSCredentialsProvider</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.auth.BasicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.amazonaws.services.securitytoken.model.Credentials</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.assistedinject.Assisted</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 9/2/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TempStsCredentialsProvider</span> <span class="kd">implements</span> <span class="n">AWSCredentialsProvider</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSecretAccessKey</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">awsSessionToken</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Inject</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">TempStsCredentialsProvider</span><span class="o">(</span><span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsAccessKeyId&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsAccessKeyId</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSecretAccessKey&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSecretAccessKey</span><span class="o">,</span>
+</span><span class='line'>                                      <span class="nd">@Assisted</span><span class="o">(</span><span class="s">&quot;awsSessionToken&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">awsSessionToken</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsAccessKeyId</span> <span class="o">=</span> <span class="n">awsAccessKeyId</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSecretAccessKey</span> <span class="o">=</span> <span class="n">awsSecretAccessKey</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">awsSessionToken</span> <span class="o">=</span> <span class="n">awsSessionToken</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">AWSCredentials</span> <span class="nf">getCredentials</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Credentials</span> <span class="n">sessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Credentials</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setAccessKeyId</span><span class="o">(</span><span class="n">awsAccessKeyId</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSecretAccessKey</span><span class="o">(</span><span class="n">awsSecretAccessKey</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">setSessionToken</span><span class="o">(</span><span class="n">awsSessionToken</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">BasicSessionCredentials</span> <span class="n">basicSessionCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BasicSessionCredentials</span><span class="o">(</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getAccessKeyId</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSecretAccessKey</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">sessionCredentials</span><span class="o">.</span><span class="na">getSessionToken</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">basicSessionCredentials</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// Do nothing</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you just need to pass in the extra session token parameter and then you can use this to provide credentials to your AWS calls.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Checking PostgreSQL to See if an Index Already Exists</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-02T08:16:01-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-an-index-already-exists/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In <a href="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">my last post</a> I showed you a simple way to check to see if a constraint already existed in PostgreSQL.  Now I want to show you how to do the same thing for an index.</p>
+
+<p>Here&rsquo;s the code but keep in mind that it makes the assumption that everything is in the <code>public</code> schema.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='plpgsql'><span class='line'><span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">FUNCTION</span> <span class="n">create_index_if_not_exists</span> <span class="p">(</span><span class="n">t_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">i_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">index_sql</span> <span class="nb">text</span><span class="p">)</span> <span class="k">RETURNS</span> <span class="nb">void</span> <span class="k">AS</span> <span class="s">$$</span>
+</span><span class='line'><span class="k">DECLARE</span>
+</span><span class='line'>  <span class="n">full_index_name</span> <span class="nb">varchar</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">schema_name</span> <span class="nb">varchar</span><span class="p">;</span>
+</span><span class='line'><span class="k">BEGIN</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">full_index_name</span> <span class="o">=</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39;_&#39;</span> <span class="o">||</span> <span class="n">i_name</span><span class="p">;</span>
+</span><span class='line'><span class="n">schema_name</span> <span class="o">=</span> <span class="s1">&#39;public&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="p">(</span>
+</span><span class='line'>    <span class="k">SELECT</span> <span class="mf">1</span>
+</span><span class='line'>    <span class="k">FROM</span>   <span class="n">pg_class</span> <span class="n">c</span>
+</span><span class='line'>    <span class="k">JOIN</span>   <span class="n">pg_namespace</span> <span class="n">n</span> <span class="k">ON</span> <span class="n">n</span><span class="mf">.</span><span class="n">oid</span> <span class="o">=</span> <span class="n">c</span><span class="mf">.</span><span class="n">relnamespace</span>
+</span><span class='line'>    <span class="k">WHERE</span>  <span class="n">c</span><span class="mf">.</span><span class="n">relname</span> <span class="o">=</span> <span class="n">full_index_name</span>
+</span><span class='line'>    <span class="k">AND</span>    <span class="n">n</span><span class="mf">.</span><span class="n">nspname</span> <span class="o">=</span> <span class="n">schema_name</span>
+</span><span class='line'>    <span class="p">)</span> <span class="k">THEN</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">execute</span> <span class="s1">&#39;CREATE INDEX &#39;</span> <span class="o">||</span> <span class="n">full_index_name</span> <span class="o">||</span> <span class="s1">&#39; ON &#39;</span> <span class="o">||</span> <span class="n">schema_name</span> <span class="o">||</span> <span class="s1">&#39;.&#39;</span> <span class="o">||</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39; &#39;</span> <span class="o">||</span> <span class="n">index_sql</span><span class="p">;</span>
+</span><span class='line'><span class="k">END</span> <span class="k">IF</span><span class="p">;</span>
+</span><span class='line'><span class="k">END</span>
+</span><span class='line'><span class="s">$$</span>
+</span><span class='line'><span class="k">LANGUAGE</span> <span class="n">plpgsql</span> <span class="k">VOLATILE</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can now use the function like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_index_if_not_exists</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">,</span> <span class="s1">&#39;index_name&#39;</span><span class="p">,</span> <span class="s1">&#39;(column)&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>No duplicated data, no exceptions.  Enjoy!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Checking PostgreSQL to See if a Constraint Already Exists</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-02T08:01:00-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/checking-postgresql-to-see-if-a-constraint-already-exists/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Checking to see if a constraint already exists should be easy.  H2 and many other database have syntax for it.</p>
+
+<p>For some reason PostgreSQL, my favorite database, doesn&rsquo;t have this.  I looked around and found <a href="https://stackoverflow.com/questions/6801919/postgres-add-constraint-if-it-doesnt-already-exist?answertab=votes#tab-top">a decent solution on Stack Overflow</a> that I can add to my default template but something about it bothered me.</p>
+
+<p>I didn&rsquo;t like the fact that the code asked for the table name and constraint name but then didn&rsquo;t use it in the SQL statement.  Leaving it like this means that someone could write this (note that foo becomes foo2 and bar becomes bar2 in the first two parameters):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo2&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar2&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And they would get an exception rather than having the constraint creation be skipped which could break a lot of things that expect this function to be safe.</p>
+
+<p>They also could do this (note that foo becomes foo2 and bar becomes bar2 in the constraint SQL):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo ADD CONSTRAINT bar CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span>
+</span><span class='line'>        <span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="s1">&#39;ALTER TABLE foo2 ADD CONSTRAINT bar2 CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This could be even worse because a constraint wouldn&rsquo;t be created.</p>
+
+<p>My solution was to modify this script slightly:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='plpgsql'><span class='line'><span class="k">CREATE</span> <span class="k">OR</span> <span class="k">REPLACE</span> <span class="k">FUNCTION</span> <span class="n">create_constraint_if_not_exists</span> <span class="p">(</span><span class="n">t_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">c_name</span> <span class="nb">text</span><span class="p">,</span> <span class="n">constraint_sql</span> <span class="nb">text</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">RETURNS</span> <span class="nb">void</span>
+</span><span class='line'><span class="k">AS</span>
+</span><span class='line'><span class="s">$BODY$</span>
+</span><span class='line'>  <span class="k">begin</span>
+</span><span class='line'>    <span class="c1">-- Look for our constraint</span>
+</span><span class='line'>    <span class="k">if</span> <span class="k">not</span> <span class="k">exists</span> <span class="p">(</span><span class="k">select</span> <span class="n">constraint_name</span>
+</span><span class='line'>                   <span class="k">from</span> <span class="n">information_schema</span><span class="mf">.</span><span class="n">constraint_column_usage</span>
+</span><span class='line'>                   <span class="k">where</span> <span class="n">table_name</span> <span class="o">=</span> <span class="n">t_name</span>  <span class="k">and</span> <span class="n">constraint_name</span> <span class="o">=</span> <span class="n">c_name</span><span class="p">)</span> <span class="k">then</span>
+</span><span class='line'>        <span class="k">execute</span> <span class="s1">&#39;ALTER TABLE &#39;</span> <span class="o">||</span> <span class="n">t_name</span> <span class="o">||</span> <span class="s1">&#39; ADD CONSTRAINT &#39;</span> <span class="o">||</span> <span class="n">c_name</span> <span class="o">||</span> <span class="s1">&#39; &#39;</span> <span class="o">||</span> <span class="n">constraint_sql</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">end</span> <span class="k">if</span><span class="p">;</span>
+</span><span class='line'><span class="k">end</span><span class="p">;</span>
+</span><span class='line'><span class="s">$BODY$</span>
+</span><span class='line'><span class="k">LANGUAGE</span> <span class="n">plpgsql</span> <span class="k">VOLATILE</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you call it like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='postgres'><span class='line'><span class="k">SELECT</span> <span class="n">create_constraint_if_not_exists</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;CHECK (foobies &lt; 100);&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And it will check the constraint properly by name.  This doesn&rsquo;t stop you from creating multiple constraints with the same criteria and different names though.  That&rsquo;s something you&rsquo;ll need to check for manually (for now).</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Deal With os_linux_zero.cpp Related JVM Crashes Without Using the Oracle JVM</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-29T12:39:51-04:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>While running some relatively simple Java code on my Raspberry Pi I kept running into complete JVM crashes.  These weren&rsquo;t simple application crashes that I can quickly debug.  It really was the JVM that my code was running on that was crashing.</p>
+
+<p>The error message I received was similar to this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> A fatal error has been detected by the Java Runtime Environment:
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span>  Internal Error <span class="o">(</span>os_linux_zero.cpp:285<span class="o">)</span>, <span class="nv">pid</span><span class="o">=</span>10344, <span class="nv">tid</span><span class="o">=</span>3061261424
+</span><span class='line'><span class="gp">#</span>  fatal error: caught unhandled signal 11
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> JRE version: OpenJDK Runtime Environment <span class="o">(</span>7.0_65-b32<span class="o">)</span> <span class="o">(</span>build 1.7.0_65-b32<span class="o">)</span>
+</span><span class='line'><span class="gp">#</span> Java VM: OpenJDK Zero VM <span class="o">(</span>24.65-b04 mixed mode linux-arm <span class="o">)</span>
+</span><span class='line'><span class="gp">#</span> Failed to write core dump. Core dumps have been disabled. To <span class="nb">enable </span>core dumping, try <span class="s2">&quot;ulimit -c unlimited&quot;</span> before starting Java again
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> An error report file with more information is saved as:
+</span><span class='line'><span class="gp">#</span> /home/pi/hs_err_pid10344.log
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="gp">#</span> If you would like to submit a bug report, please include
+</span><span class='line'><span class="gp">#</span> instructions on how to reproduce the bug and visit:
+</span><span class='line'><span class="gp">#</span>   http://icedtea.classpath.org/bugzilla
+</span><span class='line'><span class="gp">#</span>
+</span><span class='line'><span class="go">Aborted</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I dug and dug and dug and couldn&rsquo;t figure out what was going on.  The most common fix that I saw was to switch to the Oracle JVM.  For this project I didn&rsquo;t want to do that so I scoured the net and came up with the following two options.</p>
+
+<p>For reference, my original command line was very simple.  It was just <code>java -jar test.jar</code>.</p>
+
+<p>NOTE: There may be performance issues with both of these options.  I have not profiled them to see the difference.  Then again, having your JVM crash can arguably be the lowest performance option possible.</p>
+
+<p>Option 1: Add the <code>-XX:+PrintCommandLineFlags</code> option to your command line.  This changed my command line to <code>java -XX:+PrintCommandLineFlags -jar test.jar</code>.  Immediately the problem went away.</p>
+
+<p>Option 2: Add the <code>-jamvm</code> option to your command line.  This changed my command line to <code>java -jamvm -jar test.jar</code>.  Again, immediately the problem went away</p>
+
+<p>What is really happening behind the scenes?  That gets complex quickly and I still don&rsquo;t know the full answer.  It turns out that this is a known but ignored bug in OpenJDK&rsquo;s Zero VM.  When you run <code>java -version</code> you can see if you&rsquo;re running Zero VM or not like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -version</span>
+</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
+</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
+</span><span class='line'><span class="go">OpenJDK Zero VM (build 24.65-b04, mixed mode)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I don&rsquo;t know why option 1 works.  My guess is that that option disables some kind of optimization.  Looking at <a href="http://cr.openjdk.java.net/~gbenson/zero-10/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp.html">what I think is the corresponding code in Hotspot</a> on line 283 I can see that <code>pthread_attr_getstack</code> is used.  The <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_attr_getstack.html">pthread_attr_getstack documentation</a> says that it can only fail with <code>EINVAL</code> for one reason.  It must be that <code>addr</code> &ldquo;does not refer to an initialized thread attribute object&rdquo;.  I don&rsquo;t have any clue how to fix this though.</p>
+
+<p>Option 2 works because it switches over to <a href="http://jamvm.sourceforge.net/">JamVM</a>.  You can check your JamVM version like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">pi@raspberrypi ~ $ java -jamvm -version</span>
+</span><span class='line'><span class="go">java version &quot;1.7.0_65&quot;</span>
+</span><span class='line'><span class="go">OpenJDK Runtime Environment (IcedTea 2.5.1) (7u65-2.5.1-2~deb7u1+rpi1)</span>
+</span><span class='line'><span class="go">JamVM (build 1.6.0-devel, inline-threaded interpreter with stack-caching)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So, if you&rsquo;re in a similar bind and don&rsquo;t want to install and switch to Oracle&rsquo;s JVM give these options a try.  Post your results in the comments below.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Making Javascript Logging a Little Less Expensive</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-29T07:54:45-04:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Disclaimer: I am not a Javascript expert.  I don&rsquo;t even play one on TV.</p>
+
+<p>Everybody knows that <a href="http://blog.codinghorror.com/the-problem-with-logging/">logging isn&rsquo;t free</a>, don&rsquo;t they?  Well I don&rsquo;t think that they do and for a lot of beginner to intermediate level developers I can&rsquo;t really fault them for it.  While you&rsquo;re debugging it appears that log messages show up instantly so it is easy to forget that there is in fact a cost associated with producing them.</p>
+
+<p>What is less obvious is that even when you &ldquo;disable&rdquo; your logging it still incurs a cost and that cost may be significantly larger than you think.  The two main issues I&rsquo;ve seen that often cause this large expense are:</p>
+
+<ol>
+<li>Methods that generate log messages</li>
+<li>Inline generation of strings</li>
+</ol>
+
+
+<p>The first, methods that generate log messages, occurs when you need to do a bit of processing in order to make a meaningful log message.  For example, you might need to know how far you are through a loop so you write a function called <code>generateFormattedProgress</code> that takes the number of loops you&rsquo;re going to go through and the current loop counter as parameters.  <code>generateFormattedProgress</code> generates a tidy little string that might loop like this <code>[8% complete (currently on iteration 80,001 of 1,000,000)]</code>.</p>
+
+<p>The second, inline generation of strings, happens when you need to do something a bit simpler like displaying a loop counter.  You might build a string like this <code>"Loop: " + loop_counter</code> and then log it.</p>
+
+<p>In both of these cases you get bitten by the less obvious issue I mentioned above when you disable logging.  To be completely concrete about this imagine your logger is called like this:</p>
+
+<p>Case #1:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Case #2:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Even if you replace <code>console.log</code> with a function that just immediately returns you will, in most cases, still be forcing the machine to call <code>generateFormattedProgress</code> and perform the string concatenation only to throw the results away.  This is where the overhead comes in.</p>
+
+<p>Borrowing from some other languages I came up with an idea to reduce this burden.  Unfortunately it is a bit ugly but it does give you a decent performance boost.  The idea is that instead of always calling the logging code at runtime you wrap your logging statements in anonymous functions and pass those to the logger.  The logger can then decide if it needs to run them and if it doesn&rsquo;t then it never calls the code inside of the anonymous function.</p>
+
+<p>Your log statements go from looking like the statements above to statements like this:</p>
+
+<p>Case #1:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">);});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Case #2:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">;</span> <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Some test code is below to illustrate the difference in performance.  On my machine running 100,000 iterations I get the following results in Chrome 37.0.2062.94:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">Console.log enabled</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1921</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01921</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1917</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01917</span>
+</span><span class='line'><span class="go">Disabling console.log</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 16</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00016</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 5</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00005</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So here we see that we cut the runtime by at least two orders of magnitude going from a little over 1.9 seconds for each case to less than 20 milliseconds for each case.  Does logging affect your Javascript application enough to use this pattern?  Is this an anti-pattern?  Are you already doing this or something similar?  Post a message in the comments and lets discuss it!</p>
+
+<p>Sample test code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">test_count</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">get_timestamp</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">write_newline</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&lt;br/&gt;\n&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">myName</span> <span class="o">=</span> <span class="nx">caller</span><span class="p">.</span><span class="nx">callee</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="s1">&#39;function &#39;</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Running: &quot;</span> <span class="o">+</span> <span class="nx">myName</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">totalMilliseconds</span> <span class="o">=</span> <span class="nx">stop</span> <span class="o">-</span> <span class="nx">start</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">millisecondsPerLog</span> <span class="o">=</span> <span class="nx">totalMilliseconds</span> <span class="o">/</span> <span class="nx">test_count</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Total milliseconds: &quot;</span> <span class="o">+</span> <span class="nx">totalMilliseconds</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Milliseconds per log: &quot;</span> <span class="o">+</span> <span class="nx">millisecondsPerLog</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_normal_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_anonymous_function_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Store the original console.log function</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">original_console_log</span> <span class="o">=</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Call this to enable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">enable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Why the bind(console)(input)?</span>
+</span><span class='line'>        <span class="c1">//</span>
+</span><span class='line'>        <span class="c1">// console.log expects &quot;this&quot; to refer to the console object or it crashes with an invocation exception</span>
+</span><span class='line'>        <span class="c1">//   See: https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Is this a function?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">input</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Yes, call the function to get the data to log to the console</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// No, just log it</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Call this to disable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">disable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Console.log enabled&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">enable_console_logging</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Disabling console.log&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">disable_console_logging</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-05T08:39:34-04:00" pubdate data-updated="true">Aug 5<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am a big <a href="https://github.com/google/guice">Guice</a> advocate.  I try to use it wherever it is possible and makes sense.  While working on a project yesterday I realized that in order to use Guice and <a href="http://quartz-scheduler.org/">Quartz</a> together you need to add in some glue code.</p>
+
+<p>I <a href="http://codesmell.wordpress.com/2009/01/11/quartz-fits/">found someone who had done the work already</a> but their blog post was from 2009 and the Quartz API had changed a bit.  Their implementation was very close so I made the necessary modifications, tested it out, and it works perfectly.  If you&rsquo;re wondering how to use Guice to get dependency injection into your Quartz scheduler code you can use the two snippets of code below to do it all for you.</p>
+
+<p>The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the <code>GuiceJobFactory</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Injector</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Job</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.JobDetail</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Scheduler</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.SchedulerException</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.JobFactory</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.TriggerFiredBundle</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * Created by timmattison on 8/4/14.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="c1">// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/</span>
+</span><span class='line'><span class="kd">final</span> <span class="kd">class</span> <span class="nc">GuiceJobFactory</span> <span class="kd">implements</span> <span class="n">JobFactory</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Inject</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">GuiceJobFactory</span><span class="o">(</span><span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">guice</span> <span class="o">=</span> <span class="n">guice</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Job</span> <span class="nf">newJob</span><span class="o">(</span><span class="n">TriggerFiredBundle</span> <span class="n">triggerFiredBundle</span><span class="o">,</span> <span class="n">Scheduler</span> <span class="n">scheduler</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SchedulerException</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Get the job detail so we can get the job class</span>
+</span><span class='line'>        <span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">triggerFiredBundle</span><span class="o">.</span><span class="na">getJobDetail</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">Class</span> <span class="n">jobClass</span> <span class="o">=</span> <span class="n">jobDetail</span><span class="o">.</span><span class="na">getJobClass</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Get a new instance of that class from Guice so we can do dependency injection</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">(</span><span class="n">Job</span><span class="o">)</span> <span class="n">guice</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">jobClass</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// Something went wrong.  Print out the stack trace here so SLF4J doesn&#39;t hide it.</span>
+</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Rethrow the exception as an UnsupportedOperationException</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>GuiceJobFactory</code> gets the Guice injector injected into it.  It then overrides the newJob method and creates each job using the injector it was given.</p>
+
+<p>The next thing you need to do is to use this <code>JobFactory</code> in your <code>Scheduler</code>.  Here&rsquo;s how I built my scheduler and used it to create my first job:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Scheduler</span> <span class="n">scheduler</span> <span class="o">=</span> <span class="n">StdSchedulerFactory</span><span class="o">.</span><span class="na">getDefaultScheduler</span><span class="o">();</span>
+</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">setJobFactory</span><span class="o">(</span><span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">GuiceJobFactory</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">newJob</span><span class="o">(</span><span class="n">MyJob</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-17T06:54:17-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown.  I searched around and came across <a href="https://gist.github.com/clintel/1155906">a gist that showed how to do it</a> but I still couldn&rsquo;t get it to work.</p>
+
+<p>It turns out that the parser used in Octopress is slightly different than some of the other parsers out there and treats this markdown differently.  There is <a href="https://github.com/imathis/octopress/issues/488">an issue filed for this</a> but the issue resolution is to use a workaround.</p>
+
+<p>After some experimentation I came up with some simple steps that cover all the scenarios for putting code blocks or formatted text into an ordered list while writing my blog posts.</p>
+
+<p>It is organized so that the two main scenarios include four different snippets of code.  The first snippet of code is put directly before the entire block you want to format.  The second snippet of code is put before each line of code.  The third snippet of code is put after each line of code.  The fourth snippet of code is put at the end of the entire block.</p>
+
+<ol>
+<li><p>No line numbers, no syntax highlighting.  I use this when including snippets of commands that I have run from the console.</p>
+
+<ol>
+<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code&gt;</code></li>
+<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
+<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
+</ol>
+</li>
+<li><p>No line numbers, syntax highlighting.  I use this for regular code if I don&rsquo;t care about line numbers.  Replace <code>LANGUAGE</code> with the language you are using.  For example, <code>c</code> or <code>python</code> (see the <a href="http://pygments.org/docs/lexers/">supported language list</a> for more).</p>
+
+<ol>
+<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code class="LANGUAGE"&gt;</code></li>
+<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
+<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
+</ol>
+</li>
+</ol>
+
+
+<p>If you want to do line numbers when syntax highlighting it gets messy.  You need to build a table to have the line number &ldquo;gutter&rdquo; in there.  You can do it but it is a bit more work.</p>
+
+<p>Line numbers and syntax highlighting:</p>
+
+<ol>
+<li><p>Start a table that holds everything.  This is the block you&rsquo;ll use:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&ldquo;gutter&rdquo;&gt;&lt;pre class=&ldquo;line-numbers&rdquo;&gt;</span>
+ </code></pre></div></p></li>
+<li><p>Determine how many lines are in your code snippet.  Now create a line number row for each of them.  Assuming you have five lines of code that would look like this:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;1&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;2&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;3&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;4&lt;/span&gt;</span>
+ <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;5&lt;/span&gt;</span>
+ </code></pre></div></p></li>
+<li><p>Close this column of the table and start the column for the code:</p>
+
+<p> <div class="highlight"><pre><code class="html">
+ <span class="line">&lt;/pre&gt;&lt;/td&gt;&lt;td class=&ldquo;code&rdquo;&gt;&lt;pre&gt;&lt;code class=&ldquo;LANGUAGE&rdquo;&gt;
+ </code></pre></div></p></li>
+<li><p>Before each line of code &ndash; <code>&lt;span class="line"&gt;</code></p></li>
+<li>After each line of code &ndash; <code>&lt;/span&gt;</code></li>
+<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</code></li>
+</ol>
+
+
+<p>That should do it.  Good luck!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/">Common Android Wear Tasks for Developers</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-16T06:59:56-04:00" pubdate data-updated="true">Jul 16<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Getting started with development on the Android Wear platform can be challenging.  Here are my notes on how to get started quickly.</p>
+
+<p>Before you do anything!
+1. Back up your IntelliJ configuration if you use IntelliJ at all.
+2. Install Android Studio.  Do NOT try to use IntelliJ to do Android Wear development.</p>
+
+<p>Once you&rsquo;ve got Android Studio installed you&rsquo;ll need to do some setup on your devices (watch and phone) to get them working.  Here I assume you&rsquo;re using physical devices for your phone and your watch, no emulators.</p>
+
+<p><strong>Enabling debugging on your Android Wear device</strong></p>
+
+<p>The first time you set up your watch for remote debugging do the following:</p>
+
+<ol>
+<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
+<li>Tap the screen again to get the list of options</li>
+<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
+<li>Scroll down to &ldquo;About&rdquo; and tap it.  If you see &ldquo;Developer options&rdquo; in this list already you do not need to do this procedure since it has already been done.</li>
+<li>Scroll down to &ldquo;Build number&rdquo; and tap it 7 times.  You should get a message that says &ldquo;You are now a developer!&rdquo;.</li>
+<li>Swipe to the right to get the previous menu</li>
+<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
+<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
+<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
+</ol>
+
+
+<p>After your Android Wear device has been set up once you&rsquo;ll only need to follow these steps to re-enable debugging if you ever disable it:</p>
+
+<ol>
+<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
+<li>Tap the screen again to get the list of options</li>
+<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
+<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
+<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
+<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
+</ol>
+
+
+<p><strong>Enabling debugging over Bluetooth from your Android phone to your Android Wear device</strong></p>
+
+<ol>
+<li>Open the &ldquo;Android Wear&rdquo; app</li>
+<li><p>Tap the settings icon at the top of the screen (the two gears that look like the icon below)</p>
+
+<p>  <img src="/images/android-wear-for-developers/settings-icon.png" alt="two small gears" /></p></li>
+<li>Make sure &ldquo;Debugging over Bluetooth&rdquo; is checked</li>
+<li>Once it is checked two fields will appear below it.  They are &ldquo;Host&rdquo; and &ldquo;Target&rdquo;.  &ldquo;Target&rdquo; will say &ldquo;connected&rdquo; when your watch is connected to your phone.  &ldquo;Host&rdquo; will say &ldquo;connected&rdquo; when ADB is connected to your watch.</li>
+</ol>
+
+
+<p><strong>Setting up ADB for Android Wear debugging over Bluetooth</strong></p>
+
+<p>Make sure ADB sees your phone:</p>
+
+<ol>
+<li>Connect your phone via USB and make sure USB debugging is enabled</li>
+<li><p>Run <code>adb devices</code> from the command line.  You should get some output like this:</p>
+
+<p> <div class="highlight"><pre><code>
+ <span class="line">$ adb devices</span>
+ <span class="line">List of devices attached</span>
+ <span class="line">01234567890abcdef    device</span>
+ </code></pre></div></p></li>
+<li><p>Check to see if there is a device in the list called &ldquo;localhost:4444&rdquo;.  If so, you are already paired and ready to go.  You do not need to do this procedure.</p></li>
+<li><p>To connect ADB to your watch run <code>adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</code> and you should see this:</p>
+
+<p> <div class="highlight"><pre><code>
+ <span class="line">$ adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</span>
+ <span class="line">connected to localhost:4444</span>
+ </code></pre></div></p></li>
+<li><p>Run <code>adb devices</code> again and you should see this:</p>
+
+<p> <div class="highlight"><pre><code>
+ <span class="line">$ adb devices</span>
+ <span class="line">List of devices attached</span>
+ <span class="line">01234567890abcdef    device</span>
+ <span class="line">localhost:4444       device</span>
+ </code></pre></div></p></li>
+<li><p>If you do not see the <code>localhost:4444</code> entry then double check that ADB debugging and Bluetooth debugging are enabled on your watch.  Then check to make sure Bluetooth debugging is enabled in the Android Wear app on your phone.  Once those are verified you can run this command again and it will try to reconnect.</p></li>
+</ol>
+
+
+<p>Now that you&rsquo;ve done all of that Android Studio should give you a dialog like this when you try to run or debug an application:</p>
+
+<p><img src="/images/android-wear-for-developers/choose-device-dialog.png" alt="&quot;Choose Device&quot; dialog" /></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/">Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-15T18:37:23-04:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Mac OS, as far as I can remember, used to start tabbed Terminal sessions and put you into the working directory of your last tab.  New Terminal windows didn&rsquo;t do this but recently new Terminal tabs stopped doing it too.</p>
+
+<p>I got tired of renavigating to the paths in the projects I was working on and I didn&rsquo;t want to launch a Terminal from within a Terminal so I came up with something else.  I added a few lines to my <code>.bash_profile</code> and now I have two new commands.  <code>ccd</code> copies your current directory to the clipboard, and <code>pcd</code> pastes your clipboard into the <code>cd</code> command.</p>
+
+<p>Now when I&rsquo;m in a deep directory tree like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I can do this in the existing Terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $ ccd</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And this in the new Terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ pcd
+</span><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And there you have it.  Back into my beloved directory in no time.  Here&rsquo;s what I added to <code>.bash_profile</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">alias </span><span class="nv">ccd</span><span class="o">=</span><span class="s2">&quot;pwd | pbcopy&quot;</span>
+</span><span class='line'><span class="nb">alias </span><span class="nv">pcd</span><span class="o">=</span><span class="s2">&quot;paste_cd&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function </span>paste_cd<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nb">cd</span> <span class="s2">&quot;`pbpaste`&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>ccd</code> alias just pipes <code>pwd</code> into <code>pbcopy</code>, which is one of the best tools ever, so that it ends up in the clipboard.</p>
+
+<p>The <code>pcd</code> alias is a little more complex.  If you try to do this without a bash function your alias will get evaluated as soon as your shell starts.  This means that when you open your shell whatever is in your clipboard will be what <code>pcd</code> tries to <code>cd</code> to.  Using a function we let it run <code>pbpaste</code> when it is called so it always uses the up-to-date info.</p>
+
+<p>Enjoy!  Let me know if you find it useful!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/3/">&larr; Older</a>
+    
+    <a href="/archives">Archives</a>
+    
+    <a class="next" href="/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

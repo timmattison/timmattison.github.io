@@ -1,0 +1,429 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Common Android Wear Tasks for Developers - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="Getting started with development on the Android Wear platform can be challenging. Here are my notes on how to get started quickly. Before you do &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Common Android Wear Tasks for Developers</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-16T06:59:56-04:00" pubdate data-updated="true">Jul 16<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Getting started with development on the Android Wear platform can be challenging.  Here are my notes on how to get started quickly.</p>
+
+<p>Before you do anything!
+1. Back up your IntelliJ configuration if you use IntelliJ at all.
+2. Install Android Studio.  Do NOT try to use IntelliJ to do Android Wear development.</p>
+
+<p>Once you&rsquo;ve got Android Studio installed you&rsquo;ll need to do some setup on your devices (watch and phone) to get them working.  Here I assume you&rsquo;re using physical devices for your phone and your watch, no emulators.</p>
+
+<p><strong>Enabling debugging on your Android Wear device</strong></p>
+
+<p>The first time you set up your watch for remote debugging do the following:</p>
+
+<ol>
+<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
+<li>Tap the screen again to get the list of options</li>
+<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
+<li>Scroll down to &ldquo;About&rdquo; and tap it.  If you see &ldquo;Developer options&rdquo; in this list already you do not need to do this procedure since it has already been done.</li>
+<li>Scroll down to &ldquo;Build number&rdquo; and tap it 7 times.  You should get a message that says &ldquo;You are now a developer!&rdquo;.</li>
+<li>Swipe to the right to get the previous menu</li>
+<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
+<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
+<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
+</ol>
+
+
+<p>After your Android Wear device has been set up once you&rsquo;ll only need to follow these steps to re-enable debugging if you ever disable it:</p>
+
+<ol>
+<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
+<li>Tap the screen again to get the list of options</li>
+<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
+<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
+<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
+<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
+</ol>
+
+
+<p><strong>Enabling debugging over Bluetooth from your Android phone to your Android Wear device</strong></p>
+
+<ol>
+<li>Open the &ldquo;Android Wear&rdquo; app</li>
+<li><p>Tap the settings icon at the top of the screen (the two gears that look like the icon below)</p>
+
+<p>  <img src="/images/android-wear-for-developers/settings-icon.png" alt="two small gears" /></p></li>
+<li>Make sure &ldquo;Debugging over Bluetooth&rdquo; is checked</li>
+<li>Once it is checked two fields will appear below it.  They are &ldquo;Host&rdquo; and &ldquo;Target&rdquo;.  &ldquo;Target&rdquo; will say &ldquo;connected&rdquo; when your watch is connected to your phone.  &ldquo;Host&rdquo; will say &ldquo;connected&rdquo; when ADB is connected to your watch.</li>
+</ol>
+
+
+<p><strong>Setting up ADB for Android Wear debugging over Bluetooth</strong></p>
+
+<p>Make sure ADB sees your phone:</p>
+
+<ol>
+<li>Connect your phone via USB and make sure USB debugging is enabled</li>
+<li><p>Run <code>adb devices</code> from the command line.  You should get some output like this:</p>
+
+<p> <div class="highlight"><pre><code>
+ <span class="line">$ adb devices</span>
+ <span class="line">List of devices attached</span>
+ <span class="line">01234567890abcdef    device</span>
+ </code></pre></div></p></li>
+<li><p>Check to see if there is a device in the list called &ldquo;localhost:4444&rdquo;.  If so, you are already paired and ready to go.  You do not need to do this procedure.</p></li>
+<li><p>To connect ADB to your watch run <code>adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</code> and you should see this:</p>
+
+<p> <div class="highlight"><pre><code>
+ <span class="line">$ adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</span>
+ <span class="line">connected to localhost:4444</span>
+ </code></pre></div></p></li>
+<li><p>Run <code>adb devices</code> again and you should see this:</p>
+
+<p> <div class="highlight"><pre><code>
+ <span class="line">$ adb devices</span>
+ <span class="line">List of devices attached</span>
+ <span class="line">01234567890abcdef    device</span>
+ <span class="line">localhost:4444       device</span>
+ </code></pre></div></p></li>
+<li><p>If you do not see the <code>localhost:4444</code> entry then double check that ADB debugging and Bluetooth debugging are enabled on your watch.  Then check to make sure Bluetooth debugging is enabled in the Android Wear app on your phone.  Once those are verified you can run this command again and it will try to reconnect.</p></li>
+</ol>
+
+
+<p>Now that you&rsquo;ve done all of that Android Studio should give you a dialog like this when you try to run or debug an application:</p>
+
+<p><img src="/images/android-wear-for-developers/choose-device-dialog.png" alt="&quot;Choose Device&quot; dialog" /></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-16T06:59:56-04:00" pubdate data-updated="true">Jul 16<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Common Android Wear tasks for developers"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/">
+    Getting started with development on the Android Wear platform can be challenging.  Here are my notes on how to get started quickly.
+
+Before you do anything!
+1. Back up your IntelliJ configuration if you use IntelliJ at all.
+2. Install Android Studio.  Do NOT try to use IntelliJ to do Android Wear development.
+
+Once you've got Android Studio installed you'll need to do some setup on your devices (watch and phone) to get them working.  Here I assume you're using physical devices for your phone &hellip;
+</a>
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/" title="Previous Post: Tip: Bringing your working directory (pwd) to another Terminal window in Mac OS">&laquo; Tip: Bringing your working directory (pwd) to another Terminal window in Mac OS</a>
+      
+      
+        <a class="basic-alignment right" href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/" title="Next Post: Fenced code blocks in ordered lists in Octopress">Fenced code blocks in ordered lists in Octopress &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel's Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

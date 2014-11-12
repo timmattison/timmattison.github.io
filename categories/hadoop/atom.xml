@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Hadoop | Tim Mattison]]></title>
+  <link href="http://blog.timmattison.com/categories/hadoop/atom.xml" rel="self"/>
+  <link href="http://blog.timmattison.com/"/>
+  <updated>2014-11-12T07:25:18-05:00</updated>
+  <id>http://blog.timmattison.com/</id>
+  <author>
+    <name><![CDATA[Tim Mattison]]></name>
+    <email><![CDATA[tim (at) mattison (dot) org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Tip: Fix Basic Build Issues When Using Maven]]></title>
+    <link href="http://blog.timmattison.com/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/"/>
+    <updated>2012-02-07T13:33:46-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven</id>
+    <content type="html"><![CDATA[<p>When trying to build Hadoop with Maven today I got this ugly error message:</p>
+
+<pre><code>[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[ERROR] FATAL ERROR
+[INFO] ------------------------------------------------------------------------
+[INFO] Error building POM (may not be this project's POM).
+
+
+Project ID: org.apache.hadoop:hadoop-project
+POM Location: /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+Validation Messages:
+
+    [0]  For dependency Dependency {groupId=jdk.tools, artifactId=jdk.tools, version=1.6, type=jar}: system-scoped dependency must specify an absolute path systemPath.
+
+
+Reason: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+
+
+[INFO] ------------------------------------------------------------------------
+[INFO] Trace
+org.apache.maven.reactor.MavenExecutionException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:404)
+    at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:272)
+    at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:138)
+    at org.apache.maven.cli.MavenCli.main(MavenCli.java:362)
+    at org.apache.maven.cli.compat.CompatibleMain.main(CompatibleMain.java:60)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:616)
+    at org.codehaus.classworlds.Launcher.launchEnhanced(Launcher.java:315)
+    at org.codehaus.classworlds.Launcher.launch(Launcher.java:255)
+    at org.codehaus.classworlds.Launcher.mainWithExitCode(Launcher.java:430)
+    at org.codehaus.classworlds.Launcher.main(Launcher.java:375)
+Caused by: org.apache.maven.project.InvalidProjectModelException: Failed to validate POM for project org.apache.hadoop:hadoop-project at /home/tim/subversion/hadoop-trunk/hadoop-project/pom.xml
+    at org.apache.maven.project.DefaultMavenProjectBuilder.processProjectLogic(DefaultMavenProjectBuilder.java:1077)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.buildInternal(DefaultMavenProjectBuilder.java:880)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.buildFromSourceFileInternal(DefaultMavenProjectBuilder.java:508)
+    at org.apache.maven.project.DefaultMavenProjectBuilder.build(DefaultMavenProjectBuilder.java:200)
+    at org.apache.maven.DefaultMaven.getProject(DefaultMaven.java:604)
+    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:487)
+    at org.apache.maven.DefaultMaven.collectProjects(DefaultMaven.java:560)
+    at org.apache.maven.DefaultMaven.getProjects(DefaultMaven.java:391)
+    ... 12 more
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: &lt; 1 second
+[INFO] Finished at: Tue Feb 07 13:30:39 EST 2012
+[INFO] Final Memory: 3M/361M
+[INFO] ------------------------------------------------------------------------
+</code></pre>
+
+<p>Tsk, tsk on me.  All I had to do was set my JAVA_HOME variable.  Not sure how to set yours?  Just do this:</p>
+
+<pre><code>export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+</code></pre>
+
+<p>I&rsquo;m actually running 64-bit Debian Wheezy so I had to do some other things to get my system prepped.  I needed to get off of Maven 2 and onto Maven 3, add the JDK, install the protocol buffers compiler, install zlib and its development files, and use a slightly different path.  Here&rsquo;s what I did:</p>
+
+<pre><code>sudo apt-get install maven openjdk-6-jdk libprotoc-dev protobuf-compiler zlib1g-dev
+export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
+</code></pre>
+
+<p>After that Maven started humming away when I ran:</p>
+
+<pre><code>mvn compile -Pnative
+</code></pre>
+
+<p>Good luck!  Post in the comments if you run into trouble.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Debug HDFS Applications in Eclipse]]></title>
+    <link href="http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/"/>
+    <updated>2012-02-07T10:56:58-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse</id>
+    <content type="html"><![CDATA[<p>I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS.  One thing that I noticed is that when running the application via &ldquo;hadoop jar&rdquo; it properly accessed HDFS and stored its files there but if I ran it in the debugger the API calls succeeded but the files never showed up.</p>
+
+<p>After a bit more investigation I saw that the HDFS API was unable to read my configuration files and find the NameNode so it defaulted to writing the files on the local file system instead.  This is nice behavior for debugging sometimes but can be dangerous if you&rsquo;re running an application that must put its files in HDFS like a mission critical application that doesn&rsquo;t fulfill its operational contract if data is lost.  In the case of an application like that accidentally writing to the local file system could be disastrous and expensive so it&rsquo;s good to know how to detect when this happens, and/or overcome it in a situation where you&rsquo;re trying to debug against your HDFS cluster.</p>
+
+<p>Let&rsquo;s look at a simple code snippet that connects to HDFS that is just a cleaned up version of <a href="http://developer.yahoo.com/hadoop/tutorial/module2.html#programmatically">Yahoo&rsquo;s Hadoop tutorial</a>:</p>
+
+<pre><code>import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+public class TestClass {
+    private static final String theFilename = "timmattison.txt";
+    private static final String message = "This is the message that gets put into the file";
+
+    public static void main(String[] args) {
+        try {
+            // Get the configuration and connect to the file system
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
+
+            // Create the path object for our output file
+            Path filenamePath = new Path(theFilename);
+
+            // Does it exist already?
+            if (fs.exists(filenamePath)) {
+                // Yes, remove it first
+                fs.delete(filenamePath);
+            }
+
+            // Create the output file and write the data into it
+            FSDataOutputStream out = fs.create(filenamePath);
+            out.writeUTF(message);
+            out.close();
+
+            // Open the output file as an input file and read it
+            FSDataInputStream in = fs.open(filenamePath);
+            String messageIn = in.readUTF();
+
+            // Print its contents and close the file
+            System.out.print(messageIn);
+            in.close();
+        } catch (IOException ioe) {
+            System.err.println("IOException during operation: "
+                    + ioe.toString());
+            System.exit(1);
+        }
+    }
+}
+</code></pre>
+
+<p>If you run this code with &ldquo;hadoop jar&rdquo; you&rsquo;ll see that it creates the expected file (timmattison.txt) in the current user&rsquo;s default path in HDFS.  If you run this code with Eclipse either in Run or Debug mode you&rsquo;ll see that the file is not created in HDFS, it is created relative to where Eclipse starts the JVM for the new process.</p>
+
+<p>We can tell where the HDFS library will attempt to write our files by very simply checking the type of the FileSystem object that is created by the call to <code>FileSystem.get(conf)</code>.  If that object&rsquo;s type is <a href="http://hadoop.apache.org/common/docs/current/api/org/apache/hadoop/fs/LocalFileSystem.html">LocalFileSystem</a> we are not connecting to HDFS.  However if that object&rsquo;s type is <a href="http://hadoop.apache.org/hdfs/docs/current/api/org/apache/hadoop/hdfs/DistributedFileSystem.html">DistributedFileSystem</a> then you know that you&rsquo;re connected to a Hadoop cluster and writing to a real instance of HDFS.</p>
+
+<p>In your code you can leverage this in a few ways.  First, if you always need to be sure you&rsquo;re writing to the cluster you can check the fs variable and see if it is an instance of LocalFileSystem.  If it is you can signal an error, e-mail an admin, etc.  Configuration changes in the field could cause this to happen so it is important to be aware of.  In general running programs through &ldquo;hadoop jar&rdquo; will make sure this doesn&rsquo;t happen but a little <a href="http://en.wikipedia.org/wiki/Defensive_programming">defensive programming</a> usually can&rsquo;t hurt.  Just consider what the cost of running your code against the wrong file system would be and trap this condition accordingly.</p>
+
+<p>If you&rsquo;re interested in handling this automatically in your development environment I&rsquo;ve come up with a simple pattern that works for me.  In some instances such as running your code outside of Eclipse without &ldquo;hadoop jar&rdquo; this pattern could fail so only use it specifically for debugging in Eclipse.  Here&rsquo;s what I do:</p>
+
+<pre><code>import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
+
+public class TestClass {
+    private static final String CORE_SITE_NAME = "core-site.xml";
+    private static final String CORE_SITE_LOCATION = "/etc/hadoop-0.20/conf.empty/"
+            + CORE_SITE_NAME;
+    private static final String LOCAL_SEARCH_PATH = "bin/";
+    private static final String LOCAL_CORE_SITE_LOCATION = LOCAL_SEARCH_PATH
+            + CORE_SITE_NAME;
+
+    private static boolean updatedConfiguration = false;
+
+    public static void main(String[] args) throws IOException {
+        try {
+            // Get the configuration and connect to the file system
+            Configuration conf = new Configuration();
+            FileSystem fs = FileSystem.get(conf);
+
+            // Is this the local file system?
+            if (fs instanceof LocalFileSystem) {
+                // Yes, we need to do use the cluster. Update the configuration.
+                updatedConfiguration = true;
+
+                /**
+                 * Remove the file if it already exists. Just in case this is a
+                 * symlink or something.
+                 */
+                removeTemporaryConfigurationFile();
+
+                // Copy the core-site.xml file to where our JVM can see it
+                copyConfigurationToTemporaryLocation();
+
+                // Recreate the configuration object
+                conf = new Configuration();
+
+                // Get a new file system object
+                fs = FileSystem.get(conf);
+
+                // Is this the local file system?
+                if (fs instanceof LocalFileSystem) {
+                    // Yes, give up. We cannot connect to the cluster.
+                    System.err.println("Failed to connect to the cluster.");
+                    System.exit(2);
+                }
+            }
+
+            // Do your HDFS related work here...
+        } catch (IOException ioe) {
+            // An IOException occurred, give up
+            System.err.println("IOException during operation: "
+                    + ioe.toString());
+            System.exit(1);
+        } finally {
+            // Did we update the configuration?
+            if (updatedConfiguration) {
+                // Yes, clean up the temporary configuration file
+                removeTemporaryConfigurationFile();
+            }
+        }
+    }
+
+    private static void copyConfigurationToTemporaryLocation()
+            throws IOException {
+        Runtime.getRuntime().exec(
+                new String[] { "cp", CORE_SITE_LOCATION,
+                        LOCAL_CORE_SITE_LOCATION });
+    }
+
+    private static void removeTemporaryConfigurationFile() throws IOException {
+        Runtime.getRuntime().exec(
+                new String[] { "rm", LOCAL_CORE_SITE_LOCATION });
+    }
+}
+</code></pre>
+
+<p>Now where it says &ldquo;Do your HDFS related work here&hellip;&rdquo; you can put your code and be sure that it&rsquo;s accessing the cluster, not your local file system.</p>
+
+<p>In a future article and on github I&rsquo;ll wrap this up in a reusable chunk so that you won&rsquo;t have to copy and paste this every time you start a new project.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Disable HDFS Permissions for Hadoop Development]]></title>
+    <link href="http://blog.timmattison.com/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/"/>
+    <updated>2011-12-26T11:47:35-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development</id>
+    <content type="html"><![CDATA[<p>If you&rsquo;ve <a href="http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/">set up Hadoop for development</a> you may be wondering why you can&rsquo;t read or write files or create MapReduce jobs then you&rsquo;re probably missing a tiny bit of configuration.  For most development systems in pseudo-distributed mode it&rsquo;s easiest to disable permissions altogether.  This means that any user, not just the &ldquo;hdfs&rdquo; user, can do anything they want to HDFS so do not do this in production unless you have a very good reason.</p>
+
+<p>The error message you&rsquo;re most likely seeing if permissions are the problem is similar to this:</p>
+
+<p><code>
+put: org.apache.hadoop.security.AccessControlException: Permission denied: user=tim, access=WRITE, inode="/user":hdfs:supergroup:drwxr-xr-x
+</code></p>
+
+<p>If that&rsquo;s the case and you really want to disable permissions just add this snippet into your hdfs-site.xml file (located in /etc/hadoop-0.20/conf.empty/hdfs-site.xml on Debian Squeeze) in the configuration section:</p>
+
+<pre><code>  &lt;property&gt;
+    &lt;name&gt;dfs.permissions&lt;/name&gt;
+    &lt;value&gt;false&lt;/value&gt;
+  &lt;/property&gt;
+</code></pre>
+
+<p>Then restart Hadoop (su to the &ldquo;hdfs&rdquo; user and run bin/stop-all.sh then bin/start-all.sh) and try putting a file again.  You should now be able to read/write with no restrictions.</p>
+
+<p>Good luck!  Post in the comments if it doesn&rsquo;t work for you.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How-To: Install Hadoop on Debian/Ubuntu]]></title>
+    <link href="http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/"/>
+    <updated>2011-12-23T11:19:43-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu</id>
+    <content type="html"><![CDATA[<p><em>UPDATE 2012-02-06</em>: <strong>The native library issue has been resolved</strong>.  You can now keep the native library installed with just a minor configuration tweak.  If you have already followed these instructions just scroll down to the core-site.xml contents and the commands to make the &ldquo;/hadoop&rdquo; directory on your machine.  Those two things will get you up to date.</p>
+
+<p>Yesterday I passed my <a href="http://www.cloudera.com/hadoop-training/developer-training/">Cloudera Certified Hadoop Developer (CCHD)</a> certification.  The four day class was great and I learned a lot about everything from the architecture of HDFS all the way to specific MapReduce algorithms and how to implement them using Hadoop.</p>
+
+<p>I&rsquo;m excited about implementing this in my companies as we&rsquo;re already using a home grown form of MapReduce for certain processes.  We chose MapReduce for ease of development as the algorithms tend to be surprisingly simple for what you get back.  This makes our system easier to debug and now with Hadoop it makes it as scalable as we can afford.</p>
+
+<p>I wanted to get started with using Hadoop on our standard development environment which happens to be Debian Squeeze and not CentOS as the Cloudera course uses.  Luckily they provide a Debian package repository that makes setting up your development environment pretty simple.  This setup will <em>only</em> be suitable for production since you&rsquo;ll be running a single node.  In later posts I&rsquo;ll start discussing how to set up a testing cluster and eventually give some tips on working with Hadoop in production but for now lets just focus on development.</p>
+
+<p>The first thing you&rsquo;ll want to do is to edit your apt sources in /etc/apt/sources.list.  At the end of your existing configuration add the following lines:</p>
+
+<pre><code>deb http://archive.cloudera.com/debian squeeze-cdh3 contrib
+deb-src http://archive.cloudera.com/debian squeeze-cdh3 contrib
+</code></pre>
+
+<p>Note: This configuration is specifically for a Debian Squeeze installation.  If you are using a different release like Debian Lenny or Ubuntu Karmic you&rsquo;ll need to change &ldquo;squeeze-cdh3&rdquo; to match your setup.  You can <a href="http://archive.cloudera.com/debian/dists/">look into the repository to get a list of valid values</a> but usually it&rsquo;s just the release name followed by cdh3 (ie. &ldquo;lenny-cdh3&rdquo; or &ldquo;karmic-cdh3&rdquo;).</p>
+
+<p>Next add Cloudera&rsquo;s public key into your system by running this command (don&rsquo;t forget the dash on the end of the command, it is required!):</p>
+
+<pre><code>curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-key add -
+</code></pre>
+
+<p>Now you&rsquo;ll want to update your package lists so that your OS knows the new packages exist.  You can do this by simply running:</p>
+
+<pre><code>sudo apt-get update
+</code></pre>
+
+<p>Now that you have an updated package list you can go about installing Hadoop.  For a standalone, single node development installation you&rsquo;ll need the following pieces:</p>
+
+<ul>
+<li><p>Hadoop 0.20 &ndash; The core components of Hadoop (the JARs, Python scripts, documentation, etc) but no daemons</p></li>
+<li><p>The namenode daemon &ndash; To provide access to your HDFS volume</p></li>
+<li><p>The datanode daemon &ndash; To store your HDFS data</p></li>
+<li><p>The jobtracker daemon &ndash; To schedule and hand out jobs</p></li>
+<li><p>The tasktracker daemon &ndash; To poll the job tracker, and accept and run Hadoop jobs</p></li>
+</ul>
+
+
+<p>To get all of that you&rsquo;ll need to run the following command:</p>
+
+<pre><code>sudo apt-get install hadoop-0.20 hadoop-0.20-namenode hadoop-0.20-datanode hadoop-0.20-jobtracker hadoop-0.20-tasktracker
+</code></pre>
+
+<p>Now you have successfully installed Hadoop and the necessary libraries to run a single HDFS node that can run Hadoop jobs.  In single node mode you don&rsquo;t get any of the benefits of HDFS (block replication) and your Hadoop jobs won&rsquo;t run terribly fast but you&rsquo;ll be able to develop and test your code.</p>
+
+<p>For development purposes your system is now running in standalone mode.  This means that if you run HDFS commands (ie, hadoop fs -ls) you will not be connecting to HDFS but instead you will be looking at your local file system relative to where you ran the &ldquo;hadoop&rdquo; command.  With this setup you can run local jobs and kick the tires so if that&rsquo;s all you need you&rsquo;re done.</p>
+
+<p>I would personally recommend that you run in pseudo-distributed mode if you intend to eventually move onto a production cluster and will be involved at least in some way in its administration.  This is not to say that you&rsquo;ll be the administrator of the cluster but that you&rsquo;ll at least be one of the people called upon to figure out production problems that range from HDFS issues to failed or buggy jobs.</p>
+
+<p>In pseudo-distributed mode you will really be running jobs through the entire Hadoop workflow and will be able to tell whether your jobs will run on a cluster or not.  There are still some gotchas that differ from running fully distributed vs. pseudo-distributed but if you follow best practices and defensive coding you can usually avoid them.  For example you should never depend on local state or the availability of files on the local file system.  Always read through HDFS if it&rsquo;s necessary and never use globals in your code that could be modified, or even accessed, between map and reduce tasks.  Now onto pseudo-distributed mode&hellip;</p>
+
+<p>Cloudera has done a lot for you up to this point including applying hundreds of patches that you&rsquo;ll be glad you don&rsquo;t need to worry about but now you&rsquo;ll need to do some configuration.  This is intentional since you can use CDH to run anything from a development node to a production cluster.  Therefore they don&rsquo;t make any assumptions as to how you want the nodes configured.  Being consistent in development and production and you&rsquo;ll make your life a lot easier when you need to debug something as everyone will be familiar with the same layout, major/minor release number, etc.</p>
+
+<p>Let&rsquo;s take care of the configuration steps one-by-one now.  The steps are:</p>
+
+<ul>
+<li><p>Set JAVA_HOME in the hadoop-env.sh script</p></li>
+<li><p>Configure core-site.xml</p></li>
+<li><p>Configure hdfs-site.xml</p></li>
+<li><p>Configure mapred-site.xml</p></li>
+<li><p>Setup passphraseless ssh</p></li>
+<li><p>Format the namenode</p></li>
+</ul>
+
+
+<p>Once that is complete you can start all of the required processes and begin testing but keep reading for a walkthrough of each of these steps.</p>
+
+<p>Let&rsquo;s make sure JAVA_HOME is set in your hadoop-env.sh script.  On Debian Squeeze this is located in /etc/hadoop-0.20/conf.empty/hadoop-env.sh.  By default JAVA_HOME is NOT set in hadoop-env.sh.  If you have it set in your profile already I would suggest copying that export line to hadoop-env.sh just in case you run the daemons later as a different user that might not have the same profile.  If you don&rsquo;t know what your JAVA_HOME value should be you can run this one-liner (<a href="http://serverfault.com/questions/143786/how-to-determine-java-home-on-debian-ubuntu">credits to a thread on ServerFault for this one</a>):</p>
+
+<pre><code>export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+</code></pre>
+
+<p>To verify that it is set run:</p>
+
+<pre><code>export | grep JAVA_HOME
+</code></pre>
+
+<p>And then list the contents of the directory that it references.  It should contain a bin, lib, and man directory.  If so, copy the entire export line into the beginning of the hadoop-env.sh script where it has been commented out.  If they have the same JAVA_HOME specified you can just uncomment that line.  Now whomever is starting the Hadoop processes (you, the hdfs user, or root) will always have JAVA_HOME set properly.</p>
+
+<p>Guidance for the next few steps was taken from the <a href="http://hadoop.apache.org/common/docs/r0.20.2/quickstart.html#Configuration">Hadoop Quick Start&rsquo;s &ldquo;Pseudo-Distributed Operation: Configuration&rdquo; section</a>.  Refer there for additional information.  I have just added some narrative to let you know what each of these steps does so you understand a bit more about how the system works.</p>
+
+<p>Note: The XML files are owned by root and are accessible by the hadoop group.  Edit the files as root but run any commands below as the &ldquo;hdfs&rdquo; user.</p>
+
+<p>core-site.xml (located in /etc/hadoop-0.20/conf.empty/core-site.xml on Debian Squeeze) needs to be modified to let the everyone know where the name node is running.  In our case it will be running on localhost on the default port so add this snippet of XML between the configuration tags in core-site.xml:</p>
+
+<pre><code>  &lt;property&gt;
+    &lt;name&gt;fs.default.name&lt;/name&gt;
+    &lt;value&gt;hdfs://localhost:9000&lt;/value&gt;
+  &lt;/property&gt;
+
+  &lt;property&gt;
+    &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;
+    &lt;value&gt;/hadoop/hadoop-${user.name}&lt;/value&gt;
+  &lt;/property&gt;
+</code></pre>
+
+<p>After adding these settings you&rsquo;ll need to make sure that the /hadoop base directory has been created with the proper permissions to let all users get access to it.  In production your security criteria may be different so only use this for development machines since it leaves everything pretty open!  To create the directory you&rsquo;ll want to do the following:</p>
+
+<pre><code>sudo mkdir /hadoop &amp;&amp; sudo chown hdfs:hdfs /hadoop &amp;&amp; sudo chmod 777 /hadoop
+</code></pre>
+
+<p>Now you will have the /hadoop path created on permanent storage instead of it getting placed on tmpfs where the default values would normally place it.</p>
+
+<p>hdfs-site.xml (located in /etc/hadoop-0.20/conf.empty/hdfs-site.xml on Debian Squeeze) needs to be modified to tell the HDFS daemons that we only want a replication factor of 1.  This doesn&rsquo;t matter so much since HDFS won&rsquo;t try to replicate the same block multiple times on one data node but if you start running multiple data nodes on a single development machine it will save you some disk space.  So put this snippet of XML between the configuration tags in hdfs-site.xml:</p>
+
+<pre><code>  &lt;property&gt;
+    &lt;name&gt;dfs.replication&lt;/name&gt;
+    &lt;value&gt;1&lt;/value&gt;
+  &lt;/property&gt;
+</code></pre>
+
+<p>mapred-site.xml (located in /etc/hadoop-0.20/conf.empty/mapred-site.xml on Debian Squeeze) needs to be modified to let everyone know where the job tracker is running.  In our case it will be running on localhost on the default port so add this snippet of XML between the configuration tags in mapred-site.xml:</p>
+
+<pre><code>  &lt;property&gt;
+    &lt;name&gt;mapred.job.tracker&lt;/name&gt;
+    &lt;value&gt;localhost:9001&lt;/value&gt;
+  &lt;/property&gt;
+</code></pre>
+
+<p>As root you&rsquo;ll need to run two commands to make sure that the rest of the config will work as the &ldquo;hdfs&rdquo; user.  You need to create a directory for the &ldquo;hdfs&rdquo; user to store its SSH credentials.  To do this run the following commands (again, as root):</p>
+
+<pre><code>mkdir /usr/lib/hadoop-0.20/.ssh
+chown hdfs:hdfs /usr/lib/hadoop-0.20/.ssh
+</code></pre>
+
+<p>This is assuming that your hadoop directory is /usr/lib/hadoop-0.20.  To verify where it is if you aren&rsquo;t sure su to the &ldquo;hdfs&rdquo; user and run &ldquo;pwd&rdquo;.  That will be the directory where this should be done.</p>
+
+<p>Remember to run all of the steps from here as the &ldquo;hdfs&rdquo; user or it will not work.</p>
+
+<p>Passphraseless SSH is required so that the scripts can connect to servers and start/stop services in a cluster.  To make sure you can ssh without a password localhost first try this:</p>
+
+<pre><code>ssh localhost
+</code></pre>
+
+<p>If you are prompted for a password it has not been set up yet.  To set it up you&rsquo;ll need to generate a public/private key pair and then tell SSH to accept the public key as a valid login credential.  Do this by running the following commands:</p>
+
+<pre><code>ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
+cat ~/.ssh/id_dsa.pub &gt;&gt; ~/.ssh/authorized_keys
+</code></pre>
+
+<p>Try to ssh to localhost now and make sure that it works.  <strong><em>If you skip this step the host&rsquo;s key will not be added to the list of known hosts and the non-interactive processes will fail</em></strong>.</p>
+
+<p>If the ssh-keygen command prompts you to overwrite your key <strong><em>DO NOT DO IT</em></strong>!  This will break any existing key-based SSH connections have already.  Just say no if asked to overwrite your key.  Adding an existing key to the list of authorized keys will still work.</p>
+
+<p>The last configuration step is to format the name node.  This will make sure the name node has all of its data structures on disk set up properly so that it can track your HDFS data.  To do this just run the following hadoop (located in /usr/bin/hadoop on Debian Squeeze) command:</p>
+
+<pre><code>hadoop namenode -format
+</code></pre>
+
+<p>If you are asked to reformat the filesystem you must make sure that nobody else is already running Hadoop on this machine.  If they are and you reformat the name node you will end up wiping out their data.  It is recoverable but you don&rsquo;t want to have to go through that as it is time consuming and not guaranteed to work.</p>
+
+<p>Now that everything is set up you can start everything by running the start-all.sh (located in /usr/lib/hadoop-0.20/bin/start-all.sh on Debian Squeeze) script:</p>
+
+<pre><code>start-all.sh
+</code></pre>
+
+<p>If you didn&rsquo;t see any errors you should be up and running.  Here are some things that we should verify to make sure that everything works as expected:</p>
+
+<ul>
+<li><p>Run &ldquo;jps&rdquo; and verify all of the processes are there</p></li>
+<li><p>Test the name node&rsquo;s web GUI</p></li>
+<li><p>Test the job tracker&rsquo;s web GUI</p></li>
+<li><p>Test HDFS</p></li>
+<li><p>Run a Hadoop MapReduce example</p></li>
+</ul>
+
+
+<p>When you run &ldquo;jps&rdquo; you should get a list of processes including &ldquo;TaskTracker&rdquo;, &ldquo;JobTracker&rdquo;, &ldquo;SecondaryNameNode&rdquo;, &ldquo;DataNode&rdquo;, and &ldquo;NameNode&rdquo;.  If any of these are missing check the log directory.  On my first run the name node failed to come up and it was because I had manually created the /tmp/hadoop-hdfs/dfs/name directory when doing some earlier testing.  After that the name node format failed silently.  If you get an exception that reads &ldquo;java.io.IOException: NameNode is not formatted.&rdquo; you should run stop-all.sh, then remove the /tmp/hadoop-hdfs directory (again, make sure nobody else is running Hadoop on your machine!), and then reformat the name node and restart the processes with start-all.sh.</p>
+
+<p>Now that all of the processes are running check that the <a href="http://localhost:50030">job tracker web GUI</a> and the <a href="http://localhost:50070">name node web GUI</a> are running.  If both of those links bring up web pages without errors then they are both running properly.</p>
+
+<p>Let&rsquo;s test HDFS with some simple commands.  You should still be the &ldquo;hdfs&rdquo; user for this.  Don&rsquo;t change back to your regular user account yet.  First, list the files on the HDFS volume with this command:</p>
+
+<pre><code>hadoop fs -ls
+</code></pre>
+
+<p>When you first run this you should get an error that reads &ldquo;ls: Cannot access .: No such file or directory.&rdquo;.  That&rsquo;s OK.  Let&rsquo;s put a file there any make sure that it works.  Generate a file full of random data with this command:</p>
+
+<pre><code>head -c 1048576 /dev/urandom &gt; /tmp/random.txt
+hadoop fs -put /tmp/random.txt random.txt
+</code></pre>
+
+<p>If those commands give you errors try <a href="http://blog.timmattison.com/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/">disabling HDFS permissions</a>, then stop and restart everything with the stop-all.sh, and start-all.sh scripts.  Then come back here and try again.</p>
+
+<p>Now list the files again as you did above and you should see a 1 MB file called random.txt.  Verify that the input file and the output file match by comparing their sha1sums:</p>
+
+<pre><code>sha1sum /tmp/random.txt
+hadoop fs -cat random.txt | sha1sum
+</code></pre>
+
+<p>You should get two hex strings on separate lines that match.  You can ignore the filename portion of the result since one run is taking the data from the local filesystem and the other is reading the data from HDFS and piping it to sha1sum.</p>
+
+<p>Finally, let&rsquo;s run a MapReduce job.  There are a few example jobs included with the default installation and the simplest one is grep.  We&rsquo;ll need to build a file that we want to grep, put it on HDFS, run the job, and compare the results to running a non-MapReduce grep on it.</p>
+
+<p>I wanted to build a file that was bigger than a single tiny text file I ran the following command (still as the &ldquo;hdfs&rdquo; user):</p>
+
+<pre><code>find /etc -exec cat {} \; | strings &gt; /tmp/etc-dir.txt
+</code></pre>
+
+<p>This reads all of the files in the /etc directory, extracts everything that looks like a string so we don&rsquo;t end up with a binary mess, and puts it in the /tmp/etc-dir.txt.  I then put that file onto HDFS:</p>
+
+<pre><code>hadoop fs -put /tmp/etc-dir.txt etc-dir.txt
+</code></pre>
+
+<p>Then I ran a MapReduce job that returns the number of occurrences of the string &ldquo;localhost&rdquo; in the file:</p>
+
+<pre><code>cd /usr/lib/hadoop-0.20
+hadoop jar hadoop-*-examples.jar grep etc-dir.txt etc-dir-results localhost
+</code></pre>
+
+<p>And I compared that to counting the occurrences with grep:</p>
+
+<pre><code>hadoop fs -cat etc-dir-results/part-00000
+grep localhost /tmp/etc-dir.txt | wc -l
+</code></pre>
+
+<p>To verify that it worked I should see two lines of text that both start with the same number.  The first line will contain the string &ldquo;localhost&rdquo; on the end of it, the second one will not.</p>
+
+<p>If you got this far you&rsquo;ve now got a working Hadoop developer setup.  If not, post in the comments and I&rsquo;ll try to help out and update the tutorial with more information.  Good luck!  Hadoop is an exciting tool with lots of applications that I&rsquo;ll explore in future posts.</p>
+
+<p>If you&rsquo;re going to get serious with it look into getting a CCHD certification.  With it you&rsquo;ll skip a few very hard months of work on your own in just four days and you&rsquo;ll come out of it with a sound understanding of HDFS, the MapReduce process, and get a lot of good tips on what you should and shouldn&rsquo;t do.  The instructors are very knowledgeable, have a large support network to answer your domain specific questions, and it can be a great networking opportunity.  If you have questions about the course post them in the comments too.</p>
+
+<p>Update: Having trouble with permissions?  Check this other short article on <a href="http://blog.timmattison.com/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/">how to disable permissions for a development machine</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

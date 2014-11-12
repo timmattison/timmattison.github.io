@@ -1,0 +1,932 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+  
+  <meta name="description" content="VMware Server is a complicated beast. When it breaks, you&rsquo;re usually without support (although paid support options do exist), and out of &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.timmattison.com/page/10">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+  
+    <h2>Hardcore tech</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/12/01/how-to-fix-issues-with-vmware-server-tools-on-gentoo-and-other-distros/">How-To: Fix Issues With VMware Server Tools on Gentoo (and Other Distros)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-12-01T18:59:59-05:00" pubdate data-updated="true">Dec 1<span>st</span>, 2009</time>
+        
+           | <a href="/archives/2009/12/01/how-to-fix-issues-with-vmware-server-tools-on-gentoo-and-other-distros/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/01/how-to-fix-issues-with-vmware-server-tools-on-gentoo-and-other-distros/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>VMware Server is a complicated beast.  When it breaks, you&rsquo;re usually without support (although <a href="mailto:sales@vmware.com">paid support options do exist</a>), and out of commission.  One problem that tripped me up for a few weeks was that I had a running VM that refused to suspend.  Because of this I couldn&rsquo;t get clean backups of the VM in a suspended state and had to resort to just a plain backup of the filesystem via rsync.  It worked, but it was less than optimal.  Any time I ran the suspend command:</p>
+
+<pre><code>/opt/vmware/bin/vmrun suspend Gentoo.vmx
+</code></pre>
+
+<p>The error message I was presented with was:</p>
+
+<pre><code>Error: Command failed: Cannot connect to the virtual machine
+</code></pre>
+
+<p>I could hobble along like this for a while but today I needed to add another virtual disk which required a restart of the VM.  When I tried to start it via the command-line tools like this:</p>
+
+<pre><code>/opt/vmware/bin/vmrun start Gentoo.vmx
+</code></pre>
+
+<p>The system just hung indefinitely.  Eventually I had to CTRL-C out of it and get back to the command-line to figure out the issue.</p>
+
+<p>What was the underlying problem?  Almost every time I&rsquo;ve had a VMware Server issue it has been permissions.  When you&rsquo;re working with VMs you should always make sure that the following criteria is applied to the files in the VM&rsquo;s working directory:</p>
+
+<ul>
+<li><p>All files must be owned by the vmware user and/or the vmware group</p></li>
+<li><p>All of the files must be readable and writeable by the vmware user and/or group</p></li>
+<li><p>Disk files must be marked as executable by the vmware user and/or group</p></li>
+<li><p>Optional: All permissions should be removed from anyone other than the owning user and/or group</p></li>
+</ul>
+
+
+<p>What I do to get this done quickly on all of my VMs is run the following few commands in each VM&rsquo;s working directory:</p>
+
+<pre><code>chgrp vmware *
+chmod 660 *vmem
+chmod 660 *.vmsn
+chmod 750 *.vmdk
+chmod 750 *.vmsd
+chmod 750 nvram
+</code></pre>
+
+<p>After running those few commands VMware Server works like a charm again.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/">How-To: Setup Streaming MP4 Video on Your Own Gentoo Server (and Other Distros)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-29T22:52:59-05:00" pubdate data-updated="true">Nov 29<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/29/how-to-setup-streaming-mp4-video-on-your-own-gentoo-server-and-other-distros/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>With so many free streaming services available today (<a href="http://www.vimeo.com">Vimeo</a> being the best and <a href="http://www.youtube.com">YouTube</a> being the most widely recognized) you might wonder why someone would want to host their own videos.  My main reason is so that I can more easily see who watches my content.  Other reasons include better access control if your videos are personal in nature, or a more integrated, branded user experience if you&rsquo;re producing content that is subscription, pay-per-view or ad supported.  You might also want to get around the restrictions that come with the free accounts these sites offer without paying for their premium services.  If you&rsquo;re already invested in the hardware to host your site and you can support the bandwidth requirements for your expected traffic volume then it might make sense to host things yourself.</p>
+
+<p>So, what&rsquo;s the big deal?  If you&rsquo;re looking to get started right away you can render an MP4 file, install a free player like <a href="http://flowplayer.org/">FlowPlayer</a>, and start hosting video in 5 minutes.  The problem that you&rsquo;ll notice straight away is that your videos have to buffer completely (ie. the user&rsquo;s browser downloads the whole video) before they start playing.  For short videos or video files that are small this isn&rsquo;t a big deal.  But for HD videos and videos that are long in duration the delay can cause even the most patient viewers navigate away from your site.  Since all of the other services have gotten users accustomed to video playing immediately it&rsquo;s hard to justify this kind of behavior on any site today.</p>
+
+<p>I&rsquo;ve figured out the secret sauce to get this working.  Now you can do it too with just these few simple steps:</p>
+
+<ul>
+<li><p>Step 1: Render your MP4 files and place them on your server</p></li>
+<li><p>Step 2: Create a webpage with <a href="http://flowplayer.org/">FlowPlayer</a> embedded.  A template to get you started looks like this:</p>
+
+<p><head>
+<script type="text/javascript" src="http://your-site.com/flowplayer-3.2.4.min.js"></script>
+</head></p>
+
+<p><a href="http://your-site.com/your-video.mp4" style="display:block;width:800px;height:475px" id="player"> </a></p>
+
+<p><script>flowplayer(&ldquo;player&rdquo;, &ldquo;flowplayer-3.2.5.swf&rdquo;,</p>
+
+<p>{ clip:
+  { url: &ldquo;<a href="http://your-site.com/your-video.mp4">http://your-site.com/your-video.mp4</a>&rdquo;,
+    duration: 120,
+    metadata: false,
+    autoPlay: true,
+    autoBuffer: true,
+    bufferLength: 3,
+    linkUrl: &ldquo;<a href="http://your-site.com/your-video-description.html">http://your-site.com/your-video-description.html</a>&rdquo;
+  }
+});</script></p></li>
+</ul>
+
+
+<p>Just replace your-site.com/your-video.mp4 with the real URL of your MP4 video and your-site.com/your-video-description.html with the site you want to link the user to if they click on the video while it&rsquo;s playing.  Also, replace &ldquo;120&rdquo; after the duration variable with the actual duration of your video in seconds.  If you don&rsquo;t know this value, or you&rsquo;re feeling lazy, you can set it to zero and FlowPlayer will figure it out for you.  Don&rsquo;t set it too short or your video will end prematurely and make sure that flowplayer-3.1.4.min.js is on your server in the appropriate location.  This example assumes it is in the root directory.</p>
+
+<ul>
+<li><p>Step 3: Download and install mod_h264 for Apache.  There are instructions for <a href="http://h264.code-shop.com/trac/wiki/Mod-H264-Streaming-Apache-Version2">distros other than Gentoo</a> or youcan run these commands on Gentoo to do it all:</p>
+
+<p>cd /tmp
+wget <a href="http://h264.code-shop.com/download/apache_mod_h264_streaming-2.2.5.tar.gz">http://h264.code-shop.com/download/apache_mod_h264_streaming-2.2.5.tar.gz</a>
+tar xzvf apache_mod_h264_streaming-2.2.5.tar.gz
+rm apache_mod_h264_streaming-2.2.5.tar.gz
+cd mod_h264_streaming-2.2.5
+./configure
+sudo make install</p></li>
+<li><p>Step 4: Add mod_h264 for your Apache configuration.  Append these lines to the bottom of your /etc/apache/httpd.conf:</p>
+
+<p>LoadModule h264_streaming_module /usr/lib/apache2/modules/mod_h264_streaming.so
+AddHandler h264-streaming.extensions .mp4</p></li>
+<li><p>Step 5: Restart apache with</p>
+
+<p>/etc/init.d/apache restart</p></li>
+<li><p>Step 6: Test out your streaming video.  If all went well then you&rsquo;ll see the bar behind the playhead fill in as the video buffers.</p></li>
+</ul>
+
+
+<p>That&rsquo;s all there is to it.  Thanks to the mod_h264 developers (and these instructions) you&rsquo;re now able to stream MP4 video like the big guys.  Here&rsquo;s an example of what it should look like (the source material in this video is from <a href="http://freestockphotos.com/">FreeStockPhotos.com</a> but the controls in the player cut off their watermark):</p>
+
+<p><a href="http://blog.timmattison.com/static/howto-test.mp4"> </a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/24/how-to-disable-screen-blanking-in-x-on-gentoo-and-other-distros/">How-To: Disable Screen Blanking in X on Gentoo (and Other Distros)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-24T07:12:28-05:00" pubdate data-updated="true">Nov 24<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/24/how-to-disable-screen-blanking-in-x-on-gentoo-and-other-distros/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/24/how-to-disable-screen-blanking-in-x-on-gentoo-and-other-distros/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Even though I have a nice dual monitor setup in my office I tend to use my laptop for almost everything.  The dual monitor system ends up holding a bunch of diagnostic and performance information (top, PProcM, tail of application/database logs, etc)  about the various machines I&rsquo;m working on.  Because of this I&rsquo;m almost never using the keyboard and mouse on that machine and in fact it often doesn&rsquo;t have a keyboard and mouse hooked up.  Typically I just access it just using <a href="http://www.karlrunge.com/x11vnc/">x11vnc</a> so I don&rsquo;t have to switch my wireless mouse over or go find a free keyboard.</p>
+
+<p>The problem is that the screen blanker kicks in every 15 minutes or so.  I got tired of reconnecting via VNC to turn the displays back on so I just did a quick mod to my /etc/X11/xorg.conf and now I just turn the displays off manually whenever I don&rsquo;t need them.  If you want to do the same thing just add the following section right before the input device section (found on <a href="http://www.linuxquestions.org/questions/slackware-14/cannot-unset-powersave-mode-582229/">these forums</a>):</p>
+
+<pre><code>Section "ServerFlags"
+    Option         "blank time" "0"
+    Option         "standby time" "0"
+    Option         "suspend time" "0"
+    Option         "off time" "0"
+EndSection
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/">How-To: Fix &#8220;ERROR: Function information_schema._pg_keypositions() Does Not Exist&#8221; in PostgreSQL When Using Hibernate</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-24T07:01:25-05:00" pubdate data-updated="true">Nov 24<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/24/how-to-fix-error-function-information-schema-pg-keypositions-does-not-exist-in-postgresql-when-using-hibernate/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;ll keep this one short.  If you&rsquo;re writing and debugging a Hibernate application and you&rsquo;re using PostgreSQL you may notice that you get the following error message when your application first connects to the database:</p>
+
+<pre><code>ERROR:  function information_schema._pg_keypositions() does not exist
+</code></pre>
+
+<p>According to <a href="http://qaix.com/postgresql-database-development/445-710-information-schema-pg-keypositions-in-8-1-read.shtml">a forum I came across</a> this is because the Hibernate team ended up depending on a function in PostgreSQL 8.0 that was dropped in 8.1+.  I needed to make some modifications to the code posted there to get it to work so here&rsquo;s what I came up with:</p>
+
+<pre><code>CREATE FUNCTION information_schema._pg_keypositions() RETURNS SETOF integer
+LANGUAGE sql
+IMMUTABLE
+AS $pg_keypositions$
+select g.s
+from generate_series(1,current_setting('max_index_keys')::int, 1)
+as g(s)
+$pg_keypositions$;
+</code></pre>
+
+<p>Once you run this code in your database you&rsquo;ll never be bothered with that error message again.  Basically this just gets the max_index_keys value and generates a list of integers from 1 to that value, inclusive.  Hibernate can live without it but removing a repetitive error message will keep your DBA and sysadmins sane a bit longer.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/19/how-to-get-a-warranty-id-for-a-flaky-battery-on-an-hp-laptop/">How-To: Get a Warranty ID for a Flaky Battery on an HP Laptop</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-19T13:34:14-05:00" pubdate data-updated="true">Nov 19<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/19/how-to-get-a-warranty-id-for-a-flaky-battery-on-an-hp-laptop/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/19/how-to-get-a-warranty-id-for-a-flaky-battery-on-an-hp-laptop/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last week my fiancée&rsquo;s brand new HP laptop started turning off after being unplugged for less than 3 minutes.  The battery was in such bad shape that Windows didn&#8217;t shut down properly, it just completely turned off.  I made sure the battery was fully charged and tested it again.  Sure enough after 3 minutes it would just forcibly shut off.</p>
+
+<p>We called tech support to get a replacement and we were put through over an hour worth of msconfig tweaks and all kinds of stuff.  In the end we were told to run the &#8221;HP Battery Check&#8221; utility.  This utility said the battery was fine so we were out of luck as far as the warranty was concerned.  However, after we got off of the phone we were able to get a battery &ldquo;warranty ID&rdquo; that we could use to get a replacement.  If you are having similar battery problems here&rsquo;s what you should do to save yourself some trouble.</p>
+
+<p>Step 1: Run the &ldquo;HP Battery Check&rdquo; utility.  If it gives you a warranty ID just <a href="callto:+1800-474-6836">call HP tech support</a> and give that to them.  They will take care of the rest.  Otherwise, continue to step 2.</p>
+
+<p>Step 2: Set your power plan to &ldquo;HP Recommended&rdquo; by clicking on the battery icon in the system tray and selecting it from the list.</p>
+
+<p>Step 3: Verify that your battery really only lasts a few minutes and then forcibly powers off.  If Windows shuts down properly then you probably have a battery that has a decreased capacity but that&rsquo;s not actually defective.  HP will not replace these kinds of batteries.  If it appears defective but the battery check says it&rsquo;s OK proceed to step 4.</p>
+
+<p>Step 4: Restart Windows</p>
+
+<p>Step 5: Charge the battery to 100%</p>
+
+<p>Step 6: Start the &ldquo;HP Battery Check&rdquo; utility and get a pen and paper.  You&rsquo;ll need to be fast to get this information down.</p>
+
+<p>Step 7: Unplug the power until you see the battery meter decrease by more than 2%.  This should happen in just a few seconds if the battery is defective.  Note that the battery status in the utility should read &ldquo;Invalid&rdquo;.</p>
+
+<p>Step 8: Plug the power back in.  After a few seconds you should see that the utility says &ldquo;Replace&rdquo;.  Write down the warranty ID (a 27-digit number) as fast as possibly.  If your battery is flaky in a few seconds the status will go back to &ldquo;Good&rdquo; and the ID will disappear.  If it says &ldquo;Good&rdquo; again you can try a few times.  It took two tries for me to get the number the first time but then it no longer showed the &ldquo;Replace&rdquo; message and warranty ID.</p>
+
+<p>Step 9: Call HP, give them the warranty ID, and wait for your new battery to arrive</p>
+
+<p>This won&rsquo;t work for all HP battery problems but it&rsquo;s worth a shot before you sink a lot of time into a tech support call that benefits neither you nor HP.  This is a good, quick way to see if your battery is defective in a way that a normal tech support call to HP wouldn&rsquo;t pick up.  If you&rsquo;ve already talked to HP and your battery is considered &ldquo;Good&rdquo; this is always worth a shot to get a free, legitimate replacement.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/17/how-to-fix-vmware-workstations-modules-after-updating-your-kernel-on-gentoo/">How-To: Fix VMware Workstation&#8217;s Modules After Updating Your Kernel on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-17T10:18:26-05:00" pubdate data-updated="true">Nov 17<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/17/how-to-fix-vmware-workstations-modules-after-updating-your-kernel-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/17/how-to-fix-vmware-workstations-modules-after-updating-your-kernel-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Here&rsquo;s another thing I ran into today when adding support for KVM to my kernel&hellip; VMware Workstation&rsquo;s modules failed to load at boot time.  Normally, the fix is to run:</p>
+
+<pre><code>vmware-modconfig --console --install-all
+</code></pre>
+
+<p>Or:</p>
+
+<pre><code>emerge --config vmware-workstation
+</code></pre>
+
+<p><strong>Neither of these will work on the latest versions of Gentoo</strong>.  The real fix is to re-emerge your vmware-modules package.  You can do this by just running:</p>
+
+<pre><code>emerge vmware-modules
+</code></pre>
+
+<p>That will build the modules against your current running kernel.  After that, your modules will work again but will not be loaded.  You need to forcibly reload them by running:</p>
+
+<pre><code>/etc/init.d/vmware restart
+</code></pre>
+
+<p>Each time you change your kernel, which means even booting into one that previously worked, you&rsquo;ll need to do this again.  For convenience if you change your kernel a lot you can just put those two commands into a script.  The script, which I call &ldquo;fix-vmware-modules.sh&rdquo;, should just look like this:</p>
+
+<pre><code>emerge vmware-modules
+/etc/init.d/vmware restart
+rc-update add vmware default
+</code></pre>
+
+<p>I added the extra rc-update command just in case you run this on a machine that you just installed VMware Workstation on.  It makes sure the modules are loaded at boot time and it won&rsquo;t hurt an existing installation.  Instead it will just let you know that it&rsquo;s already added to the default runlevel.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/13/review-netflix-on-the-ps3/">Review: NetFlix on the PS3</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-13T10:02:54-05:00" pubdate data-updated="true">Nov 13<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/13/review-netflix-on-the-ps3/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/13/review-netflix-on-the-ps3/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>NetFlix just released software that enables consumers to watch their instant queue on a PlayStation 3.  Of course, the XBOX 360 has had this capability for quite some time but now users of either console can stream movies to their TVs without purchasing a Roku or a compatible DVD/BluRay player.  This move will open up their customer base considerably since a lot of people who have purchased a PS3 can&rsquo;t easily justify spending another $100 for a device just to watch their Instant Queue.</p>
+
+<p>NetFlix, for those who don&rsquo;t subscribe, lets you receive DVDs or BluRay disks in the mail or watch movies online.  Only a small percentage of their total movie count is available online so you&rsquo;ll probably end up having to wait for some things to arrive in the mail instead of getting instant gratification.  The collection of online movies grows every week though and there are tons of titles (movies, TV shows, documentaries) that are worth watching on it.  When you find movies that you want you add them to your queue.  There is a separate queue for movies that will arrive in the mail and movies that you can watch online.  We&rsquo;ll focus on the &ldquo;Instant Queue&rdquo; from here on out.</p>
+
+<p>The NetFlix software comes in the mail like any other movie would normally.  The only difference is that NetFlix uses a different mailer that lets you know that you don&rsquo;t need to return this DVD to them.  When you want to watch a movie online you just need to pop it into your PS3, go to the Video menu, and select NetFlix.  But first, you have to let NetFlix know you have a PS3.  Log into your account and <a href="http://www.netflix.com/ps3">go to the signup page</a>.  NetFlix will send the disk in a few days.</p>
+
+<p>The first time you use it you&rsquo;ll be presented with an activation screen.  This is how NetFlix associates your PS3 with your particular NetFlix account.  You&rsquo;ll see a code on the screen that you&rsquo;ll need to provide to NetFlix.  You can either go to the URL they show you directly (<a href="http://www.netflix.com/ps3">http://www.netflix.com/ps3</a>) or, because NetFlix is smart, you can log into your account and they&rsquo;ll show you a banner when you first log in that tells you how to activate your device.  Once you enter the code on this page your PS3 will start pulling down the list of movies you have in your Instant Queue.</p>
+
+<p>From this point it looks similar to the Roku with a few extra menu items that actually let you add movies to your Instant Queue directly from the PS3.  There&rsquo;s no feature to search for a title by name unfortunately so you&rsquo;re at the mercy of their suggestions for you.  Aside from that you get the standard red/gray NetFlix branded look and feel that you expect from any other device.</p>
+
+<p>What&rsquo;s good and what&rsquo;s bad?  Here&rsquo;s what I&rsquo;ve come up with.</p>
+
+<p>The Bad</p>
+
+<ul>
+<li><p>Just like the Roku, there is no capability to fast forward or rewind without rebuffering.  This can get annoying if some dialog is hard to hear or you want to watch a scene a few times.  This should be addressed soon, especially considering the hardware at their disposal on the PS3.</p></li>
+<li><p>When movies are in standard definition the PS3 goes into 480P mode.  What it should really do is stay in the current video mode and scale the picture up appropriately.  Why does it matter?  The user interface looks really good in high definition, in standard definition it looks very chunky.  It loses its consistent look and feel when things like this, that a user sees all the time, change from movie to movie.</p></li>
+<li><p>As you move around the menus the PS3 has to fetch the cover art and movie list over and over again</p></li>
+<li><p>There is no way to search for movies by title</p></li>
+<li><p>The interface can be a bit sluggish, especially when trying to pause a movie.  However, it is more responsive than the Roku.</p></li>
+<li><p>The directional pad and trigger buttons don&rsquo;t function as you&rsquo;d expect.  To scroll through movies you need to keep pressing the buttons or triggers for each movie.  Holding them down should keep scrolling at a reasonable pace but instead it scrolls just one movie no matter how long it is pressed.</p></li>
+<li><p>You need to insert a DVD to watch a movie online.  It feels weird to do that.  It should be available to download online and to install on the hard drive from the disk.</p></li>
+<li><p>Just like the Roku, when you pause a movie the pause icon and the timeline stay on top of the video.  If you&rsquo;re trying to pause to see something on the bottom of the screen then these will definitely occlude your view.  They should fade out after a few seconds.</p></li>
+</ul>
+
+
+<p>The Good</p>
+
+<ul>
+<li><p>You can watch NetFlix on my PS3, of course.  Coincidentally, I can now move my Roku into another room without having to buy a third device.</p></li>
+<li><p>You can browse new movies and recommended movies on the PS3.  You don&rsquo;t need to grab a computer and sign onto the site anymore unless you&rsquo;re looking for a specific movie.</p></li>
+<li><p>The user interface in 720P looks a lot nicer than the Roku.  The fonts are cleaner and it feels like the screen is used more effectively.</p></li>
+<li><p>As you move through the interface you &ldquo;slide&rdquo; from screen to screen.  On the Roku, probably due to limited CPU capabilities, you &ldquo;snap&rdquo; from one screen to another.  The animation gives you a better idea of where you were and where you&rsquo;re going.  It&rsquo;s easy to feel lost on the Roku when you press the wrong button because the whole screen changes instantly.</p></li>
+<li><p>There is a list of recently watched movies.  If you watched a movie and removed it from your queue on the Roku you can&rsquo;t get back to it without going through the NetFlix site.  Whether it&rsquo;s still in your queue or not it&rsquo;s in the recently watched list.</p></li>
+<li><p>There is a list of new arrivals.  It&rsquo;s nice to see that NetFlix is actively adding movies to their streaming service without searching on your computer.</p></li>
+</ul>
+
+
+<p>So what&rsquo;s my final verdict?  I&rsquo;d give it a 7 out of 10 because of the few, fixable issues I&rsquo;ve seen.  If you have a PS3 you should go to NetFlix now and order your disk to check it out for yourself.  If you&rsquo;re considering a Roku or a PS3 I think it&rsquo;s safe to say that you&rsquo;ll get more mileage out of a PS3 at this point.  A Roku is definitely a better choice for a second or third room though since the price and power consumption is much lower.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/">How-To: Fix &#8220;This Selection Is Not Within a Valid Module&#8221; Errors in Eclipse When Refactoring Web Projects</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-12T14:20:47-05:00" pubdate data-updated="true">Nov 12<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/12/how-to-fix-this-selection-is-not-within-a-valid-module-errors-in-eclipse-when-refactoring-web-projects/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>After rebuilding my Eclipse environment I had the need to refactor one of my web projects.  Once I refactored it using the usual Eclipse method (right-click on the project &ndash;> Refactor &ndash;> Rename) I wasn&rsquo;t able to start the project on my web server.  The error message I got was</p>
+
+<pre><code>This selection is not within a valid module
+</code></pre>
+
+<p>Here are the steps to resolve this issue:</p>
+
+<p>Step 1: Select the &ldquo;Servers&rdquo; tab in Eclipse</p>
+
+<p>Step 2: Right-click on your server and select &ldquo;Delete&rdquo;</p>
+
+<p>Step 3: If prompted, make sure all options are checked (&ldquo;Delete unused server configuration(s)&rdquo;, &ldquo;Delete running server(s)&rdquo;, and &ldquo;Stop server(s) before deleting&rdquo;) and click OK</p>
+
+<p>Step 4: Close Eclipse</p>
+
+<p>Step 5: Go into your project&rsquo;s .settings directory and edit the org.eclipse.wst.common.component file</p>
+
+<p>Step 6: Change the following values to the name of your refactored project:</p>
+
+<pre><code>wb-module deploy-name
+property name="context-root" value
+</code></pre>
+
+<p>Step 7: Restart Eclipse and re-run your project</p>
+
+<p>Now your project should deploy to your servlet container properly.  Any time you refactor a web project in Eclipse you may need to do this so keep these instructions around if you think you&rsquo;ll need to do it often.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/">How-To: Fix a Broken Eclipse Environment Without Starting Completely From Scratch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-10T08:46:58-05:00" pubdate data-updated="true">Nov 10<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Over time my Eclipse environment has become quiet a bit crufty.  I have a bunch of errors from plugins that I installed that didn&rsquo;t work properly and yesterday my environment completely stopped building my Java projects.  When I tried to export a JAR I got these two messages:</p>
+
+<p>JAR creation failed. See details for additional information.</p>
+
+<p>class file(s) on classpath not found or not accessible</p>
+
+<p>There are also some other errors you may see that indicate you should probahly rebuild your environment:</p>
+
+<p>No property tester contributes a property projectPersistentProperty org.eclipse.team.core.repository to type class org.eclipse.core.internal.resources.Project</p>
+
+<p>org.eclipse.core.runtime.CoreException: No property tester contributes a property projectPersistentProperty org.eclipse.team.core.repository to type class org.eclipse.core.internal.resources.Project</p>
+
+<p>java.util.zip.ZipException: error in opening zip file</p>
+
+<p>An internal error occurred during: &ldquo;Initializing Java Tooling&rdquo;</p>
+
+<p>An error occurred while loading the manifest</p>
+
+<p>In my case the class files that it couldn&rsquo;t find were classes that Eclipse was supposed to build.  After checking everything I couldn&rsquo;t figure it out so I decided that it was time to start fresh.  What I wanted to do was nuke the whole environment but not have to hunt around for all the JARs that I had in my user-defined libraries.  In the future I&rsquo;ll put all of those files in a directory for each library but right now I needed a fix so I could get back to work.</p>
+
+<p>Here are the steps to get a fresh start without reinstalling and without losing your user libraries:</p>
+
+<ul>
+<li><p>Step 1: Quit Eclipse</p></li>
+<li><p>Step 2: Make a backup of your workspace</p></li>
+<li><p>Step 3: Go into your workspace on the command-line and run</p>
+
+<p>mv .metadata .metadata-old</p></li>
+<li><p>Step 4: Restart Eclipse.  Don&rsquo;t panic!  Everything is only gone temporarily.  This step forces Eclipse to build a fresh .metadata directory.</p></li>
+<li><p>Step 5: Quit Eclipse</p></li>
+<li><p>Step 6: Restore your user-defined libraries on the command-line by running</p>
+
+<p>cp .metadata-old/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs</p></li>
+<li><p>Step 7: Restart Eclipse and import your projects back into the workspace</p></li>
+</ul>
+
+
+<p>If you are still having trouble and cannot build your code or export JARs make sure you right-click on a project that is having that problem, select &ldquo;Java Build Path&rdquo;, then select &ldquo;Libraries&rdquo;.  Any libraries marked with a red X are almost certainly your issue.  Resolve this issue (or remove them if they&rsquo;re not needed) and you&rsquo;ll be almost right where you left off but with a fresh, clean environment.</p>
+
+<p>You will lose settings like the location of your Android SDK if you use that, or the location where the save dialogs open up, but if you can deal with that this is a great way to start over.  Once you&rsquo;re comfortable with your setup you can remove the old metadata by running this on the command-line</p>
+
+<pre><code>rm -rf .metadata-old
+</code></pre>
+
+<p>Don&rsquo;t delete your backup copy though!  You never know when you&rsquo;ll need it.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/">How-To: Fix &#8220;Configure: Error: C Compiler Cannot Create Executables&#8221; on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-09T18:59:59-05:00" pubdate data-updated="true">Nov 9<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/09/how-to-fix-configure-error-c-compiler-cannot-create-executables-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I encountered this message today when trying to update glib-2.20.5-r1 on my 64-bit Gentoo box.  I&rsquo;ve seen this error message before but today, as luck would have it, I had just made some changes to my make.conf so I knew exactly where to look.  What I was doing was preparing my system for Xen and I was duped into adding the &ldquo;&mdash;mno-tls-direct-seg-refs&rdquo; option to my CFLAGS.  It turns out that 64-bit Gentoo doesn&rsquo;t need this option and actually it will cause your C compiler to fail.</p>
+
+<p>If you have this option and you&rsquo;re trying to get Xen running, remove it and try again.  That will most likely fix your problem.  If the problem persists you can dig a bit deeper and figure it out like this.</p>
+
+<ul>
+<li><p>Step 1: Scroll back through your emerge error.  If it&rsquo;s too far gone then retry the emerge and get it to report the error again.  If you&#8217;re using screen don&rsquo;t forget that you can use CTRL-A and then left bracket to enter copy mode and maneuver through the scrollback buffer.  Press escape to exit it when you&rsquo;re done.  You&rsquo;re looking for something that looks like this:</p>
+
+<p>configure: error: in <code>/var/tmp/portage/dev-libs/glib-2.20.5-r1/work/glib-2.20.5':
+configure: error: C compiler cannot create executables
+See</code>config.log&#8217; for more details.
+!!! Please attach the following file when seeking support:
+!!! /var/tmp/portage/dev-libs/glib-2.20.5-r1/work/glib-2.20.5/config.log</p></li>
+<li><p>Step 2: Open the file residing at the full path of the config.log file (in my case /var/tmp/portage/dev-libs/glib-2.20.5-r1/work/glib-2.20.5/config.log)</p></li>
+<li><p>Step 3: Search the file for the string &ldquo;failed program&rdquo;.  A few lines up from this message you&rsquo;ll see the true error.  In my case it was:</p>
+
+<p>configure:3385: x86_64-pc-linux-gnu-gcc -O2 -pipe -fomit-frame-pointer &mdash;mno-tls-direct-seg-refs   -Wl,-O1 conftest.c  >&amp;5
+cc1: error: unrecognized command line option &ldquo;-fmno-tls-direct-seg-refs&rdquo;</p></li>
+<li><p>Step 4: Remove the unrecognized command line option.  It is reported here as &ldquo;-fmno-tls-direct-seg-refs&rdquo; but in the make.conf file it is &#8221;&mdash;mno-tls-direct-seg-refs&#8221;.  You&rsquo;ll see that in the line above the error message.  I&rsquo;ve left it in there so you can see what that line should look like too.  Your error may be different entirely or just a different flag.  Either way, fixing the issue reported there should bring your compiler back to life and keep you emerging in the future.</p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/11/">&larr; Older</a>
+    
+    <a href="/archives">Archives</a>
+    
+    <a class="next" href="/page/9/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+	<h1>Like this site/article?  Donate with Bitcoin!</h1>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
+	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
+</section>
+<section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
