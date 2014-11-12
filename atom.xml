@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-11-12T09:32:42-05:00</updated>
+  <updated>2014-11-12T18:24:00-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -94,11 +94,13 @@
     <id>http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java</id>
     <content type="html"><![CDATA[<p>NOTE: This is only guaranteed to work with the Sun JVM since this option is <a href="https://stackoverflow.com/questions/2168350/java-charset-problem-on-linux?answertab=votes#tab-top">&ldquo;an internal detail of Sun&rsquo;s implementations&rdquo;</a>.</p>
 
+<p>UPDATE 2014-11-12 6:22 PM: The real fix is to set the environment variable LANG to <code>en_US.UTF-8</code> right before you start your JVM.</p>
+
 <p>Is Unicode breaking in your application and you can&rsquo;t figure out where?  Maybe data from HttpClient is coming back mangled, maybe database queries via JDBC are having Unicode data replaced with question marks, maybe your <a href="https://code.google.com/p/protobuf/">protobufs</a> are getting shredded, but somewhere something is eating your Unicode data and nothing you&rsquo;ve tried fixes it.  Well&hellip;</p>
 
 <p>Did you know the JVM itself has a global Unicode setting specified by the <code>-Dfile.encoding</code> option?  Most people I talked to didn&rsquo;t know about it, myself included, when I ran into a Unicode issue on a project.  After some great teamwork and research we found this option, set it, and everything started working again.</p>
 
-<p>All we had to do was put <code>-Dfile.encoding=UTF8</code> in the script that ran our JVM and everything was fixed.  If you want to play with it <a href="https://github.com/timmattison/jvm-unicode-settings">I created a test project on Github</a> that is incredibly simple and shows the right and wrong settings and what they do to a simple trademark symbol.  Otherwise, try this on your project and see if it fixes the issue.</p>
+<p>All we had to do was put <code>-Dfile.encoding=UTF8</code> in the script that ran our JVM and everything was fixed but that was only a temporary fix.  You really need to set LANG to <code>en_US.UTF-8</code>.  If you want to play with it <a href="https://github.com/timmattison/jvm-unicode-settings">I created a test project on Github</a> that is incredibly simple and shows the right and wrong settings and what they do to a simple trademark symbol.  Otherwise, try this on your project and see if it fixes the issue.</p>
 
 <p>Good luck!</p>
 ]]></content>
