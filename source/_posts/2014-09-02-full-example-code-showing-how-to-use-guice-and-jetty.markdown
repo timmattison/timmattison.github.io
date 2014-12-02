@@ -7,6 +7,21 @@ categories:
 ---
 Today I spent a significant amount of time wrestling Jetty and Guice in order to get a very simple configuration up and running.  Many articles I found on this topic are incomplete or out of date so here is a start to finish example of how to get Guice and Jetty working together without *any* web.xml.
 
+Step 0 - Add these dependencies to your pom.xml if they aren't there already
+
+``` xml
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-servlet</artifactId>
+            <version>3.0</version>
+        </dependency>
+```
+
 Step 1 - Create a module that describes your servlet configuration.  Assume we have three servlets.  One is called FooServlet and is served on the "/foo" path.  One is called BarServlet and is served on the "/bar" path.  One is called IndexServlet and is served for all other paths.
 
 ``` java
@@ -84,7 +99,7 @@ public class FooServlet extends HttpServlet {
     private final NonServletInterface nonServletInterface;
 
     @Inject
-    public DescribeServlet(NonServletInterface nonServletInterface) {
+    public FooServlet(NonServletInterface nonServletInterface) {
         this.nonServletInterface = nonServletInterface;
     }
 
