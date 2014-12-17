@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-12-17T09:17:38-05:00</updated>
+  <updated>2014-12-17T09:18:56-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -28,7 +28,7 @@
 
 <p>What I landed on was using the <code>thenAnswer</code> method like this:</p>
 
-<p>&#8220;` java</p>
+<p>&#8220;`java</p>
 
 <pre><code>    byte[] myBinaryData = ...
     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(myBinaryData);
