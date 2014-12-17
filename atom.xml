@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-12-17T09:21:21-05:00</updated>
+  <updated>2014-12-17T09:22:24-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -28,28 +28,40 @@
 
 <p>What I landed on was using the <code>thenAnswer</code> method like this:</p>
 
-<p>&#8220;` java Mocking a ServletInputStream</p>
+<figure class='code'><figcaption><span>Mocking a ServletInputStream</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">byte</span><span class="o">[]</span> <span class="n">myBinaryData</span> <span class="o">=</span> <span class="s">&quot;TEST&quot;</span><span class="o">.</span><span class="na">getBytes</span><span class="o">();</span>
+</span><span class='line'><span class="n">ByteArrayInputStream</span> <span class="n">byteArrayInputStream</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">myBinaryData</span><span class="o">);</span>
+</span><span class='line'>      
+</span><span class='line'><span class="n">mockServletInputStream</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">ServletInputStream</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">when</span><span class="o">(</span><span class="n">mockServletInputStream</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">Matchers</span><span class="o">.&lt;</span><span class="kt">byte</span><span class="o">[]&gt;</span><span class="n">any</span><span class="o">(),</span> <span class="n">anyInt</span><span class="o">(),</span> <span class="n">anyInt</span><span class="o">())).</span><span class="na">thenAnswer</span><span class="o">(</span><span class="k">new</span> <span class="n">Answer</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">answer</span><span class="o">(</span><span class="n">InvocationOnMock</span> <span class="n">invocationOnMock</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Object</span><span class="o">[]</span> <span class="n">args</span> <span class="o">=</span> <span class="n">invocationOnMock</span><span class="o">.</span><span class="na">getArguments</span><span class="o">();</span>
+</span><span class='line'>        <span class="kt">byte</span><span class="o">[]</span> <span class="n">output</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">[])</span> <span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">args</span><span class="o">[</span><span class="mi">1</span><span class="o">];</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">length</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">args</span><span class="o">[</span><span class="mi">2</span><span class="o">];</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">byteArrayInputStream</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">output</span><span class="o">,</span> <span class="n">offset</span><span class="o">,</span> <span class="n">length</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">});</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>    byte[] myBinaryData = "TEST".getBytes();
-    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(myBinaryData);
 
-    mockServletInputStream = mock(ServletInputStream.class);
-
-    when(mockServletInputStream.read(Matchers.&lt;byte[]&gt;any(), anyInt(), anyInt())).thenAnswer(new Answer&lt;Integer&gt;() {
-        @Override
-        public Integer answer(InvocationOnMock invocationOnMock) throws Throwable {
-            Object[] args = invocationOnMock.getArguments();
-            byte[] output = (byte[]) args[0];
-            int offset = (int) args[1];
-            int length = (int) args[2];
-            return byteArrayInputStream.read(output, offset, length);
-        }
-    });
-</code></pre>
-
-<p> &#8220;`</p>
-
-<p> If you need to ever mock a ServletInputStream feel free to use this code to do it.  So far it has worked perfectly for me.</p>
+<p>If you need to ever mock a ServletInputStream feel free to use this code to do it.  So far it has worked perfectly for me.</p>
 ]]></content>
   </entry>
   
