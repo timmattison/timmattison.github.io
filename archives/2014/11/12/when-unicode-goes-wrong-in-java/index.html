@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Is Unicode breaking in your application and you can&rsquo;t figure out where? Maybe data from HttpClient is coming back mangled, maybe database &hellip;">
+  <meta name="description" content="NOTE: This is only guaranteed to work with the Sun JVM since this option is &ldquo;an internal detail of Sun&rsquo;s implementations&rdquo;. UPDATE &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -120,11 +120,15 @@
   </header>
 
 
-<div class="entry-content"><p>Is Unicode breaking in your application and you can&rsquo;t figure out where?  Maybe data from HttpClient is coming back mangled, maybe database queries via JDBC are having Unicode data replaced with question marks, maybe your <a href="https://code.google.com/p/protobuf/">protobufs</a> are getting shredded, but somewhere something is eating your Unicode data and nothing you&rsquo;ve tried fixes it.  Well&hellip;</p>
+<div class="entry-content"><p>NOTE: This is only guaranteed to work with the Sun JVM since this option is <a href="https://stackoverflow.com/questions/2168350/java-charset-problem-on-linux?answertab=votes#tab-top">&ldquo;an internal detail of Sun&rsquo;s implementations&rdquo;</a>.</p>
+
+<p>UPDATE 2014-11-12 6:22 PM: The real fix is to set the environment variable LANG to <code>en_US.UTF-8</code> right before you start your JVM.</p>
+
+<p>Is Unicode breaking in your application and you can&rsquo;t figure out where?  Maybe data from HttpClient is coming back mangled, maybe database queries via JDBC are having Unicode data replaced with question marks, maybe your <a href="https://code.google.com/p/protobuf/">protobufs</a> are getting shredded, but somewhere something is eating your Unicode data and nothing you&rsquo;ve tried fixes it.  Well&hellip;</p>
 
 <p>Did you know the JVM itself has a global Unicode setting specified by the <code>-Dfile.encoding</code> option?  Most people I talked to didn&rsquo;t know about it, myself included, when I ran into a Unicode issue on a project.  After some great teamwork and research we found this option, set it, and everything started working again.</p>
 
-<p>All we had to do was put <code>-Dfile.encoding=UTF8</code> in the script that ran our JVM and everything was fixed.  If you want to play with it <a href="https://github.com/timmattison/jvm-unicode-settings">I created a test project on Github</a> that is incredibly simple and shows the right and wrong settings and what they do to a simple trademark symbol.  Otherwise, try this on your project and see if it fixes the issue.</p>
+<p>All we had to do was put <code>-Dfile.encoding=UTF8</code> in the script that ran our JVM and everything was fixed but that was only a temporary fix.  You really need to set LANG to <code>en_US.UTF-8</code>.  If you want to play with it <a href="https://github.com/timmattison/jvm-unicode-settings">I created a test project on Github</a> that is incredibly simple and shows the right and wrong settings and what they do to a simple trademark symbol.  Otherwise, try this on your project and see if it fixes the issue.</p>
 
 <p>Good luck!</p>
 </div>
@@ -171,9 +175,11 @@
     data-flattr-button="compact"
     data-flattr-category="text"
     href="http://blog.timmattison.com/archives/2014/11/12/when-unicode-goes-wrong-in-java/">
-    Is Unicode breaking in your application and you can't figure out where?  Maybe data from HttpClient is coming back mangled, maybe database queries via JDBC are having Unicode data replaced with question marks, maybe your [protobufs](https://code.google.com/p/protobuf/) are getting shredded, but somewhere something is eating your Unicode data and nothing you've tried fixes it.  Well...
+    NOTE: This is only guaranteed to work with the Sun JVM since this option is ["an internal detail of Sun's implementations"](https://stackoverflow.com/questions/2168350/java-charset-problem-on-linux?answertab=votes#tab-top).
 
-Did you know the JVM itself has a global Unicode setting specified by the `-Dfile.encoding` option?  Most &hellip;
+UPDATE 2014-11-12 6:22 PM: The real fix is to set the environment variable LANG to `en_US.UTF-8` right before you start your JVM.
+
+Is Unicode breaking in your application and you can't figure out where?  Maybe data from HttpClient is coming back mangled, maybe database &hellip;
 </a>
 
   
@@ -222,6 +228,10 @@ Did you know the JVM itself has a global Unicode setting specified by the `-Dfil
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
       </li>
     
@@ -235,10 +245,6 @@ Did you know the JVM itself has a global Unicode setting specified by the `-Dfil
     
       <li class="post">
         <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
       </li>
     
   </ul>

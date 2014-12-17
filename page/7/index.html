@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I run several development environments that I need to sync with production databases to do bug fixes and new feature development. It&rsquo;s always &hellip;">
+  <meta name="description" content="Today I just released a few home brew tools that I&rsquo;ve been meaning to write for a while. I&rsquo;m going to write full articles on them soon &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,53 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/01/29/free-tool-collection-available-on-github/">Free Tool Collection Available on Github</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-29T16:38:52-05:00" pubdate data-updated="true">Jan 29<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/01/29/free-tool-collection-available-on-github/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/01/29/free-tool-collection-available-on-github/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today I just released <a href="https://github.com/timmattison/timmattison-tools">a few home brew tools</a> that I&rsquo;ve been meaning to write for a while.  I&rsquo;m going to write full articles on them soon but just as a preliminary taste here are descriptions of the two programs I released today:</p>
+
+<ul>
+<li><p>prcp.pl &ndash; Copies files and has a progress indicator</p></li>
+<li><p>dirhash.pl &ndash; Hashes the names and contents of an entire directory to a single hash</p></li>
+</ul>
+
+
+<p>If you use them please post in the comments below.  If you want to contribute to them just send me merge requests and open tickets!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1085,82 +1132,6 @@ grep localhost /tmp/etc-dir.txt | wc -l
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2011/08/10/how-to-defragment-a-linux-system/">How-To: Defragment a Linux System</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-08-10T10:27:46-04:00" pubdate data-updated="true">Aug 10<span>th</span>, 2011</time>
-        
-           | <a href="/archives/2011/08/10/how-to-defragment-a-linux-system/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2011/08/10/how-to-defragment-a-linux-system/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Many people claim that Linux, Unix, and Mac OS do not need to be defragmented.  This is simply not true.  <a href="http://osxbook.com/software/hfsdebug/fragmentation.html">OSXBook explains that Apple&rsquo;s file systems fragment</a> and ext3 does as well.  To put it simply there are no file systems that I know of that do not fragment.  Even Apple&rsquo;s automatic defragmentation (why would it be there if it didn&rsquo;t fragment in the first place?) has limitations that cause file fragments to accumulate over time.  The value of defragmentation may be questionable to some but in my own informal tests I&rsquo;ve seen the read speeds on large sequential files like virtual machine snapshots double after defragmentation.</p>
-
-<p>Anyway, my Linux machines were seeming sluggish lately and I decided to figure out how to install <a href="http://vleu.net/shake/">Shake</a> to remedy the problem.  The installation isn&rsquo;t bad but I&rsquo;ve already figured it out for you so just follow these steps to get yourself set up:</p>
-
-<ol>
-<li><p> Add these lines to your /etc/apt/sources.list:</p>
-
-<p>deb <a href="http://ppa.launchpad.net/un-brice/ppa/ubuntu">http://ppa.launchpad.net/un-brice/ppa/ubuntu</a> maverick main
-deb-src <a href="http://ppa.launchpad.net/un-brice/ppa/ubuntu">http://ppa.launchpad.net/un-brice/ppa/ubuntu</a> maverick main</p></li>
-<li><p> Run this command to add the author&rsquo;s key to your apt configuration:</p>
-
-<p>sudo apt-key adv &mdash;keyserver keyserver.ubuntu.com &mdash;recv-keys E2235DBB</p></li>
-<li><p> Update your apt database:</p>
-
-<p>sudo apt-get update</p></li>
-<li><p> Install shake-fs:</p>
-
-<p>sudo apt-get install shake-fs</p></li>
-<li><p> Get a baseline of your existing fragmentation on the entire filesystem:</p>
-
-<p>sudo shake -pvv / | awk &lsquo;{ printf(&ldquo;%06d,%s\n&rdquo;, $4, $8) }&rsquo; | sort > shake.full-output.before</p></li>
-</ol>
-
-
-<p>Now you can look at the output in shake.full-output.before and see where you have fragmentation problems.  If you just want to run the defrag on the whole disk and include every file regardless of age and size do this:</p>
-
-<pre><code>sudo shake --old=0 --bigsize=0 -X /
-</code></pre>
-
-<p>This will take a decent amount of time and will really sap the machine&rsquo;s performance.  Don&rsquo;t do this until you have a window of time where you can afford to not use the machine.</p>
-
-<p>Finally, compare your before and after:</p>
-
-<pre><code>sudo shake -pvv / | awk '{ printf("%06d,%s\n", $4, $8) }' | sort &gt; shake.full-output.after
-tail shake.full-output.*
-</code></pre>
-
-<p>Hopefully now the worst offenders at the bottom of the after file will be a bit more tidy.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/8/">&larr; Older</a>
@@ -1194,6 +1165,10 @@ tail shake.full-output.*
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
       </li>
     
@@ -1207,10 +1182,6 @@ tail shake.full-output.*
     
       <li class="post">
         <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
       </li>
     
   </ul>

@@ -122,6 +122,31 @@
 
 <div class="entry-content"><p>Today I spent a significant amount of time wrestling Jetty and Guice in order to get a very simple configuration up and running.  Many articles I found on this topic are incomplete or out of date so here is a start to finish example of how to get Guice and Jetty working together without <em>any</em> web.xml.</p>
 
+<p>Step 0 &ndash; Add these dependencies to your pom.xml if they aren&rsquo;t there already</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>    <span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;groupId&gt;</span>com.google.inject<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;artifactId&gt;</span>guice<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;version&gt;</span>3.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;groupId&gt;</span>com.google.inject.extensions<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;artifactId&gt;</span>guice-servlet<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;version&gt;</span>3.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/dependency&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
 <p>Step 1 &ndash; Create a module that describes your servlet configuration.  Assume we have three servlets.  One is called FooServlet and is served on the &ldquo;/foo&rdquo; path.  One is called BarServlet and is served on the &ldquo;/bar&rdquo; path.  One is called IndexServlet and is served for all other paths.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -266,7 +291,7 @@
 </span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">NonServletInterface</span> <span class="n">nonServletInterface</span><span class="o">;</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="nd">@Inject</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">DescribeServlet</span><span class="o">(</span><span class="n">NonServletInterface</span> <span class="n">nonServletInterface</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">FooServlet</span><span class="o">(</span><span class="n">NonServletInterface</span> <span class="n">nonServletInterface</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">nonServletInterface</span> <span class="o">=</span> <span class="n">nonServletInterface</span><span class="o">;</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
@@ -330,7 +355,12 @@
     href="http://blog.timmattison.com/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">
     Today I spent a significant amount of time wrestling Jetty and Guice in order to get a very simple configuration up and running.  Many articles I found on this topic are incomplete or out of date so here is a start to finish example of how to get Guice and Jetty working together without *any* web.xml.
 
-Step 1 - Create a module that describes your servlet configuration.  Assume we have three servlets.  One is called FooServlet and is served on the "/foo" path.  One is called BarServlet and is &hellip;
+Step 0 - Add these dependencies to your pom.xml if they aren't there already
+
+``` xml
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</ &hellip;
 </a>
 
   
@@ -379,6 +409,10 @@ Step 1 - Create a module that describes your servlet configuration.  Assume we h
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
       </li>
     
@@ -392,10 +426,6 @@ Step 1 - Create a module that describes your servlet configuration.  Assume we h
     
       <li class="post">
         <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
       </li>
     
   </ul>

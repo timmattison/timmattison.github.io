@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="For some reason I decided to install the Java 8 JDK a few days ago when I upgraded to Yosemite. In IntelliJ it isn&rsquo;t a problem but on the &hellip;">
+  <meta name="description" content="I was working on a few applications that involve servlets recently and I came across a situation that initially seemed challenging to test with &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,88 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-16T07:00:22-05:00" pubdate data-updated="true">Dec 16<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/12/16/mockito-and-servletinputstreams/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/12/16/mockito-and-servletinputstreams/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I was working on a few applications that involve servlets recently and I came across a situation that initially seemed challenging to test with <a href="https://github.com/mockito/mockito">Mockito</a>.  I wanted to do something relatively simple which was read a <a href="https://github.com/google/protobuf/">Protobuf</a> sent from a client, turn it into an object, and do some processing on it.</p>
+
+<p>The question is how do you test a servlet that needs to get the input stream from a servlet request?</p>
+
+<p>I found <a href="https://stackoverflow.com/questions/13353545/mocking-multipart-mime-request-with-mockito">a Stack Overflow post that addresses how to do this with an older version of the ServletInputStream</a> but doing it now requires that you override three additional methods (<code>isFinished</code>, <code>isReady</code>, and <code>setReadListener</code>).</p>
+
+<p>My issue with this is that I don&rsquo;t want to override those methods because I don&rsquo;t really know what I want them to do.  If I&rsquo;m mocking something I want to make sure I know when and where it will be used or I want the mocking framework to return default values or throw exceptions so I know where to look when something breaks.</p>
+
+<p>What I landed on was using the <code>thenAnswer</code> method like this:</p>
+
+<figure class='code'><figcaption><span>Mocking a ServletInputStream</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">byte</span><span class="o">[]</span> <span class="n">myBinaryData</span> <span class="o">=</span> <span class="s">&quot;TEST&quot;</span><span class="o">.</span><span class="na">getBytes</span><span class="o">();</span>
+</span><span class='line'><span class="n">ByteArrayInputStream</span> <span class="n">byteArrayInputStream</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">myBinaryData</span><span class="o">);</span>
+</span><span class='line'>      
+</span><span class='line'><span class="n">mockServletInputStream</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">ServletInputStream</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">when</span><span class="o">(</span><span class="n">mockServletInputStream</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">Matchers</span><span class="o">.&lt;</span><span class="kt">byte</span><span class="o">[]&gt;</span><span class="n">any</span><span class="o">(),</span> <span class="n">anyInt</span><span class="o">(),</span> <span class="n">anyInt</span><span class="o">())).</span><span class="na">thenAnswer</span><span class="o">(</span><span class="k">new</span> <span class="n">Answer</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">answer</span><span class="o">(</span><span class="n">InvocationOnMock</span> <span class="n">invocationOnMock</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Object</span><span class="o">[]</span> <span class="n">args</span> <span class="o">=</span> <span class="n">invocationOnMock</span><span class="o">.</span><span class="na">getArguments</span><span class="o">();</span>
+</span><span class='line'>        <span class="kt">byte</span><span class="o">[]</span> <span class="n">output</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">[])</span> <span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">args</span><span class="o">[</span><span class="mi">1</span><span class="o">];</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">length</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">args</span><span class="o">[</span><span class="mi">2</span><span class="o">];</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">byteArrayInputStream</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">output</span><span class="o">,</span> <span class="n">offset</span><span class="o">,</span> <span class="n">length</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you need to ever mock a ServletInputStream feel free to use this code to do it.  So far it has worked perfectly for me.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -227,11 +309,15 @@
   </header>
 
 
-  <div class="entry-content"><p>Is Unicode breaking in your application and you can&rsquo;t figure out where?  Maybe data from HttpClient is coming back mangled, maybe database queries via JDBC are having Unicode data replaced with question marks, maybe your <a href="https://code.google.com/p/protobuf/">protobufs</a> are getting shredded, but somewhere something is eating your Unicode data and nothing you&rsquo;ve tried fixes it.  Well&hellip;</p>
+  <div class="entry-content"><p>NOTE: This is only guaranteed to work with the Sun JVM since this option is <a href="https://stackoverflow.com/questions/2168350/java-charset-problem-on-linux?answertab=votes#tab-top">&ldquo;an internal detail of Sun&rsquo;s implementations&rdquo;</a>.</p>
+
+<p>UPDATE 2014-11-12 6:22 PM: The real fix is to set the environment variable LANG to <code>en_US.UTF-8</code> right before you start your JVM.</p>
+
+<p>Is Unicode breaking in your application and you can&rsquo;t figure out where?  Maybe data from HttpClient is coming back mangled, maybe database queries via JDBC are having Unicode data replaced with question marks, maybe your <a href="https://code.google.com/p/protobuf/">protobufs</a> are getting shredded, but somewhere something is eating your Unicode data and nothing you&rsquo;ve tried fixes it.  Well&hellip;</p>
 
 <p>Did you know the JVM itself has a global Unicode setting specified by the <code>-Dfile.encoding</code> option?  Most people I talked to didn&rsquo;t know about it, myself included, when I ran into a Unicode issue on a project.  After some great teamwork and research we found this option, set it, and everything started working again.</p>
 
-<p>All we had to do was put <code>-Dfile.encoding=UTF8</code> in the script that ran our JVM and everything was fixed.  If you want to play with it <a href="https://github.com/timmattison/jvm-unicode-settings">I created a test project on Github</a> that is incredibly simple and shows the right and wrong settings and what they do to a simple trademark symbol.  Otherwise, try this on your project and see if it fixes the issue.</p>
+<p>All we had to do was put <code>-Dfile.encoding=UTF8</code> in the script that ran our JVM and everything was fixed but that was only a temporary fix.  You really need to set LANG to <code>en_US.UTF-8</code>.  If you want to play with it <a href="https://github.com/timmattison/jvm-unicode-settings">I created a test project on Github</a> that is incredibly simple and shows the right and wrong settings and what they do to a simple trademark symbol.  Otherwise, try this on your project and see if it fixes the issue.</p>
 
 <p>Good luck!</p>
 </div>
@@ -1379,208 +1465,6 @@ Hash type: 01000000
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Full Example Code Showing How to Use Guice and Jetty</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-02T14:34:11-04:00" pubdate data-updated="true">Sep 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/02/full-example-code-showing-how-to-use-guice-and-jetty/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Today I spent a significant amount of time wrestling Jetty and Guice in order to get a very simple configuration up and running.  Many articles I found on this topic are incomplete or out of date so here is a start to finish example of how to get Guice and Jetty working together without <em>any</em> web.xml.</p>
-
-<p>Step 1 &ndash; Create a module that describes your servlet configuration.  Assume we have three servlets.  One is called FooServlet and is served on the &ldquo;/foo&rdquo; path.  One is called BarServlet and is served on the &ldquo;/bar&rdquo; path.  One is called IndexServlet and is served for all other paths.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.servlet.ServletModule</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ApplicationServletModule</span> <span class="kd">extends</span> <span class="n">ServletModule</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">configureServlets</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">bind</span><span class="o">(</span><span class="n">FooServlet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">bind</span><span class="o">(</span><span class="n">BarServlet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">bind</span><span class="o">(</span><span class="n">IndexServlet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">serve</span><span class="o">(</span><span class="s">&quot;/foo&quot;</span><span class="o">).</span><span class="na">with</span><span class="o">(</span><span class="n">FooServlet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">serve</span><span class="o">(</span><span class="s">&quot;/bar&quot;</span><span class="o">).</span><span class="na">with</span><span class="o">(</span><span class="n">BarServlet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">serve</span><span class="o">(</span><span class="s">&quot;/*&quot;</span><span class="o">).</span><span class="na">with</span><span class="o">(</span><span class="n">IndexServlet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 2 &ndash; Create a module that contains your Guice bindings.  We&rsquo;ll assume you have something called NonServletImplementation you want bound to NonServletInterface that you&rsquo;ll need to have injected into your servlets.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.AbstractModule</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">NonServletModule</span> <span class="kd">extends</span> <span class="n">AbstractModule</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">bind</span><span class="o">(</span><span class="n">NonServletInterface</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">NonServletImplementation</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 3 &ndash; Instantiate your injector with all of your modules in the code where you want to create the server.  If you have other modules you want to include you should include those as well.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">NonServletModule</span> <span class="n">nonServletModule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">NonServletModule</span><span class="o">();</span>
-</span><span class='line'><span class="n">ApplicationServletModule</span> <span class="n">applicationServletModule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ApplicationServletModule</span><span class="o">();</span>
-</span><span class='line'><span class="n">Injector</span> <span class="n">injector</span> <span class="o">=</span> <span class="n">Guice</span><span class="o">.</span><span class="na">createInjector</span><span class="o">(</span><span class="n">nonServletModule</span><span class="o">,</span> <span class="n">applicationServletModule</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 4 &ndash; Instantiate the server.  You do not need to pass it the injector explicitly.  Guice will handle that for you but you MUST instantiate the injector before this code runs.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">int</span> <span class="n">port</span> <span class="o">=</span> <span class="mi">8080</span><span class="o">;</span>
-</span><span class='line'><span class="n">Server</span> <span class="n">server</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Server</span><span class="o">(</span><span class="n">port</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">ServletContextHandler</span> <span class="n">servletContextHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ServletContextHandler</span><span class="o">(</span><span class="n">server</span><span class="o">,</span> <span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="n">ServletContextHandler</span><span class="o">.</span><span class="na">SESSIONS</span><span class="o">);</span>
-</span><span class='line'><span class="n">servletContextHandler</span><span class="o">.</span><span class="na">addFilter</span><span class="o">(</span><span class="n">GuiceFilter</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;/*&quot;</span><span class="o">,</span> <span class="n">EnumSet</span><span class="o">.</span><span class="na">allOf</span><span class="o">(</span><span class="n">DispatcherType</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// You MUST add DefaultServlet or your server will always return 404s</span>
-</span><span class='line'><span class="n">servletContextHandler</span><span class="o">.</span><span class="na">addServlet</span><span class="o">(</span><span class="n">DefaultServlet</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;/&quot;</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// Start the server</span>
-</span><span class='line'><span class="n">server</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// Wait until the server exits</span>
-</span><span class='line'><span class="n">server</span><span class="o">.</span><span class="na">join</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 5 &ndash; Make sure your servlets are setup to use Guice and use the <code>@Singleton</code> annotation.  Only the FooServlet skeleton is shown here but you should create the BarServlet and the IndexServlet as well.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Singleton</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.servlet.ServletException</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServlet</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServletRequest</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.servlet.http.HttpServletResponse</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 8/4/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="nd">@Singleton</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FooServlet</span> <span class="kd">extends</span> <span class="n">HttpServlet</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">NonServletInterface</span> <span class="n">nonServletInterface</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Inject</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">DescribeServlet</span><span class="o">(</span><span class="n">NonServletInterface</span> <span class="n">nonServletInterface</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">nonServletInterface</span> <span class="o">=</span> <span class="n">nonServletInterface</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doPost</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// Do whatever you need to do with POSTs</span>
-</span><span class='line'>        <span class="o">...</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doGet</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// Do whatever you need to do with GETs</span>
-</span><span class='line'>        <span class="o">...</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If all goes well then everything will be wired up with Guice and your Jetty server is ready to rock.  It turns out to be a lot simpler than working with the web.xml in my opinion since everything is mapped out explicitly in one place.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1612,6 +1496,10 @@ Hash type: 01000000
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
       </li>
     
@@ -1625,10 +1513,6 @@ Hash type: 01000000
     
       <li class="post">
         <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a>
       </li>
     
   </ul>
