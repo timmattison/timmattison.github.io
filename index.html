@@ -135,7 +135,7 @@
 
 <p>&#8220;` java Mocking a ServletInputStream</p>
 
-<pre><code>    byte[] myBinaryData = ...
+<pre><code>    byte[] myBinaryData = "TEST".getBytes();
     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(myBinaryData);
 
     mockServletInputStream = mock(ServletInputStream.class);
