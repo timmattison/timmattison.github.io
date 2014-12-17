@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Tips - Tim Mattison</title>
+  <title>Mockito and ServletInputStreams - Tim Mattison</title>
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Category: Tips">
+  <meta name="description" content="I was working on a few applications that involve servlets recently and I came across a situation that initially seemed challenging to test with &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.timmattison.comcategories/tips">
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/12/16/mockito-and-servletinputstreams">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
@@ -90,207 +90,137 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Tips</h1>
+    
+      <h1 class="entry-title">Mockito and ServletInputStreams</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-16T07:00:22-05:00" pubdate data-updated="true">Dec 16<span>th</span>, 2014</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>I was working on a few applications that involve servlets recently and I came across a situation that initially seemed challenging to test with <a href="https://github.com/mockito/mockito">Mockito</a>.  I wanted to do something relatively simple which was read a <a href="https://github.com/google/protobuf/">Protobuf</a> sent from a client, turn it into an object, and do some processing on it.</p>
 
-  
-  <h2>2012</h2>
+<p>The question is how do you test a servlet that needs to get the input stream from a servlet request?</p>
 
-<article>
-  
-<h1><a href="/archives/2012/04/19/tips-for-debugging-springs-transactional-annotation/">Tips for Debugging Spring's @Transactional Annotation</a></h1>
-<time datetime="2012-04-19T10:31:14-04:00" pubdate><span class='month'>Apr</span> <span class='day'>19</span> <span class='year'>2012</span></time>
+<p>I found <a href="https://stackoverflow.com/questions/13353545/mocking-multipart-mime-request-with-mockito">a Stack Overflow post that addresses how to do this with an older version of the ServletInputStream</a> but doing it now requires that you override three additional methods (<code>isFinished</code>, <code>isReady</code>, and <code>setReadListener</code>).</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
+<p>My issue with this is that I don&rsquo;t want to override those methods because I don&rsquo;t really know what I want them to do.  If I&rsquo;m mocking something I want to make sure I know when and where it will be used or I want the mocking framework to return default values or throw exceptions so I know where to look when something breaks.</p>
 
+<p>What I landed on was using the <code>thenAnswer</code> method like this:</p>
 
-</article>
+<p>&#8220;` java</p>
 
+<pre><code>    byte[] myBinaryData = ...
+    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(myBinaryData);
 
+    mockServletInputStream = mock(ServletInputStream.class);
 
-<article>
-  
-<h1><a href="/archives/2012/04/12/tip-fix-xterm-unknown-terminal-type-messages-in-debian/">Tip: Fix "'Xterm': Unknown Terminal Type" Messages in Debian</a></h1>
-<time datetime="2012-04-12T10:32:57-04:00" pubdate><span class='month'>Apr</span> <span class='day'>12</span> <span class='year'>2012</span></time>
+    when(mockServletInputStream.read(Matchers.&lt;byte[]&gt;any(), anyInt(), anyInt())).thenAnswer(new Answer&lt;Integer&gt;() {
+        @Override
+        public Integer answer(InvocationOnMock invocationOnMock) throws Throwable {
+            Object[] args = invocationOnMock.getArguments();
+            byte[] output = (byte[]) args[0];
+            int offset = (int) args[1];
+            int length = (int) args[2];
+            return byteArrayInputStream.read(output, offset, length);
+        }
+    });
+</code></pre>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
+<p> &#8220;`</p>
 
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/">Tip: Handle Failed Tasks Throwing "ENOENT" Errors in Hadoop</a></h1>
-<time datetime="2012-03-21T19:09:48-04:00" pubdate><span class='month'>Mar</span> <span class='day'>21</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/how-to/'>How-To</a>, <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2012/03/02/tip-getting-the-right-static-imports-necessary-for-basic-junit-testing/">Tip: Getting the Right Static Imports Necessary for Basic JUnit Testing</a></h1>
-<time datetime="2012-03-02T08:02:47-05:00" pubdate><span class='month'>Mar</span> <span class='day'>02</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2012/02/28/tip-a-quick-primer-on-waiting-on-multiple-threads-in-java/">Tip: A Quick Primer on Waiting on Multiple Threads in Java</a></h1>
-<time datetime="2012-02-28T16:32:21-05:00" pubdate><span class='month'>Feb</span> <span class='day'>28</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2012/02/16/tip-trimming-the-tops-and-bottoms-of-text-files-with-head-and-tail/">Tip: Trimming the Tops and Bottoms of Text Files With Head and Tail</a></h1>
-<time datetime="2012-02-16T09:05:21-05:00" pubdate><span class='month'>Feb</span> <span class='day'>16</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2012/02/07/tip-fix-basic-build-issues-when-using-maven/">Tip: Fix Basic Build Issues When Using Maven</a></h1>
-<time datetime="2012-02-07T13:33:46-05:00" pubdate><span class='month'>Feb</span> <span class='day'>07</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/hadoop/'>Hadoop</a>, <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2012/02/07/tip-fix-noclassdeffounderror-on-orgapachehadoopthirdpartyguavacommoncollectlinkedlistmultimap/">Tip: Fix NoClassDefFoundError on org/apache/hadoop/thirdparty/guava/common/collect/LinkedListMultimap</a></h1>
-<time datetime="2012-02-07T11:16:19-05:00" pubdate><span class='month'>Feb</span> <span class='day'>07</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-  
-  <h2>2009</h2>
-
-<article>
-  
-<h1><a href="/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/">Tip: Monitor Networked Devices Aurally With Ping on Mac OS and Linux</a></h1>
-<time datetime="2009-12-07T18:59:59-05:00" pubdate><span class='month'>Dec</span> <span class='day'>07</span> <span class='year'>2009</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2009/11/03/tip-get-your-mouse-and-keyboard-back-after-upgrading-xorgx11/">Tip: Get Your Mouse and Keyboard Back After Upgrading Xorg/X11</a></h1>
-<time datetime="2009-11-03T18:59:59-05:00" pubdate><span class='month'>Nov</span> <span class='day'>03</span> <span class='year'>2009</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2009/11/03/tip-get-vmware-workstation-6-5-3-working-on-gentoo/">Tip: Get VMware Workstation 6.5.3 Working on Gentoo</a></h1>
-<time datetime="2009-11-03T18:59:59-05:00" pubdate><span class='month'>Nov</span> <span class='day'>03</span> <span class='year'>2009</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo/">Tip: Fix "NVIDIA(0): Failed to Initialize the GLX Module; Please Check in Your X Log File" on Gentoo</a></h1>
-<time datetime="2009-11-03T18:59:59-05:00" pubdate><span class='month'>Nov</span> <span class='day'>03</span> <span class='year'>2009</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/">Tip: Perform a Pvmove Without Calculating the Start and End Extent Values</a></h1>
-<time datetime="2009-11-01T18:59:59-05:00" pubdate><span class='month'>Nov</span> <span class='day'>01</span> <span class='year'>2009</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tips/'>Tips</a></span>
-</footer>
-
-
-</article>
-
+<p> If you need to ever mock a ServletInputStream feel free to use this code to do it.  So far it has worked perfectly for me.</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-16T07:00:22-05:00" pubdate data-updated="true">Dec 16<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/12/16/mockito-and-servletinputstreams/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/12/16/mockito-and-servletinputstreams/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  
+    <a class="FlattrButton" style="display:none;"
+    title="Mockito and ServletInputStreams"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/12/16/mockito-and-servletinputstreams/">
+    I was working on a few applications that involve servlets recently and I came across a situation that initially seemed challenging to test with [Mockito](https://github.com/mockito/mockito).  I wanted to do something relatively simple which was read a [Protobuf](https://github.com/google/protobuf/) sent from a client, turn it into an object, and do some processing on it.
+
+The question is how do you test a servlet that needs to get the input stream from a servlet request?
+
+I found [a Stack &hellip;
+</a>
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/" title="Previous Post: Fixing javac on Mac OS when multiple JVMs are installed">&laquo; Fixing javac on Mac OS when multiple JVMs are installed</a>
+      
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -399,7 +329,10 @@
       var disqus_shortname = 'timmattison';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/12/16/mockito-and-servletinputstreams/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/12/16/mockito-and-servletinputstreams/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

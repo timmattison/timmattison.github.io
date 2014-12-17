@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2014-12-02T18:58:53-05:00</updated>
+  <updated>2014-12-17T09:17:38-05:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,46 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Mockito and ServletInputStreams]]></title>
+    <link href="http://blog.timmattison.com/archives/2014/12/16/mockito-and-servletinputstreams/"/>
+    <updated>2014-12-16T07:00:22-05:00</updated>
+    <id>http://blog.timmattison.com/archives/2014/12/16/mockito-and-servletinputstreams</id>
+    <content type="html"><![CDATA[<p>I was working on a few applications that involve servlets recently and I came across a situation that initially seemed challenging to test with <a href="https://github.com/mockito/mockito">Mockito</a>.  I wanted to do something relatively simple which was read a <a href="https://github.com/google/protobuf/">Protobuf</a> sent from a client, turn it into an object, and do some processing on it.</p>
+
+<p>The question is how do you test a servlet that needs to get the input stream from a servlet request?</p>
+
+<p>I found <a href="https://stackoverflow.com/questions/13353545/mocking-multipart-mime-request-with-mockito">a Stack Overflow post that addresses how to do this with an older version of the ServletInputStream</a> but doing it now requires that you override three additional methods (<code>isFinished</code>, <code>isReady</code>, and <code>setReadListener</code>).</p>
+
+<p>My issue with this is that I don&rsquo;t want to override those methods because I don&rsquo;t really know what I want them to do.  If I&rsquo;m mocking something I want to make sure I know when and where it will be used or I want the mocking framework to return default values or throw exceptions so I know where to look when something breaks.</p>
+
+<p>What I landed on was using the <code>thenAnswer</code> method like this:</p>
+
+<p>&#8220;` java</p>
+
+<pre><code>    byte[] myBinaryData = ...
+    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(myBinaryData);
+
+    mockServletInputStream = mock(ServletInputStream.class);
+
+    when(mockServletInputStream.read(Matchers.&lt;byte[]&gt;any(), anyInt(), anyInt())).thenAnswer(new Answer&lt;Integer&gt;() {
+        @Override
+        public Integer answer(InvocationOnMock invocationOnMock) throws Throwable {
+            Object[] args = invocationOnMock.getArguments();
+            byte[] output = (byte[]) args[0];
+            int offset = (int) args[1];
+            int length = (int) args[2];
+            return byteArrayInputStream.read(output, offset, length);
+        }
+    });
+</code></pre>
+
+<p> &#8220;`</p>
+
+<p> If you need to ever mock a ServletInputStream feel free to use this code to do it.  So far it has worked perfectly for me.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Fixing Javac on Mac OS When Multiple JVMs Are Installed]]></title>
@@ -2447,60 +2487,6 @@ Hash type: 01000000
 <p>Now that you&rsquo;ve done all of that Android Studio should give you a dialog like this when you try to run or debug an application:</p>
 
 <p><img src="http://blog.timmattison.com/images/android-wear-for-developers/choose-device-dialog.png" alt="&quot;Choose Device&quot; dialog" /></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Tip: Bringing Your Working Directory (Pwd) to Another Terminal Window in Mac OS]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os/"/>
-    <updated>2014-07-15T18:37:23-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os</id>
-    <content type="html"><![CDATA[<p>Mac OS, as far as I can remember, used to start tabbed Terminal sessions and put you into the working directory of your last tab.  New Terminal windows didn&rsquo;t do this but recently new Terminal tabs stopped doing it too.</p>
-
-<p>I got tired of renavigating to the paths in the projects I was working on and I didn&rsquo;t want to launch a Terminal from within a Terminal so I came up with something else.  I added a few lines to my <code>.bash_profile</code> and now I have two new commands.  <code>ccd</code> copies your current directory to the clipboard, and <code>pcd</code> pastes your clipboard into the <code>cd</code> command.</p>
-
-<p>Now when I&rsquo;m in a deep directory tree like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I can do this in the existing Terminal:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $ ccd</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And this in the new Terminal:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ pcd
-</span><span class='line'>super-dooper-long-path/with/other-path/stuff/in/it $</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And there you have it.  Back into my beloved directory in no time.  Here&rsquo;s what I added to <code>.bash_profile</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">alias </span><span class="nv">ccd</span><span class="o">=</span><span class="s2">&quot;pwd | pbcopy&quot;</span>
-</span><span class='line'><span class="nb">alias </span><span class="nv">pcd</span><span class="o">=</span><span class="s2">&quot;paste_cd&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">function </span>paste_cd<span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="nb">cd</span> <span class="s2">&quot;`pbpaste`&quot;</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>ccd</code> alias just pipes <code>pwd</code> into <code>pbcopy</code>, which is one of the best tools ever, so that it ends up in the clipboard.</p>
-
-<p>The <code>pcd</code> alias is a little more complex.  If you try to do this without a bash function your alias will get evaluated as soon as your shell starts.  This means that when you open your shell whatever is in your clipboard will be what <code>pcd</code> tries to <code>cd</code> to.  Using a function we let it run <code>pbpaste</code> when it is called so it always uses the up-to-date info.</p>
-
-<p>Enjoy!  Let me know if you find it useful!</p>
 ]]></content>
   </entry>
   
