@@ -97,8 +97,8 @@ verboseTransactionDebugging has no effect if transactionDebugging is false.
 
 ``` java
     class DebugUtils {
-    	private static final transactionDebugging = true;
-    	private static final verboseTransactionDebugging = true;
+    	private static final boolean transactionDebugging = true;
+    	private static final boolean verboseTransactionDebugging = true;
     
     	public static void showTransactionStatus(String message) {
     		System.out.println(((transactionActive()) ? "[+] " : "[-] ") + message);
