@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I was working on a few applications that involve servlets recently and I came across a situation that initially seemed challenging to test with &hellip;">
+  <meta name="description" content="Are you using Guava&rsquo;s event bus in your Java project? Do you need to test and validate interactions with the event bus but are having trouble? &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,95 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-10T18:43:15-04:00" pubdate data-updated="true">Mar 10<span>th</span>, 2015</time>
+        
+           | <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Are you using <a href="https://code.google.com/p/guava-libraries/wiki/EventBusExplained">Guava&rsquo;s event bus</a> in your Java project?  Do you need to test and validate interactions with the event bus but are having trouble?  Mockito can help you out here with just a few lines of code.</p>
+
+<p>Assume you have two event types.  We&rsquo;ll call them <code>WantedEvent</code> and <code>UnwantedEvent</code>.  In your test you can use Mockito to create a mock event bus like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mockEventBus = mock(EventBus.class);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you can use Mockito&rsquo;s <code>doAnswer</code> functionality to intercept all interactions with the event bus and do something like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>doAnswer(new Answer&lt;Void&gt;() {
+</span><span class='line'>    @Override
+</span><span class='line'>    public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+</span><span class='line'>        Object argument = invocationOnMock.getArguments()[0];
+</span><span class='line'>
+</span><span class='line'>        if (argument instanceof WantedEvent) {
+</span><span class='line'>            wantedEventCount++;
+</span><span class='line'>        } else if (argument instanceof UnwantedEvent) {
+</span><span class='line'>            unwantedEventCount++;
+</span><span class='line'>        } else {
+</span><span class='line'>            throw new UnsupportedOperationException("This kind of event was not expected");
+</span><span class='line'>        }
+</span><span class='line'>
+</span><span class='line'>        return null;
+</span><span class='line'>    }
+</span><span class='line'>}).when(mockEventBus).post(anyObject());</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When you use your event bus in your tests now you&rsquo;ll be counting the number of times <code>WantedEvent</code> and <code>UnwantedEvent</code> are published (you do need to make those variables accessible outside the scope of this anonymous <code>Answer&lt;Void&gt;</code> block).</p>
+
+<p>You&rsquo;ll also be throwing exceptions if you see any other kinds of events that you didn&rsquo;t expect so you can fail immediately if there is additional unwanted behavior going on.  Naturally you can leave the else part out and ignore other events completely too.</p>
+
+<p>Using this simple pattern I&rsquo;ve been able to debug, test, and be confident in the implementation of several projects that use the Guava event bus.</p>
+
+<p>Do you have any tricks or tips related to this article?  Is there a better or easier way to do what I&rsquo;m doing here?  Did this get you out of a bind?  Post in the comments!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1366,105 +1455,6 @@ Hash type: 01000000
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-04T08:00:41-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>TL;DR &ndash; Jump to the bottom and look for the <code>eval $(ssh-agent)</code> snippet!</p>
-
-<p>Once you start using EC2 you&rsquo;ll probably need to do a lot of things that involve SSH.  A common frustration is having to specify your identity file when connecting to your EC2 instance.  Instead of doing this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh ubuntu@my-ec2-instance</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You end up doing this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh -i ~/.ssh/identity-file.pem ubuntu@my-ec2-instance</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This gets even more complex when tools based on SSH are brought into the mix.  Some of these tools don&rsquo;t have a mechanism to even specify the identity file.  If they do sometimes it makes the command-line really ugly and it almost always makes the script custom to a specific user.  For example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">rsync -avz -e &quot;ssh -p1234  -i /home/username/.ssh/identity-file.pem&quot; ...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Is only going to work for the user <code>username</code>.</p>
-
-<p>How do we make this a lot easier?  It turns out there is a very simple way to make all of that pain go away.  Whether you use <a href="http://rsync.samba.org/">rsync</a>, <a href="http://www.cis.upenn.edu/~bcpierce/unison/">unison</a>, <a href="https://mosh.mit.edu/">mosh</a>, scp, or any of a number of other tools that make use of SSH under the hood there is a standard mechanism for SSH to manage your identity.  That mechanism is called <a href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/ssh-agent.1?query=ssh-agent&amp;sec=1">ssh-agent</a>.</p>
-
-<p>If I try to rsync directly to my EC2 instance I get this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> rsync -avzP ubuntu@my-ec2-instance:file-on-ec2.txt <span class="nb">local</span>-file.txt
-</span><span class='line'><span class="go">Permission denied (publickey).</span>
-</span><span class='line'><span class="go">rsync: connection unexpectedly closed (0 bytes received so far) [Receiver]</span>
-</span><span class='line'><span class="go">rsync error: unexplained error (code 255) at io.c(226) [Receiver=3.1.1]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Instead what I want to do is start the ssh-agent, tell it about my identity file, and have the agent worry about providing my identity file when necessary.  To do that I do this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">eval $(ssh-agent) &amp;&amp; ssh-add ~/.ssh/identity-file.pem</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once you do that SSH will use that identity file to connect to EC2 automatically.  You just need to run that in each shell you are using to connect to EC2 and you are set.</p>
-
-<p>Do you have more than one identity file?  You can keep running ssh-add with additional identity files and it will manage them all.</p>
-
-<p>Do you want to be really lazy and load all of your identities at once?  Try this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">eval $(ssh-agent) &amp;&amp; ssh-add ~/.ssh/*.pem</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Enjoy!</p>
-
-<p>NOTE: Your pem files need to have the permission set to 400 so they can only be read by your user and not written to.  Otherwise ssh-agent and ssh may refuse to use them.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1496,6 +1486,10 @@ Hash type: 01000000
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
       </li>
     
@@ -1509,10 +1503,6 @@ Hash type: 01000000
     
       <li class="post">
         <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I encountered this message today when trying to update glib-2.20.5-r1 on my 64-bit Gentoo box. I&rsquo;ve seen this error message before but today,  &hellip;">
+  <meta name="description" content="Over time my Eclipse environment has become quiet a bit crufty. I have a bunch of errors from plugins that I installed that didn&rsquo;t work &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,89 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/">How-To: Fix a Broken Eclipse Environment Without Starting Completely From Scratch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-10T08:46:58-05:00" pubdate data-updated="true">Nov 10<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/10/how-to-fix-a-broken-eclipse-environment-without-starting-completely-from-scratch/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Over time my Eclipse environment has become quiet a bit crufty.  I have a bunch of errors from plugins that I installed that didn&rsquo;t work properly and yesterday my environment completely stopped building my Java projects.  When I tried to export a JAR I got these two messages:</p>
+
+<p>JAR creation failed. See details for additional information.</p>
+
+<p>class file(s) on classpath not found or not accessible</p>
+
+<p>There are also some other errors you may see that indicate you should probahly rebuild your environment:</p>
+
+<p>No property tester contributes a property projectPersistentProperty org.eclipse.team.core.repository to type class org.eclipse.core.internal.resources.Project</p>
+
+<p>org.eclipse.core.runtime.CoreException: No property tester contributes a property projectPersistentProperty org.eclipse.team.core.repository to type class org.eclipse.core.internal.resources.Project</p>
+
+<p>java.util.zip.ZipException: error in opening zip file</p>
+
+<p>An internal error occurred during: &ldquo;Initializing Java Tooling&rdquo;</p>
+
+<p>An error occurred while loading the manifest</p>
+
+<p>In my case the class files that it couldn&rsquo;t find were classes that Eclipse was supposed to build.  After checking everything I couldn&rsquo;t figure it out so I decided that it was time to start fresh.  What I wanted to do was nuke the whole environment but not have to hunt around for all the JARs that I had in my user-defined libraries.  In the future I&rsquo;ll put all of those files in a directory for each library but right now I needed a fix so I could get back to work.</p>
+
+<p>Here are the steps to get a fresh start without reinstalling and without losing your user libraries:</p>
+
+<ul>
+<li><p>Step 1: Quit Eclipse</p></li>
+<li><p>Step 2: Make a backup of your workspace</p></li>
+<li><p>Step 3: Go into your workspace on the command-line and run</p>
+
+<p>mv .metadata .metadata-old</p></li>
+<li><p>Step 4: Restart Eclipse.  Don&rsquo;t panic!  Everything is only gone temporarily.  This step forces Eclipse to build a fresh .metadata directory.</p></li>
+<li><p>Step 5: Quit Eclipse</p></li>
+<li><p>Step 6: Restore your user-defined libraries on the command-line by running</p>
+
+<p>cp .metadata-old/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs</p></li>
+<li><p>Step 7: Restart Eclipse and import your projects back into the workspace</p></li>
+</ul>
+
+
+<p>If you are still having trouble and cannot build your code or export JARs make sure you right-click on a project that is having that problem, select &ldquo;Java Build Path&rdquo;, then select &ldquo;Libraries&rdquo;.  Any libraries marked with a red X are almost certainly your issue.  Resolve this issue (or remove them if they&rsquo;re not needed) and you&rsquo;ll be almost right where you left off but with a fresh, clean environment.</p>
+
+<p>You will lose settings like the location of your Android SDK if you use that, or the location where the save dialogs open up, but if you can deal with that this is a great way to start over.  Once you&rsquo;re comfortable with your setup you can remove the old metadata by running this on the command-line</p>
+
+<pre><code>rm -rf .metadata-old
+</code></pre>
+
+<p>Don&rsquo;t delete your backup copy though!  You never know when you&rsquo;ll need it.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -756,70 +839,6 @@ EndSection
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/">Tip: Perform a Pvmove Without Calculating the Start and End Extent Values</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-01T18:59:59-05:00" pubdate data-updated="true">Nov 1<span>st</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/01/tip-perform-a-pvmove-without-calculating-the-start-and-end-extent-values/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>If you&rsquo;re used pvmove before you might be in the habit of doing the following:</p>
-
-<ul>
-<li><p>Determining where you want to move an extent (new_start)</p></li>
-<li><p>Getting the start and end of the existing extent to move (original_start, original_end)</p></li>
-<li><p>Calculating the length of the extent from original_end &ndash; original_start (length)</p></li>
-<li><p>Adding the length to new_start (new_end)</p></li>
-<li><p>Running pvmove</p></li>
-</ul>
-
-
-<p>Well, there is an easier way.  Let&rsquo;s assume you originally would&rsquo;ve done this</p>
-
-<pre><code>pvmove -v /dev/sdc:17067-29866 /dev/sdc:0-17066 --alloc anywhere
-</code></pre>
-
-<p>If you want to be lazy (and let LVM2 figure out whether you&rsquo;re doing the right thing or not) you can just do this instead</p>
-
-<pre><code>pvmove -v /dev/sdc:17067-29866 /dev/sdc:0-`echo "0+29866-17067" | bc` --alloc anywhere
-</code></pre>
-
-<p>Basically, after you&rsquo;ve determined where you want the new extent to start you put that extent number (&ldquo;0&rdquo; in this case) and just follow it up with that bc recipe.  This tells bc to calculate the length and feed it to LVM2.</p>
-
-<p>The bc formula should be new_start plus original_end minus original_start.  That will calculate the length and then add it to the new_start.</p>
-
-<p>Isn&rsquo;t that what you&rsquo;d expect it to do anyway?  :)</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/12/">&larr; Older</a>
@@ -853,6 +872,10 @@ EndSection
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
       </li>
     
@@ -866,10 +889,6 @@ EndSection
     
       <li class="post">
         <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
       </li>
     
   </ul>
