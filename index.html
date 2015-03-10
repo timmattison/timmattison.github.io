@@ -127,13 +127,14 @@
 
 <p>Assume you have two event types.  We&rsquo;ll call them <code>WantedEvent</code> and <code>UnwantedEvent</code>.  In your test you can use Mockito to create a mock event bus like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>mockEventBus = mock(EventBus.class);</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">mockEventBus</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">EventBus</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Then you can use Mockito&rsquo;s <code>doAnswer</code> functionality to intercept all interactions with the event bus and do something like this:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -149,22 +150,23 @@
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
 <span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>doAnswer(new Answer&lt;Void&gt;() {
-</span><span class='line'>    @Override
-</span><span class='line'>    public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-</span><span class='line'>        Object argument = invocationOnMock.getArguments()[0];
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">doAnswer</span><span class="o">(</span><span class="k">new</span> <span class="n">Answer</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Void</span> <span class="nf">answer</span><span class="o">(</span><span class="n">InvocationOnMock</span> <span class="n">invocationOnMock</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Object</span> <span class="n">argument</span> <span class="o">=</span> <span class="n">invocationOnMock</span><span class="o">.</span><span class="na">getArguments</span><span class="o">()[</span><span class="mi">0</span><span class="o">];</span>
 </span><span class='line'>
-</span><span class='line'>        if (argument instanceof WantedEvent) {
-</span><span class='line'>            wantedEventCount++;
-</span><span class='line'>        } else if (argument instanceof UnwantedEvent) {
-</span><span class='line'>            unwantedEventCount++;
-</span><span class='line'>        } else {
-</span><span class='line'>            throw new UnsupportedOperationException("This kind of event was not expected");
-</span><span class='line'>        }
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">argument</span> <span class="k">instanceof</span> <span class="n">WantedEvent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">wantedEventCount</span><span class="o">++;</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">argument</span> <span class="k">instanceof</span> <span class="n">UnwantedEvent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">unwantedEventCount</span><span class="o">++;</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="s">&quot;This kind of event was not expected&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>        return null;
-</span><span class='line'>    }
-</span><span class='line'>}).when(mockEventBus).post(anyObject());</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}).</span><span class="na">when</span><span class="o">(</span><span class="n">mockEventBus</span><span class="o">).</span><span class="na">post</span><span class="o">(</span><span class="n">anyObject</span><span class="o">());</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>When you use your event bus in your tests now you&rsquo;ll be counting the number of times <code>WantedEvent</code> and <code>UnwantedEvent</code> are published (you do need to make those variables accessible outside the scope of this anonymous <code>Answer&lt;Void&gt;</code> block).</p>
