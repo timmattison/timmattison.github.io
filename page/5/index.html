@@ -561,8 +561,8 @@ verboseTransactionDebugging &ndash; Indicates we should print debug messages wit
 <span class='line-number'>53</span>
 <span class='line-number'>54</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">DebugUtils</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">transactionDebugging</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">verboseTransactionDebugging</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="n">transactionDebugging</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="n">verboseTransactionDebugging</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">showTransactionStatus</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">transactionActive</span><span class="o">())</span> <span class="o">?</span> <span class="s">&quot;[+] &quot;</span> <span class="o">:</span> <span class="s">&quot;[-] &quot;</span><span class="o">)</span> <span class="o">+</span> <span class="n">message</span><span class="o">);</span>
@@ -1402,7 +1402,7 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Tim Mattison -
+  Copyright &copy; 2015 - Tim Mattison -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
