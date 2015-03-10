@@ -9,13 +9,13 @@ Are you using [Guava's event bus](https://code.google.com/p/guava-libraries/wiki
 
 Assume you have two event types.  We'll call them `WantedEvent` and `UnwantedEvent`.  In your test you can use Mockito to create a mock event bus like this:
 
-```
+``` java
 mockEventBus = mock(EventBus.class);
 ```
 
 Then you can use Mockito's `doAnswer` functionality to intercept all interactions with the event bus and do something like this:
 
-```
+``` java
 doAnswer(new Answer<Void>() {
     @Override
     public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
