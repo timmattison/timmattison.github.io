@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Today I spent a significant amount of time wrestling Jetty and Guice in order to get a very simple configuration up and running. Many articles I &hellip;">
+  <meta name="description" content="Have you ever pasted working a bash script or piece of code into a text editor and had it fail to work when you copied it back out later? You&rsquo; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,166 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-04T08:45:12-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Have you ever pasted working a bash script or piece of code into a text editor and had it fail to work when you copied it back out later?  You&rsquo;ve probably fallen victim to smart quotes, smart dashes, or automatic spelling correction.</p>
+
+<p>For example, during development I write scripts in Evernote and two very common things happen:</p>
+
+<ul>
+<li><code>aws</code> is persistently and annoyingly replaced by the word &ldquo;was&rdquo;</li>
+<li>Commands that include double or single quotes have those quotes replaced with scripting hostile quotes that shells don&rsquo;t understand</li>
+</ul>
+
+
+<p>In Mac OS we can fix this in a few steps:</p>
+
+<ol>
+<li>Open System Preferences and click on Keyboard <img src="images/smart-quotes-mac-os/step-1.png" alt="Keyboard" /></li>
+<li>Click &ldquo;Text&rdquo; <img src="images/smart-quotes-mac-os/step-2.png" alt="Keyboard" /></li>
+<li>Uncheck &ldquo;Use smart quotes and dashes&rdquo; <img src="images/smart-quotes-mac-os/step-3.png" alt="Keyboard" /></li>
+<li>Uncheck &ldquo;Correct spelling automatically&rdquo; <img src="images/smart-quotes-mac-os/step-4.png" alt="Keyboard" /></li>
+</ol>
+
+
+<p>You&rsquo;re done!  Now your settings should look like this and these &ldquo;smart&rdquo; features will never bother you again:</p>
+
+<p><img src="images/smart-quotes-mac-os/step-5.png" alt="Keyboard" /></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Using SSH Agent to Simplify Connecting to EC2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-04T08:00:41-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/04/using-ssh-agent-to-simplify-connecting-to-ec2/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>TL;DR &ndash; Jump to the bottom and look for the <code>eval $(ssh-agent)</code> snippet!</p>
+
+<p>Once you start using EC2 you&rsquo;ll probably need to do a lot of things that involve SSH.  A common frustration is having to specify your identity file when connecting to your EC2 instance.  Instead of doing this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh ubuntu@my-ec2-instance</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You end up doing this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">ssh -i ~/.ssh/identity-file.pem ubuntu@my-ec2-instance</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This gets even more complex when tools based on SSH are brought into the mix.  Some of these tools don&rsquo;t have a mechanism to even specify the identity file.  If they do sometimes it makes the command-line really ugly and it almost always makes the script custom to a specific user.  For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">rsync -avz -e &quot;ssh -p1234  -i /home/username/.ssh/identity-file.pem&quot; ...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Is only going to work for the user <code>username</code>.</p>
+
+<p>How do we make this a lot easier?  It turns out there is a very simple way to make all of that pain go away.  Whether you use <a href="http://rsync.samba.org/">rsync</a>, <a href="http://www.cis.upenn.edu/~bcpierce/unison/">unison</a>, <a href="https://mosh.mit.edu/">mosh</a>, scp, or any of a number of other tools that make use of SSH under the hood there is a standard mechanism for SSH to manage your identity.  That mechanism is called <a href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/ssh-agent.1?query=ssh-agent&amp;sec=1">ssh-agent</a>.</p>
+
+<p>If I try to rsync directly to my EC2 instance I get this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> rsync -avzP ubuntu@my-ec2-instance:file-on-ec2.txt <span class="nb">local</span>-file.txt
+</span><span class='line'><span class="go">Permission denied (publickey).</span>
+</span><span class='line'><span class="go">rsync: connection unexpectedly closed (0 bytes received so far) [Receiver]</span>
+</span><span class='line'><span class="go">rsync error: unexplained error (code 255) at io.c(226) [Receiver=3.1.1]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Instead what I want to do is start the ssh-agent, tell it about my identity file, and have the agent worry about providing my identity file when necessary.  To do that I do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">eval $(ssh-agent) &amp;&amp; ssh-add ~/.ssh/identity-file.pem</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once you do that SSH will use that identity file to connect to EC2 automatically.  You just need to run that in each shell you are using to connect to EC2 and you are set.</p>
+
+<p>Do you have more than one identity file?  You can keep running ssh-add with additional identity files and it will manage them all.</p>
+
+<p>Do you want to be really lazy and load all of your identities at once?  Try this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">eval $(ssh-agent) &amp;&amp; ssh-add ~/.ssh/*.pem</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Enjoy!</p>
+
+<p>NOTE: Your pem files need to have the permission set to 400 so they can only be read by your user and not written to.  Otherwise ssh-agent and ssh may refuse to use them.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1587,227 +1747,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Fenced Code Blocks in Ordered Lists in Octopress</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-17T06:54:17-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown.  I searched around and came across <a href="https://gist.github.com/clintel/1155906">a gist that showed how to do it</a> but I still couldn&rsquo;t get it to work.</p>
-
-<p>It turns out that the parser used in Octopress is slightly different than some of the other parsers out there and treats this markdown differently.  There is <a href="https://github.com/imathis/octopress/issues/488">an issue filed for this</a> but the issue resolution is to use a workaround.</p>
-
-<p>After some experimentation I came up with some simple steps that cover all the scenarios for putting code blocks or formatted text into an ordered list while writing my blog posts.</p>
-
-<p>It is organized so that the two main scenarios include four different snippets of code.  The first snippet of code is put directly before the entire block you want to format.  The second snippet of code is put before each line of code.  The third snippet of code is put after each line of code.  The fourth snippet of code is put at the end of the entire block.</p>
-
-<ol>
-<li><p>No line numbers, no syntax highlighting.  I use this when including snippets of commands that I have run from the console.</p>
-
-<ol>
-<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code&gt;</code></li>
-<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
-<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
-<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
-</ol>
-</li>
-<li><p>No line numbers, syntax highlighting.  I use this for regular code if I don&rsquo;t care about line numbers.  Replace <code>LANGUAGE</code> with the language you are using.  For example, <code>c</code> or <code>python</code> (see the <a href="http://pygments.org/docs/lexers/">supported language list</a> for more).</p>
-
-<ol>
-<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code class="LANGUAGE"&gt;</code></li>
-<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
-<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
-<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
-</ol>
-</li>
-</ol>
-
-
-<p>If you want to do line numbers when syntax highlighting it gets messy.  You need to build a table to have the line number &ldquo;gutter&rdquo; in there.  You can do it but it is a bit more work.</p>
-
-<p>Line numbers and syntax highlighting:</p>
-
-<ol>
-<li><p>Start a table that holds everything.  This is the block you&rsquo;ll use:</p>
-
-<p> <div class="highlight"><pre><code class="html">
- <span class="line">&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&ldquo;gutter&rdquo;&gt;&lt;pre class=&ldquo;line-numbers&rdquo;&gt;</span>
- </code></pre></div></p></li>
-<li><p>Determine how many lines are in your code snippet.  Now create a line number row for each of them.  Assuming you have five lines of code that would look like this:</p>
-
-<p> <div class="highlight"><pre><code class="html">
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;1&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;2&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;3&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;4&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;5&lt;/span&gt;</span>
- </code></pre></div></p></li>
-<li><p>Close this column of the table and start the column for the code:</p>
-
-<p> <div class="highlight"><pre><code class="html">
- <span class="line">&lt;/pre&gt;&lt;/td&gt;&lt;td class=&ldquo;code&rdquo;&gt;&lt;pre&gt;&lt;code class=&ldquo;LANGUAGE&rdquo;&gt;
- </code></pre></div></p></li>
-<li><p>Before each line of code &ndash; <code>&lt;span class="line"&gt;</code></p></li>
-<li>After each line of code &ndash; <code>&lt;/span&gt;</code></li>
-<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</code></li>
-</ol>
-
-
-<p>That should do it.  Good luck!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/">Common Android Wear Tasks for Developers</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-16T06:59:56-04:00" pubdate data-updated="true">Jul 16<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/07/16/common-android-wear-tasks-for-developers/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Getting started with development on the Android Wear platform can be challenging.  Here are my notes on how to get started quickly.</p>
-
-<p>Before you do anything!
-1. Back up your IntelliJ configuration if you use IntelliJ at all.
-2. Install Android Studio.  Do NOT try to use IntelliJ to do Android Wear development.</p>
-
-<p>Once you&rsquo;ve got Android Studio installed you&rsquo;ll need to do some setup on your devices (watch and phone) to get them working.  Here I assume you&rsquo;re using physical devices for your phone and your watch, no emulators.</p>
-
-<p><strong>Enabling debugging on your Android Wear device</strong></p>
-
-<p>The first time you set up your watch for remote debugging do the following:</p>
-
-<ol>
-<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
-<li>Tap the screen again to get the list of options</li>
-<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
-<li>Scroll down to &ldquo;About&rdquo; and tap it.  If you see &ldquo;Developer options&rdquo; in this list already you do not need to do this procedure since it has already been done.</li>
-<li>Scroll down to &ldquo;Build number&rdquo; and tap it 7 times.  You should get a message that says &ldquo;You are now a developer!&rdquo;.</li>
-<li>Swipe to the right to get the previous menu</li>
-<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
-<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
-<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
-</ol>
-
-
-<p>After your Android Wear device has been set up once you&rsquo;ll only need to follow these steps to re-enable debugging if you ever disable it:</p>
-
-<ol>
-<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
-<li>Tap the screen again to get the list of options</li>
-<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
-<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
-<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
-<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
-</ol>
-
-
-<p><strong>Enabling debugging over Bluetooth from your Android phone to your Android Wear device</strong></p>
-
-<ol>
-<li>Open the &ldquo;Android Wear&rdquo; app</li>
-<li><p>Tap the settings icon at the top of the screen (the two gears that look like the icon below)</p>
-
-<p>  <img src="/images/android-wear-for-developers/settings-icon.png" alt="two small gears" /></p></li>
-<li>Make sure &ldquo;Debugging over Bluetooth&rdquo; is checked</li>
-<li>Once it is checked two fields will appear below it.  They are &ldquo;Host&rdquo; and &ldquo;Target&rdquo;.  &ldquo;Target&rdquo; will say &ldquo;connected&rdquo; when your watch is connected to your phone.  &ldquo;Host&rdquo; will say &ldquo;connected&rdquo; when ADB is connected to your watch.</li>
-</ol>
-
-
-<p><strong>Setting up ADB for Android Wear debugging over Bluetooth</strong></p>
-
-<p>Make sure ADB sees your phone:</p>
-
-<ol>
-<li>Connect your phone via USB and make sure USB debugging is enabled</li>
-<li><p>Run <code>adb devices</code> from the command line.  You should get some output like this:</p>
-
-<p> <div class="highlight"><pre><code>
- <span class="line">$ adb devices</span>
- <span class="line">List of devices attached</span>
- <span class="line">01234567890abcdef    device</span>
- </code></pre></div></p></li>
-<li><p>Check to see if there is a device in the list called &ldquo;localhost:4444&rdquo;.  If so, you are already paired and ready to go.  You do not need to do this procedure.</p></li>
-<li><p>To connect ADB to your watch run <code>adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</code> and you should see this:</p>
-
-<p> <div class="highlight"><pre><code>
- <span class="line">$ adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</span>
- <span class="line">connected to localhost:4444</span>
- </code></pre></div></p></li>
-<li><p>Run <code>adb devices</code> again and you should see this:</p>
-
-<p> <div class="highlight"><pre><code>
- <span class="line">$ adb devices</span>
- <span class="line">List of devices attached</span>
- <span class="line">01234567890abcdef    device</span>
- <span class="line">localhost:4444       device</span>
- </code></pre></div></p></li>
-<li><p>If you do not see the <code>localhost:4444</code> entry then double check that ADB debugging and Bluetooth debugging are enabled on your watch.  Then check to make sure Bluetooth debugging is enabled in the Android Wear app on your phone.  Once those are verified you can run this command again and it will try to reconnect.</p></li>
-</ol>
-
-
-<p>Now that you&rsquo;ve done all of that Android Studio should give you a dialog like this when you try to run or debug an application:</p>
-
-<p><img src="/images/android-wear-for-developers/choose-device-dialog.png" alt="&quot;Choose Device&quot; dialog" /></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1821,11 +1760,6 @@
 <aside class="sidebar">
   
     <section>
-	<h1>Like this site/article?  Donate with Bitcoin!</h1>
-	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
-	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
-</section>
-<section>
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- Sidebar -->
 <ins class="adsbygoogle"
@@ -1841,6 +1775,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
       </li>
     
@@ -1850,14 +1792,6 @@
     
       <li class="post">
         <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
       </li>
     
   </ul>

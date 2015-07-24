@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2015-01-02T08:49:56-05:00</updated>
+  <updated>2015-07-24T09:31:00-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,95 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[How Would You Implement "Cron" on AWS as Inexpensively as Possible?]]></title>
+    <link href="http://blog.timmattison.com/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/"/>
+    <updated>2015-07-24T09:20:15-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible</id>
+    <content type="html"><![CDATA[<p>There seems to be a common problem I&rsquo;ve seen in app developer threads.  CloudKit provides tons of functionality to run your app without your own infrastructure but it only runs the APIs they provide.  There is an Android syncing API that provides similar things but with the same limitations.  Lots of app developers are really cheap because they&rsquo;re testing the water to see if their app is worth spending money on or not.</p>
+
+<p>The problem: You need to do some simple processing on a data set and give the processed data set to your users.</p>
+
+<p>The solution: Run a scheduled job that processes the data and puts it in S3.</p>
+
+<p>The constraints:  You must use AWS.  The cost must be under $9 / month (less than a t2.micro) and cheaper is better.  You can&rsquo;t run it on your laptop/Raspberry Pi.  It must run at least once per day.</p>
+
+<p>I think it&rsquo;s a fun exercise to see how this problem can be solved.  As I&rsquo;m learning more and more about AWS there seem to be multiple ways to do it so I&rsquo;m interested in seeing what other people come up with.</p>
+
+<p>Some possible solutions I&rsquo;ve seen so far:</p>
+
+<ul>
+<li><p><a href="https://www.youtube.com/watch?v=UFj27laTWQA&amp;feature=youtu.be&amp;t=42m50s">AWS Lambda plans to offer support for &ldquo;timed events&rdquo;</a> but it isn&rsquo;t there yet</p></li>
+<li><p>The <a href="https://alestic.com/2015/05/aws-lambda-recurring-schedule/">Unreliable Town Clock setup</a>, another AWS Lambda technique</p></li>
+<li><p><a href="http://stackoverflow.com/a/31415241/796579">SQS, plus CloudWatch, plus SNS, plus Lambda</a>, sounds elaborate but actually this is my favorite so far since it is available now and doesn&rsquo;t depend on the Unreliable Town Clock.  However, there are gotchas with it.</p></li>
+</ul>
+
+
+<p>How would you do it?</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Validating Guava Event Bus Interactions With Mockito]]></title>
+    <link href="http://blog.timmattison.com/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/"/>
+    <updated>2015-03-10T18:43:15-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito</id>
+    <content type="html"><![CDATA[<p>Are you using <a href="https://code.google.com/p/guava-libraries/wiki/EventBusExplained">Guava&rsquo;s event bus</a> in your Java project?  Do you need to test and validate interactions with the event bus but are having trouble?  Mockito can help you out here with just a few lines of code.</p>
+
+<p>Assume you have two event types.  We&rsquo;ll call them <code>WantedEvent</code> and <code>UnwantedEvent</code>.  In your test you can use Mockito to create a mock event bus like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">mockEventBus</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">EventBus</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you can use Mockito&rsquo;s <code>doAnswer</code> functionality to intercept all interactions with the event bus and do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">doAnswer</span><span class="o">(</span><span class="k">new</span> <span class="n">Answer</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Void</span> <span class="nf">answer</span><span class="o">(</span><span class="n">InvocationOnMock</span> <span class="n">invocationOnMock</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Object</span> <span class="n">argument</span> <span class="o">=</span> <span class="n">invocationOnMock</span><span class="o">.</span><span class="na">getArguments</span><span class="o">()[</span><span class="mi">0</span><span class="o">];</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">argument</span> <span class="k">instanceof</span> <span class="n">WantedEvent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">wantedEventCount</span><span class="o">++;</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">argument</span> <span class="k">instanceof</span> <span class="n">UnwantedEvent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">unwantedEventCount</span><span class="o">++;</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="s">&quot;This kind of event was not expected&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}).</span><span class="na">when</span><span class="o">(</span><span class="n">mockEventBus</span><span class="o">).</span><span class="na">post</span><span class="o">(</span><span class="n">anyObject</span><span class="o">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When you use your event bus in your tests now you&rsquo;ll be counting the number of times <code>WantedEvent</code> and <code>UnwantedEvent</code> are published (you do need to make those variables accessible outside the scope of this anonymous <code>Answer&lt;Void&gt;</code> block).</p>
+
+<p>You&rsquo;ll also be throwing exceptions if you see any other kinds of events that you didn&rsquo;t expect so you can fail immediately if there is additional unwanted behavior going on.  Naturally you can leave the else part out and ignore other events completely too.</p>
+
+<p>Using this simple pattern I&rsquo;ve been able to debug, test, and be confident in the implementation of several projects that use the Guava event bus.</p>
+
+<p>Do you have any tricks or tips related to this article?  Is there a better or easier way to do what I&rsquo;m doing here?  Did this get you out of a bind?  Post in the comments!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Mockito and ServletInputStreams]]></title>
@@ -2338,167 +2427,6 @@ Hash type: 01000000
 
 
 <p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fenced Code Blocks in Ordered Lists in Octopress]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress/"/>
-    <updated>2014-07-17T06:54:17-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/07/17/fenced-code-blocks-in-ordered-lists-in-octopress</id>
-    <content type="html"><![CDATA[<p>While writing an article yesterday I ran into an issue getting fenced code blocks to work in markdown.  I searched around and came across <a href="https://gist.github.com/clintel/1155906">a gist that showed how to do it</a> but I still couldn&rsquo;t get it to work.</p>
-
-<p>It turns out that the parser used in Octopress is slightly different than some of the other parsers out there and treats this markdown differently.  There is <a href="https://github.com/imathis/octopress/issues/488">an issue filed for this</a> but the issue resolution is to use a workaround.</p>
-
-<p>After some experimentation I came up with some simple steps that cover all the scenarios for putting code blocks or formatted text into an ordered list while writing my blog posts.</p>
-
-<p>It is organized so that the two main scenarios include four different snippets of code.  The first snippet of code is put directly before the entire block you want to format.  The second snippet of code is put before each line of code.  The third snippet of code is put after each line of code.  The fourth snippet of code is put at the end of the entire block.</p>
-
-<ol>
-<li><p>No line numbers, no syntax highlighting.  I use this when including snippets of commands that I have run from the console.</p>
-
-<ol>
-<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code&gt;</code></li>
-<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
-<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
-<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
-</ol>
-</li>
-<li><p>No line numbers, syntax highlighting.  I use this for regular code if I don&rsquo;t care about line numbers.  Replace <code>LANGUAGE</code> with the language you are using.  For example, <code>c</code> or <code>python</code> (see the <a href="http://pygments.org/docs/lexers/">supported language list</a> for more).</p>
-
-<ol>
-<li>Before the block &ndash; <code>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;code class="LANGUAGE"&gt;</code></li>
-<li>Before each line &ndash; <code>&lt;span class="line”&gt;</code></li>
-<li>After each line &ndash; <code>&lt;/span&gt;</code></li>
-<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</code></li>
-</ol>
-</li>
-</ol>
-
-
-<p>If you want to do line numbers when syntax highlighting it gets messy.  You need to build a table to have the line number &ldquo;gutter&rdquo; in there.  You can do it but it is a bit more work.</p>
-
-<p>Line numbers and syntax highlighting:</p>
-
-<ol>
-<li><p>Start a table that holds everything.  This is the block you&rsquo;ll use:</p>
-
-<p> <div class="highlight"><pre><code class="html">
- <span class="line">&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&ldquo;gutter&rdquo;&gt;&lt;pre class=&ldquo;line-numbers&rdquo;&gt;</span>
- </code></pre></div></p></li>
-<li><p>Determine how many lines are in your code snippet.  Now create a line number row for each of them.  Assuming you have five lines of code that would look like this:</p>
-
-<p> <div class="highlight"><pre><code class="html">
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;1&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;2&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;3&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;4&lt;/span&gt;</span>
- <span class="line">&lt;span class=&ldquo;line-number&rdquo;&gt;5&lt;/span&gt;</span>
- </code></pre></div></p></li>
-<li><p>Close this column of the table and start the column for the code:</p>
-
-<p> <div class="highlight"><pre><code class="html">
- <span class="line">&lt;/pre&gt;&lt;/td&gt;&lt;td class=&ldquo;code&rdquo;&gt;&lt;pre&gt;&lt;code class=&ldquo;LANGUAGE&rdquo;&gt;
- </code></pre></div></p></li>
-<li><p>Before each line of code &ndash; <code>&lt;span class="line"&gt;</code></p></li>
-<li>After each line of code &ndash; <code>&lt;/span&gt;</code></li>
-<li>After the block &ndash; <code>&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</code></li>
-</ol>
-
-
-<p>That should do it.  Good luck!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Common Android Wear Tasks for Developers]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers/"/>
-    <updated>2014-07-16T06:59:56-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/07/16/common-android-wear-tasks-for-developers</id>
-    <content type="html"><![CDATA[<p>Getting started with development on the Android Wear platform can be challenging.  Here are my notes on how to get started quickly.</p>
-
-<p>Before you do anything!
-1. Back up your IntelliJ configuration if you use IntelliJ at all.
-2. Install Android Studio.  Do NOT try to use IntelliJ to do Android Wear development.</p>
-
-<p>Once you&rsquo;ve got Android Studio installed you&rsquo;ll need to do some setup on your devices (watch and phone) to get them working.  Here I assume you&rsquo;re using physical devices for your phone and your watch, no emulators.</p>
-
-<p><strong>Enabling debugging on your Android Wear device</strong></p>
-
-<p>The first time you set up your watch for remote debugging do the following:</p>
-
-<ol>
-<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
-<li>Tap the screen again to get the list of options</li>
-<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
-<li>Scroll down to &ldquo;About&rdquo; and tap it.  If you see &ldquo;Developer options&rdquo; in this list already you do not need to do this procedure since it has already been done.</li>
-<li>Scroll down to &ldquo;Build number&rdquo; and tap it 7 times.  You should get a message that says &ldquo;You are now a developer!&rdquo;.</li>
-<li>Swipe to the right to get the previous menu</li>
-<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
-<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
-<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
-</ol>
-
-
-<p>After your Android Wear device has been set up once you&rsquo;ll only need to follow these steps to re-enable debugging if you ever disable it:</p>
-
-<ol>
-<li>Tap your watch face to get the &ldquo;Speak now&rdquo; prompt</li>
-<li>Tap the screen again to get the list of options</li>
-<li>Scroll down to &ldquo;Settings&rdquo; and tap it</li>
-<li>Scroll down to &ldquo;Developer options&rdquo; and tap it</li>
-<li>Tap &ldquo;ADB debugging&rdquo; if it says it is disabled</li>
-<li>Tap &ldquo;Debug over Bluetooth&rdquo; if it says it is disabled</li>
-</ol>
-
-
-<p><strong>Enabling debugging over Bluetooth from your Android phone to your Android Wear device</strong></p>
-
-<ol>
-<li>Open the &ldquo;Android Wear&rdquo; app</li>
-<li><p>Tap the settings icon at the top of the screen (the two gears that look like the icon below)</p>
-
-<p>  <img src="http://blog.timmattison.com/images/android-wear-for-developers/settings-icon.png" alt="two small gears" /></p></li>
-<li>Make sure &ldquo;Debugging over Bluetooth&rdquo; is checked</li>
-<li>Once it is checked two fields will appear below it.  They are &ldquo;Host&rdquo; and &ldquo;Target&rdquo;.  &ldquo;Target&rdquo; will say &ldquo;connected&rdquo; when your watch is connected to your phone.  &ldquo;Host&rdquo; will say &ldquo;connected&rdquo; when ADB is connected to your watch.</li>
-</ol>
-
-
-<p><strong>Setting up ADB for Android Wear debugging over Bluetooth</strong></p>
-
-<p>Make sure ADB sees your phone:</p>
-
-<ol>
-<li>Connect your phone via USB and make sure USB debugging is enabled</li>
-<li><p>Run <code>adb devices</code> from the command line.  You should get some output like this:</p>
-
-<p> <div class="highlight"><pre><code>
- <span class="line">$ adb devices</span>
- <span class="line">List of devices attached</span>
- <span class="line">01234567890abcdef    device</span>
- </code></pre></div></p></li>
-<li><p>Check to see if there is a device in the list called &ldquo;localhost:4444&rdquo;.  If so, you are already paired and ready to go.  You do not need to do this procedure.</p></li>
-<li><p>To connect ADB to your watch run <code>adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</code> and you should see this:</p>
-
-<p> <div class="highlight"><pre><code>
- <span class="line">$ adb forward tcp:4444 localabstract:/adb-hub; adb connect localhost:4444</span>
- <span class="line">connected to localhost:4444</span>
- </code></pre></div></p></li>
-<li><p>Run <code>adb devices</code> again and you should see this:</p>
-
-<p> <div class="highlight"><pre><code>
- <span class="line">$ adb devices</span>
- <span class="line">List of devices attached</span>
- <span class="line">01234567890abcdef    device</span>
- <span class="line">localhost:4444       device</span>
- </code></pre></div></p></li>
-<li><p>If you do not see the <code>localhost:4444</code> entry then double check that ADB debugging and Bluetooth debugging are enabled on your watch.  Then check to make sure Bluetooth debugging is enabled in the Android Wear app on your phone.  Once those are verified you can run this command again and it will try to reconnect.</p></li>
-</ol>
-
-
-<p>Now that you&rsquo;ve done all of that Android Studio should give you a dialog like this when you try to run or debug an application:</p>
-
-<p><img src="http://blog.timmattison.com/images/android-wear-for-developers/choose-device-dialog.png" alt="&quot;Choose Device&quot; dialog" /></p>
 ]]></content>
   </entry>
   

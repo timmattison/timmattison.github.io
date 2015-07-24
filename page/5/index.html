@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Reading resources in Java has always been a mystery to me. It&rsquo;s not because I don&rsquo;t understand how to do it but more that I do it so &hellip;">
+  <meta name="description" content="I am running Debian on a BeagleBone Black at home as a toy server/sandbox. One application that I thought would be interesting to run on it was the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,321 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T18:29:05-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am running Debian on a BeagleBone Black at home as a toy server/sandbox.  One application that I thought would be interesting to run on it was the standard Bitcoin client.  I think it is a bit strange that the latest version of the Bitcoin client (0.8.6 at the time I wrote this) doesn&rsquo;t use &ldquo;configure&rdquo; like most other Linux/Unix applications because it leads to having to track down dependencies during a build rather than before them.  On a normal system this might not be a big deal because Bitcoin compiles in just a minute or so.  On a smaller device like the BeagleBone Black though it means you&rsquo;ll end up checking in on it periodically over a long period of time only to find that it needs another dependency.</p>
+
+<p>In their defense the github version DOES use a &ldquo;configure&rdquo; script.  I found that out after going through a manual build on 0.8.6 so for completeness I&rsquo;ll show how to compile both and you can use whichever one suits your needs.  The configure script on a lean device like the BeagleBone Black still takes quite a while to run though so this should get you through doing the process just once.</p>
+
+<p>You can use either the current stable version today which is 0.8.6 or you can use the bleeding edge github source.  I would recommend 0.8.6 if you want something that is as stable as possible.  When compiling from source you should keep in mind that your build may not be compatible with old wallet formats.</p>
+
+<p>I cannot stress this enough &ndash; IF YOU HAVE AN OLD WALLET YOU ARE BEST OFF USING THE OFFICIAL BINARIES INSTEAD OF BUILDING FROM SOURCE!</p>
+
+<h1>Using version 0.8.6</h1>
+
+<p>If you want to use version 0.8.6 here&rsquo;s what you need to do:</p>
+
+<ul>
+<li>Install the necessary dependencies</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install g++ libboost-dev libdb-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Download the <a href="http://sourceforge.net/projects/bitcoin/files/Bitcoin/bitcoin-0.8.6/bitcoin-0.8.6-linux.tar.gz/download">Bitcoin 0.8.6 source</a></p></li>
+<li><p>Extract the source</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>tar xzvf bitcoin-0.8.6-linux.tar.gz
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Remove the binaries, these are Intel binaries and won&rsquo;t work on the BeagleBone Black anyway</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>rm bitcoin-0.8.6-linux/bin/*/*
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Go to the src directory</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>bitcoin-0.8.6-linux/src/src
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Build the source</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>make -f makefile.unix
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you follow these instructions you should get Bitcoin up and running in just one build cycle.  Here are the commands that you should run:</p>
+
+<h1>Using the latest Bitcoin development version (NOT RECOMMENDED!)</h1>
+
+<p>NOTE: I do not recommend that you use this version.  Currently Debian does not have libdb4.8 in its default repository and the Bitcoin client requires it to maintain compatibility with existing wallet files.</p>
+
+<p>If you want to use the latest development version here&rsquo;s what you need to do:</p>
+
+<ul>
+<li>Install the necessary dependencies</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install g++ libboost-dev libdb-dev git automake pkg-config
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Clone the Bitcoin repository</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone https://github.com/bitcoin/bitcoin.git
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Configure the source</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>bitcoin
+</span><span class='line'>./autogen.sh
+</span><span class='line'>./configure --with-incompatible-bdb
+</span><span class='line'>make
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you&rsquo;ll have the bitcoind executable sitting on your BeagleBone Black.  When you try to run it the first time it will complain that some variables aren&rsquo;t set and that your config is incomplete.  The output will look something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>debian@arm:~/bitcoin/src/src<span class="nv">$ </span>./bitcoind
+</span><span class='line'>Error: To use bitcoind, you must <span class="nb">set </span>a rpcpassword in the configuration file:
+</span><span class='line'>/home/debian/.bitcoin/bitcoin.conf
+</span><span class='line'>It is recommended you use the following random password:
+</span><span class='line'><span class="nv">rpcuser</span><span class="o">=</span>bitcoinrpc
+</span><span class='line'><span class="nv">rpcpassword</span><span class="o">=</span>XxXXxXXxxxXxXXxXXXXXXxxxxXxxxxxXxXXXXXxXxxXx
+</span><span class='line'><span class="o">(</span>you <span class="k">do </span>not need to remember this password<span class="o">)</span>
+</span><span class='line'>The username and password MUST NOT be the same.
+</span><span class='line'>If the file does not exist, create it with owner-readable-only file permissions.
+</span><span class='line'>It is also recommended to <span class="nb">set </span>alertnotify so you are notified of problems;
+</span><span class='line'><span class="k">for </span>example: <span class="nv">alertnotify</span><span class="o">=</span><span class="nb">echo</span> %s | mail -s <span class="s2">&quot;Bitcoin Alert&quot;</span> admin@foo.com
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What you&rsquo;ll need to do is put these values into the ~/.bitcoin/bitcoin.conf.  Then you can restart bitcoind and it&rsquo;ll run and start grabbing the blockchain.  IT IS INCREDIBLY IMPORTANT THAT YOU DO NOT COPY THE VALUES THAT I PUT HERE.  Your file will look like this (except the rpcpassword will be whatever bitcoind told you):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">rpcuser</span><span class="o">=</span>bitcoinrpc
+</span><span class='line'><span class="nv">rpcpassword</span><span class="o">=</span>XxXXxXXxxxXxXXxXXXXXXxxxxXxxxxxXxXXXXXxXxxXx
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This password gives someone complete access to your bitcoind instance.  If you store money there and use the rpcpassword value that I put above you can and probably will lose it.</p>
+
+<p>Unless you have a giant SD card on your BeagleBone Black you&rsquo;ll probably want to put your blockchain on a different disk.  I have my Synology home directory mounted on my BeagleBone Black via NFS (as explained in another post).  It is mounted at ~/synology.  In order to make sure my blockchain is on my Synology I did the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mkdir ~/synology/bitcoind
+</span><span class='line'>mv ~/.bitcoin/blocks ~/.bitcoin/chainstate ~/.bitcoin/database ~/.bitcoin/db.log ~/.bitcoin/debug.log ~/synology/bitcoind/
+</span><span class='line'>ln -s ~/synology/bitcoind/blocks ~/.bitcoin/blocks
+</span><span class='line'>ln -s ~/synology/bitcoind/chainstate ~/.bitcoin/chainstate
+</span><span class='line'>mkdir -p ~/synology/bitcoind/database
+</span><span class='line'>ln -s ~/synology/bitcoind/database ~/.bitcoin/database
+</span><span class='line'>ln -s ~/synology/bitcoind/db.log ~/.bitcoin/db.log
+</span><span class='line'>ln -s ~/synology/bitcoind/debug.log ~/.bitcoin/debug.log
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You may get a few errors about files not existing when you run this.  This is normal and you should try to proceed and see if it works for you.  I was very careful here to not put bitcoin.conf or the wallet.dat file on the Synology.  You should also avoid putting those files on there.  Since the remote file system is potentially a shared resource an attacker can get into that and modify or steal data.  It&rsquo;s best to keep the wallet.dat, peers.dat, and bitcoin.conf local to your BeagleBone Black.</p>
+
+<p>At this point you can restart bitcoind.  I did this in a screen session rather than make it a true service since I&rsquo;m still playing around with it.  Once I set it up as a service I&rsquo;ll post an update and include that information as well.  I am a bit skeptical that it will stay stable since after just a few hours it is already taking up 50% of the BeagleBone Black&rsquo;s RAM.  I guess I&rsquo;ll just have to wait and see.</p>
+
+<p>Periodically check your free file system space and make sure that the blockchain isn&rsquo;t on your SD card.  In my case I can do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Show the amount of free space on my SD card</span>
+</span><span class='line'>du -sh /
+</span><span class='line'>
+</span><span class='line'><span class="c"># Show the amount of free space on my Synology NAS</span>
+</span><span class='line'>du -sh ~/synology/
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Good luck and post in the comments if this helps you out or if you need any assistance.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Connecting a BeagleBone Black to a Synology NAS With NFS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T06:52:06-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I originally purchased my Synology NAS because of all of the packages that it offers and the fact that it was supposed to give me one less thing to manage.  After a few failed attempts at getting OpenVPN to work and some Plex issues I decided that I needed to have something a little less opaque that I could install different packages on.  I wanted something small, low power, and solid state so I decided to use the BeagleBone Black.</p>
+
+<p>I tried using both CIFS/Samba and sshfs to mount the Synology&rsquo;s filesystem but both of them had extremely strange issues with the applications I planned on using.  I wouldn&rsquo;t recommend either of them for production work involving Linux and NAS.  Often it would tell me that files didn&rsquo;t exist even though I could clearly see they were there.  After moving to NFS none of this happened anymore.</p>
+
+<p>NOTE: Security here is all done by IP address so this is not suitable for a sensitive environment!</p>
+
+<p>Here are the steps I went through to connect my first enable and configure NFS on my Synoloy NAS:</p>
+
+<ol>
+<li>Make sure your BeagleBone Black has a static IP and that you know what it is</li>
+<li>Log into the Synology web GUI as an admin</li>
+<li>Click &ldquo;Control Panel&rdquo;</li>
+<li>Click &ldquo;Win/Mac/NFS&rdquo;</li>
+<li>Click &ldquo;NFS Service&rdquo;</li>
+<li>Make sure that &ldquo;Enable NFS&rdquo; and &ldquo;Enable NFSv4 support&rdquo; are checked</li>
+<li>Click the link that says &ldquo;Shared Folder&rdquo;</li>
+<li>Find and select the directory you want to share.  In my case it was my user account&rsquo;s home directory so I selected &ldquo;homes&rdquo;.</li>
+<li>Click the &ldquo;Privileges&rdquo; drop down</li>
+<li>Select &ldquo;NFS Privileges&rdquo;</li>
+<li>Click &ldquo;Create&rdquo;</li>
+<li>Enter your BeagleBone Black&rsquo;s IP address into the &ldquo;Hostname or IP&rdquo; field</li>
+<li>Make sure that the &ldquo;Privilege&rdquo; field is set to &ldquo;Read/Write&rdquo;</li>
+<li>Make sure that the &ldquo;Root squash&rdquo; field is set to &ldquo;No mapping&rdquo;</li>
+<li>Make sure that &ldquo;Enable asynchronous&rdquo; is checked</li>
+<li>Make sure that &ldquo;Allow connections from non-privileged ports (ports higher than 1024&rdquo; is NOT checked</li>
+<li>Click &ldquo;OK&rdquo; in the &ldquo;Create an NFS rule&rdquo; popup</li>
+<li>Take note of the &ldquo;Mount path&rdquo; field in the &ldquo;Edit NFS privileges of homes&rdquo; window, you&rsquo;ll need this later</li>
+<li>Click &ldquo;OK&rdquo; in the &ldquo;Edit NFS privileges of homes&rdquo; window</li>
+<li>Log out of the Synology web GUI</li>
+</ol>
+
+
+<p>Now you have your Synology all set up to accept NFS connections from your BeagleBone Black.  Here are the steps to do that:</p>
+
+<ol>
+<li>Connect to your BeagleBone Black via SSH as a user that can run sudo</li>
+<li>Install the NFS utilities and client by running &ldquo;sudo apt-get install nfs-common&rdquo;</li>
+<li>Go to your home directory</li>
+<li>Create a directory for your Synology mount point.  I chose &ldquo;synology&rdquo;.</li>
+<li>Mount your directory using the &ldquo;Mount path&rdquo; from above along with any additional paths to get you to the desired directory you want.  My mount path was &ldquo;/volume1/homes&rdquo; but I wanted &ldquo;/volume1/homes/tim&rdquo; for my actual home directory.  The command I used was &ldquo;sudo mount -t nfs synology:/volume1/homes/tim /home/tim/synology/&rdquo;</li>
+<li>Test out your newly mounted Synology NAS</li>
+</ol>
+
+
+<p>You can now add this to your /etc/fstab file if you&rsquo;d like but I prefer to keep it in a script.  I have a script called mount-nfs.sh in my home directory that I run when necessary since I&rsquo;m still testing out NFSv4.  Once I get it stable I&rsquo;ll make sure that I get it to mount automatically the proper way and update this post.</p>
+
+<h1>Potential issues</h1>
+
+<p>If you receive an error message that says &ldquo;mount.nfs: access denied by server while mounting synology&rdquo; you probably have the wrong IP for your BeagleBone Black in the Synology configuration.</p>
+
+<p>If it appears to mount the volume but no files show up try unmounting it and re-mounting it.  If you unmount it successfully and when re-mounting it again it complains that the device is busy it is possible that your BeagleBone Black&rsquo;s IP address changed.  This happened on my test machine when its IP went from 192.168.1.109 to 192.168.1.110.  It didn&rsquo;t give me the access denied error message but instead exhibited this weird behavior.  If this is the case make sure you have your IP assigned statically, reboot the BeagleBone Black, verify the static IP in the Synology configuration again, and then try re-mounting the path.  After that mine started working again.</p>
+
+<p>Good luck!  Post any success stories or issues in the comments.  I&rsquo;ll do my best to help out if possible.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1109,196 +1424,6 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/">How-To: Fix Maven Errors in Eclipse When Getting Started With Heroku</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-28T09:15:24-04:00" pubdate data-updated="true">Mar 28<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I haven&rsquo;t used Heroku much yet but with the addition of Java to their platform I&rsquo;m starting to see it as a really interesting option.  Yesterday I watched <a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=mkmWwA0EoGg#!">a great video on how to get started with Java on Heroku</a>.  It went well until I tried converting my project to a Maven project.  Then I got this error message in all of my pom.xml files:</p>
-
-<p><code>Plugin execution not covered by lifecycle configuration</code></p>
-
-<p>I checked the usual places but didn&rsquo;t find a solution to the issue.  Then I decided to try adding the m2e plugin from this update site:</p>
-
-<p><code>http://download.eclipse.org/technology/m2e/releases</code></p>
-
-<p>After adding the plugin and restarting my IDE I got two different error messages:</p>
-
-<p><code>maven-dependency-plugin (goals "copy-dependencies", "unpack") is not supported by m2e.</code>
-<code>Project configuration is not up-to-date with pom.xml.  Run project configuration update.</code></p>
-
-<p>The second error had a quick fix so I tried that and it worked.  Now the Java example application that uses the Play framework and the one that uses Spring MVC and Hibernate both work.  However, the ones that used JAX-RS and embedded Jetty did not.  They still showed the maven-dependency-plugin error.  The fix is to add the following XML in the build section of your pom.xml:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;pluginmanagement&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;plugins&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;plugin&gt;</span>
-</span><span class='line'>          <span class="nt">&lt;groupid&gt;</span>org.eclipse.m2e<span class="nt">&lt;/groupid&gt;</span>
-</span><span class='line'>              <span class="nt">&lt;artifactid&gt;</span>lifecycle-mapping<span class="nt">&lt;/artifactid&gt;</span>
-</span><span class='line'>              <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
-</span><span class='line'>              <span class="nt">&lt;configuration&gt;</span>
-</span><span class='line'>                  <span class="nt">&lt;lifecyclemappingmetadata&gt;</span>
-</span><span class='line'>                      <span class="nt">&lt;pluginexecutions&gt;</span>
-</span><span class='line'>                          <span class="nt">&lt;pluginexecution&gt;</span>
-</span><span class='line'>                              <span class="nt">&lt;pluginexecutionfilter&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;groupid&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupid&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;artifactid&gt;</span>maven-dependency-plugin<span class="nt">&lt;/artifactid&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;versionrange&gt;</span>[1.0.0,)<span class="nt">&lt;/versionrange&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;goals&gt;</span>
-</span><span class='line'>                                      <span class="nt">&lt;goal&gt;</span>copy-dependencies<span class="nt">&lt;/goal&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;/goals&gt;</span>
-</span><span class='line'>                              <span class="nt">&lt;/pluginexecutionfilter&gt;</span>
-</span><span class='line'>                              <span class="nt">&lt;action&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;ignore&gt;&lt;/ignore&gt;</span>
-</span><span class='line'>                              <span class="nt">&lt;/action&gt;</span>
-</span><span class='line'>                          <span class="nt">&lt;/pluginexecution&gt;</span>
-</span><span class='line'>                      <span class="nt">&lt;/pluginexecutions&gt;</span>
-</span><span class='line'>                  <span class="nt">&lt;/lifecyclemappingmetadata&gt;</span>
-</span><span class='line'>              <span class="nt">&lt;/configuration&gt;</span>
-</span><span class='line'>          <span class="nt">&lt;/plugin&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;/plugins&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/pluginmanagement&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After that you&rsquo;ll have to do the quick fix for the error &ldquo;Project configuration is not up-to-date&rdquo; again and then you&rsquo;ll be error free, at least in your pom.xml&hellip;</p>
-
-<p>Post in the comments and let me know if it worked or if you need any help.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/">Tip: Handle Failed Tasks Throwing &#8220;ENOENT&#8221; Errors in Hadoop</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-21T19:09:48-04:00" pubdate data-updated="true">Mar 21<span>st</span>, 2012</time>
-        
-           | <a href="/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/21/tip-handle-failed-tasks-throwing-enoent-errors-in-hadoop/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Today when I tried to run a new Hadoop job I got the following error:</p>
-
-<pre><code>     [exec] 12/03/21 22:51:47 INFO mapred.JobClient: Task Id : attempt_201203212250_0001_m_000002_1, Status : FAILED
-     [exec] Error initializing attempt_201203212250_0001_m_000002_1:
-     [exec] ENOENT: No such file or directory
-     [exec]     at org.apache.hadoop.io.nativeio.NativeIO.chmod(Native Method)
-     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.setPermission(RawLocalFileSystem.java:521)
-     [exec]     at org.apache.hadoop.fs.RawLocalFileSystem.mkdirs(RawLocalFileSystem.java:344)
-     [exec]     at org.apache.hadoop.mapred.JobLocalizer.initializeJobLogDir(JobLocalizer.java:240)
-     [exec]     at org.apache.hadoop.mapred.DefaultTaskController.initializeJob(DefaultTaskController.java:216)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker$4.run(TaskTracker.java:1352)
-     [exec]     at java.security.AccessController.doPrivileged(Native Method)
-     [exec]     at javax.security.auth.Subject.doAs(Subject.java:416)
-     [exec]     at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1157)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker.initializeJob(TaskTracker.java:1327)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker.localizeJob(TaskTracker.java:1242)
-     [exec]     at org.apache.hadoop.mapred.TaskTracker.startNewTask(TaskTracker.java:2541)
-     [exec]     at org.apac
-</code></pre>
-
-<p>It wasn&rsquo;t immediately apparent to me what file wasn&rsquo;t found from the error messages so I checked the logs, the JobTracker, my code, ran some known good jobs that also failed, basically everything I could think of.  It turns out that due to me accidentally running a script as &ldquo;root&rdquo; (don&rsquo;t worry, it was only on my desktop) that the permissions of several files in the hdfs user&rsquo;s home directory had changed ownership to &ldquo;root&rdquo;.  Because of that Hadoop was unable to create files in the /usr/lib/hadoop-0.20 directory.</p>
-
-<p>NOTE: These steps assume you are using Hadoop 0.20.  Adjust the paths in the commands accordingly if you aren&rsquo;t.</p>
-
-<p>If you want a quick fix try these steps (only if you take full responsibility for anything that may go wrong):</p>
-
-<ol>
-<li><p> Stop Hadoop using the stop-all.sh script as the hdfs user</p></li>
-<li><p> su to the hdfs user</p></li>
-<li><p> Run this:</p>
-
-<p>chown -R hdfs:hdfs /usr/lib/hadoop-0.20 /var/*/hadoop-0.20</p></li>
-<li><p> Restart Hadoop using the start-all.sh script as the hdfs user</p></li>
-</ol>
-
-
-<p>Now your jobs should start running again.  Post in the comments if this procedure works for you or if you need any help.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/6/">&larr; Older</a>
@@ -1312,11 +1437,6 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
 <aside class="sidebar">
   
     <section>
-	<h1>Like this site/article?  Donate with Bitcoin!</h1>
-	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
-	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
-</section>
-<section>
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- Sidebar -->
 <ins class="adsbygoogle"
@@ -1332,6 +1452,14 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
       </li>
     
@@ -1341,14 +1469,6 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
     
       <li class="post">
         <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
       </li>
     
   </ul>
