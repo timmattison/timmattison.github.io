@@ -1,0 +1,26 @@
+.hexpileBlock {
+    padding: 9px 14px;
+    margin-bottom: 14px;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    border-radius: 4px;
+}
+
+.hexpile {
+    font: 0.7em "Courier New", Courier, mono;
+}
+
+.hexpileHighlighted {
+    background-color: #073642;
+}
+
+.hexpileColorBox {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    left: 5px;
+    top: 5px;
+    margin-top: 3px;
+    margin-left: 15px;
+    margin-right: 5px;
+}
