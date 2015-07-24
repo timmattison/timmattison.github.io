@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Recently I ran into a situation where I had to reboot a ton of machines remotely. I couldn&rsquo;t ssh as root, and you really shouldn&rsquo;t do &hellip;">
+  <meta name="description" content="Recently I read an article called &ldquo;The Problem with Altcoins&rdquo; and the author states this about Litecoin: Scrypt was designed to be a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,146 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Why Proof of Work Algorithms Need to Use Memory Bound Functions</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-17T20:09:15-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/17/why-proof-of-work-algorithms-need-to-use-memory-bound-functions/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Recently I read an article called <a href="http://en.wikipedia.org/wiki/Memory_bound_function">&ldquo;The Problem with Altcoins&rdquo;</a> and the author states this about Litecoin:</p>
+
+<blockquote><p>Scrypt was designed to be a memory hog and is consequently unsuited to mining with a machine consisting almost entirely of ASIC chips, like those used for Bitcoin, and it was assumed that Scrypt-coin mining would therefore always remain in the hands of the GPU owners. This, by the way, is false. If it ever became profitable enough, an ASIC machine could be produced with a shared memory, and it would make GPUs obsolete for Scrypt-mining too.</p></blockquote>
+
+<p>This is something that I hear a lot and it needs to be cleared up.  There are some things <a href="http://en.wikipedia.org/wiki/Application-specific_integrated_circuit">ASICs</a> are not good at.  Where ASICs really shine are problems where you can design a pipeline that the data goes through in a mostly fixed order.  <a href="http://en.wikipedia.org/wiki/SHA-2">SHA256</a> is perfect for ASICs.  Each step of the algorithm requires very little storage.  If I&rsquo;m counting correctly you need 64 32-bit words, 16 16-bit words, and somewhere around 22 32-bit registers.</p>
+
+<p>We&rsquo;re talking about a really small amount of storage here.  ((64 * 4) + (16 * 2) + (22 * 4)) == 376 bytes</p>
+
+<p>Even if we bump it up to 512 bytes it is still a miniscule amount of storage in the grand scheme of all of the kinds of storage that we use today (registers, L1 cache, L2 cache, L3 cache, RAM, and hard drive space).  Because of this it is cheap to make it very, very fast to read and write this data.  Physically it occupies little space so you can put the components for this storage exactly where it needs to go on the chip.</p>
+
+<p>Litecoin, and several other cryptocurrencies, use <a href="http://en.wikipedia.org/wiki/scrypt">scrypt</a> instead of SHA256.  This algorithm was supposed to make mining only feasibly on CPUs.  Modern GPUs though were found to have a bit of an edge over CPUs and the memory requirements weren&rsquo;t high enough to really take GPUs out of the running.</p>
+
+<p>Now there is <a href="http://cpucoinlist.com/cryptocurrency-algorithms/x11/">X11</a>, and <a href="http://cpucoinlist.com/cryptocurrency-algorithms/cryptonight/">CryptoNight</a> which are even harder to implement on ASICs&hellip;</p>
+
+<p>But anyway what I really want to address is this particular section of the statement:</p>
+
+<blockquote><p>an ASIC machine could be produced with a shared memory</p></blockquote>
+
+<p>This is a fundamental misunderstanding of computer architecture.  An ASIC is super fast because it doesn&rsquo;t have a pool of shared memory.  The memory is exactly where it needs to be for each stage.</p>
+
+<p>Do you know what the technical term for &ldquo;ASICs with shared memory&rdquo; is?  A general purpose CPU.  :)  Yes, an ASIC with a pool of memory like this would still have some advantage but not the orders of magnitude we see now.  This is because it would be bound to the same limits a CPU is bound to which is the relatively slow access time of RAM versus the CPU&rsquo;s clock speed.</p>
+
+<p>What can we do to make sure mining stays CPU bound?  We should be using <a href="https://en.wikipedia.org/wiki/Memory_bound_function">memory bound functions</a> which are sometimes also called memory hard problems.  These memory bound functions should require enormous amounts of memory.  More than a Raspberry Pi has, more than a BeagleBone Black, more than a GPU.  I mean ridiculous gobs of memory.  Why not?  If the proof of work function can be adjusted, and it has to be to keep up with Moore&rsquo;s law, we can adjust the work to be easy in the sense that it requires few iterations but tons of memory.  As CPUs and memory get faster and people join the network we just adjust it as we always have.</p>
+
+<p>X11 and CryptoNight seem like a good start but there are still problems with them.  It turns out there is one big benefit from algorithms that are not profitable on CPUs and that is that bot net operators are much less likely to waste their bot net time on mining those currencies.  I have a feeling that X11 and CryptoNight are very profitable to mine on bot nets right now.</p>
+
+<p>Is there a solution to level the playing field?  Considering the bot net angle what does that even mean?  I believe that there is a solution that would allow people to participate with CPUs, not require GPU and ASIC investments, and would prevent bot net operators from profiting on mining.  I&rsquo;ve been thinking about this for over a year and I&rsquo;m getting very close to having what I think is a workable solution.  There still is one hole in it but I think that it may be better than what is out there.  Stay tuned and when I&rsquo;m ready I&rsquo;ll post it on my blog.</p>
+
+<p>BTW, I started this blog post on 2014-01-10 and just finished it on 2014-06-17 so it may be a while before I release something.  Be patient!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">True Remote Debugging With Chrome&#8217;s Remote Debugging Feature</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-17T09:19:34-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/17/true-remote-debugging-with-chromes-remote-debugging-feature/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Have you used <a href="http://blog.chromium.org/2011/05/remote-debugging-with-chrome-developer.html">Chrome&rsquo;s remote debugging feature</a>?  It is a handy tool for debugging JavaScript in another tab/window.</p>
+
+<p>That&rsquo;s nice, but have you ever wanted to debug JavaScript that was running on another machine running Chrome?  If so, and you&rsquo;re running on Mac OS, you&rsquo;ve come to the right place.</p>
+
+<p>The first step in this process is to disable <a href="http://joshuamcginnis.com/2011/02/28/how-to-disable-same-origin-policy-in-chrome/">Chrome&rsquo;s same origin policy</a>.  This may not be necessary in your application but I&rsquo;ve always found I needed to do it in mine.</p>
+
+<p>Now you&rsquo;ll need to make sure you have <a href="http://www.dest-unreach.org/socat/">socat</a> installed.  The easiest way to do this is with <a href="http://brew.sh/">Homebrew</a>.  Install Homebrew, and then run this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install socat</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That will install socat if it isn&rsquo;t installed already.</p>
+
+<p>Now start Chrome remote debugging on the system that you want to connect to.</p>
+
+<p>Next, get socat to relay traffic from port 9223 to port 9222 using this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>socat tcp-listen:9223,fork tcp:localhost:9222</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, try to connect to the remote computer using <em>its IP address, not localhost</em> with a URL like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://IP_ADDRESS:9223</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should be connected to the remote system&rsquo;s debugger using port 9223.</p>
+
+<p>When you are done be sure to do this to stop socat:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>killall socat</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -942,321 +1082,6 @@ This error is expected:</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-02T18:29:05-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I am running Debian on a BeagleBone Black at home as a toy server/sandbox.  One application that I thought would be interesting to run on it was the standard Bitcoin client.  I think it is a bit strange that the latest version of the Bitcoin client (0.8.6 at the time I wrote this) doesn&rsquo;t use &ldquo;configure&rdquo; like most other Linux/Unix applications because it leads to having to track down dependencies during a build rather than before them.  On a normal system this might not be a big deal because Bitcoin compiles in just a minute or so.  On a smaller device like the BeagleBone Black though it means you&rsquo;ll end up checking in on it periodically over a long period of time only to find that it needs another dependency.</p>
-
-<p>In their defense the github version DOES use a &ldquo;configure&rdquo; script.  I found that out after going through a manual build on 0.8.6 so for completeness I&rsquo;ll show how to compile both and you can use whichever one suits your needs.  The configure script on a lean device like the BeagleBone Black still takes quite a while to run though so this should get you through doing the process just once.</p>
-
-<p>You can use either the current stable version today which is 0.8.6 or you can use the bleeding edge github source.  I would recommend 0.8.6 if you want something that is as stable as possible.  When compiling from source you should keep in mind that your build may not be compatible with old wallet formats.</p>
-
-<p>I cannot stress this enough &ndash; IF YOU HAVE AN OLD WALLET YOU ARE BEST OFF USING THE OFFICIAL BINARIES INSTEAD OF BUILDING FROM SOURCE!</p>
-
-<h1>Using version 0.8.6</h1>
-
-<p>If you want to use version 0.8.6 here&rsquo;s what you need to do:</p>
-
-<ul>
-<li>Install the necessary dependencies</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install g++ libboost-dev libdb-dev
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><p>Download the <a href="http://sourceforge.net/projects/bitcoin/files/Bitcoin/bitcoin-0.8.6/bitcoin-0.8.6-linux.tar.gz/download">Bitcoin 0.8.6 source</a></p></li>
-<li><p>Extract the source</p></li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>tar xzvf bitcoin-0.8.6-linux.tar.gz
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Remove the binaries, these are Intel binaries and won&rsquo;t work on the BeagleBone Black anyway</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>rm bitcoin-0.8.6-linux/bin/*/*
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Go to the src directory</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>bitcoin-0.8.6-linux/src/src
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Build the source</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>make -f makefile.unix
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you follow these instructions you should get Bitcoin up and running in just one build cycle.  Here are the commands that you should run:</p>
-
-<h1>Using the latest Bitcoin development version (NOT RECOMMENDED!)</h1>
-
-<p>NOTE: I do not recommend that you use this version.  Currently Debian does not have libdb4.8 in its default repository and the Bitcoin client requires it to maintain compatibility with existing wallet files.</p>
-
-<p>If you want to use the latest development version here&rsquo;s what you need to do:</p>
-
-<ul>
-<li>Install the necessary dependencies</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install g++ libboost-dev libdb-dev git automake pkg-config
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Clone the Bitcoin repository</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone https://github.com/bitcoin/bitcoin.git
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Configure the source</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>bitcoin
-</span><span class='line'>./autogen.sh
-</span><span class='line'>./configure --with-incompatible-bdb
-</span><span class='line'>make
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you&rsquo;ll have the bitcoind executable sitting on your BeagleBone Black.  When you try to run it the first time it will complain that some variables aren&rsquo;t set and that your config is incomplete.  The output will look something like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>debian@arm:~/bitcoin/src/src<span class="nv">$ </span>./bitcoind
-</span><span class='line'>Error: To use bitcoind, you must <span class="nb">set </span>a rpcpassword in the configuration file:
-</span><span class='line'>/home/debian/.bitcoin/bitcoin.conf
-</span><span class='line'>It is recommended you use the following random password:
-</span><span class='line'><span class="nv">rpcuser</span><span class="o">=</span>bitcoinrpc
-</span><span class='line'><span class="nv">rpcpassword</span><span class="o">=</span>XxXXxXXxxxXxXXxXXXXXXxxxxXxxxxxXxXXXXXxXxxXx
-</span><span class='line'><span class="o">(</span>you <span class="k">do </span>not need to remember this password<span class="o">)</span>
-</span><span class='line'>The username and password MUST NOT be the same.
-</span><span class='line'>If the file does not exist, create it with owner-readable-only file permissions.
-</span><span class='line'>It is also recommended to <span class="nb">set </span>alertnotify so you are notified of problems;
-</span><span class='line'><span class="k">for </span>example: <span class="nv">alertnotify</span><span class="o">=</span><span class="nb">echo</span> %s | mail -s <span class="s2">&quot;Bitcoin Alert&quot;</span> admin@foo.com
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What you&rsquo;ll need to do is put these values into the ~/.bitcoin/bitcoin.conf.  Then you can restart bitcoind and it&rsquo;ll run and start grabbing the blockchain.  IT IS INCREDIBLY IMPORTANT THAT YOU DO NOT COPY THE VALUES THAT I PUT HERE.  Your file will look like this (except the rpcpassword will be whatever bitcoind told you):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">rpcuser</span><span class="o">=</span>bitcoinrpc
-</span><span class='line'><span class="nv">rpcpassword</span><span class="o">=</span>XxXXxXXxxxXxXXxXXXXXXxxxxXxxxxxXxXXXXXxXxxXx
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This password gives someone complete access to your bitcoind instance.  If you store money there and use the rpcpassword value that I put above you can and probably will lose it.</p>
-
-<p>Unless you have a giant SD card on your BeagleBone Black you&rsquo;ll probably want to put your blockchain on a different disk.  I have my Synology home directory mounted on my BeagleBone Black via NFS (as explained in another post).  It is mounted at ~/synology.  In order to make sure my blockchain is on my Synology I did the following:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>mkdir ~/synology/bitcoind
-</span><span class='line'>mv ~/.bitcoin/blocks ~/.bitcoin/chainstate ~/.bitcoin/database ~/.bitcoin/db.log ~/.bitcoin/debug.log ~/synology/bitcoind/
-</span><span class='line'>ln -s ~/synology/bitcoind/blocks ~/.bitcoin/blocks
-</span><span class='line'>ln -s ~/synology/bitcoind/chainstate ~/.bitcoin/chainstate
-</span><span class='line'>mkdir -p ~/synology/bitcoind/database
-</span><span class='line'>ln -s ~/synology/bitcoind/database ~/.bitcoin/database
-</span><span class='line'>ln -s ~/synology/bitcoind/db.log ~/.bitcoin/db.log
-</span><span class='line'>ln -s ~/synology/bitcoind/debug.log ~/.bitcoin/debug.log
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You may get a few errors about files not existing when you run this.  This is normal and you should try to proceed and see if it works for you.  I was very careful here to not put bitcoin.conf or the wallet.dat file on the Synology.  You should also avoid putting those files on there.  Since the remote file system is potentially a shared resource an attacker can get into that and modify or steal data.  It&rsquo;s best to keep the wallet.dat, peers.dat, and bitcoin.conf local to your BeagleBone Black.</p>
-
-<p>At this point you can restart bitcoind.  I did this in a screen session rather than make it a true service since I&rsquo;m still playing around with it.  Once I set it up as a service I&rsquo;ll post an update and include that information as well.  I am a bit skeptical that it will stay stable since after just a few hours it is already taking up 50% of the BeagleBone Black&rsquo;s RAM.  I guess I&rsquo;ll just have to wait and see.</p>
-
-<p>Periodically check your free file system space and make sure that the blockchain isn&rsquo;t on your SD card.  In my case I can do this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Show the amount of free space on my SD card</span>
-</span><span class='line'>du -sh /
-</span><span class='line'>
-</span><span class='line'><span class="c"># Show the amount of free space on my Synology NAS</span>
-</span><span class='line'>du -sh ~/synology/
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Good luck and post in the comments if this helps you out or if you need any assistance.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Connecting a BeagleBone Black to a Synology NAS With NFS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-02T06:52:06-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/connecting-a-beaglebone-black-to-a-synology-nas-with-nfs/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I originally purchased my Synology NAS because of all of the packages that it offers and the fact that it was supposed to give me one less thing to manage.  After a few failed attempts at getting OpenVPN to work and some Plex issues I decided that I needed to have something a little less opaque that I could install different packages on.  I wanted something small, low power, and solid state so I decided to use the BeagleBone Black.</p>
-
-<p>I tried using both CIFS/Samba and sshfs to mount the Synology&rsquo;s filesystem but both of them had extremely strange issues with the applications I planned on using.  I wouldn&rsquo;t recommend either of them for production work involving Linux and NAS.  Often it would tell me that files didn&rsquo;t exist even though I could clearly see they were there.  After moving to NFS none of this happened anymore.</p>
-
-<p>NOTE: Security here is all done by IP address so this is not suitable for a sensitive environment!</p>
-
-<p>Here are the steps I went through to connect my first enable and configure NFS on my Synoloy NAS:</p>
-
-<ol>
-<li>Make sure your BeagleBone Black has a static IP and that you know what it is</li>
-<li>Log into the Synology web GUI as an admin</li>
-<li>Click &ldquo;Control Panel&rdquo;</li>
-<li>Click &ldquo;Win/Mac/NFS&rdquo;</li>
-<li>Click &ldquo;NFS Service&rdquo;</li>
-<li>Make sure that &ldquo;Enable NFS&rdquo; and &ldquo;Enable NFSv4 support&rdquo; are checked</li>
-<li>Click the link that says &ldquo;Shared Folder&rdquo;</li>
-<li>Find and select the directory you want to share.  In my case it was my user account&rsquo;s home directory so I selected &ldquo;homes&rdquo;.</li>
-<li>Click the &ldquo;Privileges&rdquo; drop down</li>
-<li>Select &ldquo;NFS Privileges&rdquo;</li>
-<li>Click &ldquo;Create&rdquo;</li>
-<li>Enter your BeagleBone Black&rsquo;s IP address into the &ldquo;Hostname or IP&rdquo; field</li>
-<li>Make sure that the &ldquo;Privilege&rdquo; field is set to &ldquo;Read/Write&rdquo;</li>
-<li>Make sure that the &ldquo;Root squash&rdquo; field is set to &ldquo;No mapping&rdquo;</li>
-<li>Make sure that &ldquo;Enable asynchronous&rdquo; is checked</li>
-<li>Make sure that &ldquo;Allow connections from non-privileged ports (ports higher than 1024&rdquo; is NOT checked</li>
-<li>Click &ldquo;OK&rdquo; in the &ldquo;Create an NFS rule&rdquo; popup</li>
-<li>Take note of the &ldquo;Mount path&rdquo; field in the &ldquo;Edit NFS privileges of homes&rdquo; window, you&rsquo;ll need this later</li>
-<li>Click &ldquo;OK&rdquo; in the &ldquo;Edit NFS privileges of homes&rdquo; window</li>
-<li>Log out of the Synology web GUI</li>
-</ol>
-
-
-<p>Now you have your Synology all set up to accept NFS connections from your BeagleBone Black.  Here are the steps to do that:</p>
-
-<ol>
-<li>Connect to your BeagleBone Black via SSH as a user that can run sudo</li>
-<li>Install the NFS utilities and client by running &ldquo;sudo apt-get install nfs-common&rdquo;</li>
-<li>Go to your home directory</li>
-<li>Create a directory for your Synology mount point.  I chose &ldquo;synology&rdquo;.</li>
-<li>Mount your directory using the &ldquo;Mount path&rdquo; from above along with any additional paths to get you to the desired directory you want.  My mount path was &ldquo;/volume1/homes&rdquo; but I wanted &ldquo;/volume1/homes/tim&rdquo; for my actual home directory.  The command I used was &ldquo;sudo mount -t nfs synology:/volume1/homes/tim /home/tim/synology/&rdquo;</li>
-<li>Test out your newly mounted Synology NAS</li>
-</ol>
-
-
-<p>You can now add this to your /etc/fstab file if you&rsquo;d like but I prefer to keep it in a script.  I have a script called mount-nfs.sh in my home directory that I run when necessary since I&rsquo;m still testing out NFSv4.  Once I get it stable I&rsquo;ll make sure that I get it to mount automatically the proper way and update this post.</p>
-
-<h1>Potential issues</h1>
-
-<p>If you receive an error message that says &ldquo;mount.nfs: access denied by server while mounting synology&rdquo; you probably have the wrong IP for your BeagleBone Black in the Synology configuration.</p>
-
-<p>If it appears to mount the volume but no files show up try unmounting it and re-mounting it.  If you unmount it successfully and when re-mounting it again it complains that the device is busy it is possible that your BeagleBone Black&rsquo;s IP address changed.  This happened on my test machine when its IP went from 192.168.1.109 to 192.168.1.110.  It didn&rsquo;t give me the access denied error message but instead exhibited this weird behavior.  If this is the case make sure you have your IP assigned statically, reboot the BeagleBone Black, verify the static IP in the Synology configuration again, and then try re-mounting the path.  After that mine started working again.</p>
-
-<p>Good luck!  Post any success stories or issues in the comments.  I&rsquo;ll do my best to help out if possible.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/5/">&larr; Older</a>
@@ -1270,11 +1095,6 @@ This error is expected:</p>
 <aside class="sidebar">
   
     <section>
-	<h1>Like this site/article?  Donate with Bitcoin!</h1>
-	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
-	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
-</section>
-<section>
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- Sidebar -->
 <ins class="adsbygoogle"
@@ -1290,6 +1110,14 @@ This error is expected:</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
       </li>
     
@@ -1299,14 +1127,6 @@ This error is expected:</p>
     
       <li class="post">
         <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
       </li>
     
   </ul>

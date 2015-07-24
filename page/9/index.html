@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Are you looking for a no-nonsense way to install all of these applications and don&rsquo;t want to dig through any documentation?  Just run this list &hellip;">
+  <meta name="description" content="For a brief period of time I was totally sold on Bazaar (AKA bzr) for my distributed version control needs.  Then I found out about github and the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,161 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/">How-To: Convert From Bzr to Git on Debian/Ubuntu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-13T17:41:14-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>For a brief period of time I was totally sold on <a href="http://bazaar.canonical.com/en/">Bazaar</a> (AKA bzr) for my distributed version control needs.  Then I found out about <a href="http://github.com">github</a> and the rest is history.  bzr is neat and has it&rsquo;s advantages but github is just too hot a community to pass up.  Building skills on both would be great but realistically I&rsquo;m only going to get good at the one that I use consistently.  So, git wins for me.</p>
+
+<p>When I was using bzr I accumulated a bunch of code in bzr repositories that I now want to convert to git.  There are a bunch of tutorials out there on how to do this but they all didn&rsquo;t work for some reason or another.  Here I have step by step instructions on how to move from bzr to git, with any branches you have created, that should work without fuss on both Debian and Ubuntu.</p>
+
+<p>These instructions assume the following:</p>
+
+<ol>
+<li><p> You have a bzr repository that you&rsquo;d like to become your master git branch that currently resides in a directory called bzr-master.</p></li>
+<li><p> You have one branch you&rsquo;d like to bring into git as &ldquo;branch-1&rdquo; that currently resides in a directory called bzr-branch-1.</p></li>
+<li><p> You want to call your new repository git-repo.</p></li>
+</ol>
+
+
+<p>Obviously, you will have different master and branch names so fill those in appropriately.  They are bold faced and italicized where you will need to replace the names.</p>
+
+<ul>
+<li><p>Step 1: Install bzr.</p>
+
+<p>sudo apt-get install bzr</p></li>
+<li><p>Step 2: Install bzr-fastimport.</p>
+
+<p>sudo apt-get install bzr-fastimport</p></li>
+<li><p>Step 3: Go to the parent directory that contains your two bzr branches in your shell.</p></li>
+<li><p>Step 4: Create the new git repository and stay in that directory</p>
+
+<p>mkdir <strong><em>git-repo</em></strong> ; cd <strong><em>git-repo</em></strong> ; git init .</p></li>
+<li><p>Step 5: Pull the master branch into git</p>
+
+<p>bzr fast-export &mdash;export-marks=../marks.bzr ../<strong><em>bzr-master</em></strong> | git fast-import &mdash;export-marks=../marks.git</p></li>
+<li><p>Step 6: Pull branch-1 into git</p>
+
+<p>bzr fast-export &mdash;marks=../marks.bzr &mdash;git-branch=branch-1 ../<strong><em>bzr-branch-1</em></strong> | git fast-import &mdash;import-marks=../marks.git &mdash;export-marks=../marks.git</p></li>
+</ul>
+
+
+<p>Now if you do a git branch you should see the master branch as well as branch-1.  Check the logs to make sure they&rsquo;re complete, nuke the marks.bzr and marks.git files, and then push them to github!  :)</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/">How-To: Secure Your WordPress Blog With Two-factor Authentication</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-13T10:06:25-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Don&rsquo;t care about the narrative?  Jump to the <a href="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/#instructions">instructions</a>.</p>
+
+<p>These days password security is paramount.  In recent news we have seen several high-profile breaches against <a href="http://www.telegraph.co.uk/technology/news/8553979/Sony-hack-private-details-of-million-people-posted-online.html">Sony</a>, <a href="http://www.rsa.com/node.aspx?id=3891">RSA</a>, and <a href="http://www.theregister.co.uk/2011/06/13/games_firm_epic_breach/">Epic</a> where passwords were lost, mission-critical keys were pilfered, and user details were leaked, respectively.</p>
+
+<p>Security professionals understand that multi-factor authentication is important.  Multi-factor authentication means that you access resources using something you know (ie. a password) and something you have (ie. a token that generates a unique code each time it is used).  This way someone would need to know your username, password, and have your token to gain access to whatever you are protecting.  Without any one of those things they will be denied access.  With a secure token even if they capture the data as it goes across the wire the token can only be used once.  If they attempt to reuse it they will be denied access yet again.</p>
+
+<p>Previously RSA was the place to go for this kind of security and it was too expensive for individuals to use.  But now a company called <a href="http://yubico.com/">Yubico</a> offers affordable tokens that can be used for a multitude of applications (<a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/YubiCloud">online services</a>, <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Enterprisesecuritysolutions">enterprise security solutions</a>, <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Otherenterprisesolutions">enterprise services</a>, and <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Opensource">open-source applications</a>).  If you have custom needs they also have a <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Systemintegrators">world-wide list of system integrators</a> that can help you through it.</p>
+
+<p>With the Yubikey Wordpress plugin you can now add this security to your Wordpress blog and make sure that your password and account information can&rsquo;t be nabbed by someone looking over your shoulder at a coffee shop.  Installing the plugin isn&rsquo;t hard but there are some things that are easy to miss.  To help you out I&rsquo;ve laid out all the steps from start to finish including testing and verification.  Here goes&hellip;</p>
+
+<p><strong>NOTE:</strong> You will not be able to complete beyond step 2 until you receive your Yubikey(s) in the mail.</p>
+
+<p>There are a lot of steps here but it is broken down into very small chunks.  Installation should take less than 5 minutes from start to finish.</p>
+
+<ul>
+<li><p>Step 1: Obtain a Yubikey (<a href="https://store.yubico.com/store/catalog/product_info.php?ref=232&amp;products_id=2&amp;affiliate_banner_id=1">YubiKey in Black</a>, <a href="https://store.yubico.com/store/catalog/product_info.php?ref=232&amp;products_id=3&amp;affiliate_banner_id=1">YubiKey in White</a>)</p></li>
+<li><p>Step 2: <a href="https://upgrade.yubico.com/getapikey/">Get an API key</a>.  Your API key is a client ID (a number) and a secret key (a long string).  Copy these to a safe place and make sure you copy the entire secret key.  It ends with an equals sign &ldquo;=&rdquo; and won&rsquo;t work without it!</p></li>
+<li><p>Step 3: Download the <a href="http://downloads.wordpress.org/plugin/yubikey-plugin.0.94.zip">Wordpress plugin for Yubikey authentication</a> to your computer</p></li>
+<li><p>Step 4: Sign into your Wordpress blog as an administrator.  If you are the only user on your blog then you are the administrator.</p></li>
+<li><p>Step 5: Click on the &ldquo;Plugins&rdquo; link on the left side of the screen</p></li>
+<li><p>Step 6: Click &ldquo;Add New&rdquo; either on the top or the left side of the screen.  They both go to the same place.</p></li>
+<li><p>Step 7: Click the &ldquo;Upload&rdquo; link on the top of the screen directly below &ldquo;Install Plugins&rdquo;</p></li>
+<li><p>Step 8: Click &ldquo;Browse&rdquo; and find the ZIP file you downloaded in step 3.  Then click &ldquo;Install Now&rdquo;.</p></li>
+<li><p>Step 9: Click &ldquo;Activate&rdquo;.</p></li>
+<li><p>Step 10: Click &ldquo;Settings&rdquo; on the left side of the screen.</p></li>
+<li><p>Step 11: Click &ldquo;Yubikey&rdquo; on the left side of the screen below &ldquo;Settings&rdquo;.  If there is no &ldquo;Yubikey&rdquo; link then click &ldquo;Plugins&rdquo; and make sure the Yubikey plugin is in the list and activated.  If it has a link that says &ldquo;Activate&rdquo; click it and go back to step 10.</p></li>
+<li><p>Step 12: Enter your client ID in the &ldquo;Yubico API ID&rdquo; field and your secret key in the &ldquo;Yubico API key&rdquo; field.  Make sure the equals sign &ldquo;=&rdquo; isn&rsquo;t missing from the end of the secret key.</p></li>
+<li><p>Step 13: Click &ldquo;Users&rdquo; on the left side of the screen.</p></li>
+<li><p>Step 14: Find and click on the username of the account that you want to enable the Yubikey on.  If you are the only user then this may be &ldquo;admin&rdquo;.</p></li>
+<li><p>Step 15: Locate the &ldquo;Yubikey Settings&rdquo; section and change the option from &ldquo;Disabled&rdquo; to &ldquo;Use Yubico server&rdquo;.</p></li>
+<li><p>Step 16: Click on the text box next to &ldquo;Key ID 1&rdquo;.</p></li>
+<li><p>Step 17: Insert your Yubikey.</p></li>
+<li><p>Step 18: Press the button on your Yubikey for two seconds and the form will fill in.</p></li>
+<li><p>Step 19: Scroll down to the bottom of the page and click &ldquo;Update profile&rdquo;.</p></li>
+<li><p>Step 20: Log out and try to log in with your Yubikey!</p></li>
+</ul>
+
+
+<p>When you get to your login screen you will now see a new field labeled &ldquo;Yubikey OTP&rdquo;.  When you log in now you&rsquo;ll enter your username and password as you used to but then you&rsquo;ll click in the Yubikey OTP box, plug your Yubikey in, and press the button.  That will complete your login process.</p>
+
+<p>One thing you MUST do before you consider this task done is test to make sure the Yubikey authentication isn&rsquo;t disabled.  A lot of people miss this and don&rsquo;t realize that their token isn&rsquo;t actually enabled.  To test this try logging in to your site but instead of using the Yubikey in the Yubikey OTP field just type some random characters.  If it still lets you log in you need to go back and do step 15 and then step 19 again.  Test it again and make sure it works.  If it is set up properly it will tell you your password is incorrect when you type random characters in the OTP field.</p>
+
+<p>Good luck and post any questions in the comments.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -519,104 +674,6 @@ $body = $body . $line;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/12/15/how-to-fix-chrome-os-networking-problems-in-vmware-fusion/">How-To: Fix Chrome OS Networking Problems in VMware Fusion</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-12-15T07:54:00-05:00" pubdate data-updated="true">Dec 15<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/12/15/how-to-fix-chrome-os-networking-problems-in-vmware-fusion/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/15/how-to-fix-chrome-os-networking-problems-in-vmware-fusion/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>gdgt has <a href="http://gdgt.com/google/chrome-os/download/">released a VMware image for Chrome OS</a> this week.  It works on all versions of VMware (not sure about ESX though), Virtual Box, and Parallels.  When I started it up in VMware Fusion I kept getting the message &ldquo;Network not connected and offline login fail&rdquo;.</p>
-
-<p>The instructions explicitly say to switch from NAT to bridged but some users have found that it actually does work just fine with NAT.  In my case it still didn&rsquo;t work with either.  <a href="http://discuss.gdgt.com/google/chrome-os/general/Download-Chrome-OS-VMWare-image/page/2/">Luckily someone on the forums let us in on the secret</a> that you actually don&rsquo;t need a Google account at all to use this build.</p>
-
-<p>If you want to try Chrome OS and you&rsquo;re having networking problems or you don&rsquo;t have a Google account just sign in as &ldquo;<a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#58;&#x63;&#x68;&#114;&#111;&#110;&#x6f;&#115;&#64;&#x67;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#x6f;&#109;">&#x63;&#104;&#x72;&#x6f;&#x6e;&#111;&#x73;&#x40;&#103;&#x6d;&#97;&#x69;&#108;&#46;&#99;&#x6f;&#x6d;</a>&rdquo; (you can just type &ldquo;chronos&rdquo; and the OS will add &ldquo;@gmail.com&rdquo;) with no password.  You&rsquo;ll be brought straight into the OS without having to sign into Google first.</p>
-
-<p>Surprisingly, after doing that the networking system came to life and I could log into GMail and check other sites.  If you&rsquo;re hung up on getting past the initial login screen definitely try the &ldquo;chronos&rdquo; account and let me know if it works for you.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/">Tip: Monitor Networked Devices Aurally With Ping on Mac OS and Linux</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-12-07T18:59:59-05:00" pubdate data-updated="true">Dec 7<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/12/07/tip-monitor-networked-devices-aurally-with-ping-on-mac-os-and-linux/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I work with embedded Ethernet devices a lot and I need to monitor them to know exactly when they restart or if they go down during testing.  I used to do it with ping sitting on an external monitor and just glance up at it every few minutes to see what&rsquo;s happening.  This is a less than optimal solution since it requires me to constantly be distracted by a stream of information, it eats up screen real estate, and it forces me to keep an electron inhaling LCD panel running.</p>
-
-<p>I just discovered that the standard ping utility in Linux and Mac OS has a neat feature to alleviate this pain.  It will output an audible bell on every packet either received (showing a device is online) or missed (showing a device is offline). It&rsquo;s your choice which one you use, of course.  Personally, I have only needed the offline alert since I just need to be able to get into devices to see what they&rsquo;re doing immediately after a planned restart.</p>
-
-<p>To get audible notification for every packet missed do this:</p>
-
-<pre><code>ping -A hostname
-</code></pre>
-
-<p>To get audible notification for every packet received do this:</p>
-
-<pre><code>ping -a hostname
-</code></pre>
-
-<p>Now you can work without distraction until you hear those <a href="http://en.wikipedia.org/wiki/Bell_character">BEL</a>s.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -630,11 +687,6 @@ $body = $body . $line;
 <aside class="sidebar">
   
     <section>
-	<h1>Like this site/article?  Donate with Bitcoin!</h1>
-	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y"><img src="http://blockchain.info/qr?data=1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y&size=200" alt="Bitcoin"></a>
-	<a href="bitcoin:1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y">1PcYJnuZPZFWUMUHzzBGHHshEbrVzYpY9Y</a>
-</section>
-<section>
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- Sidebar -->
 <ins class="adsbygoogle"
@@ -650,6 +702,14 @@ $body = $body . $line;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+    
+      <li class="post">
+        <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
       </li>
     
@@ -659,14 +719,6 @@ $body = $body . $line;
     
       <li class="post">
         <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os/">Activating U2F on a Yubikey Neo on Mac OS</a>
       </li>
     
   </ul>
