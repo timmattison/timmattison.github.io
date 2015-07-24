@@ -9,8 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="If you&rsquo;re used pvmove before you might be in the habit of doing the following: Determining where you want to move an extent (new_start)
-Getting &hellip;">
+  <meta name="description" content="I just tried to upgrade trac on my Gentoo box to get back into the swing of tracking and squashing bugs. Gentoo was having none of it and reported & &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -92,6 +91,63 @@ Getting &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/02/how-to-fix-importerror-no-module-named-webappconfig-config-on-gentoo/">How-To: Fix &#8220;ImportError: No Module Named WebappConfig.config&#8221; on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-02T18:59:59-05:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/02/how-to-fix-importerror-no-module-named-webappconfig-config-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/02/how-to-fix-importerror-no-module-named-webappconfig-config-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I just tried to upgrade <a href="http://trac.edgewall.org/">trac</a> on my Gentoo box to get back into the swing of tracking and squashing bugs.  Gentoo was having none of it and reported &ldquo;ImportError: No module named WebappConfig.config&rdquo;. That error by itself isn&rsquo;t terribly helpful so in order to fix it I determined you usually need to do a few things. If you aren&rsquo;t installing trac, replace trac in these steps to the application you are trying to install.</p>
+
+<p>Step 1) Run</p>
+
+<pre><code>python-updater
+</code></pre>
+
+<p>This can take a LONG time so be ready to wait.</p>
+
+<p>Step 2) Try to run trac.  If that doesn&rsquo;t work, go on to step 3.  If it does, you&rsquo;re done.</p>
+
+<p>Step 3) Try to emerge trac again.  If that doesn&rsquo;t work, go on to step 4.</p>
+
+<p>Step 4) Run</p>
+
+<pre><code>emerge webapp-config
+</code></pre>
+
+<p>trac should be updated by python-updater but the three other steps are just a backup to be extra sure that everything is installed properly.  After jumping through those hoops you should be back online again.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -728,107 +784,6 @@ sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/09/19/how-to-get-your-fxplug-plugins-back-on-mac-os-10-6/">How-To: Get Your FxPlug Plugins Back on Mac OS 10.6</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-09-19T13:11:10-04:00" pubdate data-updated="true">Sep 19<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/09/19/how-to-get-your-fxplug-plugins-back-on-mac-os-10-6/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/09/19/how-to-get-your-fxplug-plugins-back-on-mac-os-10-6/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Please pass this link around as much as you&rsquo;d like but don&rsquo;t copy the content directly.  I have no popups, AdSense, etc.  I just want to keep track of whether or not this information is useful to others.</p>
-
-<p>Are your FxPlug plugins mysteriously missing in Final Cut or Final Cut Express?  I had the same problem and after a complete reinstall and some other voodoo I have finally found out the cause and, amazingly, a fix for this issue.</p>
-
-<p>This fix involves using the Terminal, downloading some files, and mucking around with the system a bit.  I&rsquo;ve done all of the research so it should be a copy and paste job but if you don&rsquo;t know what you&rsquo;re doing you could inadvertently break other things.  Don&rsquo;t do this without doing a system backup.  If you depend on your Mac to make your living you should try this out on a test machine first.  You do have a test machine, don&rsquo;t you?</p>
-
-<p>So, here we are, my FxPlugins didn&rsquo;t work.  I did a complete reinstall of the operating system and reinstalled Final Cut Express 4.  After that, things worked beautifully.  I couldn&rsquo;t leave well enough alone though and just a few days later they stopped working again.</p>
-
-<p>The reason?  I&rsquo;m a developer and I want to make FxPlug plugins myself.  To do that you need to install the FxPlug SDK.  The FxPlug SDK is what breaks the FxPlug framework.  It installs a new version of the FxPlug executable that simply doesn&rsquo;t work.</p>
-
-<p>The solution?  I&rsquo;m assuming that your FxPlug plugins don&rsquo;t work already.  If they work now but you want to install the SDK then skip down to the bottom and there are some more simple instructions.</p>
-
-<p>Restoring broken FxPlug functionality:</p>
-
-<p>Step 1: Close all Pro applications (Final Cut, Final Cut Express, Motion, Aperture, etc)</p>
-
-<p>Step 2: Download the <a href="http://www.apple.com/downloads/macosx/apple/application_updates/pluginmanager173.html">Apple Plugin Manager v1.7.3</a></p>
-
-<p>Step 3: Do the following in the Terminal&hellip;</p>
-
-<pre><code>sudo cp -R /Library/Frameworks/FxPlug.framework /tmp/FxPlug.framework-backup
-sudo rm -rf /Library/Frameworks/FxPlug.framework
-</code></pre>
-
-<p>Step 4: Now, run the Apple Plugin Manager v1.7.3 from step 2</p>
-
-<p>Step 5: Restart Final Cut or Final Cut Express and your FxPlug plugins should all be back.  You have a backup copy of your original FxPlug.framework in /tmp if anything goes wrong or you want to restore that version for some reason.</p>
-
-<p>Now, if you want to install the SDK you must start with a working system.  If your system doesn&rsquo;t work yet just do the instructions above.  Then, move onto these instructions.</p>
-
-<p>Installing the FxPlug v1.2.4 SDK and maintaining FxPlug functionality in Pro applications:</p>
-
-<p>Step 1: Download the <a href="https://connect.apple.com/cgi-bin/WebObjects/MemberSite.woa/wa/getSoftware?bundleID=20458">FxPlug SDK v1.2.4</a> (requires an ADC account)</p>
-
-<p>Step 2: Do the following in the Terminal&hellip;</p>
-
-<pre><code>sudo cp /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug.working
-</code></pre>
-
-<p>Step 3: Install the SDK</p>
-
-<p>Step 4: Do the following in the Terminal&hellip;</p>
-
-<pre><code>sudo cp /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug.not-working
-sudo cp /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug.working /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug
-</code></pre>
-
-<p>That&rsquo;s it, you&rsquo;re up and running and the SDK is installed.  Backup copies are made of all of the files so you can switch back whenever you want.  Just make sure that all Pro applications are closed when you switch the FxPlug executable.</p>
-
-<p>Just for the extra nerd factor run this in Terminal:</p>
-
-<p>shasum /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug*</p>
-
-<p>And you should get this output:</p>
-
-<p>ae8767bc7d86071b202415aa69cc6c9db451300c  /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug</p>
-
-<pre><code>0da60e74be49c73f4fec3a146378e05b3dc4c974  /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug.not-working
-
-ae8767bc7d86071b202415aa69cc6c9db451300c  /Library/Frameworks/FxPlug.framework/Versions/Current/FxPlug.working
-</code></pre>
-
-<p>If you see that, everything should work just fine until the next Apple update.  :)</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/13/">&larr; Older</a>
@@ -857,6 +812,10 @@ ae8767bc7d86071b202415aa69cc6c9db451300c  /Library/Frameworks/FxPlug.framework/V
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
       </li>
     
@@ -870,10 +829,6 @@ ae8767bc7d86071b202415aa69cc6c9db451300c  /Library/Frameworks/FxPlug.framework/V
     
       <li class="post">
         <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
   </ul>

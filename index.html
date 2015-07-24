@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Are you using Guava&rsquo;s event bus in your Java project? Do you need to test and validate interactions with the event bus but are having trouble? &hellip;">
+  <meta name="description" content="There seems to be a common problem I&rsquo;ve seen in app developer threads. CloudKit provides tons of functionality to run your app without your own &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,64 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-07-24T09:20:15-04:00" pubdate data-updated="true">Jul 24<span>th</span>, 2015</time>
+        
+           | <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>There seems to be a common problem I&rsquo;ve seen in app developer threads.  CloudKit provides tons of functionality to run your app without your own infrastructure but it only runs the APIs they provide.  There is an Android syncing API that provides similar things but with the same limitations.  Lots of app developers are really cheap because they&rsquo;re testing the water to see if their app is worth spending money on or not.</p>
+
+<p>The problem: You need to do some simple processing on a data set and give the processed data set to your users.</p>
+
+<p>The solution: Run a scheduled job that processes the data and puts it in S3.</p>
+
+<p>The constraints: You are not willing to run even a t2.micro instance 24/7 to support this because the job only takes a few minutes per month to run.  You don&rsquo;t want to run it on your laptop since it needs to run reliably exactly once per day.</p>
+
+<p>I think it&rsquo;s a fun exercise to see how this problem can be solved.  As I&rsquo;m learning more and more about AWS there seem to be multiple ways to do it so I&rsquo;m interested in seeing what other people come up with.</p>
+
+<p>Some possible solutions I&rsquo;ve seen so far:</p>
+
+<ul>
+<li><p><a href="https://www.youtube.com/watch?v=UFj27laTWQA&amp;feature=youtu.be&amp;t=42m50s">AWS Lambda plans to offer support for &ldquo;timed events&rdquo;</a> but it isn&rsquo;t there yet</p></li>
+<li><p>The <a href="https://alestic.com/2015/05/aws-lambda-recurring-schedule/">Unreliable Town Clock setup</a>, another AWS Lambda technique</p></li>
+<li><p><a href="http://stackoverflow.com/a/31415241/796579">SQS, plus CloudWatch, plus SNS, plus Lambda</a>, sounds elaborate but actually this is my favorite so far since it is available now and doesn&rsquo;t depend on the Unreliable Town Clock.  However, there are gotchas with it.</p></li>
+</ul>
+
+
+<p>How would you do it?</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1396,67 +1454,6 @@ Hash type: 01000000
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Rid Yourself of Smart Quotes, Smart Dashes, and Automatic Spelling Correction on Mac OS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-04T08:45:12-04:00" pubdate data-updated="true">Sep 4<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Have you ever pasted working a bash script or piece of code into a text editor and had it fail to work when you copied it back out later?  You&rsquo;ve probably fallen victim to smart quotes, smart dashes, or automatic spelling correction.</p>
-
-<p>For example, during development I write scripts in Evernote and two very common things happen:</p>
-
-<ul>
-<li><code>aws</code> is persistently and annoyingly replaced by the word &ldquo;was&rdquo;</li>
-<li>Commands that include double or single quotes have those quotes replaced with scripting hostile quotes that shells don&rsquo;t understand</li>
-</ul>
-
-
-<p>In Mac OS we can fix this in a few steps:</p>
-
-<ol>
-<li>Open System Preferences and click on Keyboard <img src="images/smart-quotes-mac-os/step-1.png" alt="Keyboard" /></li>
-<li>Click &ldquo;Text&rdquo; <img src="images/smart-quotes-mac-os/step-2.png" alt="Keyboard" /></li>
-<li>Uncheck &ldquo;Use smart quotes and dashes&rdquo; <img src="images/smart-quotes-mac-os/step-3.png" alt="Keyboard" /></li>
-<li>Uncheck &ldquo;Correct spelling automatically&rdquo; <img src="images/smart-quotes-mac-os/step-4.png" alt="Keyboard" /></li>
-</ol>
-
-
-<p>You&rsquo;re done!  Now your settings should look like this and these &ldquo;smart&rdquo; features will never bother you again:</p>
-
-<p><img src="images/smart-quotes-mac-os/step-5.png" alt="Keyboard" /></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1483,6 +1480,10 @@ Hash type: 01000000
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
       </li>
     
@@ -1496,10 +1497,6 @@ Hash type: 01000000
     
       <li class="post">
         <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
   </ul>

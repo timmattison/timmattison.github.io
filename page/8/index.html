@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I found myself recently trying to determine where a particular piece of code was that was polluting my stdout stream with hundreds of unwanted &hellip;">
+  <meta name="description" content="If you are reading this article I, unlike the rest of the Internet, will assume you have a good reason to run Teamviewer as root. I won&rsquo;t spend &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,56 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/11/01/how-to-run-teamviewer-6-as-root-in-linux-debian-ubuntu/">How-To: Run TeamViewer 6 as Root in Linux (Debian, Ubuntu)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-11-01T15:40:16-04:00" pubdate data-updated="true">Nov 1<span>st</span>, 2011</time>
+        
+           | <a href="/archives/2011/11/01/how-to-run-teamviewer-6-as-root-in-linux-debian-ubuntu/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/11/01/how-to-run-teamviewer-6-as-root-in-linux-debian-ubuntu/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you are reading this article I, unlike the rest of the Internet, will assume you have a good reason to run Teamviewer as root.  I won&rsquo;t spend my time trying to talk you out of it.  :)</p>
+
+<p>You can accomplish this in just a few quick steps:</p>
+
+<p>1) Install Teamviewer 6
+2) Try to run it as root, if you get the message &ldquo;TeamViewer must not be executed as root!&rdquo; go on to step 3.  Otherwise, you are already set up.
+3) Open /opt/teamviewer/teamviewer/6/bin/wrapper in your favorite text editor
+4) Look for a line similar to this: &ldquo;validate_user                  # die if root&rdquo;
+5) Put a single hash/octothorpe in front of the line and save it so it looks like &ldquo;#validate_user              # die if root&rdquo;.
+6) Restart Teamviewer as root and you&rsquo;re good to go</p>
+
+<p>Post in the comments if you used this tip and let me know if you run into any trouble.  This should work on other versions of Linux but the files may be in different places.  If you want to find your operating system&rsquo;s copy of &ldquo;wrapper&rdquo; try running &ldquo;locate wrapper | grep -i teamviewer&rdquo; and it should come up in the list.  If you don&rsquo;t have locate installed you can try the much slower: &ldquo;find / -name &#8220;wrapper&rdquo; | grep -i teamviewer&#8221; to do the same thing.  Good luck!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -706,80 +756,6 @@ INFO: Server startup in 18871 ms
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/">How-To: Convert From Bzr to Git on Debian/Ubuntu</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-06-13T17:41:14-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
-        
-           | <a href="/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>For a brief period of time I was totally sold on <a href="http://bazaar.canonical.com/en/">Bazaar</a> (AKA bzr) for my distributed version control needs.  Then I found out about <a href="http://github.com">github</a> and the rest is history.  bzr is neat and has it&rsquo;s advantages but github is just too hot a community to pass up.  Building skills on both would be great but realistically I&rsquo;m only going to get good at the one that I use consistently.  So, git wins for me.</p>
-
-<p>When I was using bzr I accumulated a bunch of code in bzr repositories that I now want to convert to git.  There are a bunch of tutorials out there on how to do this but they all didn&rsquo;t work for some reason or another.  Here I have step by step instructions on how to move from bzr to git, with any branches you have created, that should work without fuss on both Debian and Ubuntu.</p>
-
-<p>These instructions assume the following:</p>
-
-<ol>
-<li><p> You have a bzr repository that you&rsquo;d like to become your master git branch that currently resides in a directory called bzr-master.</p></li>
-<li><p> You have one branch you&rsquo;d like to bring into git as &ldquo;branch-1&rdquo; that currently resides in a directory called bzr-branch-1.</p></li>
-<li><p> You want to call your new repository git-repo.</p></li>
-</ol>
-
-
-<p>Obviously, you will have different master and branch names so fill those in appropriately.  They are bold faced and italicized where you will need to replace the names.</p>
-
-<ul>
-<li><p>Step 1: Install bzr.</p>
-
-<p>sudo apt-get install bzr</p></li>
-<li><p>Step 2: Install bzr-fastimport.</p>
-
-<p>sudo apt-get install bzr-fastimport</p></li>
-<li><p>Step 3: Go to the parent directory that contains your two bzr branches in your shell.</p></li>
-<li><p>Step 4: Create the new git repository and stay in that directory</p>
-
-<p>mkdir <strong><em>git-repo</em></strong> ; cd <strong><em>git-repo</em></strong> ; git init .</p></li>
-<li><p>Step 5: Pull the master branch into git</p>
-
-<p>bzr fast-export &mdash;export-marks=../marks.bzr ../<strong><em>bzr-master</em></strong> | git fast-import &mdash;export-marks=../marks.git</p></li>
-<li><p>Step 6: Pull branch-1 into git</p>
-
-<p>bzr fast-export &mdash;marks=../marks.bzr &mdash;git-branch=branch-1 ../<strong><em>bzr-branch-1</em></strong> | git fast-import &mdash;import-marks=../marks.git &mdash;export-marks=../marks.git</p></li>
-</ul>
-
-
-<p>Now if you do a git branch you should see the master branch as well as branch-1.  Check the logs to make sure they&rsquo;re complete, nuke the marks.bzr and marks.git files, and then push them to github!  :)</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -808,6 +784,10 @@ INFO: Server startup in 18871 ms
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
       </li>
     
@@ -821,10 +801,6 @@ INFO: Server startup in 18871 ms
     
       <li class="post">
         <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
   </ul>

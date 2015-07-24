@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I originally purchased my Synology NAS because of all of the packages that it offers and the fact that it was supposed to give me one less thing to &hellip;">
+  <meta name="description" content="I am running Debian on a BeagleBone Black at home as a toy server/sandbox. One application that I thought would be interesting to run on it was the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,230 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Compiling Bitcoind on the BeagleBone Black</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-02T18:29:05-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+        
+           | <a href="/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/compiling-bitcoind-on-the-beaglebone-black/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am running Debian on a BeagleBone Black at home as a toy server/sandbox.  One application that I thought would be interesting to run on it was the standard Bitcoin client.  I think it is a bit strange that the latest version of the Bitcoin client (0.8.6 at the time I wrote this) doesn&rsquo;t use &ldquo;configure&rdquo; like most other Linux/Unix applications because it leads to having to track down dependencies during a build rather than before them.  On a normal system this might not be a big deal because Bitcoin compiles in just a minute or so.  On a smaller device like the BeagleBone Black though it means you&rsquo;ll end up checking in on it periodically over a long period of time only to find that it needs another dependency.</p>
+
+<p>In their defense the github version DOES use a &ldquo;configure&rdquo; script.  I found that out after going through a manual build on 0.8.6 so for completeness I&rsquo;ll show how to compile both and you can use whichever one suits your needs.  The configure script on a lean device like the BeagleBone Black still takes quite a while to run though so this should get you through doing the process just once.</p>
+
+<p>You can use either the current stable version today which is 0.8.6 or you can use the bleeding edge github source.  I would recommend 0.8.6 if you want something that is as stable as possible.  When compiling from source you should keep in mind that your build may not be compatible with old wallet formats.</p>
+
+<p>I cannot stress this enough &ndash; IF YOU HAVE AN OLD WALLET YOU ARE BEST OFF USING THE OFFICIAL BINARIES INSTEAD OF BUILDING FROM SOURCE!</p>
+
+<h1>Using version 0.8.6</h1>
+
+<p>If you want to use version 0.8.6 here&rsquo;s what you need to do:</p>
+
+<ul>
+<li>Install the necessary dependencies</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install g++ libboost-dev libdb-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Download the <a href="http://sourceforge.net/projects/bitcoin/files/Bitcoin/bitcoin-0.8.6/bitcoin-0.8.6-linux.tar.gz/download">Bitcoin 0.8.6 source</a></p></li>
+<li><p>Extract the source</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>tar xzvf bitcoin-0.8.6-linux.tar.gz
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Remove the binaries, these are Intel binaries and won&rsquo;t work on the BeagleBone Black anyway</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>rm bitcoin-0.8.6-linux/bin/*/*
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Go to the src directory</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>bitcoin-0.8.6-linux/src/src
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Build the source</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>make -f makefile.unix
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you follow these instructions you should get Bitcoin up and running in just one build cycle.  Here are the commands that you should run:</p>
+
+<h1>Using the latest Bitcoin development version (NOT RECOMMENDED!)</h1>
+
+<p>NOTE: I do not recommend that you use this version.  Currently Debian does not have libdb4.8 in its default repository and the Bitcoin client requires it to maintain compatibility with existing wallet files.</p>
+
+<p>If you want to use the latest development version here&rsquo;s what you need to do:</p>
+
+<ul>
+<li>Install the necessary dependencies</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install g++ libboost-dev libdb-dev git automake pkg-config
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Clone the Bitcoin repository</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone https://github.com/bitcoin/bitcoin.git
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Configure the source</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd </span>bitcoin
+</span><span class='line'>./autogen.sh
+</span><span class='line'>./configure --with-incompatible-bdb
+</span><span class='line'>make
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you&rsquo;ll have the bitcoind executable sitting on your BeagleBone Black.  When you try to run it the first time it will complain that some variables aren&rsquo;t set and that your config is incomplete.  The output will look something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>debian@arm:~/bitcoin/src/src<span class="nv">$ </span>./bitcoind
+</span><span class='line'>Error: To use bitcoind, you must <span class="nb">set </span>a rpcpassword in the configuration file:
+</span><span class='line'>/home/debian/.bitcoin/bitcoin.conf
+</span><span class='line'>It is recommended you use the following random password:
+</span><span class='line'><span class="nv">rpcuser</span><span class="o">=</span>bitcoinrpc
+</span><span class='line'><span class="nv">rpcpassword</span><span class="o">=</span>XxXXxXXxxxXxXXxXXXXXXxxxxXxxxxxXxXXXXXxXxxXx
+</span><span class='line'><span class="o">(</span>you <span class="k">do </span>not need to remember this password<span class="o">)</span>
+</span><span class='line'>The username and password MUST NOT be the same.
+</span><span class='line'>If the file does not exist, create it with owner-readable-only file permissions.
+</span><span class='line'>It is also recommended to <span class="nb">set </span>alertnotify so you are notified of problems;
+</span><span class='line'><span class="k">for </span>example: <span class="nv">alertnotify</span><span class="o">=</span><span class="nb">echo</span> %s | mail -s <span class="s2">&quot;Bitcoin Alert&quot;</span> admin@foo.com
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What you&rsquo;ll need to do is put these values into the ~/.bitcoin/bitcoin.conf.  Then you can restart bitcoind and it&rsquo;ll run and start grabbing the blockchain.  IT IS INCREDIBLY IMPORTANT THAT YOU DO NOT COPY THE VALUES THAT I PUT HERE.  Your file will look like this (except the rpcpassword will be whatever bitcoind told you):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">rpcuser</span><span class="o">=</span>bitcoinrpc
+</span><span class='line'><span class="nv">rpcpassword</span><span class="o">=</span>XxXXxXXxxxXxXXxXXXXXXxxxxXxxxxxXxXXXXXxXxxXx
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This password gives someone complete access to your bitcoind instance.  If you store money there and use the rpcpassword value that I put above you can and probably will lose it.</p>
+
+<p>Unless you have a giant SD card on your BeagleBone Black you&rsquo;ll probably want to put your blockchain on a different disk.  I have my Synology home directory mounted on my BeagleBone Black via NFS (as explained in another post).  It is mounted at ~/synology.  In order to make sure my blockchain is on my Synology I did the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mkdir ~/synology/bitcoind
+</span><span class='line'>mv ~/.bitcoin/blocks ~/.bitcoin/chainstate ~/.bitcoin/database ~/.bitcoin/db.log ~/.bitcoin/debug.log ~/synology/bitcoind/
+</span><span class='line'>ln -s ~/synology/bitcoind/blocks ~/.bitcoin/blocks
+</span><span class='line'>ln -s ~/synology/bitcoind/chainstate ~/.bitcoin/chainstate
+</span><span class='line'>mkdir -p ~/synology/bitcoind/database
+</span><span class='line'>ln -s ~/synology/bitcoind/database ~/.bitcoin/database
+</span><span class='line'>ln -s ~/synology/bitcoind/db.log ~/.bitcoin/db.log
+</span><span class='line'>ln -s ~/synology/bitcoind/debug.log ~/.bitcoin/debug.log
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You may get a few errors about files not existing when you run this.  This is normal and you should try to proceed and see if it works for you.  I was very careful here to not put bitcoin.conf or the wallet.dat file on the Synology.  You should also avoid putting those files on there.  Since the remote file system is potentially a shared resource an attacker can get into that and modify or steal data.  It&rsquo;s best to keep the wallet.dat, peers.dat, and bitcoin.conf local to your BeagleBone Black.</p>
+
+<p>At this point you can restart bitcoind.  I did this in a screen session rather than make it a true service since I&rsquo;m still playing around with it.  Once I set it up as a service I&rsquo;ll post an update and include that information as well.  I am a bit skeptical that it will stay stable since after just a few hours it is already taking up 50% of the BeagleBone Black&rsquo;s RAM.  I guess I&rsquo;ll just have to wait and see.</p>
+
+<p>Periodically check your free file system space and make sure that the blockchain isn&rsquo;t on your SD card.  In my case I can do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Show the amount of free space on my SD card</span>
+</span><span class='line'>du -sh /
+</span><span class='line'>
+</span><span class='line'><span class="c"># Show the amount of free space on my Synology NAS</span>
+</span><span class='line'>du -sh ~/synology/
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Good luck and post in the comments if this helps you out or if you need any assistance.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1200,121 +1424,6 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/">How-To: Fix Maven Errors in Eclipse When Getting Started With Heroku</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-03-28T09:15:24-04:00" pubdate data-updated="true">Mar 28<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/28/how-to-fix-maven-errors-in-eclipse-when-getting-started-with-heroku/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I haven&rsquo;t used Heroku much yet but with the addition of Java to their platform I&rsquo;m starting to see it as a really interesting option.  Yesterday I watched <a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=mkmWwA0EoGg#!">a great video on how to get started with Java on Heroku</a>.  It went well until I tried converting my project to a Maven project.  Then I got this error message in all of my pom.xml files:</p>
-
-<p><code>Plugin execution not covered by lifecycle configuration</code></p>
-
-<p>I checked the usual places but didn&rsquo;t find a solution to the issue.  Then I decided to try adding the m2e plugin from this update site:</p>
-
-<p><code>http://download.eclipse.org/technology/m2e/releases</code></p>
-
-<p>After adding the plugin and restarting my IDE I got two different error messages:</p>
-
-<p><code>maven-dependency-plugin (goals "copy-dependencies", "unpack") is not supported by m2e.</code>
-<code>Project configuration is not up-to-date with pom.xml.  Run project configuration update.</code></p>
-
-<p>The second error had a quick fix so I tried that and it worked.  Now the Java example application that uses the Play framework and the one that uses Spring MVC and Hibernate both work.  However, the ones that used JAX-RS and embedded Jetty did not.  They still showed the maven-dependency-plugin error.  The fix is to add the following XML in the build section of your pom.xml:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;pluginmanagement&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;plugins&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;plugin&gt;</span>
-</span><span class='line'>          <span class="nt">&lt;groupid&gt;</span>org.eclipse.m2e<span class="nt">&lt;/groupid&gt;</span>
-</span><span class='line'>              <span class="nt">&lt;artifactid&gt;</span>lifecycle-mapping<span class="nt">&lt;/artifactid&gt;</span>
-</span><span class='line'>              <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
-</span><span class='line'>              <span class="nt">&lt;configuration&gt;</span>
-</span><span class='line'>                  <span class="nt">&lt;lifecyclemappingmetadata&gt;</span>
-</span><span class='line'>                      <span class="nt">&lt;pluginexecutions&gt;</span>
-</span><span class='line'>                          <span class="nt">&lt;pluginexecution&gt;</span>
-</span><span class='line'>                              <span class="nt">&lt;pluginexecutionfilter&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;groupid&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupid&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;artifactid&gt;</span>maven-dependency-plugin<span class="nt">&lt;/artifactid&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;versionrange&gt;</span>[1.0.0,)<span class="nt">&lt;/versionrange&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;goals&gt;</span>
-</span><span class='line'>                                      <span class="nt">&lt;goal&gt;</span>copy-dependencies<span class="nt">&lt;/goal&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;/goals&gt;</span>
-</span><span class='line'>                              <span class="nt">&lt;/pluginexecutionfilter&gt;</span>
-</span><span class='line'>                              <span class="nt">&lt;action&gt;</span>
-</span><span class='line'>                                  <span class="nt">&lt;ignore&gt;&lt;/ignore&gt;</span>
-</span><span class='line'>                              <span class="nt">&lt;/action&gt;</span>
-</span><span class='line'>                          <span class="nt">&lt;/pluginexecution&gt;</span>
-</span><span class='line'>                      <span class="nt">&lt;/pluginexecutions&gt;</span>
-</span><span class='line'>                  <span class="nt">&lt;/lifecyclemappingmetadata&gt;</span>
-</span><span class='line'>              <span class="nt">&lt;/configuration&gt;</span>
-</span><span class='line'>          <span class="nt">&lt;/plugin&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;/plugins&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/pluginmanagement&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After that you&rsquo;ll have to do the quick fix for the error &ldquo;Project configuration is not up-to-date&rdquo; again and then you&rsquo;ll be error free, at least in your pom.xml&hellip;</p>
-
-<p>Post in the comments and let me know if it worked or if you need any help.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/6/">&larr; Older</a>
@@ -1343,6 +1452,10 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
       </li>
     
@@ -1356,10 +1469,6 @@ sudo ln -s /lib/terminfo/x/xterm /usr/share/terminfo/x/xterm
     
       <li class="post">
         <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I just spent some time playing around with getting Disqus comments set up so people don&rsquo;t have to bother with navigating to and registering on  &hellip;">
+  <meta name="description" content="UPDATE #1: The latest portage now has a 3.x version of these tools. If you update to the latest portage as of 2009-03-05 then you likely won&rsquo;t &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,63 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/02/28/how-to-build-net-wirelessbluez-libs-2-25-and-net-wirelessbluez-utils-2-25-r1-on-gentoo-updated-2009-03-05/">How-To: Build net-wireless/bluez-libs-2.25 and net-wireless/bluez-utils-2.25-r1 on Gentoo [Updated 2009-03-05]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-02-28T12:43:19-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/02/28/how-to-build-net-wirelessbluez-libs-2-25-and-net-wirelessbluez-utils-2-25-r1-on-gentoo-updated-2009-03-05/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/02/28/how-to-build-net-wirelessbluez-libs-2-25-and-net-wirelessbluez-utils-2-25-r1-on-gentoo-updated-2009-03-05/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>UPDATE #1: The latest portage now has a 3.x version of these tools.  If you update to the latest portage as of 2009-03-05 then you likely won&rsquo;t have to jump through these hoops.</p>
+
+<p>I was trying to do some <spoiler>fun stuff with my Wii remote on Linux</spoiler> today and found that when I went to build the BlueZ utils on my Gentoo box it failed almost straight away.</p>
+
+<p>To save you the headache and I did some digging.  I have a quick and dirty way to fix your Gentoo setup if you&rsquo;re experiencing this problem.</p>
+
+<p>If you care it&rsquo;s related to GCC 4.x handling includes in C in a different way than previous versions.  If you don&rsquo;t care just ignore the previous sentence.  Here&rsquo;s the fix:</p>
+
+<p>Step 1: emerge bluez-libs.  When the emerge gets into the configure stage, press Control-Z to suspend the build.  The configure stage is when it spits out lots of &ldquo;Checking for &hellip;&rdquo; messages.</p>
+
+<p>Step 2: Edit the /var/tmp/portage/net-wireless/bluez-libs-2.25/work/bluez-libs-2.25/src/hci.c file with your favorite editor.  Within the chunk of includes you see at the top of the file add the line &ldquo;#include &rdquo;.</p>
+
+<p>Step 3: Run &ldquo;fg&rdquo; to continue the build.  bluez-libs should emerge normally now.</p>
+
+<p>Step 4: emerge bluez-utils.  When the emerge gets into the configure stage, press Control-Z to suspend the build.</p>
+
+<p>Step 5: Edit all of the following files and again add the line &ldquo;#include &rdquo; to them.  The files are: net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/tools/hciconfig.c, net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/tools/hciattach.c, net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/sdpd/request.c, net-wireless/bluez-utils-2.25-r1/work/bluez-utils-2.25/hidd/sdp.c</p>
+
+<p>Step 6: Run &ldquo;fg&rdquo; to continue the build.  bluez-utils should emerge normally now.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -226,6 +283,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
       </li>
     
@@ -239,10 +300,6 @@
     
       <li class="post">
         <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">Using Interfaces in Camel&#8217;s Java DSL With Spring</a>
       </li>
     
   </ul>
