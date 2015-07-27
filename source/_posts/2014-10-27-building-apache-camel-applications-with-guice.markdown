@@ -237,7 +237,7 @@ Now if you don't want Guice to handle any external JNDI bindings then you're don
 
 To run the application from Maven do this:
 
-``` shell
+```
 mvn camel:run
 ```
 
