@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Have you ever pasted working a bash script or piece of code into a text editor and had it fail to work when you copied it back out later? You&rsquo; &hellip;">
+  <meta name="description" content="Want to understand how Bitcoin transactions work? Follow my next couple of posts for step-by-step explanations of what is going on behind the scenes &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,308 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/09/12/the-first-bitcoin-transaction/">The First Bitcoin Transaction</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-12T18:35:01-04:00" pubdate data-updated="true">Sep 12<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/09/12/the-first-bitcoin-transaction/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/12/the-first-bitcoin-transaction/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><link rel="stylesheet" type="text/css" href="/javascripts/libs/hexpile/Hexpile.css" /></p>
+
+<script type="text/javascript" language="javascript" src="/javascripts/libs/hexpile/Hexpile.nocache.js"></script>
+
+
+<p>Want to understand how Bitcoin transactions work?  Follow my next couple of posts for step-by-step explanations of what is going on behind the scenes.</p>
+
+<p>NOTE: These posts are going to be extremely technical.</p>
+
+<p>In this post I&rsquo;m going to explain the very first Bitcoin transaction in excruciating detail.  The first Bitcoin transaction is not the first block ever mined.  The first Bitcoin transaction occurred in block 170 when the first Bitcoins were transferred from one address to another.</p>
+
+<p>Each Bitcoin block contains transactions.  The first transaction is called the coinbase and is a transaction that actually mines/creates new Bitcoins.  All transactions after that are some kind of balance transfer from a set of addresses to another set of addresses.</p>
+
+<p>Here is the <a href="https://blockchain.info/tx/f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16">first, non-mining transaction from block 170</a>:</p>
+
+<div id="hexpile_tx_f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16">
+<pre>
+Version number: 01000000
+
+Input counter: 01
+Input script #0: c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704000000004847304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d090147304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901ffffffff
+
+Output counter: 02
+Output script #0: 00ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac
+Output script #1: 00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_tx_f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_output"></div>
+
+
+<p>Version number is the little endian representation of the version number of this transaction.  Future transactions in a different format could have a different version number so they can be processed in new ways.</p>
+
+<p>Input counter tells us that we should expect 1 input.</p>
+
+<p>Input script #0 contains all the bytes in our input script.</p>
+
+<p>Output coutner tells us that we should expect 2 outputs.</p>
+
+<p>Output scripts #0 and #1 contain all the bytes in the two output scripts in this transaction.  These outputs show where the Bitcoins are going.  In this case they&rsquo;re being sent to two different addresses.</p>
+
+<p>Let&rsquo;s look at the input first.</p>
+
+<div id="hexpile_tx_f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_input_0">
+<pre>
+Previous transaction hash: c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704
+Previous output index: 00000000
+Length: 0x48
+VIRTUAL_OP_PUSH: 0x47
+Bytes to push: 304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901
+Sequence number: ffffffff
+</pre>
+</div>
+
+
+<div id="hexpile_tx_f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_input_0_output"></div>
+
+
+<p>Previous transaction hash tells us where to find the transaction that this input is working on.  This transaction hash refers to the coinbase in <a href="https://blockchain.info/tx/0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9">block 9</a> which mined 50 BTC.</p>
+
+<p>Previous output index tells us which output script in the transaction we should apply this input script to.  In this transaction in block 9 there was only one output.</p>
+
+<p>Length tells us the number of bytes that are coming up in our input script.  In this case it is <code>0x48</code> or 72 bytes.</p>
+
+<p>Now we&rsquo;re at the actual input script.  This input script consists of a single operation (<code>VIRTUAL_OP_PUSH</code>) which pushes a 71 byte value onto the stack.  That 71 byte value is a signature that signs the previous output and the new output so that we make sure know that the person unlocking the coins is the same person spending the coins.</p>
+
+<p>Bitcoin uses the ECC curve <a href="https://en.bitcoin.it/wiki/Secp256k1">secp256k1</a> which is part of the <a href="http://perso.univ-rennes1.fr/sylvain.duquesne/master/standards/sec2_final.pdf">SEC 2: Recommended Elliptic Curve Domain Parameters</a>.  Therefore all signing and validation operations are performed with the parameters from this curve.</p>
+
+<p>The really interesting part is how we do the transaction validation.  That requires a lot of explanation&hellip; as if this wasn&rsquo;t long and complicated enough already.</p>
+
+<p>Let&rsquo;s look at the output script from block 9:</p>
+
+<div id="hexpile_tx_0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_output_0">
+<pre>
+VIRTUAL_OP_PUSH: 0x41
+Bytes to push: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+OP_CHECKSIG: 0xac
+</pre>
+</div>
+
+
+<div id="hexpile_tx_0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_output_0_output"></div>
+
+
+<p>This script pushes a value onto the stack (which happens to be a public key) and the calls <code>OP_CHECKSIG</code>.  This is called a <a href="https://en.bitcoin.it/wiki/Script#Obsolete_pay-to-pubkey_transaction">pay-to-pubkey transaction</a>.  Simply it says that anyone who can create a signed transaction with a certain public key can spend this output.</p>
+
+<p><code>OP_CHECKSIG</code> does four things:</p>
+
+<ol>
+<li>Pops a value off of the stack and calls it the public key</li>
+<li>Pops a value off of the stack and calls it the signature</li>
+<li>Grabs data from the previous transaction and the current transaction and combines it in a particular way</li>
+<li>Computes and checks that the data from step #3 matches the public key and signature from steps #1 and #2</li>
+</ol>
+
+
+<p>Now we concatenate the input and output scripts into one larger script and get this:</p>
+
+<div id="hexpile_validation_script">
+<pre>
+VIRTUAL_OP_PUSH - 71 bytes: 0x47
+Signature from block 170: 304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901
+
+VIRTUAL_OP_PUSH - 65 bytes: 0x41
+Public key from block 9: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+
+OP_CHECKSIG: ac
+</pre>
+</div>
+
+
+<div id="hexpile_validation_script_output"></div>
+
+
+<p>This is the most straightforward part of the process.  We are pushing the data from the input script from block 170 and then pushing the data from the output script from block 9 and executing <code>OP_CHECKSIG</code>.  This ordering makes sure that the person that originally had the Bitcoins maintains control over the final execution.  Otherwise it would be possible for an attacker to just dump everything off of the stack except for a final value of 1 which would unlock the coins.</p>
+
+<p>When the Bitcoin state machine sees <code>OP_CHECKSIG</code> then the real work begins.</p>
+
+<p>From above we know we pop the public key off of the stack and then pop the signature off of the stack.  Now we need to understand step #3 where we find the data that we&rsquo;re checking the signature of.</p>
+
+<p>Step 1 &ndash; Get a copy of the previous transaction script data/output transaction script data (<code>VIRTUAL_OP_PUSH</code> and <code>OP_CHECKSIG</code>) which will be</p>
+
+<div id="hexpile_step_1">
+<pre>
+VIRTUAL_OP_PUSH: 0x41
+Bytes to push: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+OP_CHECKSIG: 0xac
+</pre>
+</div>
+
+
+<div id="hexpile_step_1_output"></div>
+
+
+<p>We will refer to this as our &ldquo;new input script&rdquo;.</p>
+
+<p>Step 2 &ndash; Get a copy of the current transaction (again, <a href="https://blockchain.info/tx/f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16">from block 170</a>)</p>
+
+<div id="hexpile_step_2">
+<pre>
+Current transaction: 0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704000000004847304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901ffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_2_output"></div>
+
+
+<p>Step 3 &ndash; Clear out all of the inputs&#8217; script data from this transaction</p>
+
+<p>Before:</p>
+
+<div id="hexpile_step_3a">
+<pre>
+:0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd370400000000
+Section to remove: 4847304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901
+:ffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_3a_output"></div>
+
+
+<p>After:</p>
+
+<div id="hexpile_step_3b">
+<pre>
+:0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd370400000000
+NULL placeholder: 00
+:ffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_3b_output"></div>
+
+
+<p>The &ldquo;after&rdquo; block translates to:</p>
+
+<div id="hexpile_step_3c">
+<pre>
+Version number: 01000000
+Input counter: 01
+
+Remaining data from input #0: c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd37040000000000ffffffff
+
+Output counter: 02
+Output script #0: 00ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac
+
+Output script #1: 00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_3c_output"></div>
+
+
+<p>Step 4 &ndash; Now remove all of the OP_CODESEPARATORS from the new input script.  In block 170 there aren&rsquo;t any of them so the new input script doesn&rsquo;t change.</p>
+
+<p>Step 5 &ndash; Put the new input script into the signing data at the current input number.  In step #3 this means the new input script goes where the NULL placeholder was.  This yields:</p>
+
+<div id="hexpile_step_5">
+<pre>
+:0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd37040000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3acffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_5_output"></div>
+
+
+<p>Which translates to:</p>
+
+<div id="hexpile_step_5_detail">
+<pre>
+Version number: 01000000
+Input counter: 01
+Previous transaction hash: c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704
+Previous output index: 00000000
+Input script length: 0x43
+VIRTUAL_OP_PUSH Input #0: 0x41
+Bytes to push Input #0: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+OP_CHECKSIG Input #0: 0xac
+Sequence number: ffffffff
+
+Value bytes: 00ca9a3b00000000
+Output script length: 0x43
+VIRTUAL_OP_PUSH Output #0: 0x41
+Bytes to push Output #0: 04ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84c
+OP_CHECKSIG Output #0: 0xac
+
+Value bytes: 00286bee00000000
+Output script length: 0x43
+VIRTUAL_OP_PUSH Output #1: 0x41
+Bytes to push Output #1: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+OP_CHECKSIG Output #1: 0xac
+Lock time: 00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_5_detail_output"></div>
+
+
+<p>The value bytes represent the number of Satoshi (1 / 100,000,000th of a Bitcoin) are being transferred.  The input was a mined block that created 50 BTC and the two output blocks are getting 10 and 40 BTC, respectively.  Like all other value types in Bitcoin these values are little-endian.</p>
+
+<p>Step 6 &ndash; Add the 32-bit little endian representation of the hash type onto the end of the signing data.  The hash type is the last byte of the signature which is <code>0x01</code> in this case.  Expanded into a 32-bit little endian value makes it <code>0x01000000</code>.  So our final data that needs to be signed is:</p>
+
+<div id="hexpile_step_6">
+<pre>
+:0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd37040000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3acffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+Hash type: 01000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_6_output"></div>
+
+
+<p>If the signature from block 170 is a valid signature for this blob of binary data we just created, using the public key from block 9, then the transaction is valid.</p>
+
+<p>Questions?  Comments?  Post below!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1600,153 +1902,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Using Guice Dependency Injection With Quartz Schedulding</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-08-05T08:39:34-04:00" pubdate data-updated="true">Aug 5<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I am a big <a href="https://github.com/google/guice">Guice</a> advocate.  I try to use it wherever it is possible and makes sense.  While working on a project yesterday I realized that in order to use Guice and <a href="http://quartz-scheduler.org/">Quartz</a> together you need to add in some glue code.</p>
-
-<p>I <a href="http://codesmell.wordpress.com/2009/01/11/quartz-fits/">found someone who had done the work already</a> but their blog post was from 2009 and the Quartz API had changed a bit.  Their implementation was very close so I made the necessary modifications, tested it out, and it works perfectly.  If you&rsquo;re wondering how to use Guice to get dependency injection into your Quartz scheduler code you can use the two snippets of code below to do it all for you.</p>
-
-<p>The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the <code>GuiceJobFactory</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Injector</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Job</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.JobDetail</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Scheduler</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.SchedulerException</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.JobFactory</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.TriggerFiredBundle</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 8/4/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="c1">// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/</span>
-</span><span class='line'><span class="kd">final</span> <span class="kd">class</span> <span class="nc">GuiceJobFactory</span> <span class="kd">implements</span> <span class="n">JobFactory</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Inject</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">GuiceJobFactory</span><span class="o">(</span><span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">guice</span> <span class="o">=</span> <span class="n">guice</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">Job</span> <span class="nf">newJob</span><span class="o">(</span><span class="n">TriggerFiredBundle</span> <span class="n">triggerFiredBundle</span><span class="o">,</span> <span class="n">Scheduler</span> <span class="n">scheduler</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SchedulerException</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// Get the job detail so we can get the job class</span>
-</span><span class='line'>        <span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">triggerFiredBundle</span><span class="o">.</span><span class="na">getJobDetail</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">Class</span> <span class="n">jobClass</span> <span class="o">=</span> <span class="n">jobDetail</span><span class="o">.</span><span class="na">getJobClass</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// Get a new instance of that class from Guice so we can do dependency injection</span>
-</span><span class='line'>            <span class="k">return</span> <span class="o">(</span><span class="n">Job</span><span class="o">)</span> <span class="n">guice</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">jobClass</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// Something went wrong.  Print out the stack trace here so SLF4J doesn&#39;t hide it.</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Rethrow the exception as an UnsupportedOperationException</span>
-</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>GuiceJobFactory</code> gets the Guice injector injected into it.  It then overrides the newJob method and creates each job using the injector it was given.</p>
-
-<p>The next thing you need to do is to use this <code>JobFactory</code> in your <code>Scheduler</code>.  Here&rsquo;s how I built my scheduler and used it to create my first job:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Scheduler</span> <span class="n">scheduler</span> <span class="o">=</span> <span class="n">StdSchedulerFactory</span><span class="o">.</span><span class="na">getDefaultScheduler</span><span class="o">();</span>
-</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">setJobFactory</span><span class="o">(</span><span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">GuiceJobFactory</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">newJob</span><span class="o">(</span><span class="n">MyJob</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/3/">&larr; Older</a>
@@ -1775,6 +1930,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk&#8217;s Command-line Tools</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
       </li>
     
@@ -1788,10 +1947,6 @@
     
       <li class="post">
         <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
       </li>
     
   </ul>

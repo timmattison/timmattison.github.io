@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Apache Camel is a great framework for implementing Enterprise Integration Patterns. However, most of the examples you&rsquo;ll find out there show &hellip;">
+  <meta name="description" content="UPDATE 2015-07-27: Included instructions to run the project from the command-line Apache Camel is a great framework for implementing Enterprise &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -120,7 +120,9 @@
   </header>
 
 
-<div class="entry-content"><p><a href="https://camel.apache.org/">Apache Camel</a> is a great framework for implementing <a href="https://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Patterns</a>.  However, most of the examples you&rsquo;ll find out there show you how to use it with <a href="http://projects.spring.io/spring-framework/">the Spring framework</a>.  I&rsquo;m much more comfortable with <a href="https://github.com/google/guice">Google Guice</a> since I&rsquo;ve used it in more production projects.</p>
+<div class="entry-content"><p><strong>UPDATE 2015-07-27</strong>: Included instructions to run the project from the command-line</p>
+
+<p><a href="https://camel.apache.org/">Apache Camel</a> is a great framework for implementing <a href="https://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Patterns</a>.  However, most of the examples you&rsquo;ll find out there show you how to use it with <a href="http://projects.spring.io/spring-framework/">the Spring framework</a>.  I&rsquo;m much more comfortable with <a href="https://github.com/google/guice">Google Guice</a> since I&rsquo;ve used it in more production projects.</p>
 
 <p>I did find an example of how to use Guice with Apache Camel but it wasn&rsquo;t commented well and involved doing a lot of extra work that didn&rsquo;t provide me any benefits.  So below I&rsquo;ve listed the things that you&rsquo;ll need to do to get Guice and Camel working together.  What we are doing here is setting up Guice as a JNDI provider and automatically loading a Guice CamelModule via JNDI.</p>
 
@@ -507,7 +509,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now if you don&rsquo;t want Guice to handle any external JNDI bindings then you&rsquo;re done.  You can run this application as-is and it will serve up the RESTlet route.  You can test it by using cURL like this:</p>
+<p>Now if you don&rsquo;t want Guice to handle any external JNDI bindings then you&rsquo;re done.  You can run this application as-is and it will serve up the RESTlet route.</p>
+
+<p>To run the application from Maven do this:</p>
+
+<figure class='code'><figcaption><span>com.timmattison.CamelGuiceApplicationModule</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">mvn</span> <span class="nl">camel:</span><span class="n">run</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can test it by using cURL like this:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -584,9 +595,9 @@
     data-flattr-button="compact"
     data-flattr-category="text"
     href="http://blog.timmattison.com/archives/2014/10/27/building-apache-camel-applications-with-guice/">
-    [Apache Camel](https://camel.apache.org/) is a great framework for implementing [Enterprise Integration Patterns](https://camel.apache.org/enterprise-integration-patterns.html).  However, most of the examples you'll find out there show you how to use it with [the Spring framework](http://projects.spring.io/spring-framework/).  I'm much more comfortable with [Google Guice](https://github.com/google/guice) since I've used it in more production projects.
+    **UPDATE 2015-07-27**: Included instructions to run the project from the command-line
 
-I did find an example of how to use Guice &hellip;
+[Apache Camel](https://camel.apache.org/) is a great framework for implementing [Enterprise Integration Patterns](https://camel.apache.org/enterprise-integration-patterns.html).  However, most of the examples you'll find out there show you how to use it with [the Spring framework](http://projects.spring.io/spring-framework/).  I'm much more comfortable with [Google Guice](https://github.com/google/guice) &hellip;
 </a>
 
   
@@ -630,6 +641,10 @@ I did find an example of how to use Guice &hellip;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
       </li>
     
@@ -643,10 +658,6 @@ I did find an example of how to use Guice &hellip;
     
       <li class="post">
         <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
       </li>
     
   </ul>

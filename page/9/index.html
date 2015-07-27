@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="For a brief period of time I was totally sold on Bazaar (AKA bzr) for my distributed version control needs.  Then I found out about github and the &hellip;">
+  <meta name="description" content="Using duplicity and backing up a Rackspace Cloud Server to Cloud Files is great.  The bandwidth is free (if you don&rsquo;t forget to enable service &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,63 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files/">How-To: Improve Your Duplicity Backup and Restore Times on Rackspace Cloud Files</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-15T22:42:36-04:00" pubdate data-updated="true">Jun 15<span>th</span>, 2011</time>
+        
+           | <a href="/archives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Using duplicity and backing up a Rackspace Cloud Server to Cloud Files is great.  The bandwidth is free (if you don&rsquo;t forget to enable service net), storage is relatively cheap, and duplicity offers lots of great options to tune the tradeoffs between disk space/bandwidth and storage.</p>
+
+<p>One thing you will notice though is that if Rackspace Cloud Files ever times out you will end up waiting, and waiting, and waiting for it to retry.  The command line &ldquo;&mdash;timeout&rdquo; option doesn&rsquo;t fix it either since the timeout is actually hard coded in the python-cloudfiles module.  By default this timeout is 30 seconds.  Want to get better backup and restore performance?  Follow these steps to reduce the delay to one second and you&rsquo;ll be a lot happier.  Note: These instructions assume you already have everything installed and configured to do duplicity backups to Cloud Files already.</p>
+
+<ul>
+<li><p>Step 1: Locate the cloudfilesbackend.py file that your system uses.  Mine was in /usr/lib64/python2.4/site-packages/duplicity/backends/cloudfilesbackend.py so you will need to replace this path with the proper one in all of the following commands.</p></li>
+<li><p>Step 2: Run sed to replace the calls to &ldquo;time.sleep(30)&rdquo; with &ldquo;time.sleep(1)&rdquo; like this:</p>
+
+<p>sed -i s/time.sleep(30)/time.sleep(1)/g /usr/lib64/python2.4/site-packages/duplicity/backends/cloudfilesbackend.py</p></li>
+<li><p>Step 3: Remove the pre-compiled version of the existing Python code like this:</p>
+
+<p>rm /usr/lib64/python2.4/site-packages/duplicity/backends/cloudfilesbackend.pyc</p></li>
+<li><p>Step 4: Adjust your duplicity backup and restore code to include two updated options.  First, add &ldquo;&mdash;timeout=1&rdquo; just to be double-extra sure that all timeouts are 1 second long.  Second, add &ldquo;&mdash;num-retries=30&rdquo; so that the script retries for 30 seconds if necessary.  If you don&rsquo;t add the second option you will run the risk of possibly failing to do a restore when there is a legitimate connectivity issue.  The default options with the changes from step 2 would only allow for a 5 second hiccup in network traffic so definitely don&rsquo;t forget to do this.</p></li>
+</ul>
+
+
+<p>That&rsquo;s it.  I&rsquo;ve personally seen my restore times decrease dramatically by doing this simple change.  Initially I wasn&rsquo;t even able to sync the duplicity information in 30 minutes and now I am doing full restores in under 25 minutes.  Had I left the settings the way they were I estimate that I would&rsquo;ve spent between 6 and 12 hours on a restore.</p>
+
+<p>UPDATE: The issue and fix here is entirely with the duplicity code, not python-cloudfiles.  Sorry for any confusion that may have caused.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -631,49 +688,6 @@ $body = $body . $line;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop/">Listen to Skidmore College Radio (WSPN) Right on Your Desktop</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-09-27T10:25:11-04:00" pubdate data-updated="true">Sep 27<span>th</span>, 2010</time>
-        
-           | <a href="/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>My brother-in-law is going to Skidmore College and just got a radio show.  I don&rsquo;t live close enough to pick it up locally so I put together an app that lets you stream it over the Internet without having your browser open.  It works on Macs, Windows PCs, and Linux boxes so you should be covered.</p>
-
-<p>You&rsquo;ll <a href="http://get.adobe.com/air/">need to have Adobe AIR installed</a> and then you can <a href="/static/WSPNPlayer.air">download my app</a> and listen any time.  Let me know in the comments or via e-mail if you run into any trouble.</p>
-
-<p>Android phones coming soon&hellip;</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -702,6 +716,10 @@ $body = $body . $line;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk&#8217;s Command-line Tools</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
       </li>
     
@@ -715,10 +733,6 @@ $body = $body . $line;
     
       <li class="post">
         <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
       </li>
     
   </ul>

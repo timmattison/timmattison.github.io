@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2015-07-24T10:55:25-04:00</updated>
+  <updated>2015-07-27T17:46:42-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -12,6 +12,104 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools]]></title>
+    <link href="http://blog.timmattison.com/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/"/>
+    <updated>2015-07-27T17:22:30-04:00</updated>
+    <id>http://blog.timmattison.com/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools</id>
+    <content type="html"><![CDATA[<p>In June this year <a href="http://aws.amazon.com/about-aws/whats-new/2015/06/aws-elastic-beanstalk-supports-multiple-war-files-and-m4-instances/">AWS added the ability to run multiple WAR files with Elastic Beanstalk in a single EC2 instance</a>.  This makes deploying several small applications a lot more cost effective.</p>
+
+<p>In order to do this you need to create a ZIP file containing all of the WAR files you want to deploy and you <strong><em>must</em></strong> include a directory called <code>.ebextensions</code> even if it is empty.  In my case I just added and empty file called <code>.ebextensions/README.md</code> to make it happy.  Obviously if you use <code>.ebextensions</code> for any kind of customization you won&rsquo;t need to do anything.</p>
+
+<p>When Elastic Beanstalk sees that you&rsquo;ve deployed a file like this it treats it differently than a normal bundle.  It takes the WAR file called <code>ROOT.war</code> and deploys that as the root application.  The rest of the WAR files are deployed in directories derived from their file names.  For example, <code>application1.war</code> would be accessed through the <code>/application1</code> path.</p>
+
+<p>Deploying with <code>eb deploy</code> creates a ZIP file that includes everything in your current directory.  The problem is that <code>eb init</code> creates a <code>.gitignore</code> file in your deployment directory.  <code>eb deploy</code> picks that up that <code>.gitignore</code> and adds it to the archive.  On the EC2 instance that runs your application it sees that your archive doesn&rsquo;t contain just WAR files and the <code>.ebextensions</code> directory and it treats it like a normal single application deployment.  If/when this happens you&rsquo;ll see that you just get your WAR files placed in the <code>/var/lib/tomcat8/webapps/ROOT</code> directory.</p>
+
+<p>There are two possible fixes for this problem.</p>
+
+<p>Solution #1: You can just delete the <code>.gitignore</code> file.  IMHO, this isn&rsquo;t a great solution since you need to remember to do it for each project.</p>
+
+<p>Solution #2: You can patch the Python code that creates the ZIP archive and tell it to ignore the <code>.gitignore</code> file.  To do that you need to modify your <code>ebcli/core/fileoperations.py</code> file.  On my system, since I&rsquo;m not using <code>pip</code>, it was located at <code>~/.ebvenv/lib/python2.7/site-packages/ebcli/core/fileoperations.py</code>.  If you use <code>pip</code> or another package manager it will probably be in a different location.</p>
+
+<p>The function you need to modify is called <code>zip_up_folder</code>.  My original version looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">zip_up_folder</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">ignore_list</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">io</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="s">&#39;Zipping up folder at location: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span>
+</span><span class='line'>        <span class="n">zipf</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">_zipdir</span><span class="p">(</span><span class="s">&#39;./&#39;</span><span class="p">,</span> <span class="n">zipf</span><span class="p">,</span> <span class="n">ignore_list</span><span class="o">=</span><span class="n">ignore_list</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">zipf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;File size: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">location</span><span class="p">)))</span>
+</span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The code I added to set up the ignore_list is:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'>    <span class="k">if</span> <span class="n">ignore_list</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">ignore_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>    <span class="n">ignore_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;.gitignore&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So my updated function looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">zip_up_folder</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">ignore_list</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">io</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="s">&#39;Zipping up folder at location: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span>
+</span><span class='line'>        <span class="n">zipf</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="n">ignore_list</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">ignore_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>        <span class="n">ignore_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;.gitignore&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">_zipdir</span><span class="p">(</span><span class="s">&#39;./&#39;</span><span class="p">,</span> <span class="n">zipf</span><span class="p">,</span> <span class="n">ignore_list</span><span class="o">=</span><span class="n">ignore_list</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">zipf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;File size: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">location</span><span class="p">)))</span>
+</span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After updating that code and doing another <code>eb deploy</code> my set of WARs were all happily running in a single EC2 instance as I&rsquo;d expect.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[How Would You Implement "Cron" on AWS as Inexpensively as Possible?]]></title>
@@ -350,7 +448,9 @@
     <link href="http://blog.timmattison.com/archives/2014/10/27/building-apache-camel-applications-with-guice/"/>
     <updated>2014-10-27T18:40:13-04:00</updated>
     <id>http://blog.timmattison.com/archives/2014/10/27/building-apache-camel-applications-with-guice</id>
-    <content type="html"><![CDATA[<p><a href="https://camel.apache.org/">Apache Camel</a> is a great framework for implementing <a href="https://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Patterns</a>.  However, most of the examples you&rsquo;ll find out there show you how to use it with <a href="http://projects.spring.io/spring-framework/">the Spring framework</a>.  I&rsquo;m much more comfortable with <a href="https://github.com/google/guice">Google Guice</a> since I&rsquo;ve used it in more production projects.</p>
+    <content type="html"><![CDATA[<p><strong>UPDATE 2015-07-27</strong>: Included instructions to run the project from the command-line</p>
+
+<p><a href="https://camel.apache.org/">Apache Camel</a> is a great framework for implementing <a href="https://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Patterns</a>.  However, most of the examples you&rsquo;ll find out there show you how to use it with <a href="http://projects.spring.io/spring-framework/">the Spring framework</a>.  I&rsquo;m much more comfortable with <a href="https://github.com/google/guice">Google Guice</a> since I&rsquo;ve used it in more production projects.</p>
 
 <p>I did find an example of how to use Guice with Apache Camel but it wasn&rsquo;t commented well and involved doing a lot of extra work that didn&rsquo;t provide me any benefits.  So below I&rsquo;ve listed the things that you&rsquo;ll need to do to get Guice and Camel working together.  What we are doing here is setting up Guice as a JNDI provider and automatically loading a Guice CamelModule via JNDI.</p>
 
@@ -737,7 +837,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now if you don&rsquo;t want Guice to handle any external JNDI bindings then you&rsquo;re done.  You can run this application as-is and it will serve up the RESTlet route.  You can test it by using cURL like this:</p>
+<p>Now if you don&rsquo;t want Guice to handle any external JNDI bindings then you&rsquo;re done.  You can run this application as-is and it will serve up the RESTlet route.</p>
+
+<p>To run the application from Maven do this:</p>
+
+<figure class='code'><figcaption><span>com.timmattison.CamelGuiceApplicationModule</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">mvn</span> <span class="nl">camel:</span><span class="n">run</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can test it by using cURL like this:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -2310,123 +2419,6 @@ Hash type: 01000000
 </span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
 </span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Using Guice Dependency Injection With Quartz Schedulding]]></title>
-    <link href="http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding/"/>
-    <updated>2014-08-05T08:39:34-04:00</updated>
-    <id>http://blog.timmattison.com/archives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding</id>
-    <content type="html"><![CDATA[<p>I am a big <a href="https://github.com/google/guice">Guice</a> advocate.  I try to use it wherever it is possible and makes sense.  While working on a project yesterday I realized that in order to use Guice and <a href="http://quartz-scheduler.org/">Quartz</a> together you need to add in some glue code.</p>
-
-<p>I <a href="http://codesmell.wordpress.com/2009/01/11/quartz-fits/">found someone who had done the work already</a> but their blog post was from 2009 and the Quartz API had changed a bit.  Their implementation was very close so I made the necessary modifications, tested it out, and it works perfectly.  If you&rsquo;re wondering how to use Guice to get dependency injection into your Quartz scheduler code you can use the two snippets of code below to do it all for you.</p>
-
-<p>The first thing you need is a custom job factory that will create your jobs using Guice.  Here is the <code>GuiceJobFactory</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">com.google.inject.Injector</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Job</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.JobDetail</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.Scheduler</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.SchedulerException</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.JobFactory</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.quartz.spi.TriggerFiredBundle</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 8/4/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="c1">// Some guidance from: http://codesmell.wordpress.com/2009/01/11/quartz-fits/</span>
-</span><span class='line'><span class="kd">final</span> <span class="kd">class</span> <span class="nc">GuiceJobFactory</span> <span class="kd">implements</span> <span class="n">JobFactory</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Inject</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">GuiceJobFactory</span><span class="o">(</span><span class="kd">final</span> <span class="n">Injector</span> <span class="n">guice</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">guice</span> <span class="o">=</span> <span class="n">guice</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">Job</span> <span class="nf">newJob</span><span class="o">(</span><span class="n">TriggerFiredBundle</span> <span class="n">triggerFiredBundle</span><span class="o">,</span> <span class="n">Scheduler</span> <span class="n">scheduler</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SchedulerException</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// Get the job detail so we can get the job class</span>
-</span><span class='line'>        <span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">triggerFiredBundle</span><span class="o">.</span><span class="na">getJobDetail</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">Class</span> <span class="n">jobClass</span> <span class="o">=</span> <span class="n">jobDetail</span><span class="o">.</span><span class="na">getJobClass</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// Get a new instance of that class from Guice so we can do dependency injection</span>
-</span><span class='line'>            <span class="k">return</span> <span class="o">(</span><span class="n">Job</span><span class="o">)</span> <span class="n">guice</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">jobClass</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// Something went wrong.  Print out the stack trace here so SLF4J doesn&#39;t hide it.</span>
-</span><span class='line'>            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Rethrow the exception as an UnsupportedOperationException</span>
-</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">UnsupportedOperationException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>GuiceJobFactory</code> gets the Guice injector injected into it.  It then overrides the newJob method and creates each job using the injector it was given.</p>
-
-<p>The next thing you need to do is to use this <code>JobFactory</code> in your <code>Scheduler</code>.  Here&rsquo;s how I built my scheduler and used it to create my first job:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Scheduler</span> <span class="n">scheduler</span> <span class="o">=</span> <span class="n">StdSchedulerFactory</span><span class="o">.</span><span class="na">getDefaultScheduler</span><span class="o">();</span>
-</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">setJobFactory</span><span class="o">(</span><span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">GuiceJobFactory</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">scheduler</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">JobDetail</span> <span class="n">jobDetail</span> <span class="o">=</span> <span class="n">newJob</span><span class="o">(</span><span class="n">MyJob</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now the <code>JobDetail</code> object will be built from the <code>GuiceJobFactory</code> and it will get all the benefits of Guice&rsquo;s dependency injection.  Enjoy!</p>
 ]]></content>
   </entry>
   

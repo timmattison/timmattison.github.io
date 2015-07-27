@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Please pass this link around as much as you&rsquo;d like but don&rsquo;t copy the content directly. I have no popups, AdSense, etc. I just want to &hellip;">
+  <meta name="description" content="Just yesterday I was doing an upgrade of my Tomcat installation (and nearly everything on my virtual machine for that matter) and re-emerging the  &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,53 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/10/15/how-to-resolve-pyunicodeucs2-decodeutf8-errors-in-gentoo/">How-To: Resolve PyUnicodeUCS2_DecodeUTF8 Errors in Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-10-15T09:37:59-04:00" pubdate data-updated="true">Oct 15<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/10/15/how-to-resolve-pyunicodeucs2-decodeutf8-errors-in-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/10/15/how-to-resolve-pyunicodeucs2-decodeutf8-errors-in-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Just yesterday I was doing an upgrade of my Tomcat installation (and nearly everything on my virtual machine for that matter) and re-emerging the Tomcat servlet API kept giving me the error &ldquo;unresolved symbol PyUnicodeUCS2_DecodeUTF8&rdquo; and told me to re-emerge pyxml.  It turns out that pyxml is fine and thanks to <a href="http://bugs.gentoo.org/show_bug.cgi?id=282312#c2">a lone comment</a> on the Gentoo bug tracker I found a solution. Gentoo may break from time to time but their bug tracker is truly gold when you hit upon the right bug and the right comments.</p>
+
+<p>Step 1: Run &ldquo;emerge &mdash;sync&rdquo;</p>
+
+<p>Step 2: Update your packages as usual (I run &ldquo;emerge &mdash;update &mdash;deep &mdash;newuse -av world&rdquo; but people tell me I&rsquo;m crazy, it can break LOTS of things if you don&rsquo;t know what you&rsquo;re doing)</p>
+
+<p>Step 3: Wait for the unresolved symbol error to halt the emerge process and then run &ldquo;emerge -1 javatoolkit&rdquo;</p>
+
+<p>Step 4: Repeat step 2 and you should be in the clear</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -705,63 +752,6 @@ sub fix_cisco_issues {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/02/28/how-to-build-libwiimote-0-4-on-gentoo/">How-To: Build libwiimote-0.4 on Gentoo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-02-28T13:04:44-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2009</time>
-        
-           | <a href="/archives/2009/02/28/how-to-build-libwiimote-0-4-on-gentoo/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/02/28/how-to-build-libwiimote-0-4-on-gentoo/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This may only be related to 64-bit Gentoo but if you&rsquo;re having build troubles try starting from scratch like this.  Note: These are all commands that you&rsquo;ll have to run directly.  There is narrative except in step 6.</p>
-
-<p>Step 1: wget <a href="http://downloads.sourceforge.net/libwiimote/libwiimote-0.4.tgz?use_mirror=internap">http://downloads.sourceforge.net/libwiimote/libwiimote-0.4.tgz?use_mirror=internap</a></p>
-
-<p>Step 2: tar xzvf libwiimote-0.4.tgz</p>
-
-<p>Step 3: cd libwiimote-0.4</p>
-
-<p>Step 4: autoconf</p>
-
-<p>Step 5: ./configure</p>
-
-<p>Step 6: Edit src/Makefile and add &ldquo;CFLAGS=-fPIC&rdquo; to it.  If CFLAGS already exists just append &ldquo; -fPIC&rdquo; to it.</p>
-
-<p>Step 7: make</p>
-
-<p>Step 8: make install</p>
-
-<p>Now you&rsquo;ll have libwiimote-0.4 built and installed.  All you need are a few applications to take advantage of it.  Stay tuned.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/14/">&larr; Older</a>
@@ -790,6 +780,10 @@ sub fix_cisco_issues {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk&#8217;s Command-line Tools</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
       </li>
     
@@ -803,10 +797,6 @@ sub fix_cisco_issues {
     
       <li class="post">
         <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
       </li>
     
   </ul>

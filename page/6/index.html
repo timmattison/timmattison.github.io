@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="I haven&rsquo;t used Heroku much yet but with the addition of Java to their platform I&rsquo;m starting to see it as a really interesting option. &hellip;">
+  <meta name="description" content="A lot of people probably look at hardware that doesn&rsquo;t come with drivers for the Netduino or Arduino and don&rsquo;t even consider picking it &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,317 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2012/03/29/how-to-write-a-netduino-driver-for-the-grove-chainable-rgb-led/">How-To: Write a Netduino Driver for the Grove Chainable RGB LED</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-29T10:58:01-04:00" pubdate data-updated="true">Mar 29<span>th</span>, 2012</time>
+        
+           | <a href="/archives/2012/03/29/how-to-write-a-netduino-driver-for-the-grove-chainable-rgb-led/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2012/03/29/how-to-write-a-netduino-driver-for-the-grove-chainable-rgb-led/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>A lot of people probably look at hardware that doesn&rsquo;t come with drivers for the Netduino or Arduino and don&rsquo;t even consider picking it up if they&rsquo;re new to this scene.  In this article I&rsquo;ll show you how I wrote a driver for <a href="http://www.epictinker.com/Grove-Chainable-RGB-LED-p/com53140p.htm">Grove&rsquo;s chainable RGB LED</a> by just carefully reading the specs and experimenting.  I am no Netduino expert, I have only written a tiny bit of code for it since I got it, but this just reinforces how easy some drivers can be to write.</p>
+
+<p>Keep in mind that my illustration of how easy it was to write this driver is not a reflection on how easy it is to write <strong><em>all</em></strong> drivers.  Some drivers take a ton of work.  Make sure you read the documentation before you buy something so you don&rsquo;t get stuck with some hardware you can&rsquo;t use.</p>
+
+<p>My first step was to find <a href="http://www.seeedstudio.com/wiki/index.php?title=Twig_-_Chainable_RGB_LED">the documentation for the protocol for this device</a>.  I then scanned around to find the &ldquo;Communication Protocol&rdquo; and started digging.  What this showed me is that there are two connections to support the protocol for this device.  The first connection is called &ldquo;CIN&rdquo; for clock input and the second connection is called &ldquo;DIN&rdquo; for data input.  Simple enough, especially if we&rsquo;re using the standard Grove base shield and connectors.  Just hook it up and make sure you keep track of which port you&rsquo;re using and you&rsquo;re ready to start programming.  I used header 6 on my base shield so the relevant pins for me were D6 and D7.  D6 was CIN and D7 was DIN.</p>
+
+<p>Now you&rsquo;ll see that there are six well defined bullet points explaining the basics of the protocol:</p>
+
+<ul>
+<li><p>Data needs to be ready before CIN, and DIN gets into the buffer on the rising edge of CIN.</p></li>
+<li><p>First 32 bits &lsquo;0&rsquo; are Start Frame</p></li>
+<li><p>Flag bit is two &lsquo;1&rsquo;</p></li>
+<li><p>Calibration bits B7&#8217;,B6&#8217;;G7&#8217;,G6&#8217; and R7&#8217;,R6&#8217; are inverse codes of B7,B6;G7,G6 and R7,R6</p></li>
+<li><p>Gray data MSB first, and the order is BLUE, GREEN, and RED</p></li>
+<li><p>After all nodes data sent, need to seed another 32 bits &lsquo;0&rsquo; to update the data</p></li>
+</ul>
+
+
+<p>Let&rsquo;s step through these one by one to figure out how to send data to this device.</p>
+
+<p>They first tell us that &ldquo;data needs to be ready before CIN, and DIN gets into the buffer on the rising edge of CIN&rdquo;.  What this really translates to for you when programming is that when you want to send a bit to the device you should set that bit on the DIN pin (either 1 or 0), then set the CIN pin to high, and then set the CIN pin back to low.  Now you&rsquo;ve sent one bit of data to the device.  Abstraction will make it so we can do this thinking once and then fall back on it later so let&rsquo;s write a function that sends one bit:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendBit</span><span class="p">(</span><span class="kt">bool</span> <span class="n">bit</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Get DIN into the proper state</span>
+</span><span class='line'>    <span class="n">din</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="n">bit</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Set the clock high</span>
+</span><span class='line'>    <span class="n">cin</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Set the clock low</span>
+</span><span class='line'>    <span class="n">cin</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="k">false</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This function makes the assumption that you&rsquo;ve defined cin and din elsewhere.  The setup for them in my case (using pins D6 and D7 as I described above) would look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="c1">// Use D6 for CIN and D7 for DIN (Grove Base Shield v1.2 header #6)</span>
+</span><span class='line'><span class="n">OutputPort</span> <span class="n">cin</span> <span class="p">=</span> <span class="k">new</span> <span class="n">OutputPort</span><span class="p">(</span><span class="n">Pins</span><span class="p">.</span><span class="n">GPIO_PIN_D6</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'><span class="n">OutputPort</span> <span class="n">din</span> <span class="p">=</span> <span class="k">new</span> <span class="n">OutputPort</span><span class="p">(</span><span class="n">Pins</span><span class="p">.</span><span class="n">GPIO_PIN_D7</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now they tell us that the first 32 bits are all zeroes and that this is called a start frame.  This makes me think it would be a good idea to expand our abstraction to let us send bytes and then write another function that would send this start frame.  That would look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendByte</span><span class="p">(</span><span class="kt">byte</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Send the bits MSB first</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x80</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x80</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x40</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x40</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x20</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x20</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x10</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x10</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x08</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x08</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x04</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x04</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x02</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x02</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">data</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x01</span><span class="p">)</span> <span class="p">==</span> <span class="m">0</span><span class="n">x01</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendStartFrame</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// The start frame is 32 bits of zeroes</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">(</span><span class="m">0</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">(</span><span class="m">0</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">(</span><span class="m">0</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">(</span><span class="m">0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the sendByte function I&rsquo;m taking a byte and using logical AND and equals to extract the bits one by one.  One of the next bullet points says the data is MSB first so we want to get the most significant (ie. largest value holding) bits first so that&rsquo;s how I went about sending the bits.  Now that we can send bytes sending the start frame is as easy as calling that function four times with the value 0.</p>
+
+<p>Next they talk about flag bits.  In the protocol it shows that after the start frame there are some flag bits.  This tells us the two flag bits are both ones.  Here&rsquo;s a simple function that can do that:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendFlagBits</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// The flag bits are two 1s</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now this part gets a bit trickier but not too bad.  They tell us that we need to send the inverse of B7, B6, G7, G6, R7, R6, followed by the actual color data itself as bytes.  B7 and B6 are the two highest bits in the blue color component, G7 and G6 are the two highest bits in the green color component, and R7 and R6 are the two highest bits in the red color component.  Sending that data with the functions we built up now is really easy.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendColorData</span><span class="p">(</span><span class="kt">byte</span> <span class="n">red</span><span class="p">,</span> <span class="kt">byte</span> <span class="n">green</span><span class="p">,</span> <span class="kt">byte</span> <span class="n">blue</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Send the inverse bits of the B7, B6, G7, G6, R7, R6</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">blue</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x80</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x80</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">blue</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x40</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x40</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">green</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x80</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x80</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">green</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x40</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x40</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">red</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x80</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x80</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendBit</span><span class="p">((</span><span class="n">red</span> <span class="p">&amp;</span> <span class="m">0</span><span class="n">x40</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span><span class="n">x40</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Send the actual colors</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">((</span><span class="kt">byte</span><span class="p">)</span><span class="n">blue</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">((</span><span class="kt">byte</span><span class="p">)</span><span class="n">green</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">sendByte</span><span class="p">((</span><span class="kt">byte</span><span class="p">)</span><span class="n">red</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;re almost there, there&rsquo;s only one step left!  Now we need to send the end frame.  It turns out that the end frame is the same as the start frame but to keep the code readable I did this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">sendEndFrame</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// The end frame is the same as the start frame</span>
+</span><span class='line'>    <span class="n">sendStartFrame</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you have enough information to send a color to your device.  We should probably wrap it up so that we can make it even easier to use though.  Let&rsquo;s just think about how this is going to be used in practice.  A typical user will have a few of these LEDs chained together but for testing you might want to use just one.  We know that the protocol requires a start frame, then flag bits, then color data, and the end frame if we use a single LED but for two LEDs it looks like this:</p>
+
+<ul>
+<li><p>Send start frame</p></li>
+<li><p>Send flag bits</p></li>
+<li><p>Send color data</p></li>
+<li><p>Send flag bits</p></li>
+<li><p>Send color data</p></li>
+<li><p>Send end frame</p></li>
+</ul>
+
+
+<p>So for our first LED we want to send the start frame, the flag bits and the color data.  For our last LED we want to send flag bits, the color data, and the end frame.  Here&rsquo;s a function that does that:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">setColor</span><span class="p">(</span><span class="kt">byte</span> <span class="n">red</span><span class="p">,</span> <span class="kt">byte</span> <span class="n">green</span><span class="p">,</span> <span class="kt">byte</span> <span class="n">blue</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">first</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">last</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Is this the first color?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">first</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Yes, send the start frame</span>
+</span><span class='line'>        <span class="n">sendStartFrame</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// No, do nothing</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Send the flag bits</span>
+</span><span class='line'>    <span class="n">sendFlagBits</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Send the colors</span>
+</span><span class='line'>    <span class="n">sendColorData</span><span class="p">(</span><span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Is this the last color?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">last</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Yes, send the end frame</span>
+</span><span class='line'>        <span class="n">sendEndFrame</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// No, do nothing</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The extra else blocks have no impact on the executable generated so they&rsquo;re just there for clarity.  You can remove them if you want.  Now if you want to send a bunch of colors to a string of three LEDs you can do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="n">setColor</span><span class="p">(</span><span class="m">255</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="k">true</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'><span class="n">setColor</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">255</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="k">false</span><span class="p">,</span> <span class="k">false</span><span class="p">);</span>
+</span><span class='line'><span class="n">setColor</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">255</span><span class="p">,</span> <span class="k">false</span><span class="p">,</span> <span class="k">true</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That would set a string of three LEDs to solid red, solid green, and solid blue.  That&rsquo;s it, your driver is written!</p>
+
+<p>Check out <a href="https://github.com/timmattison/timmattison-netduino-drivers/tree/master/drivers/chainable-rgbled-grove/chainable-rgbled-grove">my driver on Github</a> to see a few more enhancements I added.  My code has an abstraction of a color from three integers into an RGB object so it&rsquo;s easier to pass around and also has a function that can set a string of LEDs from an array of RGB objects.  There&rsquo;s some sample code as well and if you want to see the system in action check out these simple videos:</p>
+
+<ul>
+<li><p><a href="http://www.youtube.com/watch?v=cOlJoXWr_qQ">Cycling random colors</a></p></li>
+<li><p><a href="http://www.youtube.com/watch?v=b5X3mvLbBf8">Cycling red, green, and blue</a></p></li>
+</ul>
+
+
+<p>Post in the comments and share your thoughts and project ideas.  If you use this library please let me know!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -861,188 +1172,6 @@ export JAVA_HOME="/usr/lib/jvm/java-6-openjdk-amd64/
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/">How-To: Debug HDFS Applications in Eclipse</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-02-07T10:56:58-05:00" pubdate data-updated="true">Feb 7<span>th</span>, 2012</time>
-        
-           | <a href="/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2012/02/07/how-to-debug-hdfs-applications-in-eclipse/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I started using the HDFS API in Java recently in order to port some legacy applications over to HDFS.  One thing that I noticed is that when running the application via &ldquo;hadoop jar&rdquo; it properly accessed HDFS and stored its files there but if I ran it in the debugger the API calls succeeded but the files never showed up.</p>
-
-<p>After a bit more investigation I saw that the HDFS API was unable to read my configuration files and find the NameNode so it defaulted to writing the files on the local file system instead.  This is nice behavior for debugging sometimes but can be dangerous if you&rsquo;re running an application that must put its files in HDFS like a mission critical application that doesn&rsquo;t fulfill its operational contract if data is lost.  In the case of an application like that accidentally writing to the local file system could be disastrous and expensive so it&rsquo;s good to know how to detect when this happens, and/or overcome it in a situation where you&rsquo;re trying to debug against your HDFS cluster.</p>
-
-<p>Let&rsquo;s look at a simple code snippet that connects to HDFS that is just a cleaned up version of <a href="http://developer.yahoo.com/hadoop/tutorial/module2.html#programmatically">Yahoo&rsquo;s Hadoop tutorial</a>:</p>
-
-<pre><code>import java.io.IOException;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-
-public class TestClass {
-    private static final String theFilename = "timmattison.txt";
-    private static final String message = "This is the message that gets put into the file";
-
-    public static void main(String[] args) {
-        try {
-            // Get the configuration and connect to the file system
-            Configuration conf = new Configuration();
-            FileSystem fs = FileSystem.get(conf);
-
-            // Create the path object for our output file
-            Path filenamePath = new Path(theFilename);
-
-            // Does it exist already?
-            if (fs.exists(filenamePath)) {
-                // Yes, remove it first
-                fs.delete(filenamePath);
-            }
-
-            // Create the output file and write the data into it
-            FSDataOutputStream out = fs.create(filenamePath);
-            out.writeUTF(message);
-            out.close();
-
-            // Open the output file as an input file and read it
-            FSDataInputStream in = fs.open(filenamePath);
-            String messageIn = in.readUTF();
-
-            // Print its contents and close the file
-            System.out.print(messageIn);
-            in.close();
-        } catch (IOException ioe) {
-            System.err.println("IOException during operation: "
-                    + ioe.toString());
-            System.exit(1);
-        }
-    }
-}
-</code></pre>
-
-<p>If you run this code with &ldquo;hadoop jar&rdquo; you&rsquo;ll see that it creates the expected file (timmattison.txt) in the current user&rsquo;s default path in HDFS.  If you run this code with Eclipse either in Run or Debug mode you&rsquo;ll see that the file is not created in HDFS, it is created relative to where Eclipse starts the JVM for the new process.</p>
-
-<p>We can tell where the HDFS library will attempt to write our files by very simply checking the type of the FileSystem object that is created by the call to <code>FileSystem.get(conf)</code>.  If that object&rsquo;s type is <a href="http://hadoop.apache.org/common/docs/current/api/org/apache/hadoop/fs/LocalFileSystem.html">LocalFileSystem</a> we are not connecting to HDFS.  However if that object&rsquo;s type is <a href="http://hadoop.apache.org/hdfs/docs/current/api/org/apache/hadoop/hdfs/DistributedFileSystem.html">DistributedFileSystem</a> then you know that you&rsquo;re connected to a Hadoop cluster and writing to a real instance of HDFS.</p>
-
-<p>In your code you can leverage this in a few ways.  First, if you always need to be sure you&rsquo;re writing to the cluster you can check the fs variable and see if it is an instance of LocalFileSystem.  If it is you can signal an error, e-mail an admin, etc.  Configuration changes in the field could cause this to happen so it is important to be aware of.  In general running programs through &ldquo;hadoop jar&rdquo; will make sure this doesn&rsquo;t happen but a little <a href="http://en.wikipedia.org/wiki/Defensive_programming">defensive programming</a> usually can&rsquo;t hurt.  Just consider what the cost of running your code against the wrong file system would be and trap this condition accordingly.</p>
-
-<p>If you&rsquo;re interested in handling this automatically in your development environment I&rsquo;ve come up with a simple pattern that works for me.  In some instances such as running your code outside of Eclipse without &ldquo;hadoop jar&rdquo; this pattern could fail so only use it specifically for debugging in Eclipse.  Here&rsquo;s what I do:</p>
-
-<pre><code>import java.io.IOException;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocalFileSystem;
-
-public class TestClass {
-    private static final String CORE_SITE_NAME = "core-site.xml";
-    private static final String CORE_SITE_LOCATION = "/etc/hadoop-0.20/conf.empty/"
-            + CORE_SITE_NAME;
-    private static final String LOCAL_SEARCH_PATH = "bin/";
-    private static final String LOCAL_CORE_SITE_LOCATION = LOCAL_SEARCH_PATH
-            + CORE_SITE_NAME;
-
-    private static boolean updatedConfiguration = false;
-
-    public static void main(String[] args) throws IOException {
-        try {
-            // Get the configuration and connect to the file system
-            Configuration conf = new Configuration();
-            FileSystem fs = FileSystem.get(conf);
-
-            // Is this the local file system?
-            if (fs instanceof LocalFileSystem) {
-                // Yes, we need to do use the cluster. Update the configuration.
-                updatedConfiguration = true;
-
-                /**
-                 * Remove the file if it already exists. Just in case this is a
-                 * symlink or something.
-                 */
-                removeTemporaryConfigurationFile();
-
-                // Copy the core-site.xml file to where our JVM can see it
-                copyConfigurationToTemporaryLocation();
-
-                // Recreate the configuration object
-                conf = new Configuration();
-
-                // Get a new file system object
-                fs = FileSystem.get(conf);
-
-                // Is this the local file system?
-                if (fs instanceof LocalFileSystem) {
-                    // Yes, give up. We cannot connect to the cluster.
-                    System.err.println("Failed to connect to the cluster.");
-                    System.exit(2);
-                }
-            }
-
-            // Do your HDFS related work here...
-        } catch (IOException ioe) {
-            // An IOException occurred, give up
-            System.err.println("IOException during operation: "
-                    + ioe.toString());
-            System.exit(1);
-        } finally {
-            // Did we update the configuration?
-            if (updatedConfiguration) {
-                // Yes, clean up the temporary configuration file
-                removeTemporaryConfigurationFile();
-            }
-        }
-    }
-
-    private static void copyConfigurationToTemporaryLocation()
-            throws IOException {
-        Runtime.getRuntime().exec(
-                new String[] { "cp", CORE_SITE_LOCATION,
-                        LOCAL_CORE_SITE_LOCATION });
-    }
-
-    private static void removeTemporaryConfigurationFile() throws IOException {
-        Runtime.getRuntime().exec(
-                new String[] { "rm", LOCAL_CORE_SITE_LOCATION });
-    }
-}
-</code></pre>
-
-<p>Now where it says &ldquo;Do your HDFS related work here&hellip;&rdquo; you can put your code and be sure that it&rsquo;s accessing the cluster, not your local file system.</p>
-
-<p>In a future article and on github I&rsquo;ll wrap this up in a reusable chunk so that you won&rsquo;t have to copy and paste this every time you start a new project.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/7/">&larr; Older</a>
@@ -1071,6 +1200,10 @@ public class TestClass {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk&#8217;s Command-line Tools</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible/">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
       </li>
     
@@ -1084,10 +1217,6 @@ public class TestClass {
     
       <li class="post">
         <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/11/12/when-unicode-goes-wrong-in-java/">When Unicode Goes Wrong in Java</a>
       </li>
     
   </ul>
