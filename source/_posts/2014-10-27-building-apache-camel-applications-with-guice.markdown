@@ -5,6 +5,9 @@ date: 2014-10-27 18:40:13 -0400
 comments: true
 categories: 
 ---
+
+**UPDATE 2015-07-27**: Included instructions to run the project from the command-line
+
 [Apache Camel](https://camel.apache.org/) is a great framework for implementing [Enterprise Integration Patterns](https://camel.apache.org/enterprise-integration-patterns.html).  However, most of the examples you'll find out there show you how to use it with [the Spring framework](http://projects.spring.io/spring-framework/).  I'm much more comfortable with [Google Guice](https://github.com/google/guice) since I've used it in more production projects.
 
 I did find an example of how to use Guice with Apache Camel but it wasn't commented well and involved doing a lot of extra work that didn't provide me any benefits.  So below I've listed the things that you'll need to do to get Guice and Camel working together.  What we are doing here is setting up Guice as a JNDI provider and automatically loading a Guice CamelModule via JNDI.
@@ -230,7 +233,15 @@ public class CamelGuiceApplicationModule extends CamelModuleWithMatchingRoutes {
 }
 ```
 
-Now if you don't want Guice to handle any external JNDI bindings then you're done.  You can run this application as-is and it will serve up the RESTlet route.  You can test it by using cURL like this:
+Now if you don't want Guice to handle any external JNDI bindings then you're done.  You can run this application as-is and it will serve up the RESTlet route.
+
+To run the application from Maven do this:
+
+``` shell
+mvn camel:run
+```
+
+You can test it by using cURL like this:
 
 ``` console
 $ curl http://localhost:8000/test1
