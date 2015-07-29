@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="In June this year AWS added the ability to run multiple WAR files with Elastic Beanstalk in a single EC2 instance. This makes deploying several small &hellip;">
+  <meta name="description" content="UPDATE: I briefly talked to Nick Humrich and Abhishek K Singh on Twitter, pointed them to this article, and it was fixed in less than 24 hours. Nice &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -123,7 +123,9 @@
   </header>
 
 
-  <div class="entry-content"><p>In June this year <a href="http://aws.amazon.com/about-aws/whats-new/2015/06/aws-elastic-beanstalk-supports-multiple-war-files-and-m4-instances/">AWS added the ability to run multiple WAR files with Elastic Beanstalk in a single EC2 instance</a>.  This makes deploying several small applications a lot more cost effective.</p>
+  <div class="entry-content"><p><strong><em>UPDATE</em></strong>: I briefly talked to <a href="https://twitter.com/nhumrich">Nick Humrich</a> and <a href="https://twitter.com/abhik5ingh">Abhishek K Singh</a> on Twitter, pointed them to this article, and it was fixed in less than 24 hours.  Nice work!  If you update your EB CLI tools to 3.4.7 or greater the bug will be fixed for you and you can ignore the rest of this article.</p>
+
+<p>In June this year <a href="http://aws.amazon.com/about-aws/whats-new/2015/06/aws-elastic-beanstalk-supports-multiple-war-files-and-m4-instances/">AWS added the ability to run multiple WAR files with Elastic Beanstalk in a single EC2 instance</a>.  This makes deploying several small applications a lot more cost effective.</p>
 
 <p>In order to do this you need to create a ZIP file containing all of the WAR files you want to deploy and you <strong><em>must</em></strong> include a directory called <code>.ebextensions</code> even if it is empty.  In my case I just added and empty file called <code>.ebextensions/README.md</code> to make it happy.  Obviously if you use <code>.ebextensions</code> for any kind of customization you won&rsquo;t need to do anything.</p>
 
