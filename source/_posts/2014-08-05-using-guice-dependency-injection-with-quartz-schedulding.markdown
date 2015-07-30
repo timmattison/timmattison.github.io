@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Using Guice dependency injection with Quartz schedulding"
+title: "Using Guice dependency injection with Quartz scheduling"
 date: 2014-08-05 08:39:34 -0400
 comments: true
 categories: 
