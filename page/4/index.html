@@ -9,8 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Have you ever seen a system print out an IP address like this? 1
-Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;ll &hellip;">
+  <meta name="description" content="Are you a developer? Do you have trouble remembering what you did yesterday when it is time for your daily standup? Do you use git? Do you commit &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -92,6 +91,57 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Use Git to Figure Out What You Did Yesterday</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-18T09:10:21-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/use-git-to-figure-out-what-you-did-yesterday/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Are you a developer?  Do you have trouble remembering what you did yesterday when it is time for your daily standup?  Do you use git?  Do you commit regularly?  If you answered yes to those questions you can now quickly figure out what you did yesterday with the help of <a href="https://github.com/timmattison/gitrdun">gitrdun</a>.</p>
+
+<p>gitrdun simply looks for git repos in your home directory, lists all of the commits in those repos from yesterday, and then prints that on the screen.  The current iteration is the &ldquo;5 minute version&rdquo;.  It literally took 5 minutes to write.  The &ldquo;5 hour version&rdquo; may make the formatting a bit nicer and add some features but don&rsquo;t hold your breath for that to come out.</p>
+
+<p>Don&rsquo;t want to fork the repo?  No problem, it&rsquo;s just a one liner anyway.  Use this alias&hellip;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>alias gitrdun="clear ; PAGER=\"cat\" find ~ -name \".git\" -type d -exec sh -c \"cd '{}' ; echo '{}'; git log --all --since='yesterday'\" \; | less"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This clears the screen, uses &ldquo;cat&rdquo; as the pager so that the pager doesn&rsquo;t clear the screen between repo checks, finds all git repos, goes into their directory that is under version control, and then lists all commits on all branches from yesterday.</p>
+
+<p>Enjoy!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -900,131 +950,6 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Building Asterisk With Support for SIPML5</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-02T19:06:58-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/01/02/building-asterisk-with-support-for-sipml5/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/building-asterisk-with-support-for-sipml5/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>If you are trying to use SIPML5 with Asterisk there are some gotchas that often come up.  If you&rsquo;re running it on Debian these tips below may help.</p>
-
-<p>If you haven&rsquo;t gotten that far with Asterisk and don&rsquo;t care about your current configuration you can try this procedure that I use to build Asterisk myself:</p>
-
-<ul>
-<li>Download latest Asterisk, extract it, and cd into the directory it was extracted into</li>
-<li>Install some necessary dependencies</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install build-essential libncurses5-dev libxml2-dev libsqlite3-dev libssl-dev libsrtp0-dev
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Run the configuration script</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>./configure
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Build Asterisk.  NOTE: I have only had problems running a multi-job make so I would suggest you do not include a -jX option to take advantage of all of your cores.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>make
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Install Asterisk</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make install
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Build the samples and <strong>overwrite your current configuration</strong>.  <strong>You lose everything here so skip this step if you want to keep your config</strong>.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo make samples
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Start Asterisk with crazy verbosity so you can see what is going on</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo /usr/sbin/asterisk -vvvvvvvvvvvvvvg
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>There are two issues I ran into when trying to use SIPML5.</p>
-
-<h1>Error #1: no protocols out of &lsquo;sip&rsquo; supported &ndash; in Asterisk console</h1>
-
-<p>In this case chan_sip.so probably isn&rsquo;t built.  Check in make menuconfig, add libssl-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_crypto is enabled.</p>
-
-<h1>Error #2: SRTP issues</h1>
-
-<p>If you are having SRTP issues you probably get one or more of these messages:</p>
-
-<ul>
-<li>In the browser &ndash; Not acceptable here</li>
-<li>In the Asterisk console &ndash; Received SAVPF profile in audio offer but AVPF is not enabled</li>
-<li>In the Asterisk console &ndash; Insufficient information in SDP</li>
-<li>In the Asterisk console &ndash; No SRTP module loaded, can&rsquo;t setup SRTP session</li>
-<li>In the Asterisk console &ndash; Rejecting secure audio stream without encryption details</li>
-</ul>
-
-
-<p>In this case res_srtp.so probably isn&rsquo;t built.  Check in make menuconfig, add libsrtp0-dev via apt-get, re-run ./configure, make menuselect, verify that resource module res_srtp is enabled.</p>
-
-<p>Good luck and post in the comments if it worked for you or if you need some help.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/5/">&larr; Older</a>
@@ -1053,6 +978,10 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java/">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance/">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
       </li>
     
@@ -1066,10 +995,6 @@ Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;l
     
       <li class="post">
         <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
       </li>
     
   </ul>

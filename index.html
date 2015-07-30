@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Today I released a Python script called quick-deploy-java that makes it easier to deploy multiple Java applications (WARs) to a single Elastic &hellip;">
+  <meta name="description" content="I just started a repo to keep track of my AWS Lambda (Java) experiments. The first experiment is using Java to extract metadata from an uploaded &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,126 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java/">Image Metadata Extraction With AWS Lambda and Java</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-07-30T16:40:14-04:00" pubdate data-updated="true">Jul 30<span>th</span>, 2015</time>
+        
+           | <a href="/archives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I just started a repo to keep track of <a href="https://github.com/timmattison/aws-lambda-playground">my AWS Lambda (Java) experiments</a>.  The first experiment is using Java to extract metadata from an uploaded image.  It is a bit unconventional because it doesn&rsquo;t use S3 but that was done to make the setup simpler.  Here&rsquo;s how you can play around with the metadata extractor&hellip;</p>
+
+<p>This tutorial will walk you through getting the metadata extractor set up, calling it, and then tearing it down.  The commands in this tutorial assume you are in the <code>metadata-extractor</code> directory.</p>
+
+<p><strong><em>NOTE</em></strong>: Do not forget to do step 5 &ndash; &ldquo;Tear down your function&rdquo; &ndash; or you may be sorry!</p>
+
+<h2>Step 1: Build the JAR</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ mvn clean compile test package</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should get a <code>BUILD SUCCESS</code> if everything worked.</p>
+
+<h2>Step 2: Create the Lambda function</h2>
+
+<p>Navigate to <a href="https://console.aws.amazon.com/lambda/home?region=us-east-1#/create?step=2">step 2 of the AWS Lambda creation process</a> (step 1 is selecting a blueprint/template which we do not want to do).</p>
+
+<ul>
+<li>Name your function <code>metadata-extractor</code></li>
+<li>Enter a description if you want</li>
+<li>Set the runtime to <code>Java 8</code></li>
+<li>Select <code>Upload a ZIP file</code> (it should be selected by default)</li>
+<li>Click &ldquo;Upload&rdquo; and select the file <code>metadata-extractor-1.0-SNAPSHOT-jar-with-dependencies.jar</code> from the <code>metadata-extractor/target</code> directory</li>
+<li>Set the handler to <code>com.timmattison.ImageHandler::handleRequest</code></li>
+<li>Set the role to <code>Basic execution role</code> or <code>lambda_basic_execution</code>, whichever exists.  NOTE: If you have popups disabled this may continually tell you that you didn&rsquo;t fill the field in.  You MUST enable popups to get this to work.</li>
+<li>Set the memory to <code>128 MB</code></li>
+<li>Set the timeout to <code>5 seconds</code></li>
+<li>Click <code>Next</code></li>
+<li>Click <code>Create function</code></li>
+</ul>
+
+
+<h2>Step 3: Create a public endpoint that you can test</h2>
+
+<p>You should now be on a screen that says &ldquo;Lambda > Functions > metadata-extractor&rdquo;.  There should be five tabs visible.  They are &ldquo;Code&rdquo;, &ldquo;Configuration&rdquo;, &ldquo;Event sources&rdquo;, &ldquo;API endpoints&rdquo;, &ldquo;Monitoring&rdquo;.</p>
+
+<ul>
+<li>Click on the <code>API endpoints</code> tab</li>
+<li>Click <code>Add API endpoint</code></li>
+<li>Set <code>API name</code> to <code>LambdaMicroservice</code></li>
+<li>Set <code>Resource name</code> to <code>metadata-extractor</code></li>
+<li>Set <code>Method</code> to <code>POST</code></li>
+<li>Set <code>Deployment stage</code> to <code>prod</code></li>
+<li>Set <code>Security</code> to <code>Open</code> (we will destroy this service later so it can&rsquo;t be abused)</li>
+<li>Click <code>Add API endpoint</code></li>
+</ul>
+
+
+<p>You should now see a table with three columns.  The rightmost column &ldquo;API endpoint URL&rdquo; contains the URL for the endpoint you just created.  It should be similar to this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://xxxxxxxxxxx.execute-api.us-east-1.amazonaws.com/prod/metadata-extractor</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Copy that somewhere where you can get to it later.</p>
+
+<h2>Step 4: Upload an image to the URL</h2>
+
+<p>Now you&rsquo;re ready to upload an image to the URL you just created.  Lambda is expecting data in JSON format, not binary uploads.  We do something a bit hacky to make our lives easier here.  We take the image, convert it to base64, and put it into a JSON object before we upload it.  This is done with the Python script called <code>convert-image-to-json.py</code>.  Assuming your image is called <code>myimage.jpg</code> and your URL is <code>https://xxxxxxxxxxx.execute-api.us-east-1.amazonaws.com/prod/metadata-extractor</code> you would do this to upload your image.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ./convert-image-to-json.py myimage.jpg | curl -X POST https://xxxxxxxxxxx.execute-api.us-east-1.amazonaws.com/prod/metadata-extractor -d@-</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If your image contains any metadata you&rsquo;ll get a response that contains a bunch of interesting info.  Here are the results from one PNG I had lying around:</p>
+
+<blockquote><p>&ldquo;[PNG-IHDR] Image Width &ndash; 332, [PNG-IHDR] Image Height &ndash; 48, [PNG-IHDR] Bits Per Sample &ndash; 8, [PNG-IHDR] Color Type &ndash; True Color with Alpha, [PNG-IHDR] Compression Type &ndash; Deflate, [PNG-IHDR] Filter Method &ndash; Adaptive, [PNG-IHDR] Interlace Method &ndash; No Interlace, [PNG-iCCP] ICC Profile Name &ndash; ICC Profile, [ICC Profile] Profile Size &ndash; 1960, [ICC Profile] CMM Type &ndash; appl, [ICC Profile] Version &ndash; 2.2.0, [ICC Profile] Class &ndash; Display Device, [ICC Profile] Color space &ndash; RGB , [ICC Profile] Profile Connection Space &ndash; XYZ , [ICC Profile] Profile Date/Time &ndash; Wed Mar 25 11:26:11 UTC 2009, [ICC Profile] Signature &ndash; acsp, [ICC Profile] Primary Platform &ndash; Apple Computer, Inc., [ICC Profile] Device manufacturer &ndash; appl, [ICC Profile] XYZ values &ndash; 0.9642029 1.0 0.8249054, [ICC Profile] Tag Count &ndash; 11, [ICC Profile] Profile Description &ndash; Generic RGB Profile, [ICC Profile] Apple Multi-language Profile Name &ndash; 30 skSK(Všeobecný RGB profil) hrHR(Generički RGB profil) caES(Perfil RGB genèric) ptBR(Perfil RGB Genérico) ukUA(Загальний профайл RGB) frFU(Profil générique RVB) zhTW(通用 RGB 色彩描述) itIT(Profilo RGB generico) nbNO(Generisk RGB-profil) koKR(일반 RGB 프로파일) csCZ(Obecný RGB profil) heIL(פרופיל RGB כללי) deDE(Allgemeines RGB-Profil) huHU(Általános RGB profil) svSE(Generisk RGB-profil) zhCN(普通 RGB 描述文件) jaJP(一般 RGB プロファイル) roRO(Profil RGB generic) elGR(Γενικό προφίλ RGB) ptPO(Perfil RGB genérico) nlNL(Algemeen RGB-profiel) esES(Perfil RGB genérico) thTH(โปรไฟล์ RGB ทั่วไป) trTR(Genel RGB Profili) fiFI(Yleinen RGB-profiili) plPL(Uniwersalny profil RGB) ruRU(Общий профиль RGB) arEG(ملف تعريف RGB العام) enUS(Generic RGB Profile) daDK(Generel RGB-beskrivelse), [ICC Profile] Copyright &ndash; Copyright 2007 Apple Inc., all rights reserved., [ICC Profile] Media White Point &ndash; (0.95047, 1.0, 1.0890961), [ICC Profile] Red Colorant &ndash; (0.45429993, 0.24191284, 0.014892578), [ICC Profile] Green Colorant &ndash; (0.35334778, 0.67362976, 0.09063721), [ICC Profile] Blue Colorant &ndash; (0.15664673, 0.0844574, 0.719574), [ICC Profile] Red TRC &ndash; 0.0070344, [ICC Profile] Chromatic Adaptation &ndash; sf32(0x73663332): 44 bytes, [ICC Profile] Blue TRC &ndash; 0.0070344, [ICC Profile] Green TRC &ndash; 0.0070344&rdquo;
+&#8220;`</p></blockquote>
+
+<h2>Step 5: Tear down your function</h2>
+
+<p>The function you&rsquo;ve created is now publicly accessible.  That means that if someone finds it they can hit it and start costing you real money.  It is in your best interest to shut this function down when you&rsquo;re done with it.</p>
+
+<ul>
+<li>Click <code>Actions</code></li>
+<li>Click <code>Delete function</code></li>
+<li>Click <code>Delete</code></li>
+</ul>
+
+
+<p>You&rsquo;re done!  Have fun!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1043,475 +1163,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/">Building Apache Camel Applications With Guice</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-27T18:40:13-04:00" pubdate data-updated="true">Oct 27<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/10/27/building-apache-camel-applications-with-guice/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/10/27/building-apache-camel-applications-with-guice/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><strong>UPDATE 2015-07-27</strong>: Included instructions to run the project from the command-line</p>
-
-<p><a href="https://camel.apache.org/">Apache Camel</a> is a great framework for implementing <a href="https://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Patterns</a>.  However, most of the examples you&rsquo;ll find out there show you how to use it with <a href="http://projects.spring.io/spring-framework/">the Spring framework</a>.  I&rsquo;m much more comfortable with <a href="https://github.com/google/guice">Google Guice</a> since I&rsquo;ve used it in more production projects.</p>
-
-<p>I did find an example of how to use Guice with Apache Camel but it wasn&rsquo;t commented well and involved doing a lot of extra work that didn&rsquo;t provide me any benefits.  So below I&rsquo;ve listed the things that you&rsquo;ll need to do to get Guice and Camel working together.  What we are doing here is setting up Guice as a JNDI provider and automatically loading a Guice CamelModule via JNDI.</p>
-
-<p>Step 1: Create a <code>jndi.properties</code> file in your project&rsquo;s <code>resources</code> directory.  The <code>java.naming.factory.initial</code> line tells JNDI to use Guice, the <code>org.guiceyfruit.modules</code> tells the <a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/InitialContext.html">javax.naming.InitialContext class</a> which module it should run at startup.</p>
-
-<figure class='code'><figcaption><span>jndi.properties</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='properties'><span class='line'><span class="c"># Guice JNDI provider</span>
-</span><span class='line'><span class="na">java.naming.factory.initial</span> <span class="o">=</span> <span class="s">org.apache.camel.guice.jndi.GuiceInitialContextFactory</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># list of guice modules to boot up (space separated)</span>
-</span><span class='line'><span class="na">org.guiceyfruit.modules</span> <span class="o">=</span> <span class="s">com.timmattison.CamelGuiceApplicationModule</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 2: Create a class with a static main method that will run your Camel routes.  Because JNDI and Guice do most of the work there isn&rsquo;t much to do here.</p>
-
-<figure class='code'><figcaption><span>com.timmattison.CamelApplication</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.naming.InitialContext</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/27/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CamelApplication</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">// Create the Camel context with Guice</span>
-</span><span class='line'>        <span class="n">InitialContext</span> <span class="n">context</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InitialContext</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Loop forever</span>
-</span><span class='line'>        <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="c1">// Sleep so we don&#39;t kill the CPU</span>
-</span><span class='line'>            <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">10000</span><span class="o">);</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 3: Create a class that extends <code>RouteBuilder</code> that implements a route (or multiple routes).</p>
-
-<p>In my case I created a RestRoutes class that used the <a href="http://restlet.com/">RESTlet framework</a> and created a single route using the <a href="https://camel.apache.org/direct.html">Direct component</a>.</p>
-
-<p>I moved the constants out to separate classes so they&rsquo;d be easier to refer to in other places if necessary.</p>
-
-<figure class='code'><figcaption><span>com.timmattison.CamelConstants</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/27/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CamelConstants</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">DIRECT_TEST_ROUTE_1</span> <span class="o">=</span> <span class="s">&quot;direct:testRoute1&quot;</span><span class="o">;</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>com.timmattison.HttpConstants</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/27/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HttpConstants</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">TEST_URL_1</span> <span class="o">=</span> <span class="s">&quot;/test1&quot;</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">TEST_URL_2</span> <span class="o">=</span> <span class="s">&quot;/test2&quot;</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">TEST_URL_3</span> <span class="o">=</span> <span class="s">&quot;/test3&quot;</span><span class="o">;</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>com.timmattison.RestRoutes</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.camel.builder.RouteBuilder</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.camel.model.rest.RestBindingMode</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/27/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RestRoutes</span> <span class="kd">extends</span> <span class="n">RouteBuilder</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">RESTLET</span> <span class="o">=</span> <span class="s">&quot;restlet&quot;</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">PORT</span> <span class="o">=</span> <span class="mi">8000</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">restConfiguration</span><span class="o">().</span><span class="na">bindingMode</span><span class="o">(</span><span class="n">RestBindingMode</span><span class="o">.</span><span class="na">auto</span><span class="o">).</span><span class="na">component</span><span class="o">(</span><span class="n">RESTLET</span><span class="o">).</span><span class="na">port</span><span class="o">(</span><span class="n">PORT</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">rest</span><span class="o">(</span><span class="n">HttpConstants</span><span class="o">.</span><span class="na">TEST_URL_1</span><span class="o">)</span>
-</span><span class='line'>                <span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">CamelConstants</span><span class="o">.</span><span class="na">DIRECT_TEST_ROUTE_1</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 4: Create the interfaces and the implementations that we&rsquo;re going to use in our route.</p>
-
-<p>Here we&rsquo;re creating four things:</p>
-
-<ol>
-<li>The interface that we&rsquo;re implementing that handles the route (<code>SayHello1</code>) that gets injected with Guice via JNDI.  This interface doesn&rsquo;t do anything other than give Guice a way to reference implementations of it.</li>
-<li>An implementation of that interface (<code>BasicSayHello1</code>).  Also, <code>BasicSayHello1</code> is going to have a dependency that we want injected with Guice to make the example more complete.</li>
-<li>The interface for the class that we want Guice to inject (<code>MessageHandler</code>)</li>
-<li>The implementation that gets injected (<code>BasicMessageHandler</code>)</li>
-</ol>
-
-
-<figure class='code'><figcaption><span>com.timmattison.jndibeans.interfaces.SayHello1</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">.</span><span class="na">jndibeans</span><span class="o">.</span><span class="na">interfaces</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.camel.Processor</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/27/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">SayHello1</span> <span class="kd">extends</span> <span class="n">Processor</span> <span class="o">{</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>com.timmattison.jndibeans.BasicSayHello1</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">.</span><span class="na">jndibeans</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.jndibeans.interfaces.SayHello1</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.nonjndibeans.interfaces.MessageHandler</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.camel.Exchange</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/27/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BasicSayHello1</span> <span class="kd">implements</span> <span class="n">SayHello1</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">MessageHandler</span> <span class="n">messageHandler</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Inject</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="nf">BasicSayHello1</span><span class="o">(</span><span class="n">MessageHandler</span> <span class="n">messageHandler</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">messageHandler</span> <span class="o">=</span> <span class="n">messageHandler</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">process</span><span class="o">(</span><span class="n">Exchange</span> <span class="n">exchange</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">exchange</span><span class="o">.</span><span class="na">getOut</span><span class="o">().</span><span class="na">setBody</span><span class="o">(</span><span class="n">messageHandler</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getName</span><span class="o">()));</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>com.timmattison.nonjndibeans.interfaces.MessageHandler</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">.</span><span class="na">nonjndibeans</span><span class="o">.</span><span class="na">interfaces</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/28/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">MessageHandler</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">input</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span>com.timmattison.nonjndibeans.BasicMessageHandler</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">.</span><span class="na">nonjndibeans</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.nonjndibeans.interfaces.MessageHandler</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/28/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BasicMessageHandler</span> <span class="kd">implements</span> <span class="n">MessageHandler</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">return</span> <span class="s">&quot;Hello &quot;</span> <span class="o">+</span> <span class="n">input</span> <span class="o">+</span> <span class="s">&quot;!&quot;</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 5: Create the direct route that handles the route from <code>RestRoutes</code></p>
-
-<figure class='code'><figcaption><span>com.timmattison.DirectTestRoutes</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.jndibeans.interfaces.SayHello1</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.jndibeans.interfaces.SayHello2</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.jndibeans.interfaces.SayHello3</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.camel.builder.RouteBuilder</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/27/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DirectTestRoutes</span> <span class="kd">extends</span> <span class="n">RouteBuilder</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">from</span><span class="o">(</span><span class="n">CamelConstants</span><span class="o">.</span><span class="na">DIRECT_TEST_ROUTE_1</span><span class="o">)</span>
-</span><span class='line'>                <span class="o">.</span><span class="na">beanRef</span><span class="o">(</span><span class="n">SayHello1</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 6: Create a Guice module that extends <code>CamelModuleWithMatchingRoutes</code>.  I bound my SayHello1 interface to BasicSayHello1, MessageHandler to BasicMessageHandler, and included my RestRoutes and DirectTestRoutes.</p>
-
-<figure class='code'><figcaption><span>com.timmattison.CamelGuiceApplicationModule</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">timmattison</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.jndibeans.BasicSayHello1</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.jndibeans.interfaces.SayHello1</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.nonjndibeans.BasicMessageHandler</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">com.timmattison.nonjndibeans.interfaces.MessageHandler</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.apache.camel.guice.CamelModuleWithMatchingRoutes</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * Created by timmattison on 10/27/14.</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CamelGuiceApplicationModule</span> <span class="kd">extends</span> <span class="n">CamelModuleWithMatchingRoutes</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">configure</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">bind</span><span class="o">(</span><span class="n">SayHello1</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">BasicSayHello1</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">bind</span><span class="o">(</span><span class="n">MessageHandler</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">to</span><span class="o">(</span><span class="n">BasicMessageHandler</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">bind</span><span class="o">(</span><span class="n">RestRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">bind</span><span class="o">(</span><span class="n">DirectTestRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now if you don&rsquo;t want Guice to handle any external JNDI bindings then you&rsquo;re done.  You can run this application as-is and it will serve up the RESTlet route.</p>
-
-<p>To run the application from Maven do this:</p>
-
-<figure class='code'><figcaption><span>com.timmattison.CamelGuiceApplicationModule</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">mvn</span> <span class="nl">camel:</span><span class="n">run</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can test it by using cURL like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="gp">$</span> curl http://localhost:8000/test1
-</span><span class='line'><span class="go">Hello com.timmattison.jndibeans.BasicSayHello1!</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you want to have Guice handle JNDI bindings you can easily add those into your module.  For example, if I wanted to be able to get an instance of <code>SayHello1</code> by using the JNDI name <code>sayHello1FromGuice</code> I could add this to my module:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="nd">@Provides</span>
-</span><span class='line'>    <span class="nd">@JndiBind</span><span class="o">(</span><span class="s">&quot;sayHello1FromGuice&quot;</span><span class="o">)</span>
-</span><span class='line'>    <span class="n">SayHello1</span> <span class="nf">sayHello1FromGuice</span><span class="o">(</span><span class="n">Injector</span> <span class="n">injector</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">SayHello1</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This tells JNDI that our Guice provider will handle any JNDI requests for this name.  Luckily, we didn&rsquo;t have to create any of these manually because Guice automatically creates JNDI bindings for anything that you&rsquo;ve called <code>bind</code> on using its class name.</p>
-
-<p>For example there is an automatic JNDI binding for <code>com.timmattison.jndibeans.interfaces.SayHello1</code> because we called <code>bind(SayHello1.class).to(BasicSayHello1.class)</code>.  If we ever want an instance of whatever Guice has bound to this we can ask JNDI for it using <code>SayHello1.class.getName()</code>.</p>
-
-<p>You&rsquo;ll notice that in our <code>DirectTestRoutes</code> class we routed the direct test route to <code>beanRef</code> with the parameter <code>SayHello1.class.getName()</code>.  That&rsquo;s all you need to do as you add more classes to your Camel routes.</p>
-
-<p>Want to try this out without building everything from scratch?  Head over to <a href="http://github.com/timmattison/apache-camel-guice">my apache-camel-guice repo on Github</a>.</p>
-
-<p>Good luck!  Don&rsquo;t forget to post in the comments!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1538,6 +1189,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java/">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance/">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
       </li>
     
@@ -1551,10 +1206,6 @@
     
       <li class="post">
         <a href="/archives/2015/03/10/validating-guava-event-bus-interactions-with-mockito/">Validating Guava Event Bus Interactions With Mockito</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
       </li>
     
   </ul>
