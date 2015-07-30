@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="UPDATE: I briefly talked to Nick Humrich and Abhishek K Singh on Twitter, pointed them to this article, and it was fixed in less than 24 hours. Nice &hellip;">
+  <meta name="description" content="Today I released a Python script called quick-deploy-java that makes it easier to deploy multiple Java applications (WARs) to a single Elastic &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,285 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance/">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-07-30T07:16:29-04:00" pubdate data-updated="true">Jul 30<span>th</span>, 2015</time>
+        
+           | <a href="/archives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today I released a Python script called <a href="https://github.com/timmattison/quick-deploy-java">quick-deploy-java</a> that makes it easier to deploy multiple Java applications (WARs) to a single Elastic Beanstalk instance.</p>
+
+<p>Want to give it a shot?  Clone the repo and follow along with this tutorial.</p>
+
+<h2>Step 1: Create a directory for your application and navigate to that directory</h2>
+
+<p>We&rsquo;ll call this <code>eb-test</code>.  We assume that you&rsquo;ll do this from the same directory that this <code>TUTORIAL.md</code> file is located.  If you do not the instructions later will need to incorporate the proper paths.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ mkdir eb-test
+</span><span class='line'>$ cd eb-test</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 2: Run <code>eb init</code> to create your application in Elastic Beanstalk</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ eb init</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I used the following values:</p>
+
+<h3>Region &ndash; us-east-1</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Select a default region
+</span><span class='line'>1) us-east-1 : US East (N. Virginia)
+</span><span class='line'>2) us-west-1 : US West (N. California)
+</span><span class='line'>3) us-west-2 : US West (Oregon)
+</span><span class='line'>4) eu-west-1 : EU (Ireland)
+</span><span class='line'>5) eu-central-1 : EU (Frankfurt)
+</span><span class='line'>6) ap-southeast-1 : Asia Pacific (Singapore)
+</span><span class='line'>7) ap-southeast-2 : Asia Pacific (Sydney)
+</span><span class='line'>8) ap-northeast-1 : Asia Pacific (Tokyo)
+</span><span class='line'>9) sa-east-1 : South America (Sao Paulo)
+</span><span class='line'>(default is 3): 1</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Application name &ndash; eb-test</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Enter Application Name
+</span><span class='line'>(default is "eb-test"): 
+</span><span class='line'>Application eb-test has been created.</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Platform &ndash; Tomcat</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Select a platform.
+</span><span class='line'>1) Node.js
+</span><span class='line'>2) PHP
+</span><span class='line'>3) Python
+</span><span class='line'>4) Ruby
+</span><span class='line'>5) Tomcat
+</span><span class='line'>6) IIS
+</span><span class='line'>7) Docker
+</span><span class='line'>8) Multi-container Docker
+</span><span class='line'>9) GlassFish
+</span><span class='line'>10) Go
+</span><span class='line'>(default is 1): 5</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Platform version &ndash; Tomcat 8 Java 8</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Select a platform version.
+</span><span class='line'>1) Tomcat 8 Java 8
+</span><span class='line'>2) Tomcat 7 Java 7
+</span><span class='line'>3) Tomcat 7 Java 6
+</span><span class='line'>4) Tomcat 7
+</span><span class='line'>5) Tomcat 6
+</span><span class='line'>(default is 1): 1</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>SSH &ndash; yes</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Do you want to set up SSH for your instances?
+</span><span class='line'>(y/n): y</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Keypair &ndash; existing</h3>
+
+<p>I already had a keypair called aws-eb that I use.  You can reuse an existing one or create a new one.  It shouldn&rsquo;t matter.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Select a keypair.
+</span><span class='line'>1) aws-eb
+</span><span class='line'>2) [ Create new KeyPair ]
+</span><span class='line'>(default is 2): 1</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Step 3: Create a testing environment</h1>
+
+<p>Since no applications are in this directory it will also launch the sample application.  On my system this step took about 4 minutes.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ eb create testing</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The output you&rsquo;ll see will start with something similar to this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>WARNING: The current directory does not contain any source code. Elastic Beanstalk is launching the sample application instead.
+</span><span class='line'>Environment details for: testing
+</span><span class='line'>  Application name: eb-test
+</span><span class='line'>  Region: us-east-1
+</span><span class='line'>  Deployed Version: Sample Application</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once it is done you&rsquo;ll see this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>INFO: Successfully launched environment: testing</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Step 4: Validate that the default environment is running</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ eb open</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should see a page in your web browser that looks like this:</p>
+
+<p><img src="default-application.png" alt="Default Tomcat 8 Java 8 application" /></p>
+
+<h1>Step 5: Deploy the first toy application by itself</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ../quick-deploy.py . ../example-applications/application1/
+</span><span class='line'>Building ROOT application...
+</span><span class='line'>ROOT application built
+</span><span class='line'>Deploying application.  This can take a long time.
+</span><span class='line'>Application deployed</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This may take several minutes.  Once it is complete you can verify that it is running by doing this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ eb open</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In your browser you should see a simple page that says something like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>This is application1 and it prints out a big random number 1555709810405276531</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The random number at the end will be different.</p>
+
+<p>At this point you&rsquo;ve deployed a single application to a single instance.  Now we&rsquo;ll deploy three applications to the same instance.</p>
+
+<h1>Step 6: Deploy three applications to the same instance</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ../quick-deploy.py . ../example-applications/application1/ ../example-applications/application1/ 1 ../example-applications/application2/ 2
+</span><span class='line'>Building ROOT application...
+</span><span class='line'>ROOT application built
+</span><span class='line'>Building 1 application...
+</span><span class='line'>Building 2 application...
+</span><span class='line'>Deploying application.  This can take a long time.
+</span><span class='line'>Application deployed</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This took about 4 minutes on my system.  At this point open the application again:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ eb open</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Make sure that the random number has changed.  This shows that you&rsquo;ve got a new instance of the application.</p>
+
+<p>Now add <code>/1</code> to the URL in your address bar and load the page.  You should see the same message but again with another new number.  This shows that you have a second copy of the application running at a new path.</p>
+
+<p>Finally replace <code>/1</code> with <code>/2</code> in the URL in your address bar and load the page.  You should see exactly this message in your browser:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>This is application2 and it just prints out this message</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If everything worked out you now have an Elastic Beanstalk configuration that is running three applications in a single instance.  <code>application1</code> is running at the root and at the <code>1</code> path while <code>application1</code> is running at the <code>2</code> path.</p>
+
+<h1>Step 7: Terminate your application</h1>
+
+<p>Make sure you terminate your application when you&rsquo;re done.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ eb terminate</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you forget to do this step Amazon will keep your application running and keep billing you!  If you want to be extra thorough go into the <a href="https://console.aws.amazon.com/elasticbeanstalk/home">AWS Elastic Beanstalk console</a> and delete the application completely.</p>
+
+<p>You should also go into S3 and delete any files that are left behind.  They don&rsquo;t take up much space but keeping S3 tidy for when you start making real use of Elastic Beanstalk makes sense.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1233,66 +1512,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Hacking Together a Super Simple Webserver With Netcat on a Raspberry Pi</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-17T08:08:38-04:00" pubdate data-updated="true">Sep 17<span>th</span>, 2014</time>
-        
-           | <a href="/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>A few months ago I wanted to get some data out of <a href="http://www.itwatchdogs.com/climate-monitor-weathergoose-ii-p1.html">WeatherGoose II Climate Monitor</a> so I could convert it into JSON and consume it in another application.  I hacked something together and converted their format to JSON in a few hours as a proof-of-concept and the code sat for a few months.</p>
-
-<p>A co-worker recently asked me if they could hook up to my script with a browser to try to do some visualization.  I didn&rsquo;t want to install Apache or nginx as a front end and I didn&rsquo;t want to modify the script to run its own webserver so I came up with a one-liner that uses netcat to get the output of my script into their browser.</p>
-
-<p>But wait!  netcat has an option for this.  However, on the Raspberry Pi it is not available and I didn&rsquo;t want to start downloading new versions.</p>
-
-<p>Here it is:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">SCRIPT=&quot;./weathergoose.py 192.168.1.99&quot; &amp;&amp; PORT=&quot;8080&quot; &amp;&amp; while true; do $SCRIPT | nc -l -p $PORT; done</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You&rsquo;ll need to set <code>SCRIPT</code> to the script you want to run (including any parameters it needs) and <code>PORT</code> to the port you want to listen on.</p>
-
-<p>Be careful!  This is not a real webserver.  This just spits your scripts output back to the browser.  Anything the browser sends to the script is ignored.</p>
-
-<p>Also, the script runs first and pipes its output to netcat.  This happens before netcat accepts a connection and can cause some confusion.  Here&rsquo;s a concrete example.</p>
-
-<p>Assume I wrote a script that just returns the time.  If I use the above snippet and start it at 5:00 PM but I hit it with my web browser at 5:15 PM the time that I get back will be 5:00 PM.  The next time I hit it it will be 5:15 PM.  The easiest way to think about it is that you get the data from when the script started or at the time of the <em>previous</em> request, whichever is later.</p>
-
-<p>I hope to come up with a fix for this issue but I haven&rsquo;t had the time yet.  Do you have a fix?  Does this work for you?  Post in the comments below.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/2/">&larr; Older</a>
@@ -1319,6 +1538,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance/">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk&#8217;s Command-line Tools</a>
       </li>
     
@@ -1332,10 +1555,6 @@
     
       <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
       </li>
     
   </ul>

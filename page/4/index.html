@@ -9,7 +9,8 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="TL;DR &ndash; The author&rsquo;s strongest argument is that some altcoins are junk. This unfortunately then morphs into saying that all altcoins are &hellip;">
+  <meta name="description" content="Have you ever seen a system print out an IP address like this? 1
+Disconnected from 010.000.001.133 If you try to ping this IP address you&rsquo;ll &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +92,73 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Octal and Hexadecimal IP Addresses With Ping</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-18T07:12:14-04:00" pubdate data-updated="true">Jun 18<span>th</span>, 2014</time>
+        
+           | <a href="/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2014/06/18/octal-and-hexadecimal-ip-addresses-with-ping/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Have you ever seen a system print out an IP address like this?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Disconnected from 010.000.001.133</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you try to ping this IP address you&rsquo;ll get quite interesting results.  What the IP address should be is 10.0.1.133 but what ping reports that it is if you run the command with those leading zeroes included looks very odd.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 010.000.001.133
+</span><span class='line'>PING 010.000.001.133 (8.0.1.133): 56 data bytes
+</span><span class='line'>Request timeout for icmp_seq 0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>See that <code>8.0.1.133</code> IP address that it is trying to reach?  It turns out that if you put leading zeroes into an IP address that you pass to <code>ping</code>, and possibly other network tools, it treats those numbers as <a href="https://en.wikipedia.org/wiki/Octal">octal</a>.  Octal isn&rsquo;t something most end-users deal with unless they&rsquo;re reminiscing about their old <a href="https://en.wikipedia.org/wiki/CompuServe">Compuserve</a> addresses.</p>
+
+<p>In any case, if you find yourself trying to ping a machine with an IP address that has leading zeroes make sure you remove them!</p>
+
+<p>This got me wondering what other weird things ping might do with IP addresses so I played around a bit and saw that it actually allows you to enter them in hex as well.  This is useful for IPv6 but really strange for IPv4.  Try it out and try to ping the above address with the first octet in hex:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>timmattison$ ping 0xa.0.1.133
+</span><span class='line'>PING 0xa.0.1.133 (10.0.1.133): 56 data bytes</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sure enough it converts <code>0xa</code> into <code>10</code>.  I&rsquo;m not sure I&rsquo;ll ever use that feature but its good to know what ping does to its input in the even that some other weird situation pops up.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -957,117 +1025,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">How to Get SIPML5 Working With Asterisk</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-02T18:59:44-05:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
-        
-           | <a href="/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2014/01/02/how-to-get-sipml5-working-with-asterisk/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Another &ldquo;all business&rdquo; post that has been sitting in Evernote for months.  Enjoy!</p>
-
-<p>Assume Asterisk is running on localhost and Apache is installed and running with /var/www at the htdocs directory</p>
-
-<p>http.conf changes:</p>
-
-<ul>
-<li>Set &ldquo;enabled=yes&rdquo; OR uncomment &ldquo;;enabled=yes&rdquo;</li>
-<li>Set &ldquo;bindport=8088&rdquo; OR uncomment &ldquo;;bindport=8088&rdquo;</li>
-</ul>
-
-
-<p>sip.conf changes:</p>
-
-<ul>
-<li>Get the SIP code listening via TCP &ndash; set &ldquo;tcpenable=yes&rdquo;</li>
-<li>Add web socket support for SIP &ndash; set &ldquo;transport=udp,ws&rdquo; OR add &ldquo;,ws&rdquo; to existing transport list</li>
-<li>Uncomment xlite1 account</li>
-<li>Add &ldquo;avpf=yes&rdquo; to xlite1 account</li>
-<li>Add &ldquo;icesupport=yes&rdquo; to xlite1 account</li>
-</ul>
-
-
-<p>Steps to perform test call:</p>
-
-<ul>
-<li>Restart Asterisk</li>
-<li>Get the source from Subversion</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>svn checkout http://sipml5.googlecode.com/svn/trunk/ sipml5-read-only</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Move the sipml5 source into /var/www</li>
-<li>Open Chrome and point it to the SIPML5 index.html in /var/www (or the subdirectory you put it in)</li>
-<li>Click &ldquo;Enjoy our live demo&rdquo;</li>
-<li>Set these values in the &ldquo;Registration&rdquo; panel
-
-<ul>
-<li>Display Name: xlite1</li>
-<li>Private Identity: xlite1</li>
-<li>Public Identity: sip:xlite1@localhost</li>
-<li>Realm: localhost</li>
-<li>Password is left blank</li>
-</ul>
-</li>
-<li>Click &ldquo;Expert Mode&rdquo;</li>
-<li>Set these values in &ldquo;Expert settings&rdquo;
-
-<ul>
-<li>Disable Video: Checked</li>
-<li>Enable RTCWeb Breaker: Unchecked</li>
-<li>WebSocket Server URL: ws://localhost:8088/ws</li>
-<li>SIP outbound Proxy URL: udp://localhost:5060</li>
-<li>Click &ldquo;Save&rdquo;</li>
-<li>Close &ldquo;Expert settings&rdquo; tab</li>
-</ul>
-</li>
-<li>Enter &ldquo;sip:2@localhost&rdquo; in the &ldquo;Call control&rdquo; field</li>
-<li>Click &ldquo;Call&rdquo;</li>
-</ul>
-
-
-<p>At this point you should hear audio coming from Asterisk in a few seconds and your first call is complete.  Now you can build out your server as you&rsquo;d want!</p>
-
-<p>Here are some screenshots of the SIPML5 settings just in case you want to visually double-check.</p>
-
-<p><img src="/images/sipml5-asterisk/registration-and-call-control.png" alt="Registration and call control" /></p>
-
-<p><img src="/images/sipml5-asterisk/expert-settings.png" alt="Expert settings" /></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/5/">&larr; Older</a>
@@ -1096,6 +1053,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance/">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk&#8217;s Command-line Tools</a>
       </li>
     
@@ -1109,10 +1070,6 @@
     
       <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="Using duplicity and backing up a Rackspace Cloud Server to Cloud Files is great.  The bandwidth is free (if you don&rsquo;t forget to enable service &hellip;">
+  <meta name="description" content="Hibernate currently has some issues with Restrictions.in.  Basically if you try to pass it NULL it generates invalid SQL on at least MySQL and &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,72 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in/">How-To: Fix Hibernate SQL Errors When Using Restrictions.in</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-22T12:36:03-04:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2011</time>
+        
+           | <a href="/archives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Hibernate currently has some issues with Restrictions.in.  Basically if you try to pass it NULL it generates invalid SQL on at least MySQL and PostgreSQL.  I found a <a href="http://www.celerity.nl/blog/2009/01/hibernate-creating-invalid-quries-from-empty-lists/">blog post outlining how to fix this issue</a> and <a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-2776">the accompanying JIRA issue</a> which confirms that I&rsquo;m not the only one having this problem.  Unfortunately this person&rsquo;s fix didn&rsquo;t work for me but I think that&rsquo;s because they&rsquo;re using MySQL and I&rsquo;m using PostgreSQL.  Differences in the driver still make this fail on PostgreSQL.</p>
+
+<p>In order to remedy this I set out to find a better solution that would hopefully work on Hibernate with any backend.  What I came up with, <a href="http://stackoverflow.com/questions/2667131/is-there-something-like-restrictions-eqtrue-false-in-criteria-api">with some help from StackOverflow</a>, is this:</p>
+
+<pre><code>﻿﻿public static &lt;M&gt; void addInRestriction(DetachedCriteria dc, String idDbField, List ids) {
+    // Is our list empty?
+    if ((ids != null) &amp;&amp; (ids.size() &gt; 0)) {
+        // No, add this restriction to the detached object
+        dc.add(Restrictions.in(idDbField, ids));
+    } else {
+        // Yes, our list is empty.  Make this always fail.
+        // From: http://stackoverflow.com/questions/2667131/is-there-something-like-restrictions-eqtrue-false-in-criteria-api
+        dc.add(Restrictions.sqlRestriction("(1=0)"));
+    }
+}
+</code></pre>
+
+<p>I put this in a class with some other Hibernate helper functions and now instead of doing this:</p>
+
+<pre><code>dc.add(Restrictions.in("fieldName", fieldValues));
+</code></pre>
+
+<p>I do this:</p>
+
+<pre><code>HibernateQueryUtils.addInRestriction(dc, "fieldName", fieldValues);
+</code></pre>
+
+<p>This fixed all of my Hibernate issues when passing it a NULL or even an empty list.  Hope it works for you too!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -649,45 +715,6 @@ $body = $body . $line;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2010/09/28/getting-back-into-the-swing-of-things/">Getting Back Into the Swing of Things</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-09-28T21:27:15-04:00" pubdate data-updated="true">Sep 28<span>th</span>, 2010</time>
-        
-           | <a href="/archives/2010/09/28/getting-back-into-the-swing-of-things/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2010/09/28/getting-back-into-the-swing-of-things/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>It has been a while but I&rsquo;m starting to get the itch to write some more articles.  Expect some new posts soon.  If you have any requests, let me know!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -716,6 +743,10 @@ $body = $body . $line;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance/">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk&#8217;s Command-line Tools</a>
       </li>
     
@@ -729,10 +760,6 @@ $body = $body . $line;
     
       <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Tim Mattison">
 
   
-  <meta name="description" content="NetFlix just released software that enables consumers to watch their instant queue on a PlayStation 3. Of course, the XBOX 360 has had this &hellip;">
+  <meta name="description" content="Here&rsquo;s another thing I ran into today when adding support for KVM to my kernel&hellip; VMware Workstation&rsquo;s modules failed to load at &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +91,72 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/archives/2009/11/17/how-to-fix-vmware-workstations-modules-after-updating-your-kernel-on-gentoo/">How-To: Fix VMware Workstation&#8217;s Modules After Updating Your Kernel on Gentoo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-11-17T10:18:26-05:00" pubdate data-updated="true">Nov 17<span>th</span>, 2009</time>
+        
+           | <a href="/archives/2009/11/17/how-to-fix-vmware-workstations-modules-after-updating-your-kernel-on-gentoo/#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/17/how-to-fix-vmware-workstations-modules-after-updating-your-kernel-on-gentoo/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Here&rsquo;s another thing I ran into today when adding support for KVM to my kernel&hellip; VMware Workstation&rsquo;s modules failed to load at boot time.  Normally, the fix is to run:</p>
+
+<pre><code>vmware-modconfig --console --install-all
+</code></pre>
+
+<p>Or:</p>
+
+<pre><code>emerge --config vmware-workstation
+</code></pre>
+
+<p><strong>Neither of these will work on the latest versions of Gentoo</strong>.  The real fix is to re-emerge your vmware-modules package.  You can do this by just running:</p>
+
+<pre><code>emerge vmware-modules
+</code></pre>
+
+<p>That will build the modules against your current running kernel.  After that, your modules will work again but will not be loaded.  You need to forcibly reload them by running:</p>
+
+<pre><code>/etc/init.d/vmware restart
+</code></pre>
+
+<p>Each time you change your kernel, which means even booting into one that previously worked, you&rsquo;ll need to do this again.  For convenience if you change your kernel a lot you can just put those two commands into a script.  The script, which I call &ldquo;fix-vmware-modules.sh&rdquo;, should just look like this:</p>
+
+<pre><code>emerge vmware-modules
+/etc/init.d/vmware restart
+rc-update add vmware default
+</code></pre>
+
+<p>I added the extra rc-update command just in case you run this on a machine that you just installed VMware Workstation on.  It makes sure the modules are loaded at boot time and it won&rsquo;t hurt an existing installation.  Instead it will just let you know that it&rsquo;s already added to the default runlevel.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -798,73 +864,6 @@ EndSection
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/">How-To: Migrate VMware Fusion-based Windows VMs to VMware Workstation on Linux</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
-        
-           | <a href="/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/#disqus_thread"
-             data-disqus-identifier="http://blog.timmattison.com/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>VMware Fusion and VMware Workstation are both incredible products that will literally change the way you work if you are a developer or an IT admin.  One thing that is a bit of a pain point, though, is moving virtual machines from VMware Fusion on the Mac to VMware Workstation on Linux.  If you move your VMs without doing this you may notice incredibly bad performance.  When I say bad performance I mean that the system is so slow it may take you 5 minutes to go from the desktop to the control panel.  Here is how to do it properly and avoid all of that&hellip;</p>
-
-<p>Note: You can do these steps either when going from VMware Fusion to VMware Workstation or the other way around.</p>
-
-<p>For the purposes of this article we&rsquo;ll skip calling them VMware Fusion and VMware Workstation and we&rsquo;ll refer to them as your source host and your destination host.</p>
-
-<p>Step 1: Take a snapshot of your VM so you can revert if anything goes wrong.</p>
-
-<p>Step 2: Start up your Windows VM on the source host.</p>
-
-<p>Step 3: Go to Control Panel &ndash;> Add/Remove programs</p>
-
-<p>Step 4: Uninstall VMware tools and shutdown</p>
-
-<p>If you don&rsquo;t need audio support, do steps 5 through 8 otherwise you&rsquo;re ready to move your VM over to the</p>
-
-<p>destination host.</p>
-
-<p>Step 5: Reboot and go to Control Panel &ndash;> Administrative Tools &ndash;> Services</p>
-
-<p>Step 6: Stop &ldquo;Windows Audio&rdquo;, and set it&rsquo;s startup mode to &ldquo;Disabled&rdquo;</p>
-
-<p>Step 7: Shutdown the VM</p>
-
-<p>Step 8: Open the VM settings and remove the audio device</p>
-
-<p>Now, move your VMs to the destination host.  If your destination host is Linux you can safely remove the &#8221;Applications&#8221; directory inside the vmwarevm directory.</p>
-
-<p>Finally, restart your host, install VMware Tools as you normally would, power off, and create another snapshot. This snapshot will serve as a clean starting off point if you need to tweak things experimentally to get the system running the way you&rsquo;d like.  Never underestimate the power of a few snapshots to save you hours upon hours even when you think that everything will go just fine.  Once things are stable you can remove them and reclaim the disk space. Also, don&rsquo;t forget about the VMware Tools &ldquo;Shrink&rdquo; function.  Once you&rsquo;re stable and you&rsquo;ve removed your snapshots you should always run &ldquo;Shrink&rdquo; to get back some storage.  Usually it trims a few hundred MB for me but sometimes it can free up a few GB if the VM has seen a lot of use.  You can&rsquo;t run &ldquo;Shrink&rdquo; if you have any snapshots on your virtual machine so it&rsquo;s really only good when you&rsquo;ve tweaked your setup and you&rsquo;re happy.  As soon as you &ldquo;Shrink&rdquo; you should always snapshot the machine again.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/12/">&larr; Older</a>
@@ -893,6 +892,10 @@ EndSection
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/archives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance/">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+    
+      <li class="post">
         <a href="/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk&#8217;s Command-line Tools</a>
       </li>
     
@@ -906,10 +909,6 @@ EndSection
     
       <li class="post">
         <a href="/archives/2014/12/16/mockito-and-servletinputstreams/">Mockito and ServletInputStreams</a>
-      </li>
-    
-      <li class="post">
-        <a href="/archives/2014/11/12/fixing-javac-on-mac-os-when-multiple-jvms-are-installed/">Fixing Javac on Mac OS When Multiple JVMs Are Installed</a>
       </li>
     
   </ul>
