@@ -6,6 +6,8 @@ comments: true
 categories: 
 ---
 
+**_UPDATE_**: I briefly talked to [Nick Humrich](https://twitter.com/nhumrich) and [Abhishek K Singh](https://twitter.com/abhik5ingh) on Twitter, pointed them to this article, and it was fixed in less than 24 hours.  Nice work!  If you update your EB CLI tools to 3.4.7 or greater the bug will be fixed for you and you can ignore the rest of this article.
+
 In June this year [AWS added the ability to run multiple WAR files with Elastic Beanstalk in a single EC2 instance](http://aws.amazon.com/about-aws/whats-new/2015/06/aws-elastic-beanstalk-supports-multiple-war-files-and-m4-instances/).  This makes deploying several small applications a lot more cost effective.
 
 In order to do this you need to create a ZIP file containing all of the WAR files you want to deploy and you **_must_** include a directory called `.ebextensions` even if it is empty.  In my case I just added and empty file called `.ebextensions/README.md` to make it happy.  Obviously if you use `.ebextensions` for any kind of customization you won't need to do anything.
