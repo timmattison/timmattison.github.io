@@ -4,7 +4,7 @@
   <title><![CDATA[Tim Mattison]]></title>
   <link href="http://blog.timmattison.com/atom.xml" rel="self"/>
   <link href="http://blog.timmattison.com/"/>
-  <updated>2015-07-30T16:43:56-04:00</updated>
+  <updated>2015-07-30T18:51:05-04:00</updated>
   <id>http://blog.timmattison.com/</id>
   <author>
     <name><![CDATA[Tim Mattison]]></name>
@@ -1183,7 +1183,7 @@
 <p>To run the application from Maven do this:</p>
 
 <figure class='code'><figcaption><span>com.timmattison.CamelGuiceApplicationModule</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">mvn</span> <span class="nl">camel:</span><span class="n">run</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">mvn</span> <span class="n">clean</span> <span class="n">compile</span> <span class="nl">exec:</span><span class="n">java</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
