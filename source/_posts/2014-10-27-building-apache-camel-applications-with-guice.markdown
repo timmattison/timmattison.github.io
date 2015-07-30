@@ -238,7 +238,7 @@ Now if you don't want Guice to handle any external JNDI bindings then you're don
 To run the application from Maven do this:
 
 ```
-mvn camel:run
+mvn clean compile exec:java
 ```
 
 You can test it by using cURL like this:
