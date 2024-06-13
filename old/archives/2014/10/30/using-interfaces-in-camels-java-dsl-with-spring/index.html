@@ -1,0 +1,408 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Using Interfaces in Camel's Java DSL With Spring - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="When writing some routes with Camel&rsquo;s Java DSL I came across this exception: 1
+Caused by: java.lang.IllegalStateException: No method invocation &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+      <h1 class="entry-title">Using Interfaces in Camel's Java DSL With Spring</h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2014-10-30T16:29:26-04:00" pubdate data-updated="true">Oct 30<span>th</span>, 2014</time>
+
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p>When writing some routes with Camel&rsquo;s Java DSL I came across this exception:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Caused by: java.lang.IllegalStateException: No method invocation could be created, no matching method could be found on: null</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After a lot of tracing I figured out that it was related to me calling the <code>.bean(...)</code> method with a class that was actually just an interface.  What was happening was that Camel wants to instantiate this class, usually using Spring, but cannot do that if it isn&rsquo;t a concrete implementation.</p>
+
+<p>This proved to be a real problem because I had an interface that had two implementations.  One of these implementations is used for debugging and the other is used for production.  I didn&rsquo;t want to have to manually select which one I was using in my code because that&rsquo;s Spring&rsquo;s job so I came up with a way to do it.</p>
+
+<p>For the complete background here&rsquo;s what my interface looks like:</p>
+
+<figure class='code'><figcaption><span>The interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">org.apache.camel.Processor</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ProtobufToWire</span> <span class="kd">extends</span> <span class="n">Processor</span> <span class="o">{</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This converts a Protobuf to our &ldquo;wire&rdquo; format.  That format could be the native protobuf binary format or JSON.  I implement this empty interface in two classes called <code>ProtobufToBinary</code> and <code>ProtobufToJson</code> and I want to use the JSON one only for debugging.</p>
+
+<p>To be clear doing this always fails with the exception I listed above:</p>
+
+<figure class='code'><figcaption><span>A route that always fails</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">from</span><span class="o">(</span><span class="n">SOME_URI</span><span class="o">).</span><span class="na">bean</span><span class="o">(</span><span class="n">ProtobufToWire</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To fix this I added this to my Java-based Spring config:</p>
+
+<figure class='code'><figcaption><span>Getting an instance of ProtobufToWire</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Bean</span>
+</span><span class='line'><span class="kd">public</span> <span class="n">ProtobufToWire</span> <span class="nf">protobufToWire</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">ProtobufToBinary</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now because, I believe, that Camel&rsquo;s <code>bean(...)</code> method doesn&rsquo;t look up the beans with Spring this still fails.  What I needed to where I am defining my routes is this:</p>
+
+<figure class='code'><figcaption><span>Finally, how to get Camel to instantiate the right type</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="nd">@Autowired</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">ProtobufToWire</span> <span class="n">protobufToWire</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">from</span><span class="o">(</span><span class="n">SOME_URI</span><span class="o">).</span><span class="na">bean</span><span class="o">(</span><span class="n">protobufToWire</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What I&rsquo;m doing here is getting Spring to autowire an instance of that interface into a private variable and then asking it for its real concrete type.  Part of me says that I shouldn&rsquo;t have to do this but this is what works for me.</p>
+
+<p>Did this help you out?  Do you have a better way to do it?  Post in the comments!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2014-10-30T16:29:26-04:00" pubdate data-updated="true">Oct 30<span>th</span>, 2014</time>
+
+
+
+    </p>
+
+      <div class="sharing">
+
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/" >Tweet</a>
+
+
+  <div class="g-plusone" data-size="medium"></div>
+
+
+
+    <a class="FlattrButton" style="display:none;"
+    title="Using interfaces in Camel's Java DSL with Spring"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/">
+    When writing some routes with Camel's Java DSL I came across this exception:
+
+```
+Caused by: java.lang.IllegalStateException: No method invocation could be created, no matching method could be found on: null
+```
+
+After a lot of tracing I figured out that it was related to me calling the `.bean(...)` method with a class that was actually just an interface.  What was happening was that Camel wants to instantiate this class, usually using Spring, but cannot do that if it isn't a concrete &hellip;
+</a>
+
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left" href="/old/archivesives/2014/10/28/activating-u2f-on-a-yubikey-neo-on-mac-os" title="Previous Post: Activating U2F on a Yubikey Neo on Mac OS">&laquo; Activating U2F on a Yubikey Neo on Mac OS</a>
+
+
+        <a class="basic-alignment right" href="/old/archivesives/2014/11/12/when-unicode-goes-wrong-in-java" title="Next Post: When Unicode goes wrong in Java">When Unicode goes wrong in Java &raquo;</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/10/30/using-interfaces-in-camels-java-dsl-with-spring/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

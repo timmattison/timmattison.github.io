@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How-To: Set Up iSCSI Between Linux and Mac OS (Tested on 10.6.1) - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="Last week I read LinuxJournal magazine and it talked about all of the cool things you could do with two Linux machines and the open source iSCSI code &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+      <h1 class="entry-title">How-To: Set Up iSCSI Between Linux and Mac OS (Tested on 10.6.1)</h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2009-10-20T09:12:51-04:00" pubdate data-updated="true">Oct 20<span>th</span>, 2009</time>
+
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p>Last week I read LinuxJournal magazine and it talked about all of the cool things you could do with two Linux machines and the open source iSCSI code that&rsquo;s floating around out there.  I do have two Linux machines but I really wanted to see if I could get iSCSI working on my MacBook Pro and iMac so I could easily offload some files from their main drives to my larger file server.  I did it and here&rsquo;s how you can do it too.</p>
+
+<p>The terminology that you&rsquo;ll need to know here is target (the server that has the disk where you&rsquo;re putting the data) and initiator (the machine that wants access to the target).  In my scenario my Dell Linux machine is the target and my Mac is the initiator.  You should also know that the iSCSI volumes I created were not raw drives.  I created a file filled with zeroes that the iSCSI software treats as a raw disk.</p>
+
+<p>There are other ways to do this but this way is really cool because the underlying system can be any mix of systems you want (ext2/&frac34;, ZFS, LVM RAID, etc.).  Using LVM gives you redundancy without your client having to worry about it.</p>
+
+<p><strong>Disclaimer:</strong> I use Gentoo so your steps may be different.</p>
+
+<p>Step 1: Install iSCSI target software on Linux.  I used the <a href="http://iscsitarget.sourceforge.net/">iSCSI Enterprise target</a> package.</p>
+
+<pre><code>emerge -av iscsitarget
+</code></pre>
+
+<p>Step 2: Create a directory on your Linux machine where you want to store your iSCSI disk images.  I used &ldquo;/srv&rdquo;</p>
+
+<pre><code>sudo mkdir /srv
+</code></pre>
+
+<p>Step 3: Create a file that will contain your first iSCSI volume with dd.  Don&rsquo;t go crazy here yet.  Let&rsquo;s create two 1GB disks for testing and you can recreate larger ones later.</p>
+
+<pre><code>sudo dd if=/dev/zero of=/srv/iscsi.disk.0 bs=1 seek=1024M count=1
+sudo dd if=/dev/zero of=/srv/iscsi.disk.1 bs=1 seek=1024M count=1
+</code></pre>
+
+<p>Step 4: Edit the iSCSI configuration files.  My system was a bit different than the one in LinuxJournal.  I had to edit only the /etc/ietd.conf file.  Here is my entire configuration file:</p>
+
+<pre><code>Target iqn.2009-09.org.mattison:iscsi-target
+        IncomingUser test secretpasswd
+        OutgoingUser test secretpasswd
+        Lun 0 Path=/srv/iscsi.disk.0,Type=fileio
+        Lun 1 Path=/srv/iscsi.disk.1,Type=fileio
+        Alias Test
+</code></pre>
+
+<p>Keep in mind that to comply with the standards your password must be twelve characters.  Also, don&rsquo;t forget to change the target name from iqn.2009-09.org.mattison:iscsi-target to something that makes more sense to you.  Typically the 2009-09 is the year and month in which the filesystem went live, org.mattison is just your domain name in reverse, and iscsi-target is what you want to call this target.</p>
+
+<p>Step 5: Start the iSCSI target.</p>
+
+<pre><code>/etc/init.d/ietd restart
+</code></pre>
+
+<p>Step 6: Install an iSCSI initiator on your Mac and reboot (it is required by the installer).  I used <a href="http://www.studionetworksolutions.com/products/product_detail.php?t=more&amp;pi=11">GlobalSAN&rsquo;s iSCSI Initiator for Mac OS X</a></p>
+
+<p>Step 7: After the reboot open the GlobalSAN system preferences panel.  Then click on &ldquo;Portals&rdquo;, click the plus sign, and then enter in the DNS name or IP address of your Linux server.  The default port should be fine unless you changed it on the Linux machine.</p>
+
+<p>Click &ldquo;OK&rdquo;.</p>
+
+<p>Step 8: Click the &ldquo;Targets&rdquo; tab and you should see your &ldquo;iscsi-target&rdquo; item listed there.  Click the &ldquo;Connected&rdquo; checkbox.  Then, check the &ldquo;Use CHAP Login Information&rdquo; box, fill in the user name, target secret, and initiator secret fields. In my example the username was &ldquo;test&rdquo; and the passwords were both &ldquo;secretpasswd&rdquo;.  If you changed them then use your values here. The &ldquo;IncomingUser&rdquo; password is what GlobalSAN refers to as the &ldquo;Target Secret&rdquo;, the &ldquo;OutgoingUser&rdquo; password is what GlobalSAN refers to as the &ldquo;Initiator Secret&rdquo;.</p>
+
+<p>Step 9: Now partition and use the disks just like any other disk.  They&rsquo;ll show up as iSCSI &ldquo;IET VIRTUAL-DISK Media&rdquo; in Apple&rsquo;s Disk Utility.</p>
+
+<p>From here you can do all kinds of crazy things.  You can even set up a RAID, run iDefrag on them, use them for Time Machine, etc.  Of course a RAID over iSCSI in this setup will yield very low performance so it&rsquo;s not recommended for production, just for fun.  Defragging an iSCSI volume is also not worth it especially since the file that contains the whole filesystem on the Linux machine is most likely where the fragmentation is occurring.  Again, these two examples are just to show you that Mac OS really does treat these devices as a low-level block device.  Time Machine may not be such a bad idea actually&hellip;</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2009-10-20T09:12:51-04:00" pubdate data-updated="true">Oct 20<span>th</span>, 2009</time>
+
+
+<span class="categories">
+
+    <a class='category' href='/old/categoriesries/how-to'>How-To</a>
+
+</span>
+
+
+    </p>
+
+      <div class="sharing">
+
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/" >Tweet</a>
+
+
+  <div class="g-plusone" data-size="medium"></div>
+
+
+
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Set up iSCSI between Linux and Mac OS (tested on 10.6.1)"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/">
+    Last week I read LinuxJournal magazine and it talked about all of the cool things you could do with two Linux machines and the open source iSCSI code that's floating around out there.  I do have two Linux machines but I really wanted to see if I could get iSCSI working on my MacBook Pro and iMac so I could easily offload some files from their main drives to my larger file server.  I did it and here's how you can do it too.
+
+The terminology that you'll need to know here is target (the server &hellip;
+</a>
+
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left" href="/old/archivesives/2009/10/15/how-to-clear-out-tomcats-cache-and-fix-outdated-jsp-problems" title="Previous Post: How-To: Clear out Tomcat's cache and fix outdated JSP problems">&laquo; How-To: Clear out Tomcat's cache and fix outdated JSP problems</a>
+
+
+        <a class="basic-alignment right" href="/old/archivesives/2009/10/24/how-to-fix-the-dreaded-setup-was-unable-to-create-a-new-system-partition-error-in-windows-7-advanced" title="Next Post: How-To: Fix the dreaded " Setup was unable to create a new system partition" error in Windows 7 (advanced)">How-To: Fix the dreaded "Setup was unable to create a new system partition" error in Windows 7 (advanced) &raquo;</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2009/10/20/how-to-set-up-iscsi-between-linux-and-mac-os-tested-on-10-6-1/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,605 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>The First Bitcoin Transaction - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="Want to understand how Bitcoin transactions work? Follow my next couple of posts for step-by-step explanations of what is going on behind the scenes &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/09/12/the-first-bitcoin-transaction">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+      <h1 class="entry-title">The First Bitcoin Transaction</h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2014-09-12T18:35:01-04:00" pubdate data-updated="true">Sep 12<span>th</span>, 2014</time>
+
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p><link rel="stylesheet" type="text/css" href="/old/javascriptsipts/libs/hexpile/Hexpile.css" /></p>
+
+<script type="text/javascript" language="javascript" src="/old/javascriptsipts/libs/hexpile/Hexpile.nocache.js"></script>
+
+
+<p>Want to understand how Bitcoin transactions work?  Follow my next couple of posts for step-by-step explanations of what is going on behind the scenes.</p>
+
+<p>NOTE: These posts are going to be extremely technical.</p>
+
+<p>In this post I&rsquo;m going to explain the very first Bitcoin transaction in excruciating detail.  The first Bitcoin transaction is not the first block ever mined.  The first Bitcoin transaction occurred in block 170 when the first Bitcoins were transferred from one address to another.</p>
+
+<p>Each Bitcoin block contains transactions.  The first transaction is called the coinbase and is a transaction that actually mines/creates new Bitcoins.  All transactions after that are some kind of balance transfer from a set of addresses to another set of addresses.</p>
+
+<p>Here is the <a href="https://blockchain.info/tx/f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16">first, non-mining transaction from block 170</a>:</p>
+
+<div id="hexpile_tx_f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16">
+<pre>
+Version number: 01000000
+
+Input counter: 01
+Input script #0: c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704000000004847304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d090147304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901ffffffff
+
+Output counter: 02
+Output script #0: 00ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac
+Output script #1: 00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_tx_f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_output"></div>
+
+
+<p>Version number is the little endian representation of the version number of this transaction.  Future transactions in a different format could have a different version number so they can be processed in new ways.</p>
+
+<p>Input counter tells us that we should expect 1 input.</p>
+
+<p>Input script #0 contains all the bytes in our input script.</p>
+
+<p>Output coutner tells us that we should expect 2 outputs.</p>
+
+<p>Output scripts #0 and #1 contain all the bytes in the two output scripts in this transaction.  These outputs show where the Bitcoins are going.  In this case they&rsquo;re being sent to two different addresses.</p>
+
+<p>Let&rsquo;s look at the input first.</p>
+
+<div id="hexpile_tx_f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_input_0">
+<pre>
+Previous transaction hash: c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704
+Previous output index: 00000000
+Length: 0x48
+VIRTUAL_OP_PUSH: 0x47
+Bytes to push: 304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901
+Sequence number: ffffffff
+</pre>
+</div>
+
+
+<div id="hexpile_tx_f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16_input_0_output"></div>
+
+
+<p>Previous transaction hash tells us where to find the transaction that this input is working on.  This transaction hash refers to the coinbase in <a href="https://blockchain.info/tx/0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9">block 9</a> which mined 50 BTC.</p>
+
+<p>Previous output index tells us which output script in the transaction we should apply this input script to.  In this transaction in block 9 there was only one output.</p>
+
+<p>Length tells us the number of bytes that are coming up in our input script.  In this case it is <code>0x48</code> or 72 bytes.</p>
+
+<p>Now we&rsquo;re at the actual input script.  This input script consists of a single operation (<code>VIRTUAL_OP_PUSH</code>) which pushes a 71 byte value onto the stack.  That 71 byte value is a signature that signs the previous output and the new output so that we make sure know that the person unlocking the coins is the same person spending the coins.</p>
+
+<p>Bitcoin uses the ECC curve <a href="https://en.bitcoin.it/wiki/Secp256k1">secp256k1</a> which is part of the <a href="http://perso.univ-rennes1.fr/sylvain.duquesne/master/standards/sec2_final.pdf">SEC 2: Recommended Elliptic Curve Domain Parameters</a>.  Therefore all signing and validation operations are performed with the parameters from this curve.</p>
+
+<p>The really interesting part is how we do the transaction validation.  That requires a lot of explanation&hellip; as if this wasn&rsquo;t long and complicated enough already.</p>
+
+<p>Let&rsquo;s look at the output script from block 9:</p>
+
+<div id="hexpile_tx_0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_output_0">
+<pre>
+VIRTUAL_OP_PUSH: 0x41
+Bytes to push: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+OP_CHECKSIG: 0xac
+</pre>
+</div>
+
+
+<div id="hexpile_tx_0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9_output_0_output"></div>
+
+
+<p>This script pushes a value onto the stack (which happens to be a public key) and the calls <code>OP_CHECKSIG</code>.  This is called a <a href="https://en.bitcoin.it/wiki/Script#Obsolete_pay-to-pubkey_transaction">pay-to-pubkey transaction</a>.  Simply it says that anyone who can create a signed transaction with a certain public key can spend this output.</p>
+
+<p><code>OP_CHECKSIG</code> does four things:</p>
+
+<ol>
+<li>Pops a value off of the stack and calls it the public key</li>
+<li>Pops a value off of the stack and calls it the signature</li>
+<li>Grabs data from the previous transaction and the current transaction and combines it in a particular way</li>
+<li>Computes and checks that the data from step #3 matches the public key and signature from steps #1 and #2</li>
+</ol>
+
+
+<p>Now we concatenate the input and output scripts into one larger script and get this:</p>
+
+<div id="hexpile_validation_script">
+<pre>
+VIRTUAL_OP_PUSH - 71 bytes: 0x47
+Signature from block 170: 304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901
+
+VIRTUAL_OP_PUSH - 65 bytes: 0x41
+Public key from block 9: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+
+OP_CHECKSIG: ac
+</pre>
+</div>
+
+
+<div id="hexpile_validation_script_output"></div>
+
+
+<p>This is the most straightforward part of the process.  We are pushing the data from the input script from block 170 and then pushing the data from the output script from block 9 and executing <code>OP_CHECKSIG</code>.  This ordering makes sure that the person that originally had the Bitcoins maintains control over the final execution.  Otherwise it would be possible for an attacker to just dump everything off of the stack except for a final value of 1 which would unlock the coins.</p>
+
+<p>When the Bitcoin state machine sees <code>OP_CHECKSIG</code> then the real work begins.</p>
+
+<p>From above we know we pop the public key off of the stack and then pop the signature off of the stack.  Now we need to understand step #3 where we find the data that we&rsquo;re checking the signature of.</p>
+
+<p>Step 1 &ndash; Get a copy of the previous transaction script data/output transaction script data (<code>VIRTUAL_OP_PUSH</code> and <code>OP_CHECKSIG</code>) which will be</p>
+
+<div id="hexpile_step_1">
+<pre>
+VIRTUAL_OP_PUSH: 0x41
+Bytes to push: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+OP_CHECKSIG: 0xac
+</pre>
+</div>
+
+
+<div id="hexpile_step_1_output"></div>
+
+
+<p>We will refer to this as our &ldquo;new input script&rdquo;.</p>
+
+<p>Step 2 &ndash; Get a copy of the current transaction (again, <a href="https://blockchain.info/tx/f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16">from block 170</a>)</p>
+
+<div id="hexpile_step_2">
+<pre>
+Current transaction: 0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704000000004847304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901ffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_2_output"></div>
+
+
+<p>Step 3 &ndash; Clear out all of the inputs&#8217; script data from this transaction</p>
+
+<p>Before:</p>
+
+<div id="hexpile_step_3a">
+<pre>
+:0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd370400000000
+Section to remove: 4847304402204e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd410220181522ec8eca07de4860a4acdd12909d831cc56cbbac4622082221a8768d1d0901
+:ffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_3a_output"></div>
+
+
+<p>After:</p>
+
+<div id="hexpile_step_3b">
+<pre>
+:0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd370400000000
+NULL placeholder: 00
+:ffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_3b_output"></div>
+
+
+<p>The &ldquo;after&rdquo; block translates to:</p>
+
+<div id="hexpile_step_3c">
+<pre>
+Version number: 01000000
+Input counter: 01
+
+Remaining data from input #0: c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd37040000000000ffffffff
+
+Output counter: 02
+Output script #0: 00ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac
+
+Output script #1: 00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_3c_output"></div>
+
+
+<p>Step 4 &ndash; Now remove all of the OP_CODESEPARATORS from the new input script.  In block 170 there aren&rsquo;t any of them so the new input script doesn&rsquo;t change.</p>
+
+<p>Step 5 &ndash; Put the new input script into the signing data at the current input number.  In step #3 this means the new input script goes where the NULL placeholder was.  This yields:</p>
+
+<div id="hexpile_step_5">
+<pre>
+:0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd37040000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3acffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_5_output"></div>
+
+
+<p>Which translates to:</p>
+
+<div id="hexpile_step_5_detail">
+<pre>
+Version number: 01000000
+Input counter: 01
+Previous transaction hash: c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd3704
+Previous output index: 00000000
+Input script length: 0x43
+VIRTUAL_OP_PUSH Input #0: 0x41
+Bytes to push Input #0: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+OP_CHECKSIG Input #0: 0xac
+Sequence number: ffffffff
+
+Value bytes: 00ca9a3b00000000
+Output script length: 0x43
+VIRTUAL_OP_PUSH Output #0: 0x41
+Bytes to push Output #0: 04ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84c
+OP_CHECKSIG Output #0: 0xac
+
+Value bytes: 00286bee00000000
+Output script length: 0x43
+VIRTUAL_OP_PUSH Output #1: 0x41
+Bytes to push Output #1: 0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3
+OP_CHECKSIG Output #1: 0xac
+Lock time: 00000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_5_detail_output"></div>
+
+
+<p>The value bytes represent the number of Satoshi (1 / 100,000,000th of a Bitcoin) are being transferred.  The input was a mined block that created 50 BTC and the two output blocks are getting 10 and 40 BTC, respectively.  Like all other value types in Bitcoin these values are little-endian.</p>
+
+<p>Step 6 &ndash; Add the 32-bit little endian representation of the hash type onto the end of the signing data.  The hash type is the last byte of the signature which is <code>0x01</code> in this case.  Expanded into a 32-bit little endian value makes it <code>0x01000000</code>.  So our final data that needs to be signed is:</p>
+
+<div id="hexpile_step_6">
+<pre>
+:0100000001c997a5e56e104102fa209c6a852dd90660a20b2d9c352423edce25857fcd37040000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3acffffffff0200ca9a3b00000000434104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac00286bee0000000043410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac00000000
+Hash type: 01000000
+</pre>
+</div>
+
+
+<div id="hexpile_step_6_output"></div>
+
+
+<p>If the signature from block 170 is a valid signature for this blob of binary data we just created, using the public key from block 9, then the transaction is valid.</p>
+
+<p>Questions?  Comments?  Post below!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2014-09-12T18:35:01-04:00" pubdate data-updated="true">Sep 12<span>th</span>, 2014</time>
+
+
+
+    </p>
+
+      <div class="sharing">
+
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/09/12/the-first-bitcoin-transaction/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/09/12/the-first-bitcoin-transaction/" >Tweet</a>
+
+
+  <div class="g-plusone" data-size="medium"></div>
+
+
+
+    <a class="FlattrButton" style="display:none;"
+    title="The first Bitcoin transaction"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/09/12/the-first-bitcoin-transaction/">
+    <link rel="stylesheet" type="text/css" href="/old/javascriptsipts/libs/hexpile/Hexpile.css" />
+<script type="text/javascript" language="javascript" src="/old/javascriptsipts/libs/hexpile/Hexpile.nocache.js"></script>
+
+Want to understand how Bitcoin transactions work?  Follow my next couple of posts for step-by-step explanations of what is going on behind the scenes.
+
+NOTE: These posts are going to be extremely technical.
+
+In this post I'm going to explain the very first Bitcoin transaction in excruciating &hellip;
+</a>
+
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left" href="/old/archivesives/2014/09/04/rid-yourself-of-smart-quotes-smart-dashes-and-automatic-spelling-correction-on-mac-os" title="Previous Post: Rid yourself of smart quotes, smart dashes, and automatic spelling correction on Mac OS">&laquo; Rid yourself of smart quotes, smart dashes, and automatic spelling correction on Mac OS</a>
+
+
+        <a class="basic-alignment right" href="/old/archivesives/2014/09/17/hacking-together-a-super-simple-webserver-with-netcat-on-a-raspberry-pi" title="Next Post: Hacking together a super simple webserver with netcat on a Raspberry Pi">Hacking together a super simple webserver with netcat on a Raspberry Pi &raquo;</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/09/12/the-first-bitcoin-transaction/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/09/12/the-first-bitcoin-transaction/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

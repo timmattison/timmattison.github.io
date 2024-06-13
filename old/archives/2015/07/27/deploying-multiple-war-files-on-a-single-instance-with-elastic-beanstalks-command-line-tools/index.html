@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="UPDATE 2015-07-31: Removed the section about .ebextensions. I have confirmed that this is not needed. This mistake was an artifact of my &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+      <h1 class="entry-title">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2015-07-27T17:22:30-04:00" pubdate data-updated="true">Jul 27<span>th</span>, 2015</time>
+
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p><strong><em>UPDATE</em></strong> 2015-07-31: Removed the section about <code>.ebextensions</code>.  I have confirmed that this is not needed.  This mistake was an artifact of my troubleshooting process.</p>
+
+<p><strong><em>UPDATE</em></strong> 2015-07-28: I briefly talked to <a href="https://twitter.com/nhumrich">Nick Humrich</a> and <a href="https://twitter.com/abhik5ingh">Abhishek K Singh</a> on Twitter, pointed them to this article, and it was fixed in less than 24 hours.  Nice work!  If you update your EB CLI tools to 3.4.7 or greater the bug will be fixed for you and you can ignore the rest of this article.</p>
+
+<p>In June this year <a href="http://aws.amazon.com/about-aws/whats-new/2015/06/aws-elastic-beanstalk-supports-multiple-war-files-and-m4-instances/">AWS added the ability to run multiple WAR files with Elastic Beanstalk in a single EC2 instance</a>.  This makes deploying several small applications a lot more cost effective.</p>
+
+<p>In order to do this you need to create a ZIP file containing all of the WAR files you want to deploy <del>and you <strong><em>must</em></strong> include a directory called <code>.ebextensions</code> even if it is empty.  In my case I just added and empty file called <code>.ebextensions/README.md</code> to make it happy.  Obviously if you use <code>.ebextensions</code> for any kind of customization you won&rsquo;t need to do anything</del>.</p>
+
+<p>When Elastic Beanstalk sees that you&rsquo;ve deployed a file like this it treats it differently than a normal bundle.  It takes the WAR file called <code>ROOT.war</code> and deploys that as the root application.  The rest of the WAR files are deployed in directories derived from their file names.  For example, <code>application1.war</code> would be accessed through the <code>/application1</code> path.</p>
+
+<p>Deploying with <code>eb deploy</code> creates a ZIP file that includes everything in your current directory.  The problem is that <code>eb init</code> creates a <code>.gitignore</code> file in your deployment directory.  <code>eb deploy</code> picks that up that <code>.gitignore</code> and adds it to the archive.  On the EC2 instance that runs your application it sees that your archive doesn&rsquo;t contain just WAR files and the <code>.ebextensions</code> directory and it treats it like a normal single application deployment.  If/when this happens you&rsquo;ll see that you just get your WAR files placed in the <code>/var/lib/tomcat8/webapps/ROOT</code> directory.</p>
+
+<p>There are two possible fixes for this problem.</p>
+
+<p>Solution #1: You can just delete the <code>.gitignore</code> file.  IMHO, this isn&rsquo;t a great solution since you need to remember to do it for each project.</p>
+
+<p>Solution #2: You can patch the Python code that creates the ZIP archive and tell it to ignore the <code>.gitignore</code> file.  To do that you need to modify your <code>ebcli/core/fileoperations.py</code> file.  On my system, since I&rsquo;m not using <code>pip</code>, it was located at <code>~/.ebvenv/lib/python2.7/site-packages/ebcli/core/fileoperations.py</code>.  If you use <code>pip</code> or another package manager it will probably be in a different location.</p>
+
+<p>The function you need to modify is called <code>zip_up_folder</code>.  My original version looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">zip_up_folder</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">ignore_list</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">io</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="s">&#39;Zipping up folder at location: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span>
+</span><span class='line'>        <span class="n">zipf</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">_zipdir</span><span class="p">(</span><span class="s">&#39;./&#39;</span><span class="p">,</span> <span class="n">zipf</span><span class="p">,</span> <span class="n">ignore_list</span><span class="o">=</span><span class="n">ignore_list</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">zipf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;File size: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">location</span><span class="p">)))</span>
+</span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The code I added to set up the ignore_list is:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'>    <span class="k">if</span> <span class="n">ignore_list</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">ignore_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>    <span class="n">ignore_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;.gitignore&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So my updated function looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">zip_up_folder</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">ignore_list</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">io</span><span class="o">.</span><span class="n">log_info</span><span class="p">(</span><span class="s">&#39;Zipping up folder at location: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span>
+</span><span class='line'>        <span class="n">zipf</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="n">ignore_list</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">ignore_list</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>        <span class="n">ignore_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;.gitignore&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">_zipdir</span><span class="p">(</span><span class="s">&#39;./&#39;</span><span class="p">,</span> <span class="n">zipf</span><span class="p">,</span> <span class="n">ignore_list</span><span class="o">=</span><span class="n">ignore_list</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">zipf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;File size: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">location</span><span class="p">)))</span>
+</span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After updating that code and doing another <code>eb deploy</code> my set of WARs were all happily running in a single EC2 instance as I&rsquo;d expect.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2015-07-27T17:22:30-04:00" pubdate data-updated="true">Jul 27<span>th</span>, 2015</time>
+
+
+
+    </p>
+
+      <div class="sharing">
+
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/" >Tweet</a>
+
+
+  <div class="g-plusone" data-size="medium"></div>
+
+
+
+    <a class="FlattrButton" style="display:none;"
+    title="Deploying multiple WAR files on a single instance with Elastic Beanstalk's command-line tools"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/">
+    **_UPDATE_** 2015-07-31: Removed the section about `.ebextensions`.  I have confirmed that this is not needed.  This mistake was an artifact of my troubleshooting process.
+
+**_UPDATE_** 2015-07-28: I briefly talked to [Nick Humrich](https://twitter.com/nhumrich) and [Abhishek K Singh](https://twitter.com/abhik5ingh) on Twitter, pointed them to this article, and it was fixed in less than 24 hours.  Nice work!  If you update your EB CLI tools to 3.4.7 or greater the bug will be fixed for you and &hellip;
+</a>
+
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left" href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible" title="Previous Post: How would you implement " cron" on AWS as inexpensively as possible?">&laquo; How would you implement "cron" on AWS as inexpensively as possible?</a>
+
+
+        <a class="basic-alignment right" href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance" title="Next Post: Deploying multiple Java applications in a single Elastic Beanstalk instance">Deploying multiple Java applications in a single Elastic Beanstalk instance &raquo;</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

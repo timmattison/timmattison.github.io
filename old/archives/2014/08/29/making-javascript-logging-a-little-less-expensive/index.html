@@ -1,0 +1,635 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Making Javascript Logging a Little Less Expensive - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="Disclaimer: I am not a Javascript expert. I don&rsquo;t even play one on TV. Everybody knows that logging isn&rsquo;t free, don&rsquo;t they? Well I &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+      <h1 class="entry-title">Making Javascript Logging a Little Less Expensive</h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2014-08-29T07:54:45-04:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
+
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p>Disclaimer: I am not a Javascript expert.  I don&rsquo;t even play one on TV.</p>
+
+<p>Everybody knows that <a href="http://blog.codinghorror.com/the-problem-with-logging/">logging isn&rsquo;t free</a>, don&rsquo;t they?  Well I don&rsquo;t think that they do and for a lot of beginner to intermediate level developers I can&rsquo;t really fault them for it.  While you&rsquo;re debugging it appears that log messages show up instantly so it is easy to forget that there is in fact a cost associated with producing them.</p>
+
+<p>What is less obvious is that even when you &ldquo;disable&rdquo; your logging it still incurs a cost and that cost may be significantly larger than you think.  The two main issues I&rsquo;ve seen that often cause this large expense are:</p>
+
+<ol>
+<li>Methods that generate log messages</li>
+<li>Inline generation of strings</li>
+</ol>
+
+
+<p>The first, methods that generate log messages, occurs when you need to do a bit of processing in order to make a meaningful log message.  For example, you might need to know how far you are through a loop so you write a function called <code>generateFormattedProgress</code> that takes the number of loops you&rsquo;re going to go through and the current loop counter as parameters.  <code>generateFormattedProgress</code> generates a tidy little string that might loop like this <code>[8% complete (currently on iteration 80,001 of 1,000,000)]</code>.</p>
+
+<p>The second, inline generation of strings, happens when you need to do something a bit simpler like displaying a loop counter.  You might build a string like this <code>"Loop: " + loop_counter</code> and then log it.</p>
+
+<p>In both of these cases you get bitten by the less obvious issue I mentioned above when you disable logging.  To be completely concrete about this imagine your logger is called like this:</p>
+
+<p>Case #1:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Case #2:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Even if you replace <code>console.log</code> with a function that just immediately returns you will, in most cases, still be forcing the machine to call <code>generateFormattedProgress</code> and perform the string concatenation only to throw the results away.  This is where the overhead comes in.</p>
+
+<p>Borrowing from some other languages I came up with an idea to reduce this burden.  Unfortunately it is a bit ugly but it does give you a decent performance boost.  The idea is that instead of always calling the logging code at runtime you wrap your logging statements in anonymous functions and pass those to the logger.  The logger can then decide if it needs to run them and if it doesn&rsquo;t then it never calls the code inside of the anonymous function.</p>
+
+<p>Your log statements go from looking like the statements above to statements like this:</p>
+
+<p>Case #1:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="nx">generateFormattedProgress</span><span class="p">(</span><span class="nx">loop_counter</span><span class="p">,</span> <span class="nx">total_loops</span><span class="p">);});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Case #2:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="k">return</span> <span class="s2">&quot;Loop:&quot;</span> <span class="o">+</span> <span class="nx">loop_counter</span><span class="p">;</span> <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Some test code is below to illustrate the difference in performance.  On my machine running 100,000 iterations I get the following results in Chrome 37.0.2062.94:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='console'><span class='line'><span class="go">Console.log enabled</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1921</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01921</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 1917</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.01917</span>
+</span><span class='line'><span class="go">Disabling console.log</span>
+</span><span class='line'><span class="go">Running: test_normal_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 16</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00016</span>
+</span><span class='line'><span class="go">Running: test_anonymous_function_console</span>
+</span><span class='line'><span class="go">Total milliseconds: 5</span>
+</span><span class='line'><span class="go">Milliseconds per log: 0.00005</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So here we see that we cut the runtime by at least two orders of magnitude going from a little over 1.9 seconds for each case to less than 20 milliseconds for each case.  Does logging affect your Javascript application enough to use this pattern?  Is this an anti-pattern?  Are you already doing this or something similar?  Post a message in the comments and lets discuss it!</p>
+
+<p>Sample test code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">test_count</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">get_timestamp</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">write_newline</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&lt;br/&gt;\n&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">caller</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">myName</span> <span class="o">=</span> <span class="nx">caller</span><span class="p">.</span><span class="nx">callee</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="s1">&#39;function &#39;</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">myName</span> <span class="o">=</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">myName</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Running: &quot;</span> <span class="o">+</span> <span class="nx">myName</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">totalMilliseconds</span> <span class="o">=</span> <span class="nx">stop</span> <span class="o">-</span> <span class="nx">start</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">millisecondsPerLog</span> <span class="o">=</span> <span class="nx">totalMilliseconds</span> <span class="o">/</span> <span class="nx">test_count</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Total milliseconds: &quot;</span> <span class="o">+</span> <span class="nx">totalMilliseconds</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Milliseconds per log: &quot;</span> <span class="o">+</span> <span class="nx">millisecondsPerLog</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_normal_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">test_anonymous_function_console</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">display_function_name</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">loop</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">loop</span> <span class="o">&lt;</span> <span class="nx">test_count</span><span class="p">;</span> <span class="nx">loop</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="s2">&quot;test! &quot;</span> <span class="o">+</span> <span class="nx">loop</span> <span class="o">+</span> <span class="s2">&quot;test!&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stop</span> <span class="o">=</span> <span class="nx">get_timestamp</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">show_results</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="nx">stop</span><span class="p">,</span> <span class="nx">test_count</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Store the original console.log function</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">original_console_log</span> <span class="o">=</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Call this to enable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">enable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Why the bind(console)(input)?</span>
+</span><span class='line'>        <span class="c1">//</span>
+</span><span class='line'>        <span class="c1">// console.log expects &quot;this&quot; to refer to the console object or it crashes with an invocation exception</span>
+</span><span class='line'>        <span class="c1">//   See: https://stackoverflow.com/questions/8904782/uncaught-typeerror-illegal-invocation-in-javascript</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Is this a function?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">input</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Yes, call the function to get the data to log to the console</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// No, just log it</span>
+</span><span class='line'>            <span class="nx">original_console_log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)(</span><span class="nx">input</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Call this to disable logging</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">disable_console_logging</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Console.log enabled&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">enable_console_logging</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;Disabling console.log&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">write_newline</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">disable_console_logging</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">test_normal_console</span><span class="p">();</span>
+</span><span class='line'><span class="nx">test_anonymous_function_console</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2014-08-29T07:54:45-04:00" pubdate data-updated="true">Aug 29<span>th</span>, 2014</time>
+
+
+
+    </p>
+
+      <div class="sharing">
+
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/" >Tweet</a>
+
+
+  <div class="g-plusone" data-size="medium"></div>
+
+
+
+    <a class="FlattrButton" style="display:none;"
+    title="Making Javascript logging a little less expensive"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/">
+    Disclaimer: I am not a Javascript expert.  I don't even play one on TV.
+
+Everybody knows that [logging isn't free](http://blog.codinghorror.com/the-problem-with-logging/), don't they?  Well I don't think that they do and for a lot of beginner to intermediate level developers I can't really fault them for it.  While you're debugging it appears that log messages show up instantly so it is easy to forget that there is in fact a cost associated with producing them.
+
+What is less obvious is that &hellip;
+</a>
+
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left" href="/old/archivesives/2014/08/05/using-guice-dependency-injection-with-quartz-schedulding" title="Previous Post: Using Guice dependency injection with Quartz scheduling">&laquo; Using Guice dependency injection with Quartz scheduling</a>
+
+
+        <a class="basic-alignment right" href="/old/archivesives/2014/08/29/deal-with-os-linux-zero-dot-cpp-related-jvm-crashes-without-using-the-oracle-jvm" title="Next Post: Deal with os_linux_zero.cpp related JVM crashes without using the Oracle JVM">Deal with os_linux_zero.cpp related JVM crashes without using the Oracle JVM &raquo;</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/08/29/making-javascript-logging-a-little-less-expensive/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

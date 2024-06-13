@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How-To: Secure Your WordPress Blog With Two-factor Authentication - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="Don&rsquo;t care about the narrative?  Jump to the instructions. These days password security is paramount. In recent news we have seen several high- &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+      <h1 class="entry-title">How-To: Secure Your WordPress Blog With Two-factor Authentication</h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-06-13T10:06:25-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
+
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p>Don&rsquo;t care about the narrative?  Jump to the <a href="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/#instructions">instructions</a>.</p>
+
+<p>These days password security is paramount.  In recent news we have seen several high-profile breaches against <a href="http://www.telegraph.co.uk/technology/news/8553979/Sony-hack-private-details-of-million-people-posted-online.html">Sony</a>, <a href="http://www.rsa.com/node.aspx?id=3891">RSA</a>, and <a href="http://www.theregister.co.uk/2011/06/13/games_firm_epic_breach/">Epic</a> where passwords were lost, mission-critical keys were pilfered, and user details were leaked, respectively.</p>
+
+<p>Security professionals understand that multi-factor authentication is important.  Multi-factor authentication means that you access resources using something you know (ie. a password) and something you have (ie. a token that generates a unique code each time it is used).  This way someone would need to know your username, password, and have your token to gain access to whatever you are protecting.  Without any one of those things they will be denied access.  With a secure token even if they capture the data as it goes across the wire the token can only be used once.  If they attempt to reuse it they will be denied access yet again.</p>
+
+<p>Previously RSA was the place to go for this kind of security and it was too expensive for individuals to use.  But now a company called <a href="http://yubico.com/">Yubico</a> offers affordable tokens that can be used for a multitude of applications (<a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/YubiCloud">online services</a>, <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Enterprisesecuritysolutions">enterprise security solutions</a>, <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Otherenterprisesolutions">enterprise services</a>, and <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Opensource">open-source applications</a>).  If you have custom needs they also have a <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Systemintegrators">world-wide list of system integrators</a> that can help you through it.</p>
+
+<p>With the Yubikey Wordpress plugin you can now add this security to your Wordpress blog and make sure that your password and account information can&rsquo;t be nabbed by someone looking over your shoulder at a coffee shop.  Installing the plugin isn&rsquo;t hard but there are some things that are easy to miss.  To help you out I&rsquo;ve laid out all the steps from start to finish including testing and verification.  Here goes&hellip;</p>
+
+<p><strong>NOTE:</strong> You will not be able to complete beyond step 2 until you receive your Yubikey(s) in the mail.</p>
+
+<p>There are a lot of steps here but it is broken down into very small chunks.  Installation should take less than 5 minutes from start to finish.</p>
+
+<ul>
+<li><p>Step 1: Obtain a Yubikey (<a href="https://store.yubico.com/store/catalog/product_info.php?ref=232&amp;products_id=2&amp;affiliate_banner_id=1">YubiKey in Black</a>, <a href="https://store.yubico.com/store/catalog/product_info.php?ref=232&amp;products_id=3&amp;affiliate_banner_id=1">YubiKey in White</a>)</p></li>
+<li><p>Step 2: <a href="https://upgrade.yubico.com/getapikey/">Get an API key</a>.  Your API key is a client ID (a number) and a secret key (a long string).  Copy these to a safe place and make sure you copy the entire secret key.  It ends with an equals sign &ldquo;=&rdquo; and won&rsquo;t work without it!</p></li>
+<li><p>Step 3: Download the <a href="http://downloads.wordpress.org/plugin/yubikey-plugin.0.94.zip">Wordpress plugin for Yubikey authentication</a> to your computer</p></li>
+<li><p>Step 4: Sign into your Wordpress blog as an administrator.  If you are the only user on your blog then you are the administrator.</p></li>
+<li><p>Step 5: Click on the &ldquo;Plugins&rdquo; link on the left side of the screen</p></li>
+<li><p>Step 6: Click &ldquo;Add New&rdquo; either on the top or the left side of the screen.  They both go to the same place.</p></li>
+<li><p>Step 7: Click the &ldquo;Upload&rdquo; link on the top of the screen directly below &ldquo;Install Plugins&rdquo;</p></li>
+<li><p>Step 8: Click &ldquo;Browse&rdquo; and find the ZIP file you downloaded in step 3.  Then click &ldquo;Install Now&rdquo;.</p></li>
+<li><p>Step 9: Click &ldquo;Activate&rdquo;.</p></li>
+<li><p>Step 10: Click &ldquo;Settings&rdquo; on the left side of the screen.</p></li>
+<li><p>Step 11: Click &ldquo;Yubikey&rdquo; on the left side of the screen below &ldquo;Settings&rdquo;.  If there is no &ldquo;Yubikey&rdquo; link then click &ldquo;Plugins&rdquo; and make sure the Yubikey plugin is in the list and activated.  If it has a link that says &ldquo;Activate&rdquo; click it and go back to step 10.</p></li>
+<li><p>Step 12: Enter your client ID in the &ldquo;Yubico API ID&rdquo; field and your secret key in the &ldquo;Yubico API key&rdquo; field.  Make sure the equals sign &ldquo;=&rdquo; isn&rsquo;t missing from the end of the secret key.</p></li>
+<li><p>Step 13: Click &ldquo;Users&rdquo; on the left side of the screen.</p></li>
+<li><p>Step 14: Find and click on the username of the account that you want to enable the Yubikey on.  If you are the only user then this may be &ldquo;admin&rdquo;.</p></li>
+<li><p>Step 15: Locate the &ldquo;Yubikey Settings&rdquo; section and change the option from &ldquo;Disabled&rdquo; to &ldquo;Use Yubico server&rdquo;.</p></li>
+<li><p>Step 16: Click on the text box next to &ldquo;Key ID 1&rdquo;.</p></li>
+<li><p>Step 17: Insert your Yubikey.</p></li>
+<li><p>Step 18: Press the button on your Yubikey for two seconds and the form will fill in.</p></li>
+<li><p>Step 19: Scroll down to the bottom of the page and click &ldquo;Update profile&rdquo;.</p></li>
+<li><p>Step 20: Log out and try to log in with your Yubikey!</p></li>
+</ul>
+
+
+<p>When you get to your login screen you will now see a new field labeled &ldquo;Yubikey OTP&rdquo;.  When you log in now you&rsquo;ll enter your username and password as you used to but then you&rsquo;ll click in the Yubikey OTP box, plug your Yubikey in, and press the button.  That will complete your login process.</p>
+
+<p>One thing you MUST do before you consider this task done is test to make sure the Yubikey authentication isn&rsquo;t disabled.  A lot of people miss this and don&rsquo;t realize that their token isn&rsquo;t actually enabled.  To test this try logging in to your site but instead of using the Yubikey in the Yubikey OTP field just type some random characters.  If it still lets you log in you need to go back and do step 15 and then step 19 again.  Test it again and make sure it works.  If it is set up properly it will tell you your password is incorrect when you type random characters in the OTP field.</p>
+
+<p>Good luck and post any questions in the comments.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-06-13T10:06:25-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
+
+
+<span class="categories">
+
+    <a class='category' href='/old/categoriesries/how-to'>How-To</a>
+
+</span>
+
+
+    </p>
+
+      <div class="sharing">
+
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/" >Tweet</a>
+
+
+  <div class="g-plusone" data-size="medium"></div>
+
+
+
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Secure your WordPress blog with two-factor authentication"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/">
+    Don't care about the narrative?  Jump to the [instructions](http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/#instructions).
+
+These days password security is paramount.  In recent news we have seen several high-profile breaches against [Sony](http://www.telegraph.co.uk/technology/news/8553979/Sony-hack-private-details-of-million-people-posted-online.html), [RSA](http://www.rsa.com/node.aspx?id=3891), and [Epic](http://www. &hellip;
+</a>
+
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left" href="/old/archivesives/2011/04/26/installing-nodejs-couchdb-and-npm-on-debian-the-easy-way" title="Previous Post: How-To: Install NodeJS, CouchDB, and npm on Debian (the easy way)">&laquo; How-To: Install NodeJS, CouchDB, and npm on Debian (the easy way)</a>
+
+
+        <a class="basic-alignment right" href="/old/archivesives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu" title="Next Post: How-To: Convert from bzr to git on Debian/Ubuntu">How-To: Convert from bzr to git on Debian/Ubuntu &raquo;</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How-To: Migrate VMware Fusion-based Windows VMs to VMware Workstation on Linux - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="VMware Fusion and VMware Workstation are both incredible products that will literally change the way you work if you are a developer or an IT admin. &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+      <h1 class="entry-title">How-To: Migrate VMware Fusion-based Windows VMs to VMware Workstation on Linux</h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p>VMware Fusion and VMware Workstation are both incredible products that will literally change the way you work if you are a developer or an IT admin.  One thing that is a bit of a pain point, though, is moving virtual machines from VMware Fusion on the Mac to VMware Workstation on Linux.  If you move your VMs without doing this you may notice incredibly bad performance.  When I say bad performance I mean that the system is so slow it may take you 5 minutes to go from the desktop to the control panel.  Here is how to do it properly and avoid all of that&hellip;</p>
+
+<p>Note: You can do these steps either when going from VMware Fusion to VMware Workstation or the other way around.</p>
+
+<p>For the purposes of this article we&rsquo;ll skip calling them VMware Fusion and VMware Workstation and we&rsquo;ll refer to them as your source host and your destination host.</p>
+
+<p>Step 1: Take a snapshot of your VM so you can revert if anything goes wrong.</p>
+
+<p>Step 2: Start up your Windows VM on the source host.</p>
+
+<p>Step 3: Go to Control Panel &ndash;> Add/Remove programs</p>
+
+<p>Step 4: Uninstall VMware tools and shutdown</p>
+
+<p>If you don&rsquo;t need audio support, do steps 5 through 8 otherwise you&rsquo;re ready to move your VM over to the</p>
+
+<p>destination host.</p>
+
+<p>Step 5: Reboot and go to Control Panel &ndash;> Administrative Tools &ndash;> Services</p>
+
+<p>Step 6: Stop &ldquo;Windows Audio&rdquo;, and set it&rsquo;s startup mode to &ldquo;Disabled&rdquo;</p>
+
+<p>Step 7: Shutdown the VM</p>
+
+<p>Step 8: Open the VM settings and remove the audio device</p>
+
+<p>Now, move your VMs to the destination host.  If your destination host is Linux you can safely remove the &#8221;Applications&#8221; directory inside the vmwarevm directory.</p>
+
+<p>Finally, restart your host, install VMware Tools as you normally would, power off, and create another snapshot. This snapshot will serve as a clean starting off point if you need to tweak things experimentally to get the system running the way you&rsquo;d like.  Never underestimate the power of a few snapshots to save you hours upon hours even when you think that everything will go just fine.  Once things are stable you can remove them and reclaim the disk space. Also, don&rsquo;t forget about the VMware Tools &ldquo;Shrink&rdquo; function.  Once you&rsquo;re stable and you&rsquo;ve removed your snapshots you should always run &ldquo;Shrink&rdquo; to get back some storage.  Usually it trims a few hundred MB for me but sometimes it can free up a few GB if the VM has seen a lot of use.  You can&rsquo;t run &ldquo;Shrink&rdquo; if you have any snapshots on your virtual machine so it&rsquo;s really only good when you&rsquo;ve tweaked your setup and you&rsquo;re happy.  As soon as you &ldquo;Shrink&rdquo; you should always snapshot the machine again.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2009-11-03T18:59:59-05:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2009</time>
+
+
+<span class="categories">
+
+    <a class='category' href='/old/categoriesries/how-to'>How-To</a>
+
+</span>
+
+
+    </p>
+
+      <div class="sharing">
+
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/" >Tweet</a>
+
+
+  <div class="g-plusone" data-size="medium"></div>
+
+
+
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Migrate VMware Fusion-based Windows VMs to VMware Workstation on Linux"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/">
+    VMware Fusion and VMware Workstation are both incredible products that will literally change the way you work if you are a developer or an IT admin.  One thing that is a bit of a pain point, though, is moving virtual machines from VMware Fusion on the Mac to VMware Workstation on Linux.  If you move your VMs without doing this you may notice incredibly bad performance.  When I say bad performance I mean that the system is so slow it may take you 5 minutes to go from the desktop to the control &hellip;
+</a>
+
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left" href="/old/archivesives/2009/11/02/how-to-stop-usb-storage-messages-from-filling-your-logs" title="Previous Post: How-To: Stop USB storage messages from filling your logs">&laquo; How-To: Stop USB storage messages from filling your logs</a>
+
+
+        <a class="basic-alignment right" href="/old/archivesives/2009/11/03/tip-fix-nvidia0-failed-to-initialize-the-glx-module-please-check-in-your-x-log-file-on-gentoo" title="Next Post: Tip: Fix " NVIDIA(0): Failed to initialize the GLX module; please check in your X log file" on Gentoo">Tip: Fix "NVIDIA(0): Failed to initialize the GLX module; please check in your X log file" on Gentoo &raquo;</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2009/11/03/how-to-migrate-vmware-fusion-based-windows-vms-to-vmware-workstation-on-linux/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

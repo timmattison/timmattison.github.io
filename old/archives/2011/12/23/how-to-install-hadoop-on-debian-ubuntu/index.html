@@ -1,0 +1,564 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How-To: Install Hadoop on Debian/Ubuntu - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="UPDATE 2012-02-06: The native library issue has been resolved. You can now keep the native library installed with just a minor configuration tweak. &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+      <h1 class="entry-title">How-To: Install Hadoop on Debian/Ubuntu</h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-12-23T11:19:43-05:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2011</time>
+
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p><em>UPDATE 2012-02-06</em>: <strong>The native library issue has been resolved</strong>.  You can now keep the native library installed with just a minor configuration tweak.  If you have already followed these instructions just scroll down to the core-site.xml contents and the commands to make the &ldquo;/hadoop&rdquo; directory on your machine.  Those two things will get you up to date.</p>
+
+<p>Yesterday I passed my <a href="http://www.cloudera.com/hadoop-training/developer-training/">Cloudera Certified Hadoop Developer (CCHD)</a> certification.  The four day class was great and I learned a lot about everything from the architecture of HDFS all the way to specific MapReduce algorithms and how to implement them using Hadoop.</p>
+
+<p>I&rsquo;m excited about implementing this in my companies as we&rsquo;re already using a home grown form of MapReduce for certain processes.  We chose MapReduce for ease of development as the algorithms tend to be surprisingly simple for what you get back.  This makes our system easier to debug and now with Hadoop it makes it as scalable as we can afford.</p>
+
+<p>I wanted to get started with using Hadoop on our standard development environment which happens to be Debian Squeeze and not CentOS as the Cloudera course uses.  Luckily they provide a Debian package repository that makes setting up your development environment pretty simple.  This setup will <em>only</em> be suitable for production since you&rsquo;ll be running a single node.  In later posts I&rsquo;ll start discussing how to set up a testing cluster and eventually give some tips on working with Hadoop in production but for now lets just focus on development.</p>
+
+<p>The first thing you&rsquo;ll want to do is to edit your apt sources in /etc/apt/sources.list.  At the end of your existing configuration add the following lines:</p>
+
+<pre><code>deb http://archive.cloudera.com/debian squeeze-cdh3 contrib
+deb-src http://archive.cloudera.com/debian squeeze-cdh3 contrib
+</code></pre>
+
+<p>Note: This configuration is specifically for a Debian Squeeze installation.  If you are using a different release like Debian Lenny or Ubuntu Karmic you&rsquo;ll need to change &ldquo;squeeze-cdh3&rdquo; to match your setup.  You can <a href="http://archive.cloudera.com/debian/dists/">look into the repository to get a list of valid values</a> but usually it&rsquo;s just the release name followed by cdh3 (ie. &ldquo;lenny-cdh3&rdquo; or &ldquo;karmic-cdh3&rdquo;).</p>
+
+<p>Next add Cloudera&rsquo;s public key into your system by running this command (don&rsquo;t forget the dash on the end of the command, it is required!):</p>
+
+<pre><code>curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-key add -
+</code></pre>
+
+<p>Now you&rsquo;ll want to update your package lists so that your OS knows the new packages exist.  You can do this by simply running:</p>
+
+<pre><code>sudo apt-get update
+</code></pre>
+
+<p>Now that you have an updated package list you can go about installing Hadoop.  For a standalone, single node development installation you&rsquo;ll need the following pieces:</p>
+
+<ul>
+<li><p>Hadoop 0.20 &ndash; The core components of Hadoop (the JARs, Python scripts, documentation, etc) but no daemons</p></li>
+<li><p>The namenode daemon &ndash; To provide access to your HDFS volume</p></li>
+<li><p>The datanode daemon &ndash; To store your HDFS data</p></li>
+<li><p>The jobtracker daemon &ndash; To schedule and hand out jobs</p></li>
+<li><p>The tasktracker daemon &ndash; To poll the job tracker, and accept and run Hadoop jobs</p></li>
+</ul>
+
+
+<p>To get all of that you&rsquo;ll need to run the following command:</p>
+
+<pre><code>sudo apt-get install hadoop-0.20 hadoop-0.20-namenode hadoop-0.20-datanode hadoop-0.20-jobtracker hadoop-0.20-tasktracker
+</code></pre>
+
+<p>Now you have successfully installed Hadoop and the necessary libraries to run a single HDFS node that can run Hadoop jobs.  In single node mode you don&rsquo;t get any of the benefits of HDFS (block replication) and your Hadoop jobs won&rsquo;t run terribly fast but you&rsquo;ll be able to develop and test your code.</p>
+
+<p>For development purposes your system is now running in standalone mode.  This means that if you run HDFS commands (ie, hadoop fs -ls) you will not be connecting to HDFS but instead you will be looking at your local file system relative to where you ran the &ldquo;hadoop&rdquo; command.  With this setup you can run local jobs and kick the tires so if that&rsquo;s all you need you&rsquo;re done.</p>
+
+<p>I would personally recommend that you run in pseudo-distributed mode if you intend to eventually move onto a production cluster and will be involved at least in some way in its administration.  This is not to say that you&rsquo;ll be the administrator of the cluster but that you&rsquo;ll at least be one of the people called upon to figure out production problems that range from HDFS issues to failed or buggy jobs.</p>
+
+<p>In pseudo-distributed mode you will really be running jobs through the entire Hadoop workflow and will be able to tell whether your jobs will run on a cluster or not.  There are still some gotchas that differ from running fully distributed vs. pseudo-distributed but if you follow best practices and defensive coding you can usually avoid them.  For example you should never depend on local state or the availability of files on the local file system.  Always read through HDFS if it&rsquo;s necessary and never use globals in your code that could be modified, or even accessed, between map and reduce tasks.  Now onto pseudo-distributed mode&hellip;</p>
+
+<p>Cloudera has done a lot for you up to this point including applying hundreds of patches that you&rsquo;ll be glad you don&rsquo;t need to worry about but now you&rsquo;ll need to do some configuration.  This is intentional since you can use CDH to run anything from a development node to a production cluster.  Therefore they don&rsquo;t make any assumptions as to how you want the nodes configured.  Being consistent in development and production and you&rsquo;ll make your life a lot easier when you need to debug something as everyone will be familiar with the same layout, major/minor release number, etc.</p>
+
+<p>Let&rsquo;s take care of the configuration steps one-by-one now.  The steps are:</p>
+
+<ul>
+<li><p>Set JAVA_HOME in the hadoop-env.sh script</p></li>
+<li><p>Configure core-site.xml</p></li>
+<li><p>Configure hdfs-site.xml</p></li>
+<li><p>Configure mapred-site.xml</p></li>
+<li><p>Setup passphraseless ssh</p></li>
+<li><p>Format the namenode</p></li>
+</ul>
+
+
+<p>Once that is complete you can start all of the required processes and begin testing but keep reading for a walkthrough of each of these steps.</p>
+
+<p>Let&rsquo;s make sure JAVA_HOME is set in your hadoop-env.sh script.  On Debian Squeeze this is located in /etc/hadoop-0.20/conf.empty/hadoop-env.sh.  By default JAVA_HOME is NOT set in hadoop-env.sh.  If you have it set in your profile already I would suggest copying that export line to hadoop-env.sh just in case you run the daemons later as a different user that might not have the same profile.  If you don&rsquo;t know what your JAVA_HOME value should be you can run this one-liner (<a href="http://serverfault.com/questions/143786/how-to-determine-java-home-on-debian-ubuntu">credits to a thread on ServerFault for this one</a>):</p>
+
+<pre><code>export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+</code></pre>
+
+<p>To verify that it is set run:</p>
+
+<pre><code>export | grep JAVA_HOME
+</code></pre>
+
+<p>And then list the contents of the directory that it references.  It should contain a bin, lib, and man directory.  If so, copy the entire export line into the beginning of the hadoop-env.sh script where it has been commented out.  If they have the same JAVA_HOME specified you can just uncomment that line.  Now whomever is starting the Hadoop processes (you, the hdfs user, or root) will always have JAVA_HOME set properly.</p>
+
+<p>Guidance for the next few steps was taken from the <a href="http://hadoop.apache.org/common/docs/r0.20.2/quickstart.html#Configuration">Hadoop Quick Start&rsquo;s &ldquo;Pseudo-Distributed Operation: Configuration&rdquo; section</a>.  Refer there for additional information.  I have just added some narrative to let you know what each of these steps does so you understand a bit more about how the system works.</p>
+
+<p>Note: The XML files are owned by root and are accessible by the hadoop group.  Edit the files as root but run any commands below as the &ldquo;hdfs&rdquo; user.</p>
+
+<p>core-site.xml (located in /etc/hadoop-0.20/conf.empty/core-site.xml on Debian Squeeze) needs to be modified to let the everyone know where the name node is running.  In our case it will be running on localhost on the default port so add this snippet of XML between the configuration tags in core-site.xml:</p>
+
+<pre><code>  &lt;property&gt;
+    &lt;name&gt;fs.default.name&lt;/name&gt;
+    &lt;value&gt;hdfs://localhost:9000&lt;/value&gt;
+  &lt;/property&gt;
+
+  &lt;property&gt;
+    &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;
+    &lt;value&gt;/hadoop/hadoop-${user.name}&lt;/value&gt;
+  &lt;/property&gt;
+</code></pre>
+
+<p>After adding these settings you&rsquo;ll need to make sure that the /hadoop base directory has been created with the proper permissions to let all users get access to it.  In production your security criteria may be different so only use this for development machines since it leaves everything pretty open!  To create the directory you&rsquo;ll want to do the following:</p>
+
+<pre><code>sudo mkdir /hadoop &amp;&amp; sudo chown hdfs:hdfs /hadoop &amp;&amp; sudo chmod 777 /hadoop
+</code></pre>
+
+<p>Now you will have the /hadoop path created on permanent storage instead of it getting placed on tmpfs where the default values would normally place it.</p>
+
+<p>hdfs-site.xml (located in /etc/hadoop-0.20/conf.empty/hdfs-site.xml on Debian Squeeze) needs to be modified to tell the HDFS daemons that we only want a replication factor of 1.  This doesn&rsquo;t matter so much since HDFS won&rsquo;t try to replicate the same block multiple times on one data node but if you start running multiple data nodes on a single development machine it will save you some disk space.  So put this snippet of XML between the configuration tags in hdfs-site.xml:</p>
+
+<pre><code>  &lt;property&gt;
+    &lt;name&gt;dfs.replication&lt;/name&gt;
+    &lt;value&gt;1&lt;/value&gt;
+  &lt;/property&gt;
+</code></pre>
+
+<p>mapred-site.xml (located in /etc/hadoop-0.20/conf.empty/mapred-site.xml on Debian Squeeze) needs to be modified to let everyone know where the job tracker is running.  In our case it will be running on localhost on the default port so add this snippet of XML between the configuration tags in mapred-site.xml:</p>
+
+<pre><code>  &lt;property&gt;
+    &lt;name&gt;mapred.job.tracker&lt;/name&gt;
+    &lt;value&gt;localhost:9001&lt;/value&gt;
+  &lt;/property&gt;
+</code></pre>
+
+<p>As root you&rsquo;ll need to run two commands to make sure that the rest of the config will work as the &ldquo;hdfs&rdquo; user.  You need to create a directory for the &ldquo;hdfs&rdquo; user to store its SSH credentials.  To do this run the following commands (again, as root):</p>
+
+<pre><code>mkdir /usr/lib/hadoop-0.20/.ssh
+chown hdfs:hdfs /usr/lib/hadoop-0.20/.ssh
+</code></pre>
+
+<p>This is assuming that your hadoop directory is /usr/lib/hadoop-0.20.  To verify where it is if you aren&rsquo;t sure su to the &ldquo;hdfs&rdquo; user and run &ldquo;pwd&rdquo;.  That will be the directory where this should be done.</p>
+
+<p>Remember to run all of the steps from here as the &ldquo;hdfs&rdquo; user or it will not work.</p>
+
+<p>Passphraseless SSH is required so that the scripts can connect to servers and start/stop services in a cluster.  To make sure you can ssh without a password localhost first try this:</p>
+
+<pre><code>ssh localhost
+</code></pre>
+
+<p>If you are prompted for a password it has not been set up yet.  To set it up you&rsquo;ll need to generate a public/private key pair and then tell SSH to accept the public key as a valid login credential.  Do this by running the following commands:</p>
+
+<pre><code>ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
+cat ~/.ssh/id_dsa.pub &gt;&gt; ~/.ssh/authorized_keys
+</code></pre>
+
+<p>Try to ssh to localhost now and make sure that it works.  <strong><em>If you skip this step the host&rsquo;s key will not be added to the list of known hosts and the non-interactive processes will fail</em></strong>.</p>
+
+<p>If the ssh-keygen command prompts you to overwrite your key <strong><em>DO NOT DO IT</em></strong>!  This will break any existing key-based SSH connections have already.  Just say no if asked to overwrite your key.  Adding an existing key to the list of authorized keys will still work.</p>
+
+<p>The last configuration step is to format the name node.  This will make sure the name node has all of its data structures on disk set up properly so that it can track your HDFS data.  To do this just run the following hadoop (located in /usr/bin/hadoop on Debian Squeeze) command:</p>
+
+<pre><code>hadoop namenode -format
+</code></pre>
+
+<p>If you are asked to reformat the filesystem you must make sure that nobody else is already running Hadoop on this machine.  If they are and you reformat the name node you will end up wiping out their data.  It is recoverable but you don&rsquo;t want to have to go through that as it is time consuming and not guaranteed to work.</p>
+
+<p>Now that everything is set up you can start everything by running the start-all.sh (located in /usr/lib/hadoop-0.20/bin/start-all.sh on Debian Squeeze) script:</p>
+
+<pre><code>start-all.sh
+</code></pre>
+
+<p>If you didn&rsquo;t see any errors you should be up and running.  Here are some things that we should verify to make sure that everything works as expected:</p>
+
+<ul>
+<li><p>Run &ldquo;jps&rdquo; and verify all of the processes are there</p></li>
+<li><p>Test the name node&rsquo;s web GUI</p></li>
+<li><p>Test the job tracker&rsquo;s web GUI</p></li>
+<li><p>Test HDFS</p></li>
+<li><p>Run a Hadoop MapReduce example</p></li>
+</ul>
+
+
+<p>When you run &ldquo;jps&rdquo; you should get a list of processes including &ldquo;TaskTracker&rdquo;, &ldquo;JobTracker&rdquo;, &ldquo;SecondaryNameNode&rdquo;, &ldquo;DataNode&rdquo;, and &ldquo;NameNode&rdquo;.  If any of these are missing check the log directory.  On my first run the name node failed to come up and it was because I had manually created the /tmp/hadoop-hdfs/dfs/name directory when doing some earlier testing.  After that the name node format failed silently.  If you get an exception that reads &ldquo;java.io.IOException: NameNode is not formatted.&rdquo; you should run stop-all.sh, then remove the /tmp/hadoop-hdfs directory (again, make sure nobody else is running Hadoop on your machine!), and then reformat the name node and restart the processes with start-all.sh.</p>
+
+<p>Now that all of the processes are running check that the <a href="http://localhost:50030">job tracker web GUI</a> and the <a href="http://localhost:50070">name node web GUI</a> are running.  If both of those links bring up web pages without errors then they are both running properly.</p>
+
+<p>Let&rsquo;s test HDFS with some simple commands.  You should still be the &ldquo;hdfs&rdquo; user for this.  Don&rsquo;t change back to your regular user account yet.  First, list the files on the HDFS volume with this command:</p>
+
+<pre><code>hadoop fs -ls
+</code></pre>
+
+<p>When you first run this you should get an error that reads &ldquo;ls: Cannot access .: No such file or directory.&rdquo;.  That&rsquo;s OK.  Let&rsquo;s put a file there any make sure that it works.  Generate a file full of random data with this command:</p>
+
+<pre><code>head -c 1048576 /dev/urandom &gt; /tmp/random.txt
+hadoop fs -put /tmp/random.txt random.txt
+</code></pre>
+
+<p>If those commands give you errors try <a href="http://blog.timmattison.com/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/">disabling HDFS permissions</a>, then stop and restart everything with the stop-all.sh, and start-all.sh scripts.  Then come back here and try again.</p>
+
+<p>Now list the files again as you did above and you should see a 1 MB file called random.txt.  Verify that the input file and the output file match by comparing their sha1sums:</p>
+
+<pre><code>sha1sum /tmp/random.txt
+hadoop fs -cat random.txt | sha1sum
+</code></pre>
+
+<p>You should get two hex strings on separate lines that match.  You can ignore the filename portion of the result since one run is taking the data from the local filesystem and the other is reading the data from HDFS and piping it to sha1sum.</p>
+
+<p>Finally, let&rsquo;s run a MapReduce job.  There are a few example jobs included with the default installation and the simplest one is grep.  We&rsquo;ll need to build a file that we want to grep, put it on HDFS, run the job, and compare the results to running a non-MapReduce grep on it.</p>
+
+<p>I wanted to build a file that was bigger than a single tiny text file I ran the following command (still as the &ldquo;hdfs&rdquo; user):</p>
+
+<pre><code>find /etc -exec cat {} \; | strings &gt; /tmp/etc-dir.txt
+</code></pre>
+
+<p>This reads all of the files in the /etc directory, extracts everything that looks like a string so we don&rsquo;t end up with a binary mess, and puts it in the /tmp/etc-dir.txt.  I then put that file onto HDFS:</p>
+
+<pre><code>hadoop fs -put /tmp/etc-dir.txt etc-dir.txt
+</code></pre>
+
+<p>Then I ran a MapReduce job that returns the number of occurrences of the string &ldquo;localhost&rdquo; in the file:</p>
+
+<pre><code>cd /usr/lib/hadoop-0.20
+hadoop jar hadoop-*-examples.jar grep etc-dir.txt etc-dir-results localhost
+</code></pre>
+
+<p>And I compared that to counting the occurrences with grep:</p>
+
+<pre><code>hadoop fs -cat etc-dir-results/part-00000
+grep localhost /tmp/etc-dir.txt | wc -l
+</code></pre>
+
+<p>To verify that it worked I should see two lines of text that both start with the same number.  The first line will contain the string &ldquo;localhost&rdquo; on the end of it, the second one will not.</p>
+
+<p>If you got this far you&rsquo;ve now got a working Hadoop developer setup.  If not, post in the comments and I&rsquo;ll try to help out and update the tutorial with more information.  Good luck!  Hadoop is an exciting tool with lots of applications that I&rsquo;ll explore in future posts.</p>
+
+<p>If you&rsquo;re going to get serious with it look into getting a CCHD certification.  With it you&rsquo;ll skip a few very hard months of work on your own in just four days and you&rsquo;ll come out of it with a sound understanding of HDFS, the MapReduce process, and get a lot of good tips on what you should and shouldn&rsquo;t do.  The instructors are very knowledgeable, have a large support network to answer your domain specific questions, and it can be a great networking opportunity.  If you have questions about the course post them in the comments too.</p>
+
+<p>Update: Having trouble with permissions?  Check this other short article on <a href="http://blog.timmattison.com/archives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development/">how to disable permissions for a development machine</a>.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">admin</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-12-23T11:19:43-05:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2011</time>
+
+
+<span class="categories">
+
+    <a class='category' href='/old/categoriesries/hadoop'>Hadoop</a>, <a class='category' href='/old/categoriesries/how-to'>How-To</a>
+
+</span>
+
+
+    </p>
+
+      <div class="sharing">
+
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/" >Tweet</a>
+
+
+  <div class="g-plusone" data-size="medium"></div>
+
+
+
+    <a class="FlattrButton" style="display:none;"
+    title="How-To: Install Hadoop on Debian/Ubuntu"
+    data-flattr-uid="timmattison"
+    data-flattr-tags="Hadoop,How-To"
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/">
+    _UPDATE 2012-02-06_: **The native library issue has been resolved**.  You can now keep the native library installed with just a minor configuration tweak.  If you have already followed these instructions just scroll down to the core-site.xml contents and the commands to make the "/hadoop" directory on your machine.  Those two things will get you up to date.
+
+Yesterday I passed my [Cloudera Certified Hadoop Developer (CCHD)](http://www.cloudera.com/hadoop-training/developer-training/) &hellip;
+</a>
+
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left" href="/old/archivesives/2011/11/02/how-to-install-googles-android-eclipse-plugin-and-or-adb-on-64-bit-debian-ubuntu" title="Previous Post: How-To: Install Google's Android Eclipse plugin (and/or adb) on 64-bit Debian/Ubuntu">&laquo; How-To: Install Google's Android Eclipse plugin (and/or adb) on 64-bit Debian/Ubuntu</a>
+
+
+        <a class="basic-alignment right" href="/old/archivesives/2011/12/26/how-to-disable-hdfs-permissions-for-hadoop-development" title="Next Post: How-To: Disable HDFS permissions for Hadoop development">How-To: Disable HDFS permissions for Hadoop development &raquo;</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2011/12/23/how-to-install-hadoop-on-debian-ubuntu/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

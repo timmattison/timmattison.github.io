@@ -1,0 +1,656 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Automating Cisco Switch Interactions - Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="Recently I needed to find a way to reboot an embedded device remotely. The trick was that we didn&rsquo;t have a handy Web Power Switch and the &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/archives/2014/06/25/automating-cisco-switch-interactions">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+
+  <header>
+
+      <h1 class="entry-title">Automating Cisco Switch Interactions</h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2014-06-25T19:03:09-04:00" pubdate data-updated="true">Jun 25<span>th</span>, 2014</time>
+
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com">Comments</a>
+
+      </p>
+
+  </header>
+
+
+<div class="entry-content"><p>Recently I needed to find a way to reboot an embedded device remotely.  The trick was that we didn&rsquo;t have a handy <a href="http://www.digital-loggers.com/lpc.html">Web Power Switch</a> and the device was PoE.  I figured that I&rsquo;d just quickly slap together a script to telnet to the switch&rsquo;s management interface and simulate a few simple commands.  To make a long story short SSH was the only option which complicated things a bit.</p>
+
+<p>Fortunately for me <a href="http://blog.timmattison.com/archives/2014/02/13/how-to-execute-a-command-on-a-remote-server-that-requires-you-to-su-or-sudo/">I had already written an article about this</a> but that turned out only to be a starting point as the script just wouldn&rsquo;t work out of the box with Cisco&rsquo;s SSH server.</p>
+
+<p>In the end I found a few very interesting things out about Paramiko and Cisco&rsquo;s SSH server.  Using Paramiko with a Cisco switch through out a bunch of errors like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Traceback (most recent call last):
+</span><span class='line'>  File "/Applications/PyCharm.app/helpers/pydev/pydevd.py", line 1733, in &lt;module&gt;
+</span><span class='line'>    debugger.run(setup['file'], None, None)
+</span><span class='line'>  File "/Applications/PyCharm.app/helpers/pydev/pydevd.py", line 1226, in run
+</span><span class='line'>    pydev_imports.execfile(file, globals, locals)  # execute the script
+</span><span class='line'>  File "poe-state.py", line 69, in &lt;module&gt;
+</span><span class='line'>    client.connect(switch_ip_address, username=username, password=password, look_for_keys=True)
+</span><span class='line'>  File "/usr/local/lib/python2.7/site-packages/paramiko/client.py", line 273, in connect
+</span><span class='line'>    self._auth(username, password, pkey, key_filenames, allow_agent, look_for_keys)
+</span><span class='line'>  File "/usr/local/lib/python2.7/site-packages/paramiko/client.py", line 456, in _auth
+</span><span class='line'>    raise saved_exception
+</span><span class='line'>paramiko.ssh_exception.AuthenticationException: Authentication failed.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you are seeing <code>Authentication failed</code> messages while using Paramiko and you are certain your credentials are correct you may be running into the same problem I was.  The issue is that Paramiko tries to use your SSH keys to do public key authentication before it tries to use your password.  Normally, this doesn&rsquo;t cause an issue because if it fails one authentication method it just moves onto trying the next authentication method.  Due to a quirk in both Paramiko and Cisco&rsquo;s SSH server implementation Paramiko gets confused after the public key authentication failure and gives up.  I figured this out by turning on full debugging in Paramiko like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>paramiko.common.logging.basicConfig(level=paramiko.common.DEBUG)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is an incredibly handy flag if you ever need to debug Paramiko yourself so keep it around!</p>
+
+<p>Anyway, the solution is normally to add the <code>look_for_keys=False</code> option to your Paramiko connect call.  However, as I found out that works on some systems and not others.  To be certain that it only tried password authentication I needed to also add the <code>allow_agent=False</code> flag.</p>
+
+<p>The other quirk I hit was that my script initially waited forever for a response when I sent it commands that had a lot of output.  This was because the Cisco shell&rsquo;s pager was on.  Turning it off meant sending one additional command <code>terminal length 0\n</code>.</p>
+
+<p>In the end I ended up with a script that lets me check the PoE state of a port and enable/disable PoE on a per port basis.  If you need a script that does that it is included below.  Two important points to remember are that I only needed to use this on interfaces that start with <code>Gi1/0/</code> so that value is hardcoded and you&rsquo;ll need to change it if your switch is different.  You will also need to install my little Python library called <a href="https://pypi.python.org/pypi/pyuda/0.1dev">pyuda</a> because I use it to process the command-line arguments.  Rip that out if you want to simplify things.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/env python</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;timmattison&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">pyuda</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">re</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">paramiko</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">time</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># For debugging only</span>
+</span><span class='line'><span class="c"># paramiko.common.logging.basicConfig(level=paramiko.common.DEBUG)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># This is part of the regex we use to look for the interfaces we care about</span>
+</span><span class='line'><span class="n">interface_regex</span> <span class="o">=</span> <span class="s">&quot;Gi1\/0\/&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># These are the operation we support</span>
+</span><span class='line'><span class="n">status_operation</span> <span class="o">=</span> <span class="s">&quot;status&quot;</span>
+</span><span class='line'><span class="n">on_operation</span> <span class="o">=</span> <span class="s">&quot;on&quot;</span>
+</span><span class='line'><span class="n">off_operation</span> <span class="o">=</span> <span class="s">&quot;off&quot;</span>
+</span><span class='line'><span class="n">valid_operations</span> <span class="o">=</span> <span class="p">[</span><span class="n">status_operation</span><span class="p">,</span> <span class="n">on_operation</span><span class="p">,</span> <span class="n">off_operation</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">wait_string</span><span class="p">,</span> <span class="n">should_print</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Send the su command</span>
+</span><span class='line'>    <span class="n">shell</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Create a new receive buffer</span>
+</span><span class='line'>    <span class="n">receive_buffer</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">while</span> <span class="ow">not</span> <span class="n">wait_string</span> <span class="ow">in</span> <span class="n">receive_buffer</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Flush the receive buffer</span>
+</span><span class='line'>        <span class="n">receive_buffer</span> <span class="o">+=</span> <span class="n">shell</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Print the receive buffer, if necessary</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">should_print</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">receive_buffer</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">receive_buffer</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">validate_operation</span><span class="p">(</span><span class="n">operation</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Is this an operation we support?</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">operation</span> <span class="ow">in</span> <span class="n">valid_operations</span><span class="p">):</span>
+</span><span class='line'>        <span class="c"># No, tell them and bail out</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">operation</span> <span class="o">+</span> <span class="s">&quot; is not a valid operation&quot;</span>
+</span><span class='line'>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the command-line arguments</span>
+</span><span class='line'><span class="n">switch_ip_address</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">port_number</span> <span class="o">=</span> <span class="n">pyuda</span><span class="o">.</span><span class="n">get_command_line_arguments</span><span class="p">([</span><span class="s">&quot;Switch IP address&quot;</span><span class="p">,</span> <span class="s">&quot;Admin username&quot;</span><span class="p">,</span> <span class="s">&quot;Admin password&quot;</span><span class="p">,</span> <span class="n">status_operation</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="n">on_operation</span> <span class="o">+</span> <span class="s">&quot;, or &quot;</span> <span class="o">+</span> <span class="n">off_operation</span><span class="p">,</span> <span class="s">&quot;Port number&quot;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the operation makes sense</span>
+</span><span class='line'><span class="n">validate_operation</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create an SSH client</span>
+</span><span class='line'><span class="n">client</span> <span class="o">=</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure that we add the remote server&#39;s SSH key automatically</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">set_missing_host_key_policy</span><span class="p">(</span><span class="n">paramiko</span><span class="o">.</span><span class="n">AutoAddPolicy</span><span class="p">())</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Connect to the client</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">switch_ip_address</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">allow_agent</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">look_for_keys</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a raw shell</span>
+</span><span class='line'><span class="n">shell</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">invoke_shell</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for the prompt</span>
+</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Disable more</span>
+</span><span class='line'><span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;terminal length 0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Which command are we trying to run?</span>
+</span><span class='line'><span class="k">if</span><span class="p">((</span><span class="n">operation</span> <span class="o">==</span> <span class="n">on_operation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">operation</span> <span class="o">==</span> <span class="n">off_operation</span><span class="p">)):</span>
+</span><span class='line'>    <span class="c"># Trying to do on or off</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Send the &quot;conf t&quot; command</span>
+</span><span class='line'>    <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;conf t</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;(config)#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Send the interface command</span>
+</span><span class='line'>    <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;interface Gi1/0/&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">port_number</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;(config-if)#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Build the power command</span>
+</span><span class='line'>    <span class="n">power_command</span> <span class="o">=</span> <span class="s">&quot;power inline &quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># What kind of operation is this?</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">operation</span> <span class="o">==</span> <span class="n">off_operation</span><span class="p">):</span>
+</span><span class='line'>        <span class="c"># Power off, &quot;never&quot; means off</span>
+</span><span class='line'>        <span class="n">power_command</span> <span class="o">+=</span> <span class="s">&quot;never&quot;</span>
+</span><span class='line'>    <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Power on, &quot;auto&quot; means on (there are other options but this is the simplest)</span>
+</span><span class='line'>        <span class="n">power_command</span> <span class="o">+=</span> <span class="s">&quot;auto&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Add the carriage return</span>
+</span><span class='line'>    <span class="n">power_command</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Send the power command</span>
+</span><span class='line'>    <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="n">power_command</span><span class="p">,</span> <span class="s">&quot;(config-if)#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'><span class="k">elif</span><span class="p">(</span><span class="n">operation</span> <span class="o">==</span> <span class="n">status_operation</span><span class="p">):</span>
+</span><span class='line'>    <span class="c"># Get the status of all of the PoE ports</span>
+</span><span class='line'>    <span class="n">power_data</span> <span class="o">=</span> <span class="n">send_string_and_wait_for_string</span><span class="p">(</span><span class="s">&quot;show power inline</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Split the data into lines</span>
+</span><span class='line'>    <span class="n">power_data_lines</span> <span class="o">=</span> <span class="n">power_data</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># We haven&#39;t found what we&#39;re looking for yet</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Loop through all of the lines</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">power_data_line</span> <span class="ow">in</span> <span class="n">power_data_lines</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># Does this look like the interface we want?</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;^&quot;</span> <span class="o">+</span> <span class="n">interface_regex</span> <span class="o">+</span> <span class="n">port_number</span> <span class="o">+</span> <span class="s">&quot;\s&quot;</span><span class="p">,</span> <span class="n">power_data_line</span><span class="p">)):</span>
+</span><span class='line'>            <span class="c"># No, keep going</span>
+</span><span class='line'>            <span class="k">continue</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Found the interface we want, split up the fields</span>
+</span><span class='line'>        <span class="n">power_data_fields</span> <span class="o">=</span> <span class="n">power_data_line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Get the second field which is the power state field and print it</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">power_data_fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># We found what we needed</span>
+</span><span class='line'>        <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Get out of the for loop</span>
+</span><span class='line'>        <span class="k">break</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Did we find what we needed?</span>
+</span><span class='line'>    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># No, let the user know</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Did not find port &quot;</span> <span class="o">+</span> <span class="n">port_number</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">else</span><span class="p">:</span>
+</span><span class='line'>    <span class="c"># This is an operation we didn&#39;t handle</span>
+</span><span class='line'>    <span class="k">print</span> <span class="n">operation</span> <span class="o">+</span> <span class="s">&quot; not handled&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Close the SSH connection</span>
+</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+
+
+
+<span class="byline author vcard">Posted by <span class="fn">Tim Mattison</span></span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2014-06-25T19:03:09-04:00" pubdate data-updated="true">Jun 25<span>th</span>, 2014</time>
+
+
+
+    </p>
+
+      <div class="sharing">
+
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.timmattison.com/archives/2014/06/25/automating-cisco-switch-interactions/" data-via="timmattison" data-counturl="http://blog.timmattison.com/archives/2014/06/25/automating-cisco-switch-interactions/" >Tweet</a>
+
+
+  <div class="g-plusone" data-size="medium"></div>
+
+
+
+    <a class="FlattrButton" style="display:none;"
+    title="Automating Cisco switch interactions"
+    data-flattr-uid="timmattison"
+    data-flattr-tags=""
+    data-flattr-button="compact"
+    data-flattr-category="text"
+    href="http://blog.timmattison.com/archives/2014/06/25/automating-cisco-switch-interactions/">
+    Recently I needed to find a way to reboot an embedded device remotely.  The trick was that we didn't have a handy [Web Power Switch](http://www.digital-loggers.com/lpc.html) and the device was PoE.  I figured that I'd just quickly slap together a script to telnet to the switch's management interface and simulate a few simple commands.  To make a long story short SSH was the only option which complicated things a bit.
+
+Fortunately for me [I had already written an article about this](http://blog. &hellip;
+</a>
+
+
+</div>
+
+
+    <p class="meta">
+
+        <a class="basic-alignment left" href="/old/archivesives/2014/06/20/advanced-port-forwarding-with-ssh" title="Previous Post: Advanced port forwarding with SSH">&laquo; Advanced port forwarding with SSH</a>
+
+
+        <a class="basic-alignment right" href="/old/archivesives/2014/07/15/tip-bringing-your-working-directory-pwd-to-another-terminal-window-in-mac-os" title="Next Post: Tip: Bringing your working directory (pwd) to another Terminal window in Mac OS">Tip: Bringing your working directory (pwd) to another Terminal window in Mac OS &raquo;</a>
+
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk's Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement "Cron" on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.timmattison.com/archives/2014/06/25/automating-cisco-switch-interactions/';
+        var disqus_url = 'http://blog.timmattison.com/archives/2014/06/25/automating-cisco-switch-interactions/';
+        var disqus_script = 'embed.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

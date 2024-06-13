@@ -1,0 +1,884 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tim Mattison</title>
+  <meta name="author" content="Tim Mattison">
+
+
+  <meta name="description" content="Ok, this mini-hack isn&rsquo;t pretty but it solves an issue that I have seen come up many times in Java. You&rsquo;re trying to add a method to an &hellip;">
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <link rel="canonical" href="http://blog.timmattison.com/page/9">
+  <link href="/favicon.png" rel="icon">
+  <link href="/old/stylesheetseets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Tim Mattison" type="application/atom+xml">
+  <script src="/old/javascriptsipts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/old/javascriptsipts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */
+</script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-46746763-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tim Mattison</a></h1>
+
+    <h2>Hardcore tech</h2>
+
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+
+</ul>
+
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.timmattison.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/old/archivesives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues">Mini Hack: Create Read-only Properties With Hibernate (Fixes &#8220;PropertyNotFoundException: Could Not Find a Setter&#8221; Issues)</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-06-22T14:51:58-04:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2011</time>
+
+           | <a href="/old/archivesives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/22/mini-hack-create-read-only-properties-with-hibernate-fixes-propertynotfoundexception-could-not-find-a-setter-issues/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>Ok, this mini-hack isn&rsquo;t pretty but it solves an issue that I have seen come up many times in Java.  You&rsquo;re trying to add a method to an object that you want Hibernate to persist.  Let&rsquo;s assume that your object is an elevator and it has the following real properties:</p>
+
+<ul>
+<li>Current floor (int)</li>
+<li>Hours in use (int)</li>
+<li>Pounds in elevator (int)</li>
+</ul>
+
+
+<p>You want to add a method that tells you how many days it has been in use.  Normally you&rsquo;d do this:</p>
+
+<pre><code>public double getDaysInUse() {
+  return this.hoursInUse / 24.0;
+}
+</code></pre>
+
+<p>However, if you do that you get the dreaded &ldquo;PropertyNotFoundException: Could not find a setter&rdquo; error.  How do we fix this?  Simply with a throw away parameter like this:</p>
+
+<pre><code>public double getDaysInUse(int unused) {
+  return this.hoursInUse / 24.0;
+}
+</code></pre>
+
+<p>And there you have it.  No more error!  I&rsquo;m sure there&rsquo;s a better way and when I find it I&rsquo;ll post again but for now this does the trick.</p>
+</div>
+
+
+
+
+    </article>
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in">How-To: Fix Hibernate SQL Errors When Using Restrictions.in</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-06-22T12:36:03-04:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2011</time>
+
+           | <a href="/old/archivesives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/22/how-to-fix-hibernate-sql-errors-when-using-restrictions-in/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>Hibernate currently has some issues with Restrictions.in.  Basically if you try to pass it NULL it generates invalid SQL on at least MySQL and PostgreSQL.  I found a <a href="http://www.celerity.nl/blog/2009/01/hibernate-creating-invalid-quries-from-empty-lists/">blog post outlining how to fix this issue</a> and <a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-2776">the accompanying JIRA issue</a> which confirms that I&rsquo;m not the only one having this problem.  Unfortunately this person&rsquo;s fix didn&rsquo;t work for me but I think that&rsquo;s because they&rsquo;re using MySQL and I&rsquo;m using PostgreSQL.  Differences in the driver still make this fail on PostgreSQL.</p>
+
+<p>In order to remedy this I set out to find a better solution that would hopefully work on Hibernate with any backend.  What I came up with, <a href="http://stackoverflow.com/questions/2667131/is-there-something-like-restrictions-eqtrue-false-in-criteria-api">with some help from StackOverflow</a>, is this:</p>
+
+<pre><code>﻿﻿public static &lt;M&gt; void addInRestriction(DetachedCriteria dc, String idDbField, List ids) {
+    // Is our list empty?
+    if ((ids != null) &amp;&amp; (ids.size() &gt; 0)) {
+        // No, add this restriction to the detached object
+        dc.add(Restrictions.in(idDbField, ids));
+    } else {
+        // Yes, our list is empty.  Make this always fail.
+        // From: http://stackoverflow.com/questions/2667131/is-there-something-like-restrictions-eqtrue-false-in-criteria-api
+        dc.add(Restrictions.sqlRestriction("(1=0)"));
+    }
+}
+</code></pre>
+
+<p>I put this in a class with some other Hibernate helper functions and now instead of doing this:</p>
+
+<pre><code>dc.add(Restrictions.in("fieldName", fieldValues));
+</code></pre>
+
+<p>I do this:</p>
+
+<pre><code>HibernateQueryUtils.addInRestriction(dc, "fieldName", fieldValues);
+</code></pre>
+
+<p>This fixed all of my Hibernate issues when passing it a NULL or even an empty list.  Hope it works for you too!</p>
+</div>
+
+
+
+
+    </article>
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files">How-To: Improve Your Duplicity Backup and Restore Times on Rackspace Cloud Files</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-06-15T22:42:36-04:00" pubdate data-updated="true">Jun 15<span>th</span>, 2011</time>
+
+           | <a href="/old/archivesives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/15/how-to-improve-your-duplicity-backup-and-restore-times-on-rackspace-cloud-files/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>Using duplicity and backing up a Rackspace Cloud Server to Cloud Files is great.  The bandwidth is free (if you don&rsquo;t forget to enable service net), storage is relatively cheap, and duplicity offers lots of great options to tune the tradeoffs between disk space/bandwidth and storage.</p>
+
+<p>One thing you will notice though is that if Rackspace Cloud Files ever times out you will end up waiting, and waiting, and waiting for it to retry.  The command line &ldquo;&mdash;timeout&rdquo; option doesn&rsquo;t fix it either since the timeout is actually hard coded in the python-cloudfiles module.  By default this timeout is 30 seconds.  Want to get better backup and restore performance?  Follow these steps to reduce the delay to one second and you&rsquo;ll be a lot happier.  Note: These instructions assume you already have everything installed and configured to do duplicity backups to Cloud Files already.</p>
+
+<ul>
+<li><p>Step 1: Locate the cloudfilesbackend.py file that your system uses.  Mine was in /usr/lib64/python2.4/site-packages/duplicity/backends/cloudfilesbackend.py so you will need to replace this path with the proper one in all of the following commands.</p></li>
+<li><p>Step 2: Run sed to replace the calls to &ldquo;time.sleep(30)&rdquo; with &ldquo;time.sleep(1)&rdquo; like this:</p>
+
+<p>sed -i s/time.sleep(30)/time.sleep(1)/g /usr/lib64/python2.4/site-packages/duplicity/backends/cloudfilesbackend.py</p></li>
+<li><p>Step 3: Remove the pre-compiled version of the existing Python code like this:</p>
+
+<p>rm /usr/lib64/python2.4/site-packages/duplicity/backends/cloudfilesbackend.pyc</p></li>
+<li><p>Step 4: Adjust your duplicity backup and restore code to include two updated options.  First, add &ldquo;&mdash;timeout=1&rdquo; just to be double-extra sure that all timeouts are 1 second long.  Second, add &ldquo;&mdash;num-retries=30&rdquo; so that the script retries for 30 seconds if necessary.  If you don&rsquo;t add the second option you will run the risk of possibly failing to do a restore when there is a legitimate connectivity issue.  The default options with the changes from step 2 would only allow for a 5 second hiccup in network traffic so definitely don&rsquo;t forget to do this.</p></li>
+</ul>
+
+
+<p>That&rsquo;s it.  I&rsquo;ve personally seen my restore times decrease dramatically by doing this simple change.  Initially I wasn&rsquo;t even able to sync the duplicity information in 30 minutes and now I am doing full restores in under 25 minutes.  Had I left the settings the way they were I estimate that I would&rsquo;ve spent between 6 and 12 hours on a restore.</p>
+
+<p>UPDATE: The issue and fix here is entirely with the duplicity code, not python-cloudfiles.  Sorry for any confusion that may have caused.</p>
+</div>
+
+
+
+
+    </article>
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu">How-To: Convert From Bzr to Git on Debian/Ubuntu</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-06-13T17:41:14-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
+
+           | <a href="/old/archivesives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/13/how-to-convert-from-bzr-to-git-on-debianubuntu/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>For a brief period of time I was totally sold on <a href="http://bazaar.canonical.com/en/">Bazaar</a> (AKA bzr) for my distributed version control needs.  Then I found out about <a href="http://github.com">github</a> and the rest is history.  bzr is neat and has it&rsquo;s advantages but github is just too hot a community to pass up.  Building skills on both would be great but realistically I&rsquo;m only going to get good at the one that I use consistently.  So, git wins for me.</p>
+
+<p>When I was using bzr I accumulated a bunch of code in bzr repositories that I now want to convert to git.  There are a bunch of tutorials out there on how to do this but they all didn&rsquo;t work for some reason or another.  Here I have step by step instructions on how to move from bzr to git, with any branches you have created, that should work without fuss on both Debian and Ubuntu.</p>
+
+<p>These instructions assume the following:</p>
+
+<ol>
+<li><p> You have a bzr repository that you&rsquo;d like to become your master git branch that currently resides in a directory called bzr-master.</p></li>
+<li><p> You have one branch you&rsquo;d like to bring into git as &ldquo;branch-1&rdquo; that currently resides in a directory called bzr-branch-1.</p></li>
+<li><p> You want to call your new repository git-repo.</p></li>
+</ol>
+
+
+<p>Obviously, you will have different master and branch names so fill those in appropriately.  They are bold faced and italicized where you will need to replace the names.</p>
+
+<ul>
+<li><p>Step 1: Install bzr.</p>
+
+<p>sudo apt-get install bzr</p></li>
+<li><p>Step 2: Install bzr-fastimport.</p>
+
+<p>sudo apt-get install bzr-fastimport</p></li>
+<li><p>Step 3: Go to the parent directory that contains your two bzr branches in your shell.</p></li>
+<li><p>Step 4: Create the new git repository and stay in that directory</p>
+
+<p>mkdir <strong><em>git-repo</em></strong> ; cd <strong><em>git-repo</em></strong> ; git init .</p></li>
+<li><p>Step 5: Pull the master branch into git</p>
+
+<p>bzr fast-export &mdash;export-marks=../marks.bzr ../<strong><em>bzr-master</em></strong> | git fast-import &mdash;export-marks=../marks.git</p></li>
+<li><p>Step 6: Pull branch-1 into git</p>
+
+<p>bzr fast-export &mdash;marks=../marks.bzr &mdash;git-branch=branch-1 ../<strong><em>bzr-branch-1</em></strong> | git fast-import &mdash;import-marks=../marks.git &mdash;export-marks=../marks.git</p></li>
+</ul>
+
+
+<p>Now if you do a git branch you should see the master branch as well as branch-1.  Check the logs to make sure they&rsquo;re complete, nuke the marks.bzr and marks.git files, and then push them to github!  :)</p>
+</div>
+
+
+
+
+    </article>
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication">How-To: Secure Your WordPress Blog With Two-factor Authentication</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-06-13T10:06:25-04:00" pubdate data-updated="true">Jun 13<span>th</span>, 2011</time>
+
+           | <a href="/old/archivesives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>Don&rsquo;t care about the narrative?  Jump to the <a href="http://blog.timmattison.com/archives/2011/06/13/how-to-secure-your-wordpress-blog-with-two-factor-authentication/#instructions">instructions</a>.</p>
+
+<p>These days password security is paramount.  In recent news we have seen several high-profile breaches against <a href="http://www.telegraph.co.uk/technology/news/8553979/Sony-hack-private-details-of-million-people-posted-online.html">Sony</a>, <a href="http://www.rsa.com/node.aspx?id=3891">RSA</a>, and <a href="http://www.theregister.co.uk/2011/06/13/games_firm_epic_breach/">Epic</a> where passwords were lost, mission-critical keys were pilfered, and user details were leaked, respectively.</p>
+
+<p>Security professionals understand that multi-factor authentication is important.  Multi-factor authentication means that you access resources using something you know (ie. a password) and something you have (ie. a token that generates a unique code each time it is used).  This way someone would need to know your username, password, and have your token to gain access to whatever you are protecting.  Without any one of those things they will be denied access.  With a secure token even if they capture the data as it goes across the wire the token can only be used once.  If they attempt to reuse it they will be denied access yet again.</p>
+
+<p>Previously RSA was the place to go for this kind of security and it was too expensive for individuals to use.  But now a company called <a href="http://yubico.com/">Yubico</a> offers affordable tokens that can be used for a multitude of applications (<a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/YubiCloud">online services</a>, <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Enterprisesecuritysolutions">enterprise security solutions</a>, <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Otherenterprisesolutions">enterprise services</a>, and <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Opensource">open-source applications</a>).  If you have custom needs they also have a <a href="http://wiki.yubico.com/wiki/index.php/Main_Page/New_Videos/Systemintegrators">world-wide list of system integrators</a> that can help you through it.</p>
+
+<p>With the Yubikey Wordpress plugin you can now add this security to your Wordpress blog and make sure that your password and account information can&rsquo;t be nabbed by someone looking over your shoulder at a coffee shop.  Installing the plugin isn&rsquo;t hard but there are some things that are easy to miss.  To help you out I&rsquo;ve laid out all the steps from start to finish including testing and verification.  Here goes&hellip;</p>
+
+<p><strong>NOTE:</strong> You will not be able to complete beyond step 2 until you receive your Yubikey(s) in the mail.</p>
+
+<p>There are a lot of steps here but it is broken down into very small chunks.  Installation should take less than 5 minutes from start to finish.</p>
+
+<ul>
+<li><p>Step 1: Obtain a Yubikey (<a href="https://store.yubico.com/store/catalog/product_info.php?ref=232&amp;products_id=2&amp;affiliate_banner_id=1">YubiKey in Black</a>, <a href="https://store.yubico.com/store/catalog/product_info.php?ref=232&amp;products_id=3&amp;affiliate_banner_id=1">YubiKey in White</a>)</p></li>
+<li><p>Step 2: <a href="https://upgrade.yubico.com/getapikey/">Get an API key</a>.  Your API key is a client ID (a number) and a secret key (a long string).  Copy these to a safe place and make sure you copy the entire secret key.  It ends with an equals sign &ldquo;=&rdquo; and won&rsquo;t work without it!</p></li>
+<li><p>Step 3: Download the <a href="http://downloads.wordpress.org/plugin/yubikey-plugin.0.94.zip">Wordpress plugin for Yubikey authentication</a> to your computer</p></li>
+<li><p>Step 4: Sign into your Wordpress blog as an administrator.  If you are the only user on your blog then you are the administrator.</p></li>
+<li><p>Step 5: Click on the &ldquo;Plugins&rdquo; link on the left side of the screen</p></li>
+<li><p>Step 6: Click &ldquo;Add New&rdquo; either on the top or the left side of the screen.  They both go to the same place.</p></li>
+<li><p>Step 7: Click the &ldquo;Upload&rdquo; link on the top of the screen directly below &ldquo;Install Plugins&rdquo;</p></li>
+<li><p>Step 8: Click &ldquo;Browse&rdquo; and find the ZIP file you downloaded in step 3.  Then click &ldquo;Install Now&rdquo;.</p></li>
+<li><p>Step 9: Click &ldquo;Activate&rdquo;.</p></li>
+<li><p>Step 10: Click &ldquo;Settings&rdquo; on the left side of the screen.</p></li>
+<li><p>Step 11: Click &ldquo;Yubikey&rdquo; on the left side of the screen below &ldquo;Settings&rdquo;.  If there is no &ldquo;Yubikey&rdquo; link then click &ldquo;Plugins&rdquo; and make sure the Yubikey plugin is in the list and activated.  If it has a link that says &ldquo;Activate&rdquo; click it and go back to step 10.</p></li>
+<li><p>Step 12: Enter your client ID in the &ldquo;Yubico API ID&rdquo; field and your secret key in the &ldquo;Yubico API key&rdquo; field.  Make sure the equals sign &ldquo;=&rdquo; isn&rsquo;t missing from the end of the secret key.</p></li>
+<li><p>Step 13: Click &ldquo;Users&rdquo; on the left side of the screen.</p></li>
+<li><p>Step 14: Find and click on the username of the account that you want to enable the Yubikey on.  If you are the only user then this may be &ldquo;admin&rdquo;.</p></li>
+<li><p>Step 15: Locate the &ldquo;Yubikey Settings&rdquo; section and change the option from &ldquo;Disabled&rdquo; to &ldquo;Use Yubico server&rdquo;.</p></li>
+<li><p>Step 16: Click on the text box next to &ldquo;Key ID 1&rdquo;.</p></li>
+<li><p>Step 17: Insert your Yubikey.</p></li>
+<li><p>Step 18: Press the button on your Yubikey for two seconds and the form will fill in.</p></li>
+<li><p>Step 19: Scroll down to the bottom of the page and click &ldquo;Update profile&rdquo;.</p></li>
+<li><p>Step 20: Log out and try to log in with your Yubikey!</p></li>
+</ul>
+
+
+<p>When you get to your login screen you will now see a new field labeled &ldquo;Yubikey OTP&rdquo;.  When you log in now you&rsquo;ll enter your username and password as you used to but then you&rsquo;ll click in the Yubikey OTP box, plug your Yubikey in, and press the button.  That will complete your login process.</p>
+
+<p>One thing you MUST do before you consider this task done is test to make sure the Yubikey authentication isn&rsquo;t disabled.  A lot of people miss this and don&rsquo;t realize that their token isn&rsquo;t actually enabled.  To test this try logging in to your site but instead of using the Yubikey in the Yubikey OTP field just type some random characters.  If it still lets you log in you need to go back and do step 15 and then step 19 again.  Test it again and make sure it works.  If it is set up properly it will tell you your password is incorrect when you type random characters in the OTP field.</p>
+
+<p>Good luck and post any questions in the comments.</p>
+</div>
+
+
+
+
+    </article>
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2011/04/26/installing-nodejs-couchdb-and-npm-on-debian-the-easy-way">How-To: Install NodeJS, CouchDB, and Npm on Debian (the Easy Way)</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2011-04-26T09:21:32-04:00" pubdate data-updated="true">Apr 26<span>th</span>, 2011</time>
+
+           | <a href="/old/archivesives/2011/04/26/installing-nodejs-couchdb-and-npm-on-debian-the-easy-way#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2011/04/26/installing-nodejs-couchdb-and-npm-on-debian-the-easy-way/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>Are you looking for a no-nonsense way to install all of these applications and don&rsquo;t want to dig through any documentation?  Just run this list of commands (replacing the word CORES for the number of cores you have):</p>
+
+<pre><code>git clone https://github.com/joyent/node.git
+cd node
+export JOBS=CORES # optional, sets number of parallel commands.
+mkdir ~/local
+./configure --prefix=$HOME/local/node
+make -jCORES
+make install
+cd ..
+git clone git://github.com/apache/couchdb.git
+cd couchdb
+sudo apt-get install automake
+sudo apt-get install libmozjs-dev
+sudo apt-get install libicu-dev
+sudo apt-get install erlang
+./bootstrap
+./configure --prefix=$HOME/local/couchdb
+make -jCORES
+make install
+</code></pre>
+
+<p>After that, update your path in .bashrc by adding this line to the bottom:</p>
+
+<pre><code>export PATH=$HOME/local/node/bin:$HOME/local/couchdb/bin:$PATH
+</code></pre>
+
+<p>Now, you can run both NodeJS and CouchDB from anywhere once you log out and log back in again.  Finally, installing npm is just one more step:</p>
+
+<pre><code>curl http://npmjs.org/install.sh | sh
+</code></pre>
+
+<p>That&rsquo;s it, you&rsquo;ve now got all of the latest code installed.  To start couchdb run</p>
+
+<pre><code>couchdb -b
+</code></pre>
+
+<p>from anywhere and connect to Futon <a href="http://localhost:5984/_utils/">locally via http://localhost:5984/_utils/</a>.  BTW, to use CouchDB from NodeJS I recommend <a href="https://github.com/cloudhead/cradle">Cradle</a>.</p>
+</div>
+
+
+
+
+    </article>
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2010/10/18/listen-to-wcdb-right-on-your-desktop">Listen to WCDB Right on Your Desktop</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2010-10-18T22:23:02-04:00" pubdate data-updated="true">Oct 18<span>th</span>, 2010</time>
+
+           | <a href="/old/archivesives/2010/10/18/listen-to-wcdb-right-on-your-desktop#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/18/listen-to-wcdb-right-on-your-desktop/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>Another day, another free radio application for your desktop.  This time it&rsquo;s for <a href="http://www.wcdbfm.com/">WCDB on 90.9 FM in Albany, NY</a>.  So go and <a href="http://get.adobe.com/air/">install Adobe AIR if you haven&rsquo;t already</a>, <a href="/static/WCDBPlayer.air">download my WCDB player application</a>, and start listening!</p>
+</div>
+
+
+
+
+    </article>
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone">Listen to Skidmore Radio (WSPN) on Your Android Phone</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2010-10-14T14:25:15-04:00" pubdate data-updated="true">Oct 14<span>th</span>, 2010</time>
+
+           | <a href="/old/archivesives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/14/listen-to-skidmore-radio-wspn-on-your-android-phone/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>In the same vein of <a href="http://blog.timmattison.com/archives/2010/09/27/listen_to_skidmore_college_radio_wspn_right_on_your_desktop/">my previous desktop app</a> I put together <a href="/static/wspn-player.apk">an Android app that lets you listen to WSPN</a>.  It also includes the schedule so you can see what&rsquo;s on when you start it up.  Just press the menu button and then view schedule.</p>
+
+<p>Enjoy and let me know if you have any comments or suggestions.</p>
+
+<p>Update: There are a few changes I&rsquo;ll need to make to this application.  After running in the background for an extended period of time there is a bug that causes a force close when exiting.  This will be fixed soon.</p>
+</div>
+
+
+
+
+    </article>
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2010/10/11/how-to-migrate-away-from-nanoblogger">How-To: Migrate Away From Nanoblogger</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2010-10-11T22:15:11-04:00" pubdate data-updated="true">Oct 11<span>th</span>, 2010</time>
+
+           | <a href="/old/archivesives/2010/10/11/how-to-migrate-away-from-nanoblogger#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/11/how-to-migrate-away-from-nanoblogger/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>I’ve been using Nanoblogger for years now and I really didn’t want to ditch it.  After seeing how infrequently I post though I realized that Nanoblogger was getting in the way ever since I switched back from my Mac to a PC.  Without decent command-line support Nanoblogger required me to fire up a VM, edit in vim, update the blog, and sync it with rsync.</p>
+
+<p>All of this is computationally and bandwidth efficient but not exactly convenient.  Convenience is key for me when keeping a blog up to date.  Anything that I have to do that doesn’t involve writing articles just gets in the way.</p>
+
+<p>So, I wanted to switch from Nanoblogger to WordPress.  There’s no simple migration path here for several reasons but I came up with something that does the job and doesn’t require you to mess with your Nanoblogger settings.  This way you can leave everything in place and come back to it if something breaks.</p>
+
+<p>First, you’ll need to navigate to your blog/data directory.  This is where all of your blog posts are stored as text files.  Then, using the Perl script at the bottom of this page, convert them into a full RSS feed by running this command:</p>
+
+<p>cat *.txt | perl convert.pl > myblog.rss</p>
+
+<p>With the myblog.rss file you can import your posts using the WordPress RSS importer and it’ll contain every post you’ve ever written.  If you use the RSS feed that Nanoblogger generates on your site you’ll only get the last few posts.</p>
+
+<p>The script, convert.pl, is simply this:</p>
+
+<h1>!/usr/bin/perl -w</h1>
+
+<p>my $title;
+my $date;
+my $body;</p>
+
+<p>my $inbody = 0;</p>
+
+<p>while(<STDIN>) {
+my $line = $_;</p>
+
+<p>if($line =~ m/^TITLE: (.<em>)$/) {
+$title = $1;
+}
+elsif ($line =~ m/^DATE: (.</em>)$/) {
+$date = $1;</p>
+
+<p>$date =~ s/^(&hellip;) (&hellip;) ([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9]) (&hellip;) (20[0-9][0-9])/$1, $3 $2 $8 $4:$5:$6 -0500/;
+}
+elsif($line =~ m/BODY:/) {
+$inbody = 1;
+$body = &ldquo;&rdquo;;
+}
+elsif($line =~ /END&mdash;&mdash;&ndash;/) {</p>
+
+<h1>Done, write it all out</h1>
+
+<p>print(&ldquo;<item>\n&rdquo;);
+print(&ldquo;  <pubDate>$date</pubDate>\n&rdquo;);
+print(&ldquo;  <title>$title</title>\n&rdquo;);
+print(&ldquo;  &lt;content:encoded>$body&lt;/content:encoded>\n&rdquo;);
+print(&ldquo;</item>\n&rdquo;);</p>
+
+<p>$date = &ldquo;&rdquo;;
+$title = &ldquo;&rdquo;;
+$body = &ldquo;&rdquo;;
+}
+elsif($inbody == 1) {
+$body = $body . $line;
+}
+}</p>
+
+<p>Note that the date conversion code isn’t perfect so some posts will come out with dates of Dec. 31st, 1969.  You’ll have to fix those by hand.  Also, sometimes formatting isn’t perfect depending on how you wrote your posts initially.  Either way this turned hours of agonizing transcription into just a few seconds of work.</p>
+</div>
+
+
+
+
+    </article>
+
+
+    <article>
+
+  <header>
+
+      <h1 class="entry-title"><a href="/old/archivesives/2010/10/09/how-to-use-the-samsung-fascinategalaxy-s-to-debug-android-applications-on-windows">How-To: Use the Samsung Fascinate/Galaxy S to Debug Android Applications on Windows</a></h1>
+
+
+      <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+<time datetime="2010-10-09T10:23:40-04:00" pubdate data-updated="true">Oct 9<span>th</span>, 2010</time>
+
+           | <a href="/old/archivesives/2010/10/09/how-to-use-the-samsung-fascinategalaxy-s-to-debug-android-applications-on-windows#disqus_thread"
+             data-disqus-identifier="http://blog.timmattison.com/archives/2010/10/09/how-to-use-the-samsung-fascinategalaxy-s-to-debug-android-applications-on-windows/">Comments</a>
+
+      </p>
+
+  </header>
+
+
+  <div class="entry-content"><p>I just got a Samsung Fascinate a few weeks back and it’s a great phone.  When I tried to hook it up today to do some development on it though I ran into trouble.  In the Windows device manager it just came up as a “Samsung Android” but Eclipse would not recognize it as a valid target.  In order to use this device, or any other Galaxy S product, as a debug target you need to do one more thing…</p>
+
+<p>The secret is that you need to download Samsung’s USB drivers.  The standard ones that come with the Android development kit will not work even if you modify the INF file to include the USB IDs of the phone.  Samsung has <a href="http://j.mp/SamsungFascinateUSB">drivers specifically for the Fascinate</a>.  I didn’t find the Samsung drivers right away so I settled for Softpedia.  Normally I avoid Softpedia downloads but I scanned them and looked at them closely before installing and they seem legitimate.  There are two versions listed but I think they may both be the same since the x64 version I installed claimed to be x86.  So here they are:</p>
+
+<p><a href="http://drivers.softpedia.com/get/MOBILES/Samsung/Samsung-Galaxy-S-USB-Driver-for-Windows-x64.shtml">Generic Galaxy S USB drivers for x64</a></p>
+
+<p><a href="http://drivers.softpedia.com/get/MOBILES/Samsung/Samsung-Galaxy-S-USB-Driver-for-Windows-x86.shtml">Generic Galaxy X USB drivers for x86</a></p>
+
+<p>Softpedia tries to trick you into clicking ads so first click “Download” to the left of the download counter for the file, then click the “Softpedia Secure Download (US) [ZIP]” link.  All of the other links are ads.</p>
+
+<p>After you have installed the drivers reconnect your phone and it should install four different drivers relating to ADB.  Then you should see your device come up in the Android device manager when you try to launch your project in Eclipse.  If the manager doesn’t come up you should go to the “Run Configurations” for your project, select the “Target” tab, and then select “Manual” under “Deployment Target Selection Mode”.  This makes sure that when you launch this project it’ll try to open device manager.</p>
+</div>
+
+
+
+
+    </article>
+
+  <div class="pagination">
+
+      <a class="prev" href="/old/pagepage/10">&larr; Older</a>
+
+    <a href="/old/archivesives">Archives</a>
+
+    <a class="next" href="/old/pagepage/8">Newer &rarr;</a>
+
+  </div>
+</div>
+<aside class="sidebar">
+
+    <section>
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Sidebar -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:240px"
+     data-ad-client="ca-pub-9307090849713032"
+     data-ad-slot="1616086903"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/image-metadata-extraction-with-aws-lambda-and-java">Image Metadata Extraction With AWS Lambda and Java</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/30/deploying-multiple-java-applications-in-a-single-elastic-beanstalk-instance">Deploying Multiple Java Applications in a Single Elastic Beanstalk Instance</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/27/deploying-multiple-war-files-on-a-single-instance-with-elastic-beanstalks-command-line-tools">Deploying Multiple WAR Files on a Single Instance With Elastic Beanstalk&#8217;s Command-line Tools</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/07/24/how-would-you-implement-cron-on-aws-as-inexpensively-as-possible">How Would You Implement &#8220;Cron&#8221; on AWS as Inexpensively as Possible?</a>
+      </li>
+
+      <li class="post">
+        <a href="/old/archivesives/2015/03/10/validating-guava-event-bus-interactions-with-mockito">Validating Guava Event Bus Interactions With Mockito</a>
+      </li>
+
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+
+  <a href="https://github.com/timmattison">@timmattison</a> on GitHub
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'timmattison',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/old/javascriptsipts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/timmattison?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Tim Mattison -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'timmattison';
+
+
+        var disqus_script = 'count.js';
+
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
