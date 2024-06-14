@@ -1,4 +1,9 @@
-# 2024-06-13 - A counter for no reason
+---
+title: "A counter for no reason"
+date: 2024-06-13
+---
+
+# {{ $frontmatter.title }}
 
 This was another sample I saw somewhere that I wanted to keep for reference.
 

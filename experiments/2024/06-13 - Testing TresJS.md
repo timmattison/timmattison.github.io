@@ -1,4 +1,9 @@
-# 2024-06-13 - Testing Tres.js
+---
+title: "Testing TresJS"
+date: 2024-06-13
+---
+
+# {{ $frontmatter.title }}
 
 <script setup>
 // @ts-ignore
