@@ -2,7 +2,9 @@ import { generateSidebar } from 'vitepress-sidebar'
 import { defineConfig } from 'vitepress'
 
 const vitepressSidebarOptions = {
-    excludeFolders: ['old', 'boilerplate']
+    excludeFolders: ['old', 'boilerplate'],
+    sortMenusByFrontmatterDate: true,
+    sortMenusOrderByDescending: true,
 }
 
 // https://vitepress.dev/reference/site-config
