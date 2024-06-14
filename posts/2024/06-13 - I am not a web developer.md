@@ -1,6 +1,6 @@
 ---
 title: "I am not a web developer"
-date: 2024-06-13
+date: 2024-06-13 09:36:00
 ---
 
 # {{ $frontmatter.title }}

@@ -1,6 +1,6 @@
 ---
 title: "DynamoDB GSI vs. LSI"
-date: 2024-06-14
+date: 2024-06-14 05:15:00
 ---
 
 # {{ $frontmatter.title }}
