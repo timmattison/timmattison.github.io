@@ -13,6 +13,9 @@ hero:
     - theme: alt
       text: Experiments
       link: /experiments
+    - theme: alt
+      text: Awesome lists
+      link: /awesome
 
 features:
   - title: Likely to be forgotten for long periods of time
