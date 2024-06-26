@@ -3,9 +3,11 @@ title: "NY is not a two-party consent state"
 date: 2024-06-19 05:22:00
 ---
 
+# {{ $frontmatter.title }}
+
 Disclaimer: I am not a lawyer
 
-TL;DR: New York is not a two party consent state
+TL;DR - New York is not a two party consent state
 
 I mentioned in my post about EUC regulations in NYC that I don't really like when people claim a law means/says/does
 something but doesn't actually quote the
