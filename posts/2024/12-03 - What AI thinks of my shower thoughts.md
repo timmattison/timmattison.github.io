@@ -29,3 +29,9 @@ I like tabs because I can choose how wide they are without reformatting your cod
 Pasting Python code is always painful. I propose we have a yearly conference to discuss how to improve it.
 
 ![re:Indent](12-03-images/re-indent.jpg "A conference sign on a post that has the Python language logo and the text 're:Indent'")
+
+# FLUX-1.schnell - Whitespace for dummies
+
+Could be about the programming language, could be about tabs vs. spaces. Who knows?
+
+![Whitespace for dummies](12-03-images/whitespace-for-dummies.jpg "A book on a table with the title 'Whitespace for dummies'")
