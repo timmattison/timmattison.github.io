@@ -12,27 +12,27 @@ importers:
         specifier: ^2.3.1
         version: 2.3.1(vue@3.5.13)
       '@tresjs/cientos':
-        specifier: ^3.9.0
-        version: 3.9.0(@tresjs/core@4.3.2(three@0.165.0)(vue@3.5.13))(@types/three@0.165.0)(three@0.165.0)(tweakpane@4.0.3)(vue@3.5.13)
+        specifier: ^4.1.0
+        version: 4.1.0(@tresjs/core@4.3.2(three@0.173.0)(vue@3.5.13))(@types/three@0.173.0)(three@0.173.0)(vue@3.5.13)
       '@tresjs/core':
         specifier: ^4.3.2
-        version: 4.3.2(three@0.165.0)(vue@3.5.13)
+        version: 4.3.2(three@0.173.0)(vue@3.5.13)
       element-plus:
         specifier: ^2.9.3
         version: 2.9.3(vue@3.5.13)
       three:
-        specifier: ^0.165.0
-        version: 0.165.0
+        specifier: ^0.173.0
+        version: 0.173.0
       vue:
         specifier: ^3.5.13
         version: 3.5.13
     devDependencies:
       '@types/three':
-        specifier: ^0.165.0
-        version: 0.165.0
+        specifier: ^0.173.0
+        version: 0.173.0
       prettier:
-        specifier: 3.3.2
-        version: 3.3.2
+        specifier: 3.4.2
+        version: 3.4.2
       vitepress:
         specifier: ^1.6.3
         version: 1.6.3(@algolia/client-search@5.20.0)(async-validator@4.2.5)(postcss@8.5.1)(search-insights@2.14.0)
@@ -452,12 +452,11 @@ packages:
   '@sxzz/popperjs-es@2.11.7':
     resolution: {integrity: sha512-Ccy0NlLkzr0Ex2FKvh2X+OyERHXJ88XJ1MXtsI9y9fGexlaXaVTPzBCRBwIxFkORuOb+uBqeu+RqnpgYTEZRUQ==}
 
-  '@tresjs/cientos@3.9.0':
-    resolution: {integrity: sha512-LAtMveKlecKvWh7TNWdwEs3nQUYMLqz9DZy0YhSZ6OVTfL2vevx2K4sH9744UME8OedUf4fkFFkX4OWQRHaDRQ==}
+  '@tresjs/cientos@4.1.0':
+    resolution: {integrity: sha512-vhYQ6HbcuswLngyHgHj+L6FAgtedhmbH83+xQbPgJmEGAUqu+91PQeH+Hujgk/6U444hObq1FwUZWClrrjXatQ==}
     peerDependencies:
-      '@tresjs/core': '>=3.2'
+      '@tresjs/core': '>=4.2.1'
       three: '>=0.133'
-      tweakpane: '>=3.0.0'
       vue: '>=3.3'
 
   '@tresjs/core@4.3.2':
@@ -502,8 +501,8 @@ packages:
   '@types/stats.js@0.17.3':
     resolution: {integrity: sha512-pXNfAD3KHOdif9EQXZ9deK82HVNaXP5ZIF5RP2QG6OQFNTaY2YIetfrE9t528vEreGQvEPRDDc8muaoYeK0SxQ==}
 
-  '@types/three@0.165.0':
-    resolution: {integrity: sha512-AJK8JZAFNBF0kBXiAIl5pggYlzAGGA8geVYQXAcPCEDRbyA+oEjkpUBcJJrtNz6IiALwzGexFJGZG2yV3WsYBw==}
+  '@types/three@0.173.0':
+    resolution: {integrity: sha512-KtNjfI/CRB6JVKIVeZM1R3GYDX2wkoV2itNcQu2j4d7qkhjGOuB+s2oF6jl9mztycDLGMtrAnJQYxInC8Bb20A==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -568,9 +567,6 @@ packages:
   '@vue/shared@3.5.13':
     resolution: {integrity: sha512-/hnE/qP5ZoGpol0a5mDi45bOd7t3tjYJBjsgCsivow7D48cJeV5l05RD82lPqi7gRiphZM37rnhW1l6ZoCNNnQ==}
 
-  '@vueuse/core@10.11.1':
-    resolution: {integrity: sha512-guoy26JQktXPcz+0n3GukWIy/JDNKti9v6VEMu6kV2sYBsWuGiTU8OWdg+ADfUbHg3/3DlqySDe7JmdHrktiww==}
-
   '@vueuse/core@12.5.0':
     resolution: {integrity: sha512-GVyH1iYqNANwcahAx8JBm6awaNgvR/SwZ1fjr10b8l1HIgDp82ngNbfzJUgOgWEoxjL+URAggnlilAEXwCOZtg==}
 
@@ -618,23 +614,20 @@ packages:
       universal-cookie:
         optional: true
 
-  '@vueuse/metadata@10.11.1':
-    resolution: {integrity: sha512-IGa5FXd003Ug1qAZmyE8wF3sJ81xGLSqTqtQ6jaVfkeZ4i5kS2mwQF61yhVqojRnenVew5PldLyRgvdl4YYuSw==}
-
   '@vueuse/metadata@12.5.0':
     resolution: {integrity: sha512-Ui7Lo2a7AxrMAXRF+fAp9QsXuwTeeZ8fIB9wsLHqzq9MQk+2gMYE2IGJW48VMJ8ecvCB3z3GsGLKLbSasQ5Qlg==}
 
   '@vueuse/metadata@9.13.0':
     resolution: {integrity: sha512-gdU7TKNAUVlXXLbaF+ZCfte8BjRJQWPCa2J55+7/h+yDtzw3vOoGQDRXzI6pyKyo6bXFT5/QoPE4hAknExjRLQ==}
 
-  '@vueuse/shared@10.11.1':
-    resolution: {integrity: sha512-LHpC8711VFZlDaYUXEBbFBCQ7GS3dVU9mjOhhMhXP6txTV4EhYQg/KGnQuvt/sPAtoUKq7VVUnL6mVtFoL42sA==}
-
   '@vueuse/shared@12.5.0':
     resolution: {integrity: sha512-vMpcL1lStUU6O+kdj6YdHDixh0odjPAUM15uJ9f7MY781jcYkIwFA4iv2EfoIPO6vBmvutI1HxxAwmf0cx5ISQ==}
 
   '@vueuse/shared@9.13.0':
     resolution: {integrity: sha512-UrnhU+Cnufu4S6JLCPZnkWh0WwZGUp72ktOF2DFptMlOs3TOdVv8xJN53zhHGARmVOsz5KqOls09+J1NR6sBKw==}
+
+  '@webgpu/types@0.1.54':
+    resolution: {integrity: sha512-81oaalC8LFrXjhsczomEQ0u3jG+TqE6V9QHLA8GNZq/Rnot0KDugu3LhSYSlie8tSdooAN1Hov05asrUUp9qgg==}
 
   algoliasearch@5.20.0:
     resolution: {integrity: sha512-groO71Fvi5SWpxjI9Ia+chy0QBwT61mg6yxJV27f5YFf+Mw+STT75K6SHySpP8Co5LsCrtsbCH5dJZSRtkSKaQ==}
@@ -944,8 +937,8 @@ packages:
   preact@10.25.4:
     resolution: {integrity: sha512-jLdZDb+Q+odkHJ+MpW/9U5cODzqnB+fy2EiHSZES7ldV5LK7yjlVzTp7R8Xy6W6y75kfK8iWYtFVH7lvjwrCMA==}
 
-  prettier@3.3.2:
-    resolution: {integrity: sha512-rAVeHYMcv8ATV5d508CFdn+8/pHPpXeIid1DdrPwXnaAdH7cqjVbpJaT5eq4yRAFU/lsbwYwSF/n5iNrdJHPQA==}
+  prettier@3.4.2:
+    resolution: {integrity: sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -1067,17 +1060,14 @@ packages:
     peerDependencies:
       three: '>=0.128.0'
 
-  three@0.165.0:
-    resolution: {integrity: sha512-cc96IlVYGydeceu0e5xq70H8/yoVT/tXBxV/W8A/U6uOq7DXc4/s1Mkmnu6SqoYGhSRWWYFOhVwvq6V0VtbplA==}
+  three@0.173.0:
+    resolution: {integrity: sha512-AUwVmViIEUgBwxJJ7stnF0NkPpZxx1aZ6WiAbQ/Qq61h6I9UR4grXtZDmO8mnlaNORhHnIBlXJ1uBxILEKuVyw==}
 
   through2@0.6.5:
     resolution: {integrity: sha512-RkK/CCESdTKQZHdmKICijdKKsCRVHs5KsLZ6pACAmF/1GPUQhonHSXWNERctxEp7RmvjdNbZTL5z9V7nSCXKcg==}
 
   trim-lines@3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
-
-  tweakpane@4.0.3:
-    resolution: {integrity: sha512-BlcWOAe8oe4c+k9pmLBARGdWB6MVZMszayekkixQXTgkxTaYoTUpHpwVEp+3HkoamZkomodpbBf0CkguIHTgLg==}
 
   unist-util-is@6.0.0:
     resolution: {integrity: sha512-2qCTHimwdxLfz+YzdGfkqNlH0tLi9xjTnHddPmJwtIG9MGsdbutfTc4P+haPD7l7Cjxf/WZj+we5qfVPvvxfYw==}
@@ -1537,30 +1527,29 @@ snapshots:
 
   '@sxzz/popperjs-es@2.11.7': {}
 
-  '@tresjs/cientos@3.9.0(@tresjs/core@4.3.2(three@0.165.0)(vue@3.5.13))(@types/three@0.165.0)(three@0.165.0)(tweakpane@4.0.3)(vue@3.5.13)':
+  '@tresjs/cientos@4.1.0(@tresjs/core@4.3.2(three@0.173.0)(vue@3.5.13))(@types/three@0.173.0)(three@0.173.0)(vue@3.5.13)':
     dependencies:
-      '@tresjs/core': 4.3.2(three@0.165.0)(vue@3.5.13)
-      '@vueuse/core': 10.11.1(vue@3.5.13)
-      camera-controls: 2.9.0(three@0.165.0)
-      stats-gl: 2.4.2(@types/three@0.165.0)(three@0.165.0)
+      '@tresjs/core': 4.3.2(three@0.173.0)(vue@3.5.13)
+      '@vueuse/core': 12.5.0
+      camera-controls: 2.9.0(three@0.173.0)
+      stats-gl: 2.4.2(@types/three@0.173.0)(three@0.173.0)
       stats.js: 0.17.0
-      three: 0.165.0
-      three-custom-shader-material: 5.4.0(three@0.165.0)
-      three-stdlib: 2.35.13(three@0.165.0)
-      tweakpane: 4.0.3
+      three: 0.173.0
+      three-custom-shader-material: 5.4.0(three@0.173.0)
+      three-stdlib: 2.35.13(three@0.173.0)
       vue: 3.5.13
     transitivePeerDependencies:
       - '@react-three/fiber'
       - '@types/three'
-      - '@vue/composition-api'
       - react
+      - typescript
 
-  '@tresjs/core@4.3.2(three@0.165.0)(vue@3.5.13)':
+  '@tresjs/core@4.3.2(three@0.173.0)(vue@3.5.13)':
     dependencies:
       '@alvarosabu/utils': 3.2.0
       '@vue/devtools-api': 6.6.4
       '@vueuse/core': 12.5.0
-      three: 0.165.0
+      three: 0.173.0
       vue: 3.5.13
     transitivePeerDependencies:
       - typescript
@@ -1598,11 +1587,12 @@ snapshots:
 
   '@types/stats.js@0.17.3': {}
 
-  '@types/three@0.165.0':
+  '@types/three@0.173.0':
     dependencies:
       '@tweenjs/tween.js': 23.1.3
       '@types/stats.js': 0.17.3
       '@types/webxr': 0.5.21
+      '@webgpu/types': 0.1.54
       fflate: 0.8.2
       meshoptimizer: 0.18.1
 
@@ -1695,16 +1685,6 @@ snapshots:
 
   '@vue/shared@3.5.13': {}
 
-  '@vueuse/core@10.11.1(vue@3.5.13)':
-    dependencies:
-      '@types/web-bluetooth': 0.0.20
-      '@vueuse/metadata': 10.11.1
-      '@vueuse/shared': 10.11.1(vue@3.5.13)
-      vue-demi: 0.14.10(vue@3.5.13)
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - vue
-
   '@vueuse/core@12.5.0':
     dependencies:
       '@types/web-bluetooth': 0.0.20
@@ -1735,18 +1715,9 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@vueuse/metadata@10.11.1': {}
-
   '@vueuse/metadata@12.5.0': {}
 
   '@vueuse/metadata@9.13.0': {}
-
-  '@vueuse/shared@10.11.1(vue@3.5.13)':
-    dependencies:
-      vue-demi: 0.14.10(vue@3.5.13)
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - vue
 
   '@vueuse/shared@12.5.0':
     dependencies:
@@ -1760,6 +1731,8 @@ snapshots:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+
+  '@webgpu/types@0.1.54': {}
 
   algoliasearch@5.20.0:
     dependencies:
@@ -1801,9 +1774,9 @@ snapshots:
     dependencies:
       balanced-match: 1.0.2
 
-  camera-controls@2.9.0(three@0.165.0):
+  camera-controls@2.9.0(three@0.173.0):
     dependencies:
-      three: 0.165.0
+      three: 0.173.0
 
   ccount@2.0.1: {}
 
@@ -2093,7 +2066,7 @@ snapshots:
 
   preact@10.25.4: {}
 
-  prettier@3.3.2: {}
+  prettier@3.4.2: {}
 
   property-information@6.5.0: {}
 
@@ -2175,10 +2148,10 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  stats-gl@2.4.2(@types/three@0.165.0)(three@0.165.0):
+  stats-gl@2.4.2(@types/three@0.173.0)(three@0.173.0):
     dependencies:
-      '@types/three': 0.165.0
-      three: 0.165.0
+      '@types/three': 0.173.0
+      three: 0.173.0
 
   stats.js@0.17.0: {}
 
@@ -2217,15 +2190,15 @@ snapshots:
 
   tabbable@6.2.0: {}
 
-  three-custom-shader-material@5.4.0(three@0.165.0):
+  three-custom-shader-material@5.4.0(three@0.173.0):
     dependencies:
       glsl-token-functions: 1.0.1
       glsl-token-string: 1.0.1
       glsl-tokenizer: 2.1.5
       object-hash: 3.0.0
-      three: 0.165.0
+      three: 0.173.0
 
-  three-stdlib@2.35.13(three@0.165.0):
+  three-stdlib@2.35.13(three@0.173.0):
     dependencies:
       '@types/draco3d': 1.4.10
       '@types/offscreencanvas': 2019.7.3
@@ -2233,9 +2206,9 @@ snapshots:
       draco3d: 1.5.7
       fflate: 0.6.10
       potpack: 1.0.2
-      three: 0.165.0
+      three: 0.173.0
 
-  three@0.165.0: {}
+  three@0.173.0: {}
 
   through2@0.6.5:
     dependencies:
@@ -2243,8 +2216,6 @@ snapshots:
       xtend: 4.0.2
 
   trim-lines@3.0.1: {}
-
-  tweakpane@4.0.3: {}
 
   unist-util-is@6.0.0:
     dependencies:
