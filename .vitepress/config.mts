@@ -33,12 +33,6 @@ const postsSidebarOptions = {
     excludeFolders: ['old', 'boilerplate'],
     sortMenusByFrontmatterDate: true,
     sortMenusOrderByDescending: true,
-    folderSort: (a: string, b: string) => {
-        console.log(`Sorting folders: ${a} vs ${b}`)
-        const yearA = parseInt(a)
-        const yearB = parseInt(b)
-        return yearB - yearA
-    },
     convertSameNameSubFileToGroupIndexPage: true,
     manualSortFileNameByPriority: [],
 }
@@ -52,12 +46,6 @@ const experimentsSidebarOptions = {
     excludeFolders: ['old', 'boilerplate'],
     sortMenusByFrontmatterDate: true,
     sortMenusOrderByDescending: true,
-    folderSort: (a: string, b: string) => {
-        console.log(`Sorting folders: ${a} vs ${b}`)
-        const yearA = parseInt(a)
-        const yearB = parseInt(b)
-        return yearB - yearA
-    },
     convertSameNameSubFileToGroupIndexPage: true,
     manualSortFileNameByPriority: [],
 }
@@ -71,12 +59,6 @@ const awesomeSidebarOptions = {
     excludeFolders: ['old', 'boilerplate'],
     sortMenusByFrontmatterDate: true,
     sortMenusOrderByDescending: true,
-    folderSort: (a: string, b: string) => {
-        console.log(`Sorting folders: ${a} vs ${b}`)
-        const yearA = parseInt(a)
-        const yearB = parseInt(b)
-        return yearB - yearA
-    },
     convertSameNameSubFileToGroupIndexPage: true,
     manualSortFileNameByPriority: [],
 }
