@@ -20,9 +20,10 @@ You should try creating a file called `.npmrc` in your project root with this co
 
 ```
 node-linker=isolated
+shamefully-hoist=true
 ```
 
-If you're a pnpm master you're probably thinking... isn't isolated the default? I think it's supposed to be, but I think the Vercel build process may change it to something else.
+If you're a pnpm master you're probably thinking... isn't isolated the default? I think it's supposed to be, but I think the Vercel build process may change it to something else. The shamefully hoist option is something that I've seen recommended specifically for Vercel in other places.
 
 ## Issue #2: `TypeError: tT is not a constructor` or similar
 
