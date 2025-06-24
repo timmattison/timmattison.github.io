@@ -39,6 +39,13 @@ image = "ghcr.io/cross-rs/x86_64-unknown-linux-musl:edge"
 
 This is specific to compiling for x86_64 with musl so you might need to modify these values for other environments and definitely for other architectures.
 
+For my old Raspberry Pi 2 (32-bit) I use this because compiling Rust programs on it is just not really feasible:
+
+```
+[target.armv7-unknown-linux-gnueabihf]
+image = "ghcr.io/cross-rs/armv7-unknown-linux-gnueabihf:edge"
+```
+
 ## Issue #4: You're not compiling with cross
 
 Compile like this:
