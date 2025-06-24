@@ -54,6 +54,12 @@ Compile like this:
 cross build --target x86_64-unknown-linux-musl --release
 ```
 
+Or for the Pi example like this:
+
+```bash
+cross build --target armv7-unknown-linux-gnueabihf --release
+```
+
 Again, your architecture and musl/gnu setup may vary but this is the way to do it. I just make a script called cross-build.sh with this in it so I never have to think about it.
 
 ## Conclusion
