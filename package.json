@@ -13,8 +13,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/three": "^0.173.0",
-    "prettier": "3.4.2",
+    "@types/three": "^0.177.0",
+    "prettier": "3.6.0",
     "vitepress": "^1.6.3",
     "vitepress-sidebar": "^1.31.1"
   },
@@ -23,7 +23,7 @@
     "@tresjs/cientos": "^4.3.1",
     "@tresjs/core": "^4.3.6",
     "element-plus": "^2.10.2",
-    "three": "^0.173.0",
+    "three": "^0.177.0",
     "vue": "^3.5.17"
   }
 }
