@@ -1,10 +1,10 @@
 ---
-title: "Privacy Policy"
+title: "DVD Magic Privacy Policy"
 date: 2025-08-07
 draft: false
 ---
 
-# Privacy Policy
+# DVD Magic Privacy Policy
 
 **Effective Date: August 7, 2025**
 
